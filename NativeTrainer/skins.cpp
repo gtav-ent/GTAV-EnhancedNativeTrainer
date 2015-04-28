@@ -1,3 +1,12 @@
+/*
+Some of this code began its life as a part of GTA V SCRIPT HOOK SDK.
+http://dev-c.com
+(C) Alexander Blade 2015
+
+It is now part of the Enhanced Native Trainer project.
+https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
+(C) Rob Pridham and fellow contributors 2015
+*/
 
 #include "skins.h"
 #include "menu_functions.h"
@@ -235,7 +244,7 @@ bool process_skinchanger_texture_menu(std::string caption)
 	std::ostringstream ss;
 	ss << caption << " Textures";
 
-	return drawGenericMenu<int>(menuCaptions, menuValues, skinTextureMenuIndex, ss.str(), onconfirm_skinchanger_texture_menu, onhighlight_skinchanger_texture_menu, onexit_skinchanger_texture_menu);
+	return draw_generic_menu<int>(menuCaptions, menuValues, skinTextureMenuIndex, ss.str(), onconfirm_skinchanger_texture_menu, onhighlight_skinchanger_texture_menu, onexit_skinchanger_texture_menu);
 }
 
 /*
@@ -347,7 +356,7 @@ bool process_skinchanger_drawable_menu(std::string caption)
 	std::ostringstream ss;
 	ss << caption << " Drawables";
 
-	return drawGenericMenu<int>(menuCaptions, menuValues, skinDrawableMenuIndex, ss.str(), onconfirm_skinchanger_drawable_menu, onhighlight_skinchanger_drawable_menu, onexit_skinchanger_drawable_menu);
+	return draw_generic_menu<int>(menuCaptions, menuValues, skinDrawableMenuIndex, ss.str(), onconfirm_skinchanger_drawable_menu, onhighlight_skinchanger_drawable_menu, onexit_skinchanger_drawable_menu);
 }
 
 /*
@@ -413,7 +422,7 @@ bool process_skinchanger_detail_menu()
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 	}
 
-	return drawGenericMenu<int>(menuCaptions, menuValues, skinDetailMenuIndex, "Skin Details", onconfirm_skinchanger_detail_menu, onhighlight_skinchanger_detail_menu, NULL);
+	return draw_generic_menu<int>(menuCaptions, menuValues, skinDetailMenuIndex, "Skin Details", onconfirm_skinchanger_detail_menu, onhighlight_skinchanger_detail_menu, NULL);
 }
 
 /*
@@ -431,7 +440,7 @@ bool onconfirm_skinchanger_choices_players(int selection, std::string caption, s
 
 bool process_skinchanger_choices_players()
 {
-	return drawGenericMenu<std::string>(SKINS_PLAYER_CAPTIONS, SKINS_PLAYER_VALUES, skinTypesMenuPositionMemory[0], "Player Skins", onconfirm_skinchanger_choices_players, NULL, NULL);
+	return draw_generic_menu<std::string>(SKINS_PLAYER_CAPTIONS, SKINS_PLAYER_VALUES, skinTypesMenuPositionMemory[0], "Player Skins", onconfirm_skinchanger_choices_players, NULL, NULL);
 }
 
 /*
@@ -449,7 +458,7 @@ bool onconfirm_skinchanger_choices_animals(int selection, std::string caption, s
 
 bool process_skinchanger_choices_animals()
 {
-	return drawGenericMenu<std::string>(SKINS_ANIMAL_CAPTIONS, SKINS_ANIMAL_VALUES, skinTypesMenuPositionMemory[1], "Animal Skins", onconfirm_skinchanger_choices_animals, NULL, NULL);
+	return draw_generic_menu<std::string>(SKINS_ANIMAL_CAPTIONS, SKINS_ANIMAL_VALUES, skinTypesMenuPositionMemory[1], "Animal Skins", onconfirm_skinchanger_choices_animals, NULL, NULL);
 }
 
 /*
@@ -467,7 +476,7 @@ bool onconfirm_skinchanger_choices_misc(int selection, std::string caption, std:
 
 bool process_skinchanger_choices_misc()
 {
-	return drawGenericMenu<std::string>(SKINS_GENERAL_CAPTIONS, SKINS_GENERAL_VALUES, skinTypesMenuPositionMemory[2], "General Skins", onconfirm_skinchanger_choices_misc, NULL, NULL);
+	return draw_generic_menu<std::string>(SKINS_GENERAL_CAPTIONS, SKINS_GENERAL_VALUES, skinTypesMenuPositionMemory[2], "General Skins", onconfirm_skinchanger_choices_misc, NULL, NULL);
 }
 
 /*
@@ -511,5 +520,5 @@ bool process_skinchanger_menu()
 		menuIDs.push_back(i);
 	}
 
-	return drawGenericMenu<int>(MENU_SKINS_TYPES_CAPTIONS, menuIDs, skinMainMenuPosition, "Player Skin Options", onconfirm_skinchanger_menu, NULL, NULL);
+	return draw_generic_menu<int>(MENU_SKINS_TYPES_CAPTIONS, menuIDs, skinMainMenuPosition, "Player Skin Options", onconfirm_skinchanger_menu, NULL, NULL);
 }

@@ -1,3 +1,13 @@
+/*
+Some of this code began its life as a part of GTA V SCRIPT HOOK SDK.
+http://dev-c.com
+(C) Alexander Blade 2015
+
+It is now part of the Enhanced Native Trainer project.
+https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
+(C) Rob Pridham and fellow contributors 2015
+*/
+
 #pragma once
 
 #include "inc\natives.h"
@@ -18,19 +28,47 @@
 
 extern void(*periodic_feature_call)(void);
 
-void make_periodic_feature_call();
-
+/**Set the method that is used to periodically update the entire UI and apply repeat settings. The script core does this once.*/
 void set_periodic_feature_call(void method(void));
+
+/**Make the periodic feature call. For example it updates the status text etc. - look at existing menus to see where this is done.*/
+void make_periodic_feature_call();
 
 void draw_menu_line(std::string caption, float lineWidth, float lineHeight, float lineTop, float lineLeft, float textLeft, bool active, bool title, bool rescaleText = true);
 
+/**Draw a solid rectangle.
+* I think parameters are:
+* - A_0: X
+* - A_1: Y
+* - A_2: W
+* - A_3: H
+* - A_4 - 7: R,G,B,A
+* but you'll have to look at uses to be sure, and to understand scaling.
+*/
 void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int A_6, int A_7);
 
 std::string line_as_str(std::string text, bool *pState);
 
-/**This is in the header because of the use of templates. There's probably a better way.*/
+/**This is in the header rather than the CPP because of the use of templates. There's probably a better way.
+*
+* This draws a generic menu that supports key navigation and pagination. It's here so you don't have to replicate it in every usage,
+* and so we can change the UI in one place. Obviously please think about all of the uses of it before you change it.
+*
+* Parameters are:
+
+* - captions: a list of all the items' captions, which will be shown in the UI
+* - values: a list of all the items' values. The selected one gets sent to the event methods. It should match the size and order of the captions, i.e. captions[4] should be for values[4] etc
+* - currentSelectionIndex: where in the sets to navigate to
+* - headerText: the caption at the top of the menu. This may have a page number added to it by this method.
+
+* The remaining parameters are your event callbacks:
+
+* - onConfirmation: a method that is sent the chosen entry when a choice is made. This should return true if the menu should close now, else false.
+* - onHighlight: an optional method that is sent the highlighted entry when menu navigation occurs. Supply NULL if you don't care.
+* - onExit: an optional method that allows you to insert behaviour on closing a menu, i.e. pressing back, in case you want to save positions etc. Supply NULL if you don't care.
+*/
 template<typename T>
-bool drawGenericMenu(std::vector<std::string> captions, std::vector<T> values, int currentSelectionIndex, std::string headerText,
+bool draw_generic_menu(std::vector<std::string> captions, std::vector<T> values, int currentSelectionIndex, std::string headerText,
 	bool(*onConfirmation)(int selectedIndex, std::string caption, T value),
 	void(*onHighlight)(int selectedIndex, std::string caption, T value),
 	void(*onExit)(bool returnValue))
@@ -104,7 +142,10 @@ bool drawGenericMenu(std::vector<std::string> captions, std::vector<T> values, i
 		if (bSelect)
 		{
 			menu_beep();
-			result = onConfirmation(currentSelectionIndex, captions[currentSelectionIndex], values[currentSelectionIndex]);
+			if (onConfirmation != NULL)
+			{
+				result = onConfirmation(currentSelectionIndex, captions[currentSelectionIndex], values[currentSelectionIndex]);
+			}
 			waitTime = 200;
 			if (result)
 			{

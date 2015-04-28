@@ -1,3 +1,13 @@
+/*
+Some of this code began its life as a part of GTA V SCRIPT HOOK SDK.
+http://dev-c.com
+(C) Alexander Blade 2015
+
+It is now part of the Enhanced Native Trainer project.
+https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
+(C) Rob Pridham and fellow contributors 2015
+*/
+
 #include "vehicles.h"
 #include "menu_functions.h"
 
@@ -18,7 +28,7 @@ const std::vector<std::string> MENU_CAR_CATEGORIES{ "Supercars", "Sports", "Spor
 
 const std::vector<std::string> CAPTIONS_SUPERCARS{ "Coil Voltic", "Grotti Cheetah", "Grotti Turismo R", "Overflod Entity XF", "Pegassi Infernus", "Pegassi Vacca", "Pegassi Zentorno", "Truffade Adder", "Vapid Bullet" };
 
-const std::vector<std::string> CAPTIONS_SPORTS{ "Albany Alpha", "Annis Elegy RH8", "Benefactor Feltzer", "Benefactor Schwartzer", "Benefactor Surano", "Bravado Banshee", "Bravado Buffalo", "Bravado Buffalo S", "Bravado Buffalo S (Race)", "Dewbauchee Massacro", "Dewbauchee Massacro (Race)", "Dewbauchee Rapid GT", "Dewbauchee Rapid GT Cabrio", "Dinka Blista Compact (Go Go Monkey Race)", "Dinka Blista Compact", "Dinka Jester", "Dinka Jester (Race)", "Grotti Carbonizzare", "Hijak Khamelion", "Invetero Coquette", "Karin Futo", "Karin Kuruma", "Karin Kuruma (Armoured)", "Karin Sultan", "Lampadati Furore GT", "Maibatsu Penumbra", "Obey 9F", "Obey 9F Cabrio", "Phister Comet", "Schyster Fusilade" };
+const std::vector<std::string> CAPTIONS_SPORTS{ "Albany Alpha", "Annis Elegy RH8", "Benefactor Feltzer", "Benefactor Schwartzer", "Benefactor Surano", "Bravado Banshee", "Bravado Buffalo", "Bravado Buffalo S", "Bravado Buffalo S (Race)", "Dewbauchee Massacro", "Dewbauchee Massacro (Race)", "Dewbauchee Rapid GT", "Dewbauchee Rapid GT Cabrio", "Dinka Blista Compact", "Dinka Blista Compact (Go Go Monkey Race)", "Dinka Jester", "Dinka Jester (Race)", "Grotti Carbonizzare", "Hijak Khamelion", "Invetero Coquette", "Karin Futo", "Karin Kuruma", "Karin Kuruma (Armoured)", "Karin Sultan", "Lampadati Furore GT", "Maibatsu Penumbra", "Obey 9F", "Obey 9F Cabrio", "Phister Comet", "Schyster Fusilade" };
 
 const std::vector<std::string> CAPTIONS_SPORTCLASSICS{ "Albany Manana", "Albany Roosevelt", "Declasse Tornado", "Declasse Tornado (Rusty)", "Declasse Tornado Cabrio", "Declasse Tornado Cabrio (Rusty)", "Dewbauchee JB 700", "Grotti Stinger", "Grotti Stinger GT", "Invetero Coquette Classic", "Lampadati Casco", "Lampadati Pigalle", "Pegassi Monroe", "Truffade Z-Type", "Vapid Peyote" };
 
@@ -36,7 +46,7 @@ const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan 
 
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "VACCA", "ZENTORNO", "ADDER", "BULLET" };
 
-const std::vector<std::string> VALUES_SPORTS{ "ALPHA", "ELEGY2", "FELTZER2", "SCHWARZER", "SURANO", "BANSHEE", "BUFFALO", "BUFFALO2", "BUFFALO3", "MASSACRO", "MASSACRO2", "RAPIDGT", "RAPIDGT2", "BLISTA3", "BLISTA2", "JESTER", "JESTER2", "CARBONIZZARE", "KHAMELION", "COQUETTE", "FUTO", "KURUMA", "KURUMA2", "SULTAN", "FUROREGT", "PENUMBRA", "NINEF", "NINEF2", "COMET2", "FUSILADE" };
+const std::vector<std::string> VALUES_SPORTS{ "ALPHA", "ELEGY2", "FELTZER2", "SCHWARZER", "SURANO", "BANSHEE", "BUFFALO", "BUFFALO2", "BUFFALO3", "MASSACRO", "MASSACRO2", "RAPIDGT", "RAPIDGT2", "BLISTA2", "BLISTA3", "JESTER", "JESTER2", "CARBONIZZARE", "KHAMELION", "COQUETTE", "FUTO", "KURUMA", "KURUMA2", "SULTAN", "FUROREGT", "PENUMBRA", "NINEF", "NINEF2", "COMET2", "FUSILADE" };
 
 const std::vector<std::string> VALUES_SPORTCLASSICS{ "MANANA", "BTYPE", "TORNADO", "TORNADO3", "TORNADO2", "TORNADO4", "JB700", "STINGER", "STINGERGT", "COQUETTE2", "CASCO", "PIGALLE", "MONROE", "ZTYPE", "PEYOTE" };
 
@@ -325,7 +335,7 @@ bool process_carspawn_menu()
 		menuIDs.push_back(i);
 	}
 
-	return drawGenericMenu<int>(MENU_VEHICLE_CATEGORIES, menuIDs, 0, "Vehicle Categories", onconfirm_carspawn_menu, NULL, NULL);
+	return draw_generic_menu<int>(MENU_VEHICLE_CATEGORIES, menuIDs, 0, "Vehicle Categories", onconfirm_carspawn_menu, NULL, NULL);
 }
 
 bool onconfirm_spawn_menu_cars(int selection, std::string caption, int value)
@@ -335,7 +345,7 @@ bool onconfirm_spawn_menu_cars(int selection, std::string caption, int value)
 	std::vector<std::string> vov_captions = VOV_CAR_CAPTIONS[selection];
 	std::vector<std::string> vov_values = VOV_CAR_VALUES[selection];
 
-	return drawGenericMenu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	return draw_generic_menu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
 }
 
 bool process_spawn_menu_cars()
@@ -346,7 +356,7 @@ bool process_spawn_menu_cars()
 		menuIDs.push_back(i);
 	}
 
-	return drawGenericMenu<int>(MENU_CAR_CATEGORIES, menuIDs, 0, "Car Categories", onconfirm_spawn_menu_cars, NULL, NULL);
+	return draw_generic_menu<int>(MENU_CAR_CATEGORIES, menuIDs, 0, "Car Categories", onconfirm_spawn_menu_cars, NULL, NULL);
 }
 
 bool onconfirm_spawn_menu_indus(int selection, std::string caption, int value)
@@ -356,7 +366,7 @@ bool onconfirm_spawn_menu_indus(int selection, std::string caption, int value)
 	std::vector<std::string> vov_captions = VOV_INDUS_CAPTIONS[selection];
 	std::vector<std::string> vov_values = VOV_INDUS_VALUES[selection];
 
-	return drawGenericMenu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	return draw_generic_menu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
 }
 
 bool process_spawn_menu_indus()
@@ -367,7 +377,7 @@ bool process_spawn_menu_indus()
 		menuIDs.push_back(i);
 	}
 
-	return drawGenericMenu<int>(MENU_INDUS_CATEGORIES, menuIDs, 0, "Industrial Categories", onconfirm_spawn_menu_indus, NULL, NULL);
+	return draw_generic_menu<int>(MENU_INDUS_CATEGORIES, menuIDs, 0, "Industrial Categories", onconfirm_spawn_menu_indus, NULL, NULL);
 }
 
 bool onconfirm_spawn_menu_vehicle_selection(int selection, std::string caption, std::string value)
@@ -383,7 +393,7 @@ bool process_spawn_menu_generic(int topMenuSelection)
 	std::vector<std::string> vov_captions = VOV_SHALLOW_CAPTIONS[topMenuSelection - 2];
 	std::vector<std::string> vov_values = VOV_SHALLOW_VALUES[topMenuSelection - 2];
 
-	return drawGenericMenu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	return draw_generic_menu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
 }
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
