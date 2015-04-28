@@ -21,6 +21,11 @@ struct tele_location {
 	bool isLoaded;
 };
 
+bool operator==(const tele_location& lhs, const tele_location& rhs)
+{
+	return (lhs.text == rhs.text && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z);
+}
+
 std::vector<tele_location> LOCATIONS = {
 	{ "MARKER" },
 	{ "MICHAEL'S HOUSE", -852.4f, 160.0f, 65.6f },
@@ -155,11 +160,11 @@ bool onconfirm_teleport_location(int selection, std::string caption, tele_locati
 		for (int i = 0; i < LOCATIONS.size(); i++)
 		{
 			tele_location loc = LOCATIONS[i];
-			if (i == selection) //don't unload what we just loaded!
+			if (loc == value) //don't unload what we just loaded!
 			{
 				continue;
 			}
-			if (value.isLoaded && value.scenery_unloader != NULL)
+			if (loc.isLoaded && loc.scenery_unloader != NULL)
 			{
 				if (!unloadedAnything)
 				{
@@ -172,8 +177,9 @@ bool onconfirm_teleport_location(int selection, std::string caption, tele_locati
 					}
 				}
 
-				value.scenery_unloader();
+				loc.scenery_unloader();
 				unloadedAnything = true;
+				loc.isLoaded = false;
 			}
 		}
 
@@ -212,7 +218,7 @@ void reset_teleporter_globals()
 
 void load_north_yankton()
 {
-	if ((ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID())) && (STREAMING::IS_IPL_ACTIVE("plg_01") == 0))
+	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 0)
 	{
 		STREAMING::REQUEST_IPL("plg_01");
 		STREAMING::REQUEST_IPL("prologue01");
@@ -288,7 +294,7 @@ void load_north_yankton()
 
 void unload_north_yankton()
 {
-	if ((ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID())) && (STREAMING::IS_IPL_ACTIVE("plg_01") == 1))
+	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 1)
 	{
 		STREAMING::REMOVE_IPL("plg_01");
 		STREAMING::REMOVE_IPL("prologue01");
