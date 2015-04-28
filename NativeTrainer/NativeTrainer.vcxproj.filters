@@ -18,4 +18,7 @@
     <ClInclude Include="inc\nativeCaller.h" />
     <ClInclude Include="inc\types.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\ScriptHookV.lib" />
+  </ItemGroup>
 </Project>
