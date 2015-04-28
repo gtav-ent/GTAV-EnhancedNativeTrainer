@@ -11,12 +11,12 @@
   <ItemGroup>
     <ClInclude Include="script.h" />
     <ClInclude Include="skins.h" />
-    <ClInclude Include="menu_functions.h" />
     <ClInclude Include="io.h" />
     <ClInclude Include="vehicles.h" />
     <ClInclude Include="inc\main.h" />
     <ClInclude Include="inc\nativeCaller.h" />
     <ClInclude Include="inc\types.h" />
+    <ClInclude Include="menu_functions.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\ScriptHookV.lib" />
