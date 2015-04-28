@@ -441,15 +441,17 @@ LPCSTR pedModelNames[69][10] = {
 
 int teleportActiveLineIndex = 0;
 
+bool is_nyankton_loaded = false;
+
 bool process_teleport_menu()
 {
 	const float lineWidth = 250.0;
-	const int lineCount	= 17;
+	const int lineCount	= 18;
 
 	std::string caption = "TELEPORT";
 
 	static struct {
-		LPCSTR  text;
+		std::string text;
 		float x;
 		float y;
 		float z;
@@ -470,7 +472,8 @@ bool process_teleport_menu()
 			{ "MILITARY BASE", -2047.4f, 3132.1f, 32.8f },
 			{ "MCKENZIE AIRFIELD", 2121.7f, 4796.3f, 41.1f },
 			{ "DESERT AIRFIELD", 1747.0f, 3273.7f, 41.1f },
-			{ "CHILLIAD", 425.4f, 5614.3f, 766.5f }
+			{ "CHILLIAD", 425.4f, 5614.3f, 766.5f },
+			{ "NORTH YANKTON", 3360.19f, -4849.67f, 111.8f }
 	};
 
 	DWORD waitTime = 150;
@@ -554,6 +557,27 @@ bool process_teleport_menu()
 
 			} else // predefined coords
 			{
+				if (!is_nyankton_loaded && lines[teleportActiveLineIndex].text == "NORTH YANKTON")
+				{
+					set_status_text("Loading North Yankton...");
+					load_north_yankton();
+					DWORD time = GetTickCount() + 1000;
+					while (GetTickCount() < time)
+					{
+						update_features();
+						WAIT(0);
+					}
+
+					set_status_text("North Yankton Loaded");
+
+					time = GetTickCount() + 1000;
+					while (GetTickCount() < time)
+					{
+						update_features();
+						WAIT(0);
+					}
+				}
+
 				coords.x = lines[teleportActiveLineIndex].x;
 				coords.y = lines[teleportActiveLineIndex].y;
 				coords.z = lines[teleportActiveLineIndex].z;
@@ -565,7 +589,7 @@ bool process_teleport_menu()
 			{
 				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(e, coords.x, coords.y, coords.z, 0, 0, 1);
 				WAIT(0);
-				set_status_text("teleported");
+				set_status_text("Teleported");
 				return true;
 			}
 			
@@ -1458,4 +1482,82 @@ void ScriptMain()
 {
 	srand(GetTickCount());
 	main();
+}
+
+void load_north_yankton()
+{
+	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()))
+	{
+		STREAMING::REQUEST_IPL("plg_01");
+	}
+	STREAMING::REQUEST_IPL("prologue01");
+	STREAMING::REQUEST_IPL("prologue01_lod");
+	STREAMING::REQUEST_IPL("prologue01c");
+	STREAMING::REQUEST_IPL("prologue01c_lod");
+	STREAMING::REQUEST_IPL("prologue01d");
+	STREAMING::REQUEST_IPL("prologue01d_lod");
+	STREAMING::REQUEST_IPL("prologue01e");
+	STREAMING::REQUEST_IPL("prologue01e_lod");
+	STREAMING::REQUEST_IPL("prologue01f");
+	STREAMING::REQUEST_IPL("prologue01f_lod");
+	STREAMING::REQUEST_IPL("prologue01g");
+	STREAMING::REQUEST_IPL("prologue01h");
+	STREAMING::REQUEST_IPL("prologue01h_lod");
+	STREAMING::REQUEST_IPL("prologue01i");
+	STREAMING::REQUEST_IPL("prologue01i_lod");
+	STREAMING::REQUEST_IPL("prologue01j");
+	STREAMING::REQUEST_IPL("prologue01j_lod");
+	STREAMING::REQUEST_IPL("prologue01k");
+	STREAMING::REQUEST_IPL("prologue01k_lod");
+	STREAMING::REQUEST_IPL("prologue01z");
+	STREAMING::REQUEST_IPL("prologue01z_lod");
+	STREAMING::REQUEST_IPL("plg_02");
+	STREAMING::REQUEST_IPL("prologue02");
+	STREAMING::REQUEST_IPL("prologue02_lod");
+	STREAMING::REQUEST_IPL("plg_03");
+	STREAMING::REQUEST_IPL("prologue03");
+	STREAMING::REQUEST_IPL("prologue03_lod");
+	STREAMING::REQUEST_IPL("prologue03b");
+	STREAMING::REQUEST_IPL("prologue03b_lod");
+	//the commented code disables the 'Prologue' grave and
+	//enables the 'Bury the Hatchet' grave
+	//STREAMING::REQUEST_IPL("prologue03_grv_cov");
+	//STREAMING::REQUEST_IPL("prologue03_grv_cov_lod");
+	STREAMING::REQUEST_IPL("prologue03_grv_dug");
+	STREAMING::REQUEST_IPL("prologue03_grv_dug_lod");
+	//STREAMING::REQUEST_IPL("prologue03_grv_fun");
+	STREAMING::REQUEST_IPL("prologue_grv_torch");
+	STREAMING::REQUEST_IPL("plg_04");
+	STREAMING::REQUEST_IPL("prologue04");
+	STREAMING::REQUEST_IPL("prologue04_lod");
+	STREAMING::REQUEST_IPL("prologue04b");
+	STREAMING::REQUEST_IPL("prologue04b_lod");
+	STREAMING::REQUEST_IPL("prologue04_cover");
+	STREAMING::REQUEST_IPL("des_protree_end");
+	STREAMING::REQUEST_IPL("des_protree_start");
+	STREAMING::REQUEST_IPL("des_protree_start_lod");
+	STREAMING::REQUEST_IPL("plg_05");
+	STREAMING::REQUEST_IPL("prologue05");
+	STREAMING::REQUEST_IPL("prologue05_lod");
+	STREAMING::REQUEST_IPL("prologue05b");
+	STREAMING::REQUEST_IPL("prologue05b_lod");
+	STREAMING::REQUEST_IPL("plg_06");
+	STREAMING::REQUEST_IPL("prologue06");
+	STREAMING::REQUEST_IPL("prologue06_lod");
+	STREAMING::REQUEST_IPL("prologue06b");
+	STREAMING::REQUEST_IPL("prologue06b_lod");
+	STREAMING::REQUEST_IPL("prologue06_int");
+	STREAMING::REQUEST_IPL("prologue06_int_lod");
+	STREAMING::REQUEST_IPL("prologue06_pannel");
+	STREAMING::REQUEST_IPL("prologue06_pannel_lod");
+	STREAMING::REQUEST_IPL("prologue_m2_door");
+	STREAMING::REQUEST_IPL("prologue_m2_door_lod");
+	STREAMING::REQUEST_IPL("plg_occl_00");
+	STREAMING::REQUEST_IPL("prologue_occl");
+	STREAMING::REQUEST_IPL("plg_rd");
+	STREAMING::REQUEST_IPL("prologuerd");
+	STREAMING::REQUEST_IPL("prologuerdb");
+	STREAMING::REQUEST_IPL("prologuerd_lod");
+
+	is_nyankton_loaded = true;
 }

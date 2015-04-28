@@ -19,3 +19,5 @@ bool process_skinchanger_menu();
 bool process_skinchanger_detail_menu();
 
 void update_features();
+
+void load_north_yankton();

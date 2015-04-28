@@ -68,7 +68,7 @@ bool drawGenericMenu(std::vector<std::string> captions, std::vector<T> values, i
 				ss << " " << (currentLine + 1) << " / " << lineCount;
 			}
 
-			draw_menu_line(ss.str(), 350.0, 15.0, 18.0, 0.0, 5.0, false, true);
+			draw_menu_line(ss.str(), 350.0, 15.0, 18.0, 0.0, 10.0, false, true);
 			for (int i = 0; i < itemsOnThisLine; i++)
 			{
 				std::string thisItem = captions[lineStartPosition + i];
@@ -105,9 +105,9 @@ bool drawGenericMenu(std::vector<std::string> captions, std::vector<T> values, i
 		{
 			menu_beep();
 			result = onConfirmation(currentSelectionIndex, captions[currentSelectionIndex], values[currentSelectionIndex]);
+			waitTime = 200;
 			if (result)
 			{
-				waitTime = 200;
 				result = false; //to avoid cascading upwards
 				break;
 			}

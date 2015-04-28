@@ -2727,7 +2727,10 @@ namespace STREAMING
 	static void REQUEST_CLIP_SET(Any *p0) { invoke<Void>(0xD2A71E1A77418A49, p0); } // D2A71E1A77418A49 546C627A
 	static BOOL HAS_CLIP_SET_LOADED(Any *p0) { return invoke<BOOL>(0x318234F4F3738AF3, p0); } // 318234F4F3738AF3 230D5455
 	static void REMOVE_CLIP_SET(Any *p0) { invoke<Void>(0x01F73A131C18CD94, p0); } // 01F73A131C18CD94 1E21F7AA
-	static void REQUEST_IPL(Any *p0) { invoke<Void>(0x41B4893843BBDB74, p0); } // 41B4893843BBDB74 3B70D1DB
+
+	//Modification: set REQUEST_IPL to const char as advised on GTAForums by Sjaak
+	static void REQUEST_IPL(const char *p0) { invoke<Void>(0x41B4893843BBDB74, p0); } // 41B4893843BBDB74 3B70D1DB
+
 	static void REMOVE_IPL(Any *p0) { invoke<Void>(0xEE6C5AD3ECE0A82D, p0); } // EE6C5AD3ECE0A82D DF7CBD36
 	static BOOL IS_IPL_ACTIVE(Any *p0) { return invoke<BOOL>(0x88A741E44A2B3495, p0); } // 88A741E44A2B3495 B2C33714
 	static void SET_STREAMING(BOOL p0) { invoke<Void>(0x6E0C692677008888, p0); } // 6E0C692677008888 27EF6CB2
