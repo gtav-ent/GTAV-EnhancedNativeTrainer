@@ -22,6 +22,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "skins.h"
 #include "script.h"
 #include "vehicles.h"
+#include "teleportation.h"
 
 #include <string>
 #include <sstream> 
@@ -443,186 +444,6 @@ LPCSTR pedModelNames[69][10] = {
 	{"GUNVEND", "HIPPIE", "IMPORAGE", "JUSTIN", "MANI", "MILITARYBUM", "PAPARAZZI", "PARTY", "POGO", "PRISONER"}
 };*/
 
-int teleportActiveLineIndex = 0;
-
-bool is_nyankton_loaded = false;
-
-bool process_teleport_menu()
-{
-	const float lineWidth = 250.0;
-	const int lineCount	= 18;
-
-	std::string caption = "TELEPORT";
-
-	static struct {
-		std::string text;
-		float x;
-		float y;
-		float z;
-	} lines[lineCount] = {
-			{ "MARKER" },
-			{ "MICHAEL'S HOUSE", -852.4f, 160.0f, 65.6f },
-			{ "FRANKLIN'S HOUSE", 7.9f, 548.1f, 175.5f },
-			{ "TREVOR'S TRAILER", 1985.7f, 3812.2f, 32.2f },
-			{ "AIRPORT ENTRANCE", -1034.6f, -2733.6f, 13.8f },
-			{ "AIRPORT FIELD", -1336.0f, -3044.0f, 13.9f },
-			{ "ELYSIAN ISLAND", 338.2f, -2715.9f, 38.5f },
-			{ "JETSAM", 760.4f, -2943.2f, 5.8f },
-			{ "STRIPCLUB", 127.4f, -1307.7f, 29.2f },
-			{ "ELBURRO HEIGHTS", 1384.0f, -2057.1f, 52.0f },
-			{ "FERRIS WHEEL", -1670.7f, -1125.0f, 13.0f },
-			{ "CHUMASH", -3192.6f, 1100.0f, 20.2f },
-			{ "WINDFARM", 2354.0f, 1830.3f, 101.1f },
-			{ "MILITARY BASE", -2047.4f, 3132.1f, 32.8f },
-			{ "MCKENZIE AIRFIELD", 2121.7f, 4796.3f, 41.1f },
-			{ "DESERT AIRFIELD", 1747.0f, 3273.7f, 41.1f },
-			{ "CHILLIAD", 425.4f, 5614.3f, 766.5f },
-			{ "NORTH YANKTON", 3360.19f, -4849.67f, 111.8f }
-	};
-
-	DWORD waitTime = 150;
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != teleportActiveLineIndex)
-					draw_menu_line(lines[i].text, lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(lines[teleportActiveLineIndex].text, lineWidth + 1.0, 11.0, 56.0 + teleportActiveLineIndex * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-
-			// get entity to teleport
-			Entity e = PLAYER::PLAYER_PED_ID();
-			if (PED::IS_PED_IN_ANY_VEHICLE(e, 0)) 
-				e = PED::GET_VEHICLE_PED_IS_USING(e);
-
-			// get coords
-			Vector3 coords;
-			bool success = false;
-			if (teleportActiveLineIndex == 0) // marker
-			{			
-				bool blipFound = false;
-				// search for marker blip
-				int blipIterator = UI::_GET_BLIP_INFO_ID_ITERATOR();
-				for (Blip i = UI::GET_FIRST_BLIP_INFO_ID(blipIterator); UI::DOES_BLIP_EXIST(i) != 0; i = UI::GET_NEXT_BLIP_INFO_ID(blipIterator))
-				{
-					if (UI::GET_BLIP_INFO_ID_TYPE(i) == 4) 
-					{
-						coords = UI::GET_BLIP_INFO_ID_COORD(i);
-						blipFound = true;
-						break;
-					}
-				}	
-				if (blipFound)
-				{
-					// load needed map region and check height levels for ground existence
-					bool groundFound = false;
-					static float groundCheckHeight[] = {
-						100.0, 150.0, 50.0, 0.0, 200.0, 250.0, 300.0, 350.0, 400.0, 
-						450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0
-					};					
-					for (int i = 0; i < sizeof(groundCheckHeight) / sizeof(float); i++)
-					{
-						ENTITY::SET_ENTITY_COORDS_NO_OFFSET(e, coords.x, coords.y, groundCheckHeight[i], 0, 0, 1);
-						WAIT(100);
-						if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, groundCheckHeight[i], &coords.z))
-						{
-							groundFound = true;
-							coords.z += 3.0;
-							break;
-						}
-					}
-					// if ground not found then set Z in air and give player a parachute
-					if (!groundFound)
-					{
-						coords.z = 1000.0;
-						WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
-					}
-					success = true;
-				} else
-				{
-					set_status_text("map marker isn't set");
-				}
-
-			} else // predefined coords
-			{
-				if (!is_nyankton_loaded && lines[teleportActiveLineIndex].text == "NORTH YANKTON")
-				{
-					set_status_text("Loading North Yankton...");
-					load_north_yankton();
-					DWORD time = GetTickCount() + 1000;
-					while (GetTickCount() < time)
-					{
-						update_features();
-						WAIT(0);
-					}
-
-					set_status_text("North Yankton Loaded");
-
-					time = GetTickCount() + 1000;
-					while (GetTickCount() < time)
-					{
-						update_features();
-						WAIT(0);
-					}
-				}
-
-				coords.x = lines[teleportActiveLineIndex].x;
-				coords.y = lines[teleportActiveLineIndex].y;
-				coords.z = lines[teleportActiveLineIndex].z;
-				success = true;
-			}
-
-			// set player pos
-			if (success)
-			{
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(e, coords.x, coords.y, coords.z, 0, 0, 1);
-				WAIT(0);
-				set_status_text("Teleported");
-				return true;
-			}
-			
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (teleportActiveLineIndex == 0) 
-				teleportActiveLineIndex = lineCount;
-			teleportActiveLineIndex--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			teleportActiveLineIndex++;
-			if (teleportActiveLineIndex == lineCount) 
-				teleportActiveLineIndex = 0;			
-			waitTime = 150;
-		}
-	}
-	return false;
-}
 
 int activeLineIndexPlayer = 0;
 
@@ -1415,9 +1236,10 @@ void reset_globals()
 
 	reset_vehicle_globals();
 
+	reset_teleporter_globals();
+
 	activeLineIndexMain			=
 	activeLineIndexPlayer		=
-	teleportActiveLineIndex		=
 	activeLineIndexWeapon		=
 	activeLineIndexWorld		=
 	activeLineIndexWeather		=	0;
@@ -1486,82 +1308,4 @@ void ScriptMain()
 {
 	srand(GetTickCount());
 	main();
-}
-
-void load_north_yankton()
-{
-	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()))
-	{
-		STREAMING::REQUEST_IPL("plg_01");
-	}
-	STREAMING::REQUEST_IPL("prologue01");
-	STREAMING::REQUEST_IPL("prologue01_lod");
-	STREAMING::REQUEST_IPL("prologue01c");
-	STREAMING::REQUEST_IPL("prologue01c_lod");
-	STREAMING::REQUEST_IPL("prologue01d");
-	STREAMING::REQUEST_IPL("prologue01d_lod");
-	STREAMING::REQUEST_IPL("prologue01e");
-	STREAMING::REQUEST_IPL("prologue01e_lod");
-	STREAMING::REQUEST_IPL("prologue01f");
-	STREAMING::REQUEST_IPL("prologue01f_lod");
-	STREAMING::REQUEST_IPL("prologue01g");
-	STREAMING::REQUEST_IPL("prologue01h");
-	STREAMING::REQUEST_IPL("prologue01h_lod");
-	STREAMING::REQUEST_IPL("prologue01i");
-	STREAMING::REQUEST_IPL("prologue01i_lod");
-	STREAMING::REQUEST_IPL("prologue01j");
-	STREAMING::REQUEST_IPL("prologue01j_lod");
-	STREAMING::REQUEST_IPL("prologue01k");
-	STREAMING::REQUEST_IPL("prologue01k_lod");
-	STREAMING::REQUEST_IPL("prologue01z");
-	STREAMING::REQUEST_IPL("prologue01z_lod");
-	STREAMING::REQUEST_IPL("plg_02");
-	STREAMING::REQUEST_IPL("prologue02");
-	STREAMING::REQUEST_IPL("prologue02_lod");
-	STREAMING::REQUEST_IPL("plg_03");
-	STREAMING::REQUEST_IPL("prologue03");
-	STREAMING::REQUEST_IPL("prologue03_lod");
-	STREAMING::REQUEST_IPL("prologue03b");
-	STREAMING::REQUEST_IPL("prologue03b_lod");
-	//the commented code disables the 'Prologue' grave and
-	//enables the 'Bury the Hatchet' grave
-	//STREAMING::REQUEST_IPL("prologue03_grv_cov");
-	//STREAMING::REQUEST_IPL("prologue03_grv_cov_lod");
-	STREAMING::REQUEST_IPL("prologue03_grv_dug");
-	STREAMING::REQUEST_IPL("prologue03_grv_dug_lod");
-	//STREAMING::REQUEST_IPL("prologue03_grv_fun");
-	STREAMING::REQUEST_IPL("prologue_grv_torch");
-	STREAMING::REQUEST_IPL("plg_04");
-	STREAMING::REQUEST_IPL("prologue04");
-	STREAMING::REQUEST_IPL("prologue04_lod");
-	STREAMING::REQUEST_IPL("prologue04b");
-	STREAMING::REQUEST_IPL("prologue04b_lod");
-	STREAMING::REQUEST_IPL("prologue04_cover");
-	STREAMING::REQUEST_IPL("des_protree_end");
-	STREAMING::REQUEST_IPL("des_protree_start");
-	STREAMING::REQUEST_IPL("des_protree_start_lod");
-	STREAMING::REQUEST_IPL("plg_05");
-	STREAMING::REQUEST_IPL("prologue05");
-	STREAMING::REQUEST_IPL("prologue05_lod");
-	STREAMING::REQUEST_IPL("prologue05b");
-	STREAMING::REQUEST_IPL("prologue05b_lod");
-	STREAMING::REQUEST_IPL("plg_06");
-	STREAMING::REQUEST_IPL("prologue06");
-	STREAMING::REQUEST_IPL("prologue06_lod");
-	STREAMING::REQUEST_IPL("prologue06b");
-	STREAMING::REQUEST_IPL("prologue06b_lod");
-	STREAMING::REQUEST_IPL("prologue06_int");
-	STREAMING::REQUEST_IPL("prologue06_int_lod");
-	STREAMING::REQUEST_IPL("prologue06_pannel");
-	STREAMING::REQUEST_IPL("prologue06_pannel_lod");
-	STREAMING::REQUEST_IPL("prologue_m2_door");
-	STREAMING::REQUEST_IPL("prologue_m2_door_lod");
-	STREAMING::REQUEST_IPL("plg_occl_00");
-	STREAMING::REQUEST_IPL("prologue_occl");
-	STREAMING::REQUEST_IPL("plg_rd");
-	STREAMING::REQUEST_IPL("prologuerd");
-	STREAMING::REQUEST_IPL("prologuerdb");
-	STREAMING::REQUEST_IPL("prologuerd_lod");
-
-	is_nyankton_loaded = true;
 }

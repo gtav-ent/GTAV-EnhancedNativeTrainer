@@ -16,6 +16,7 @@
     <ClCompile Include="menu_functions.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="skins.cpp" />
+    <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="vehicles.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +27,7 @@
     <ClInclude Include="menu_functions.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="skins.h" />
+    <ClInclude Include="teleportation.h" />
     <ClInclude Include="vehicles.h" />
   </ItemGroup>
   <ItemGroup>

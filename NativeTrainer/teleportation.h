@@ -16,10 +16,12 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
-void ScriptMain();
+#include <string>
 
-bool process_skinchanger_menu();
+void load_north_yankton();
 
-bool process_skinchanger_detail_menu();
+void unload_north_yankton();
 
-void update_features();
+bool process_teleport_menu();
+
+void reset_teleporter_globals();
