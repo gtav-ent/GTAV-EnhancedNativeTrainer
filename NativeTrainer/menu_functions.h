@@ -168,8 +168,10 @@ bool draw_generic_menu(std::vector<std::string> captions, std::vector<T> values,
 				{
 					menu_beep();
 					currentSelectionIndex++;
-					if (currentSelectionIndex >= totalItems)
+					if (currentSelectionIndex >= totalItems || (currentSelectionIndex >= lineStartPosition + itemsOnThisLine))
+					{
 						currentSelectionIndex = lineStartPosition;
+					}
 					waitTime = 100;
 				}
 				else
@@ -177,8 +179,10 @@ bool draw_generic_menu(std::vector<std::string> captions, std::vector<T> values,
 					{
 						menu_beep();
 						currentSelectionIndex--;
-						if (currentSelectionIndex < 0)
+						if (currentSelectionIndex < 0 || (currentSelectionIndex < lineStartPosition))
+						{
 							currentSelectionIndex = lineStartPosition + itemsOnThisLine - 1;
+						}
 						waitTime = 100;
 					}
 					else
