@@ -20,7 +20,7 @@ int activeLineIndexVeh = 0;
 
 //Top Level
 
-const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "Emergency/Military", "Motorcycles", "Planes", "Helicopters", "Boats", "Bicycles", "Untested" };
+const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "Emergency/Military", "Motorcycles", "Planes", "Helicopters", "Boats", "Bicycles" };
 
 //Cars
 
