@@ -19,6 +19,25 @@ bool featureVehicleDoorInstant = false;
 
 int activeLineIndexVeh = 0;
 
+//Door Options list + struct
+struct struct_door_options {
+	std::string text;
+	bool *pState;
+};
+
+std::vector<struct_door_options> DOOR_OPTIONS = {
+	{ "OPEN INSTANTLY", &featureVehicleDoorInstant },
+	{ "FRONT RIGHT", NULL }, //INDEX 0
+	{ "FRONT LEFT", NULL }, //INDEX 1
+	{ "BACK RIGHT", NULL }, //INDEX 2
+	{ "BACK LEFT", NULL }, //INDEX 3 (This opens the ramp on the An-225|CARGOPLANE)
+	{ "HOOD", NULL }, //INDEX 4
+	{ "TRUNK", NULL }, //INDEX 5 (Opens ramp on C-130|TITAN)
+	{ "TRUNK 2", NULL } //INDEX 6 (What uses this?)
+};
+
+int doorOptionsMenuIndex = 0;
+
 //Top Level
 
 const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "Emergency/Military", "Motorcycles", "Planes", "Helicopters", "Boats", "Bicycles" };
@@ -129,106 +148,43 @@ const std::vector<std::string> VOV_SHALLOW_CAPTIONS[] = { CAPTIONS_EMERGENCY, CA
 
 const std::vector<std::string> VOV_SHALLOW_VALUES[] = { VALUES_EMERGENCY, VALUES_MOTORCYCLES, VALUES_PLANES, VALUES_HELOS, VALUES_BOATS, VALUES_BICYCLES };
 
-void process_veh_door_menu() {
-	const float lineWidth = 250.0;
-	const int lineCount = 8;
+bool onconfirm_vehdoor_menu(int selection, std::string caption, int value) {
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	std::string caption = "DOOR OPTIONS";
+	if (selection > 0) {
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)) {
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{ "OPEN INSTANTLY", &featureVehicleDoorInstant, NULL },
-		{ "FRONT RIGHT", NULL, NULL }, //INDEX 0
-		{ "FRONT LEFT", NULL, NULL }, //INDEX 1
-		{ "BACK RIGHT", NULL, NULL }, //INDEX 2
-		{ "BACK LEFT", NULL, NULL }, //INDEX 3 (This opens the ramp on the An-225|CARGOPLANE)
-		{ "HOOD", NULL, NULL }, //INDEX 4
-		{ "TRUNK", NULL, NULL }, //INDEX 5 (Opens ramp on C-130|TITAN)
-		{ "TRUNK 2", NULL, NULL } //INDEX 6 (What uses this?)
-	};
-
-	DWORD waitTime = 150;
-	while (true) {
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexVeh)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState),
-					lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexVeh].text, lines[activeLineIndexVeh].pState),
-				lineWidth + 1.0, 11.0, 56.0 + activeLineIndexVeh * 36.0, 0.0, 7.0, true, false);
-
-			make_periodic_feature_call();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-
-			// common variables
-			BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-			Player player = PLAYER::PLAYER_ID();
-			Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-			if (activeLineIndexVeh > 0) {
-				if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)) {
-					Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(player);
-
-					float doorAngle = VEHICLE::GET_VEHICLE_DOOR_ANGLE_RATIO(veh, activeLineIndexVeh - 1); //Best way I could figure out to detect if the part is animated.
-					if (doorAngle < 0.01) {
-						VEHICLE::SET_VEHICLE_DOOR_OPEN(veh, activeLineIndexVeh - 1, false, featureVehicleDoorInstant);
-					}
-					else {
-						VEHICLE::SET_VEHICLE_DOOR_SHUT(veh, activeLineIndexVeh - 1, featureVehicleDoorInstant);
-					}
-				}
+			float doorAngle = VEHICLE::GET_VEHICLE_DOOR_ANGLE_RATIO(veh, selection - 1); //Best way I could figure out to detect if the part is animated.
+			if (doorAngle < 0.01) {
+				VEHICLE::SET_VEHICLE_DOOR_OPEN(veh, selection - 1, false, featureVehicleDoorInstant);
 			}
 			else {
-				if (lines[activeLineIndexVeh].pState)
-					*lines[activeLineIndexVeh].pState = !(*lines[activeLineIndexVeh].pState);
-				if (lines[activeLineIndexVeh].pUpdated)
-					*lines[activeLineIndexVeh].pUpdated = true;
+				VEHICLE::SET_VEHICLE_DOOR_SHUT(veh, selection - 1, featureVehicleDoorInstant);
 			}
-
-			waitTime = 200;
 		}
-		else
-			if (bBack || trainer_switch_pressed())
-			{
-				menu_beep();
-				break;
-			}
-			else
-				if (bUp)
-				{
-					menu_beep();
-					if (activeLineIndexVeh == 0)
-						activeLineIndexVeh = lineCount;
-					activeLineIndexVeh--;
-					waitTime = 150;
-				}
-				else
-					if (bDown)
-					{
-						menu_beep();
-						activeLineIndexVeh++;
-						if (activeLineIndexVeh == lineCount)
-							activeLineIndexVeh = 0;
-						waitTime = 150;
-					}
 	}
+	else {
+		featureVehicleDoorInstant = !featureVehicleDoorInstant;
+		set_status_text((featureVehicleDoorInstant) ? "Open Instantly Enabled" : "Open Instantly Disabled");
+	}
+	return false;
+}
+
+bool process_veh_door_menu() {
+	std::string caption = "DOOR OPTIONS";
+
+	std::vector<std::string> menuCaptions;
+	std::vector<int>menuIndexes;
+
+	for (int i = 0; i < DOOR_OPTIONS.size(); i++) {
+		menuCaptions.push_back(DOOR_OPTIONS[i].text);
+		menuIndexes.push_back(i);
+	}
+
+	return draw_generic_menu<int>(menuCaptions, menuIndexes, doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
 }
 
 void process_veh_menu()
@@ -291,7 +247,7 @@ void process_veh_menu()
 				if (process_carspawn_menu()) return;
 				break;
 			case 1:
-				process_veh_door_menu();
+				if (process_veh_door_menu()) return;
 				break;
 			case 2:
 				if (bPlayerExists)
