@@ -72,6 +72,7 @@ bool featureMiscHideHud					=	false;
 
 bool featureAirbrakeEnabled				=	false;
 bool featureWantedLevelFrozen			=	false;
+int  frozenWantedLevel					=	0;
 
 // player model control, switching on normal ped model when needed	
 
@@ -186,6 +187,14 @@ void update_features()
 	{
 		if (bPlayerExists)
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
+	}
+
+	//Wanted Level Frozen - prevents stars from disappearing
+	if (featureWantedLevelFrozen)
+	{
+		if (bPlayerExists)
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 	}
 
 	// police ignore player
@@ -447,10 +456,102 @@ LPCSTR pedModelNames[69][10] = {
 	{"GUNVEND", "HIPPIE", "IMPORAGE", "JUSTIN", "MANI", "MILITARYBUM", "PAPARAZZI", "PARTY", "POGO", "PRISONER"}
 };*/
 
+int activeLineIndexWantedFreeze = 0;
+
+const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF/Clear" };
+
+bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	activeLineIndexWantedFreeze = selection;
+
+	switch (selection)
+	{
+	case 0:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 1;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 1 Star");
+		}
+		break;
+	case 1:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 2;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 2 Stars");
+		}
+		break;
+	case 2:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 3;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 3 Stars");
+		}
+		break;
+	case 3:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 4;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 4 Stars");
+		}
+		break;
+	case 4:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 5;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 5 Stars");
+		}
+		break;
+	default:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = false;
+			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
+			PLAYER::SET_MAX_WANTED_LEVEL(5);
+			set_status_text("Wanted Level settings returned to default.");
+		}
+		break;
+	}
+	return false;
+}
+
+bool process_wantedlevel_menu()
+{
+	std::vector<std::string> menuCaptions;
+	std::vector<int> menuIndexes;
+
+	for (int i = 0; i < MENU_WANTED_LEVELS.size(); i++)
+	{
+		menuCaptions.push_back(MENU_WANTED_LEVELS[i]);
+		menuIndexes.push_back(i);
+	}
+	return draw_generic_menu<int>(menuCaptions, menuIndexes, activeLineIndexWantedFreeze, "Choose Wanted Level:", onConfirm_wantedlevel_menu, NULL, NULL);
+}
 
 int activeLineIndexPlayer = 0;
-
-bool process_wantedlevel_menu();
 
 void process_player_menu()
 {
@@ -578,7 +679,7 @@ void process_player_menu()
 					break;
 				//Freeze Wanted Level
 				case 6:
-					if (bPlayerExists){ process_wantedlevel_menu(); }
+					if(process_wantedlevel_menu()) return;
 					break;
 				// switchable features
 				default:
@@ -1074,7 +1175,7 @@ void process_misc_menu()
 		bool		*pUpdated;
 	} lines[lineCount] = {
 		{"NEXT RADIO TRACK",	NULL,					NULL},
-		{"HIDE HUD",			&featureMiscHideHud,	NULL}		
+		{"HIDE HUD",			&featureMiscHideHud,	NULL}
 	};
 
 
@@ -1162,7 +1263,7 @@ void process_main_menu()
 		"WORLD",
 		"TIME",
 		"WEATHER",
-		"MISC"
+		"MISC",
 	};
 
 	DWORD waitTime = 150;
@@ -1240,113 +1341,47 @@ void process_main_menu()
 	}
 }
 
-int activeLineIndexWantedFreeze = 0;
-
-const std::vector<std::string> MENU_WANTED_LEVELS{"1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF"};
-
-bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
-{
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-	//Need to allow user to switch settings without turning lock
-	//off first (max wanted level is preventing increased levels)
-	//and prevent stars from disappearing.
-	switch (selection)
-	{
-	case 0:
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 1, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		PLAYER::SET_MAX_WANTED_LEVEL(1);
-		set_status_text("Wanted Level Frozen at 1 Star");
-		break;
-	case 1:
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 2, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		PLAYER::SET_MAX_WANTED_LEVEL(2);
-		set_status_text("Wanted Level Frozen at 2 Stars");
-		break;
-	case 2:
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 3, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		PLAYER::SET_MAX_WANTED_LEVEL(3);
-		set_status_text("Wanted Level Frozen at 3 Stars");
-		break;
-	case 3:
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 4, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		PLAYER::SET_MAX_WANTED_LEVEL(4);
-		set_status_text("Wanted Level Frozen at 4 Stars");
-		break;
-	case 4:
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 5, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		PLAYER::SET_MAX_WANTED_LEVEL(5);
-		set_status_text("Wanted Level Frozen at 5 Stars");
-		break;
-	default:
-		PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
-		PLAYER::SET_MAX_WANTED_LEVEL(5);
-		set_status_text("Wanted Level settings returned to default.");
-	}
-	return false;
-}
-
-bool process_wantedlevel_menu()
-{
-	std::vector<std::string> menuCaptions;
-	std::vector<int> menuIndexes;
-
-	for (int i = 0; i < MENU_WANTED_LEVELS.size(); i++)
-	{
-		menuCaptions.push_back(MENU_WANTED_LEVELS[i]);
-		menuIndexes.push_back(i);
-	}
-	return draw_generic_menu<int>(menuCaptions, menuIndexes, activeLineIndexWantedFreeze, "Choose Wanted Level:", onConfirm_wantedlevel_menu, NULL, NULL);
-}
-
 //Test for airbrake command.
-void process_airbrake_menu()
-{
-	const float lineWidth = 250.0;
-	const int lineCount = 1;
-
-	std::string caption = "Airbrake";
-
-	static LPCSTR lineCaption[lineCount] = {
-		"Test"
-	};
-
-	DWORD waitTime = 150;
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-			if (i != activeLineIndexMain)
-				draw_menu_line(lineCaption[i], lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(lineCaption[activeLineIndexMain], lineWidth + 1.0, 11.0, 56.0 + activeLineIndexMain * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		}
-	}
-}
+//void process_airbrake_menu()
+//{
+//	const float lineWidth = 250.0;
+//	const int lineCount = 1;
+//
+//	std::string caption = "Airbrake";
+//
+//	static LPCSTR lineCaption[lineCount] = {
+//		"Test"
+//	};
+//
+//	DWORD waitTime = 150;
+//	while (true)
+//	{
+//		// timed menu draw, used for pause after active line switch
+//		DWORD maxTickCount = GetTickCount() + waitTime;
+//		do
+//		{
+//			// draw menu
+//			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
+//			for (int i = 0; i < lineCount; i++)
+//			if (i != activeLineIndexMain)
+//				draw_menu_line(lineCaption[i], lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
+//			draw_menu_line(lineCaption[activeLineIndexMain], lineWidth + 1.0, 11.0, 56.0 + activeLineIndexMain * 36.0, 0.0, 7.0, true, false);
+//
+//			update_features();
+//			WAIT(0);
+//		} while (GetTickCount() < maxTickCount);
+//		waitTime = 0;
+//
+//		// process buttons
+//		bool bSelect, bBack, bUp, bDown;
+//		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
+//		if (bBack || trainer_switch_pressed())
+//		{
+//			menu_beep();
+//			break;
+//		}
+//	}
+//}
 
 void reset_globals()
 {
@@ -1360,7 +1395,9 @@ void reset_globals()
 	activeLineIndexPlayer		=
 	activeLineIndexWeapon		=
 	activeLineIndexWorld		=
-	activeLineIndexWeather		=	0;
+	activeLineIndexWeather		=
+	activeLineIndexWantedFreeze	=
+	frozenWantedLevel			=	0;
 
 	featurePlayerInvincible			=
 	featurePlayerInvincibleUpdated	=
