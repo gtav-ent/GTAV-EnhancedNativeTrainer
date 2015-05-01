@@ -37,3 +37,8 @@ void reset_trainer_switch()
 {
 	trainerResetTime = GetTickCount();
 }
+
+bool airbrake_switch_pressed()
+{
+	return (GetTickCount() > trainerResetTime + 1000) && get_key_pressed(VK_F6);
+}

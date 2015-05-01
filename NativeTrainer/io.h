@@ -23,3 +23,5 @@ void get_button_state(bool *a, bool *b, bool *up, bool *down, bool *l, bool *r);
 bool trainer_switch_pressed();
 
 void reset_trainer_switch();
+
+bool airbrake_switch_pressed();
