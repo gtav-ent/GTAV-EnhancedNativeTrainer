@@ -70,6 +70,9 @@ bool featureWeatherWind					=	false;
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
 
+bool featureAirbrakeEnabled				=	false;
+bool featureWantedLevelFrozen			=	false;
+
 // player model control, switching on normal ped model when needed	
 
 LPCSTR animalModels[] = { "a_c_boar", "a_c_chimp", "a_c_cow", "a_c_coyote", "a_c_deer", "a_c_fish", "a_c_hen", "a_c_cat_01", "a_c_chickenhawk",
@@ -447,10 +450,12 @@ LPCSTR pedModelNames[69][10] = {
 
 int activeLineIndexPlayer = 0;
 
+bool process_wantedlevel_menu();
+
 void process_player_menu()
 {
 	const float lineWidth = 250.0;
-	const int lineCount = 14;
+	const int lineCount = 15;
 	
 	std::string caption = "PLAYER  OPTIONS";
 
@@ -465,6 +470,7 @@ void process_player_menu()
 		{"ADD CASH", NULL, NULL},
 		{"WANTED UP", NULL, NULL},
 		{"WANTED DOWN", NULL, NULL},
+		{"FREEZE WANTED LEVEL", NULL, NULL},
 		{"NEVER WANTED", &featurePlayerNeverWanted, NULL},
 		{"INVINCIBLE", &featurePlayerInvincible, &featurePlayerInvincibleUpdated},
 		{"POLICE IGNORED", &featurePlayerIgnored, &featurePlayerIgnoredUpdated},
@@ -569,6 +575,10 @@ void process_player_menu()
 						PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 						set_status_text("wanted down");
 					}
+					break;
+				//Freeze Wanted Level
+				case 6:
+					if (bPlayerExists){ process_wantedlevel_menu(); }
 					break;
 				// switchable features
 				default:
@@ -1230,6 +1240,228 @@ void process_main_menu()
 	}
 }
 
+int activeLineIndexWantedFreeze = 0;
+
+const std::vector<std::string> MENU_WANTED_LEVELS{"1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF"};
+
+bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	//Need to allow user to switch settings without turning lock
+	//off first (max wanted level is preventing increased levels)
+	//and prevent stars from disappearing.
+	switch (selection)
+	{
+	case 0:
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 1, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		PLAYER::SET_MAX_WANTED_LEVEL(1);
+		set_status_text("Wanted Level Frozen at 1 Star");
+		break;
+	case 1:
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 2, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		PLAYER::SET_MAX_WANTED_LEVEL(2);
+		set_status_text("Wanted Level Frozen at 2 Stars");
+		break;
+	case 2:
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 3, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		PLAYER::SET_MAX_WANTED_LEVEL(3);
+		set_status_text("Wanted Level Frozen at 3 Stars");
+		break;
+	case 3:
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 4, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		PLAYER::SET_MAX_WANTED_LEVEL(4);
+		set_status_text("Wanted Level Frozen at 4 Stars");
+		break;
+	case 4:
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, 5, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		PLAYER::SET_MAX_WANTED_LEVEL(5);
+		set_status_text("Wanted Level Frozen at 5 Stars");
+		break;
+	default:
+		PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
+		PLAYER::SET_MAX_WANTED_LEVEL(5);
+		set_status_text("Wanted Level settings returned to default.");
+	}
+	return false;
+}
+
+bool process_wantedlevel_menu()
+{
+	std::vector<std::string> menuCaptions;
+	std::vector<int> menuIndexes;
+
+	for (int i = 0; i < MENU_WANTED_LEVELS.size(); i++)
+	{
+		menuCaptions.push_back(MENU_WANTED_LEVELS[i]);
+		menuIndexes.push_back(i);
+	}
+	return draw_generic_menu<int>(menuCaptions, menuIndexes, activeLineIndexWantedFreeze, "Choose Wanted Level:", onConfirm_wantedlevel_menu, NULL, NULL);
+}
+
+////Sub-menu for Wanted Level Freeze
+//void process_wanted_level_menu()
+//{
+//	const float lineWidth = 250.0;
+//	const int lineCount = 5;
+//
+//	std::string caption = "Choose Wanted Level:";
+//
+//	static LPCSTR lineCaption[lineCount] = {
+//		"1 Star",
+//		"2 Stars",
+//		"3 Stars",
+//		"4 Stars",
+//		"5 Stars"
+//	};
+//
+//	DWORD waitTime = 150;
+//	while (true)
+//	{
+//		// timed menu draw, used for pause after active line switch
+//		DWORD maxTickCount = GetTickCount() + waitTime;
+//		do
+//		{
+//			// draw menu
+//			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
+//			for (int i = 0; i < lineCount; i++)
+//			if (i != activeLineIndexWantedFreeze)
+//				draw_menu_line(lineCaption[i], lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
+//			draw_menu_line(lineCaption[activeLineIndexWantedFreeze], lineWidth + 1.0, 11.0, 56.0 + activeLineIndexWantedFreeze * 36.0, 0.0, 7.0, true, false);
+//
+//			update_features();
+//			WAIT(0);
+//		} while (GetTickCount() < maxTickCount);
+//		waitTime = 0;
+//
+//		// process buttons
+//		bool bSelect, bBack, bUp, bDown;
+//		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
+//		if (bSelect)
+//		{
+//			menu_beep();
+//
+//			// common variables
+//			BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+//			Player player = PLAYER::PLAYER_ID();
+//			Ped playerPed = PLAYER::PLAYER_PED_ID();
+//
+//			switch (activeLineIndexWantedFreeze)
+//			{
+//			case 0:
+//				if (bPlayerExists)
+//				{
+//					PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 1);
+//					PLAYER::SET_MAX_WANTED_LEVEL(1);
+//				}
+//				break;
+//			case 1:
+//				if (bPlayerExists)
+//				{
+//					PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 2);
+//					PLAYER::SET_MAX_WANTED_LEVEL(2);
+//				}
+//				break;
+//			case 2:
+//				if (bPlayerExists)
+//				{
+//					PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 3);
+//					PLAYER::SET_MAX_WANTED_LEVEL(3);
+//				}
+//				break;
+//			case 3:
+//				if (bPlayerExists)
+//				{
+//					PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 4);
+//					PLAYER::SET_MAX_WANTED_LEVEL(4);
+//				}
+//				break;
+//			case 4:
+//				if (bPlayerExists)
+//				{
+//					PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 5);
+//					PLAYER::SET_MAX_WANTED_LEVEL(5);
+//				}
+//				break;
+//			}
+//			waitTime = 200;
+//		}
+//		else
+//		if (bBack || trainer_switch_pressed())
+//		{
+//			menu_beep();
+//			break;
+//		}
+//		else
+//		if (bUp)
+//		{
+//			menu_beep();
+//			if (activeLineIndexWantedFreeze == 0)
+//				activeLineIndexWantedFreeze = lineCount;
+//			activeLineIndexWantedFreeze--;
+//			waitTime = 150;
+//		}
+//		else
+//		if (bDown)
+//		{
+//			menu_beep();
+//			activeLineIndexWantedFreeze++;
+//			if (activeLineIndexWantedFreeze == lineCount)
+//				activeLineIndexWantedFreeze = 0;
+//			waitTime = 150;
+//		}
+//	}
+//}
+
+//Test for airbrake command.
+void process_airbrake_menu()
+{
+	const float lineWidth = 250.0;
+	const int lineCount = 1;
+
+	std::string caption = "Airbrake";
+
+	static LPCSTR lineCaption[lineCount] = {
+		"Test"
+	};
+
+	DWORD waitTime = 150;
+	while (true)
+	{
+		// timed menu draw, used for pause after active line switch
+		DWORD maxTickCount = GetTickCount() + waitTime;
+		do
+		{
+			// draw menu
+			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
+			for (int i = 0; i < lineCount; i++)
+			if (i != activeLineIndexMain)
+				draw_menu_line(lineCaption[i], lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
+			draw_menu_line(lineCaption[activeLineIndexMain], lineWidth + 1.0, 11.0, 56.0 + activeLineIndexMain * 36.0, 0.0, 7.0, true, false);
+
+			update_features();
+			WAIT(0);
+		} while (GetTickCount() < maxTickCount);
+		waitTime = 0;
+
+		// process buttons
+		bool bSelect, bBack, bUp, bDown;
+		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
+		if (bBack || trainer_switch_pressed())
+		{
+			menu_beep();
+			break;
+		}
+	}
+}
+
 void reset_globals()
 {
 	reset_skin_globals();
@@ -1268,7 +1500,9 @@ void reset_globals()
 	featureTimeSynced				=
 	featureWeatherWind				=
 	featureMiscLockRadio			=
-	featureMiscHideHud				=	false;
+	featureMiscHideHud				=	
+	featureAirbrakeEnabled			= 
+	featureWantedLevelFrozen		=	false;
 
 	featureWorldRandomCops		=
 	featureWorldRandomTrains	=
@@ -1298,6 +1532,18 @@ void main()
 			}
 			reset_trainer_switch();
 		}
+		/*else if (airbrake_switch_pressed())
+		{
+			reset_trainer_switch();
+			process_airbrake_menu();
+			DWORD time = GetTickCount() + 1000;
+			while (GetTickCount() < time)
+			{
+				update_features();
+				WAIT(0);
+			}
+			reset_trainer_switch();
+		}*/
 		update_features();
 
 		WAIT(0);
