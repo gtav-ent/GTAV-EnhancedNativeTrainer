@@ -12,6 +12,12 @@
 
 IMPORT void scriptWait(DWORD time);
 IMPORT void scriptRegister(HMODULE module, void(*LP_SCRIPT_MAIN)());
+IMPORT void scriptUnregister(void(*LP_SCRIPT_MAIN)());
+
+typedef void(*KeyboardHandler)(DWORD, WORD, BYTE, BOOL, BOOL, BOOL, BOOL);
+
+IMPORT void keyboardHandlerRegister(KeyboardHandler handler);
+IMPORT void keyboardHandlerUnregister(KeyboardHandler handler);
 
 IMPORT void nativeInit(UINT64 hash);
 IMPORT void nativePush64(UINT64 val);
