@@ -150,6 +150,11 @@ void update_vehicle_guns()
 	}
 }
 
+float radToDeg(float rads)
+{
+	return rads*3.141592653589793 / 180;
+}
+
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
@@ -308,6 +313,47 @@ void update_features()
 	// hide hud
 	if (featureMiscHideHud)
 		UI::HIDE_HUD_AND_RADAR_THIS_FRAME();
+
+	//----Hotkeys----
+	
+	//Move through door
+	//Pushes player through solid door objects.
+	if (bPlayerExists)
+	{
+		bool moveThroughDoor = get_key_pressed(VK_OEM_7);
+		if (moveThroughDoor)
+		{
+			Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
+			float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+			float forwardPush = 0.6;
+
+			int sector = (int) curHeading / 90;
+			float angle = fmod(curHeading, 90);
+
+			float xVect = ((forwardPush / sin(radToDeg(90)))*sin(radToDeg(angle)));
+			float yVect = ((forwardPush / sin(radToDeg(90)))*sin(radToDeg(180 - (angle + 90))));
+			
+			switch (sector)
+			{
+			case 0: //0-90Åã
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y + yVect, curLocation.z, 0, 0, 1);
+				break;
+			case 1: //90 - 180Åã
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z, 0, 0, 1);
+				break;
+			case 2: //180 - 270Åã
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y - yVect, curLocation.z, 0, 0, 1);
+				break;
+			case 3: //270 - 360Åã
+				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z, 0, 0, 1);
+				break;
+			default:
+				break;
+			}
+
+			set_status_text("Moved through door.");
+		}
+	}
 }
 
 /*
