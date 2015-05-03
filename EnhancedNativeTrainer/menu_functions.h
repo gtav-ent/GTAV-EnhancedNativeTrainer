@@ -143,16 +143,7 @@ bool draw_generic_menu(std::vector<std::string> captions, std::vector<T> values,
 		{
 			menu_beep();
 
-			// wait before proceeding
-			if (waitTime > 0)
-			{
-				DWORD maxTickCount = GetTickCount() + waitTime;
-				do
-				{
-					WAIT(0);
-				} while (GetTickCount() < maxTickCount);
-				waitTime = 0;
-			}
+			waitTime = 200;
 
 			if (onConfirmation != NULL)
 			{
@@ -167,7 +158,7 @@ bool draw_generic_menu(std::vector<std::string> captions, std::vector<T> values,
 		}
 		else
 		{
-			if (bBack)
+			if (bBack || trainer_switch_pressed())
 			{
 				menu_beep();
 				waitTime = 200;
