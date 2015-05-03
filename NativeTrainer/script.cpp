@@ -23,6 +23,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "vehicles.h"
 #include "teleportation.h"
+#include "Airbrake.h"
 
 #include <string>
 #include <sstream> 
@@ -148,11 +149,6 @@ void update_vehicle_guns()
 
 		featureWeaponVehShootLastTime = GetTickCount();
 	}
-}
-
-float radToDeg(float rads)
-{
-	return rads*3.141592653589793 / 180;
 }
 
 // Updates all features that can be turned off by the game, being called each game frame
@@ -314,43 +310,19 @@ void update_features()
 	if (featureMiscHideHud)
 		UI::HIDE_HUD_AND_RADAR_THIS_FRAME();
 
+	//Disable airbrake on death
+	if (ENTITY::IS_ENTITY_DEAD(playerPed)){ featureAirbrakeEnabled = false; }
+
 	//----Hotkeys----
 	
-	//Move through door
+	//Move through door (use '-key)
 	//Pushes player through solid door objects.
 	if (bPlayerExists)
 	{
-		bool moveThroughDoor = get_key_pressed(VK_OEM_7);
-		if (moveThroughDoor)
+		bool throughDoorPressed = get_key_pressed(VK_OEM_7);
+		if (throughDoorPressed)
 		{
-			Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
-			float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
-			float forwardPush = 0.6;
-
-			int sector = (int) curHeading / 90;
-			float angle = fmod(curHeading, 90);
-
-			float xVect = ((forwardPush / sin(radToDeg(90)))*sin(radToDeg(angle)));
-			float yVect = ((forwardPush / sin(radToDeg(90)))*sin(radToDeg(180 - (angle + 90))));
-			
-			switch (sector)
-			{
-			case 0: //0-90Åã
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y + yVect, curLocation.z, 0, 0, 1);
-				break;
-			case 1: //90 - 180Åã
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z, 0, 0, 1);
-				break;
-			case 2: //180 - 270Åã
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y - yVect, curLocation.z, 0, 0, 1);
-				break;
-			case 3: //270 - 360Åã
-				ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z, 0, 0, 1);
-				break;
-			default:
-				break;
-			}
-
+			moveThroughDoor();
 			set_status_text("Moved through door.");
 		}
 	}
@@ -1388,46 +1360,41 @@ void process_main_menu()
 }
 
 //Test for airbrake command.
-//void process_airbrake_menu()
-//{
-//	const float lineWidth = 250.0;
-//	const int lineCount = 1;
-//
-//	std::string caption = "Airbrake";
-//
-//	static LPCSTR lineCaption[lineCount] = {
-//		"Test"
-//	};
-//
-//	DWORD waitTime = 150;
-//	while (true)
-//	{
-//		// timed menu draw, used for pause after active line switch
-//		DWORD maxTickCount = GetTickCount() + waitTime;
-//		do
-//		{
-//			// draw menu
-//			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-//			for (int i = 0; i < lineCount; i++)
-//			if (i != activeLineIndexMain)
-//				draw_menu_line(lineCaption[i], lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-//			draw_menu_line(lineCaption[activeLineIndexMain], lineWidth + 1.0, 11.0, 56.0 + activeLineIndexMain * 36.0, 0.0, 7.0, true, false);
-//
-//			update_features();
-//			WAIT(0);
-//		} while (GetTickCount() < maxTickCount);
-//		waitTime = 0;
-//
-//		// process buttons
-//		bool bSelect, bBack, bUp, bDown;
-//		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-//		if (bBack || trainer_switch_pressed())
-//		{
-//			menu_beep();
-//			break;
-//		}
-//	}
-//}
+void process_airbrake_menu()
+{
+	featureAirbrakeEnabled = true;
+	const float lineWidth = 250.0;
+	const int lineCount = 1;
+
+	std::string caption = "Airbrake";
+
+	DWORD waitTime = 150;
+	while (true)
+	{
+		// timed menu draw, used for pause after active line switch
+		DWORD maxTickCount = GetTickCount() + waitTime;
+		do
+		{
+			// draw menu
+			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
+
+			update_features();
+			WAIT(0);
+		} while (GetTickCount() < maxTickCount);
+		waitTime = 0;
+
+		airbrake();
+
+		// process buttons
+		bool bSelect, bBack, bUp, bDown;
+		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
+		if (bBack || airbrake_switch_pressed() || !featureAirbrakeEnabled)
+		{
+			menu_beep();
+			break;
+		}
+	}
+}
 
 void reset_globals()
 {
@@ -1501,7 +1468,7 @@ void main()
 			}
 			reset_trainer_switch();
 		}
-		/*else if (airbrake_switch_pressed())
+		else if (airbrake_switch_pressed())
 		{
 			reset_trainer_switch();
 			process_airbrake_menu();
@@ -1512,7 +1479,7 @@ void main()
 				WAIT(0);
 			}
 			reset_trainer_switch();
-		}*/
+		}
 		update_features();
 
 		WAIT(0);

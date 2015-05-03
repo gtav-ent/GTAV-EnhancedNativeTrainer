@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Airbrake.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="menu_functions.cpp" />
@@ -20,6 +21,7 @@
     <ClCompile Include="vehicles.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Airbrake.h" />
     <ClInclude Include="inc\main.h" />
     <ClInclude Include="inc\nativeCaller.h" />
     <ClInclude Include="inc\types.h" />
