@@ -142,14 +142,26 @@ bool draw_generic_menu(std::vector<std::string> captions, std::vector<T> values,
 		if (bSelect)
 		{
 			menu_beep();
+
+			// wait before proceeding
+			if (waitTime > 0)
+			{
+				DWORD maxTickCount = GetTickCount() + waitTime;
+				do
+				{
+					WAIT(0);
+				} while (GetTickCount() < maxTickCount);
+				waitTime = 0;
+			}
+
 			if (onConfirmation != NULL)
 			{
 				result = onConfirmation(currentSelectionIndex, captions[currentSelectionIndex], values[currentSelectionIndex]);
 			}
-			waitTime = 200;
+			
 			if (result)
 			{
-				result = false; //to avoid cascading upwards
+				//result = false; //to avoid cascading upwards
 				break;
 			}
 		}

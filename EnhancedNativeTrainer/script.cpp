@@ -522,7 +522,7 @@ void process_player_menu()
 					*/
 				// teleport
 				case 1:
-					if (process_teleport_menu()) return;
+					if (process_teleport_menu(-1)) return;
 					break;
 				// fix player
 				case 2:
