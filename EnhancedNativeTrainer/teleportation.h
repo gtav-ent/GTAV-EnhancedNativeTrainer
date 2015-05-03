@@ -22,6 +22,6 @@ void load_north_yankton();
 
 void unload_north_yankton();
 
-bool process_teleport_menu();
+bool process_teleport_menu(int categoryIndex);
 
 void reset_teleporter_globals();

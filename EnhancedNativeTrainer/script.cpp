@@ -118,7 +118,7 @@ void update_vehicle_guns()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed) || !featureWeaponVehRockets) return;
 
-	bool bSelect = get_key_pressed(0x6B); // num plus
+	bool bSelect = IsKeyDown(0x6B); // num plus
 	if (bSelect && featureWeaponVehShootLastTime + 150 < GetTickCount() &&
 		PLAYER::IS_PLAYER_CONTROL_ON(player) &&	PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
@@ -647,7 +647,7 @@ void process_player_menu()
 					*/
 				// teleport
 				case 1:
-					if (process_teleport_menu()) return;
+					if (process_teleport_menu(-1)) return;
 					break;
 				// fix player
 				case 2:
@@ -805,7 +805,10 @@ void process_weapon_menu()
 				case 0:
 					for (int i = 0; i < sizeof(weaponNames) / sizeof(weaponNames[0]); i++)
 						WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, GAMEPLAY::GET_HASH_KEY((char *)weaponNames[i]), 1000, 0);
-					set_status_text("all weapon added");
+
+					WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
+
+					set_status_text("All weapons added");
 					break;
 				// switchable features
 				default:
@@ -1272,7 +1275,7 @@ void process_main_menu()
 	const float lineWidth = 250.0;
 	const int lineCount = 7;	
 
-	std::string caption = "NATIVE  TRAINER  (AB)";
+	std::string caption = "Enhanced Native Trainer";
 
 	static LPCSTR lineCaption[lineCount] = {
 		"PLAYER",
@@ -1458,15 +1461,8 @@ void main()
 	{
 		if (trainer_switch_pressed())
 		{
-			reset_trainer_switch();
+			menu_beep();
 			process_main_menu();
-			DWORD time = GetTickCount() + 1000;
-			while (GetTickCount() < time)
-			{
-				update_features();
-				WAIT(0);
-			}
-			reset_trainer_switch();
 		}
 		else if (airbrake_switch_pressed())
 		{
@@ -1480,6 +1476,7 @@ void main()
 			}
 			reset_trainer_switch();
 		}
+
 		update_features();
 
 		WAIT(0);

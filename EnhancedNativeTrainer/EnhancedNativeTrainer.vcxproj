@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="Airbrake.cpp" />
     <ClCompile Include="io.cpp" />
+    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="menu_functions.cpp" />
     <ClCompile Include="script.cpp" />
@@ -26,6 +27,7 @@
     <ClInclude Include="inc\nativeCaller.h" />
     <ClInclude Include="inc\types.h" />
     <ClInclude Include="io.h" />
+    <ClInclude Include="keyboard.h" />
     <ClInclude Include="menu_functions.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="skins.h" />
@@ -38,8 +40,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8D82F34A-1D64-465B-84B1-37F89AD3D20B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>NativeTrainer</RootNamespace>
-    <ProjectName>NativeTrainer</ProjectName>
+    <RootNamespace>EnhancedNativeTrainer</RootNamespace>
+    <ProjectName>EnhancedNativeTrainer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

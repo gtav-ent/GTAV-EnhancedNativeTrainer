@@ -281,8 +281,8 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed )
 		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 		DWORD model = ENTITY::GET_ENTITY_MODEL(veh);
 
-		bool bUp = get_key_pressed(VK_NUMPAD9);
-		bool bDown = get_key_pressed(VK_NUMPAD3);
+		bool bUp = IsKeyDown(VK_NUMPAD9);
+		bool bDown = IsKeyDown(VK_NUMPAD3);
 
 		if (bUp || bDown)
 		{

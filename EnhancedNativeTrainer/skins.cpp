@@ -259,7 +259,8 @@ bool process_skinchanger_texture_menu(std::string caption)
 	std::ostringstream ss;
 	ss << "Available Textures";
 
-	return draw_generic_menu<int>(menuCaptions, menuValues, skinTextureMenuIndex, ss.str(), onconfirm_skinchanger_texture_menu, onhighlight_skinchanger_texture_menu, onexit_skinchanger_texture_menu);
+	draw_generic_menu<int>(menuCaptions, menuValues, skinTextureMenuIndex, ss.str(), onconfirm_skinchanger_texture_menu, onhighlight_skinchanger_texture_menu, onexit_skinchanger_texture_menu);
+	return false;
 }
 
 /*
@@ -363,7 +364,8 @@ bool process_skinchanger_drawable_menu(std::string caption, int component)
 	std::ostringstream ss;
 	ss << "Available Drawables";
 
-	return draw_generic_menu<int>(menuCaptions, menuValues, skinDrawableMenuIndex, ss.str(), onconfirm_skinchanger_drawable_menu, onhighlight_skinchanger_drawable_menu, onexit_skinchanger_drawable_menu);
+	draw_generic_menu<int>(menuCaptions, menuValues, skinDrawableMenuIndex, ss.str(), onconfirm_skinchanger_drawable_menu, onhighlight_skinchanger_drawable_menu, onexit_skinchanger_drawable_menu);
+	return false;
 }
 
 /*

@@ -142,20 +142,23 @@ bool draw_generic_menu(std::vector<std::string> captions, std::vector<T> values,
 		if (bSelect)
 		{
 			menu_beep();
+
+			waitTime = 200;
+
 			if (onConfirmation != NULL)
 			{
 				result = onConfirmation(currentSelectionIndex, captions[currentSelectionIndex], values[currentSelectionIndex]);
 			}
-			waitTime = 200;
+			
 			if (result)
 			{
-				result = false; //to avoid cascading upwards
+				//result = false; //to avoid cascading upwards
 				break;
 			}
 		}
 		else
 		{
-			if (bBack)
+			if (bBack || trainer_switch_pressed())
 			{
 				menu_beep();
 				waitTime = 200;
