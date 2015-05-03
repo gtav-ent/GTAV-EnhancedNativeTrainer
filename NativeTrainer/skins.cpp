@@ -17,6 +17,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 std::string chosenSkinName = "";
 
+bool DEBUG_MODE_SKINS = false;
+
 int skinDetailMenuIndex = 0;
 int skinDetailMenuValue = 0;
 
@@ -70,6 +72,7 @@ void set_custom_skin_applied(bool applied)
 
 int findFirstValidPedTexture(int drawable)
 {
+	return 0;/*
 	for (int j = 0; j < 100; j++)
 	{
 		if (PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, drawable, j))
@@ -77,11 +80,12 @@ int findFirstValidPedTexture(int drawable)
 			return j;
 		}
 	}
-	return -1;
+	return -1;*/
 }
 
 int findFirstValidPedDrawable(int component)
 {
+	return 0;/*
 	for (int i = 0; i < 100; i++)
 	{
 		for (int j = 0; j < 100; j++)
@@ -92,7 +96,7 @@ int findFirstValidPedDrawable(int component)
 			}
 		}
 	}
-	return -1;
+	return -1;*/
 }
 
 bool applyChosenSkin(std::string skinName)
@@ -135,9 +139,9 @@ std::string getSkinDetailAttribDescription(int i)
 	switch (i)
 	{
 	case 0:
-		return "Skin/Face";
+		return "Head/Face";
 	case 1:
-		return "Beard";
+		return "Beard/Mask";
 	case 2:
 		return "Hair/Hat";
 	case 3:
@@ -145,17 +149,17 @@ std::string getSkinDetailAttribDescription(int i)
 	case 4:
 		return "Legs";
 	case 5:
-		return "Gloves";
+		return "Accessory/Gloves";
 	case 6:
-		return "Acc'y/Shoes";
+		return "Accessory/Shoes";
 	case 7:
 	case 8:
 	case 9:
-		return "Acc'y";
+		return "Accessory";
 	case 10:
 		return "Badges";
 	case 11:
-		return "Shirt";
+		return "Shirt/Jacket";
 	default:
 		return std::to_string(i);
 	}
@@ -173,7 +177,7 @@ void onhighlight_skinchanger_texture_menu(int selection, std::string caption, in
 	skinTextureMenuIndex = selection;
 	skinTextureMenuValue = value;
 
-	if (PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, skinDrawableMenuValue, value))
+	if (true)//PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, skinDrawableMenuValue, value))
 	{
 		PED::SET_PED_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, skinDrawableMenuValue, value, 0);
 	}
@@ -225,6 +229,16 @@ bool process_skinchanger_texture_menu(std::string caption)
 		STREAMING::REQUEST_MODEL(model);
 		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
 
+		int textures = PED::GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, skinDrawableMenuValue);
+		for (int i = 0; i < textures; i++)
+		{
+			std::ostringstream ss;
+			ss << "Texture #" << i;
+			menuCaptions.push_back(ss.str());
+			menuValues.push_back(i);
+		}
+
+		/*
 		for (int j = 0; j < 100; j++)
 		{
 			int texture = j;
@@ -237,12 +251,13 @@ bool process_skinchanger_texture_menu(std::string caption)
 				menuValues.push_back(texture);
 			}
 		}
+		*/
 
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 	}
 
 	std::ostringstream ss;
-	ss << caption << " Textures";
+	ss << "Available Textures";
 
 	return draw_generic_menu<int>(menuCaptions, menuValues, skinTextureMenuIndex, ss.str(), onconfirm_skinchanger_texture_menu, onhighlight_skinchanger_texture_menu, onexit_skinchanger_texture_menu);
 }
@@ -279,7 +294,7 @@ void onhighlight_skinchanger_drawable_menu(int selection, std::string caption, i
 	{
 		texture = findFirstValidPedTexture(value);
 	}
-	if (PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, value, texture))
+	if (true)//PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, value, texture))
 	{
 		PED::SET_PED_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, value, texture, 0);
 	}
@@ -319,7 +334,7 @@ void onexit_skinchanger_drawable_menu(bool returnValue)
 	*/
 }
 
-bool process_skinchanger_drawable_menu(std::string caption)
+bool process_skinchanger_drawable_menu(std::string caption, int component)
 {
 	DWORD waitTime = 150;
 	int foundTextures = 0;
@@ -332,29 +347,21 @@ bool process_skinchanger_drawable_menu(std::string caption)
 		STREAMING::REQUEST_MODEL(model);
 		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
 
-		for (int i = 0; i < 100; i++)
+		int drawables = PED::GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(PLAYER::PLAYER_PED_ID(), component);
+		for (int i = 0; i < drawables; i++)
 		{
-			int drawable = i;
-			for (int j = 0; j < 100; j++)
-			{
-				int texture = j;
-				if (PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, drawable, texture))
-				{
-					std::ostringstream ss;
-					ss << "Drawable #" << std::to_string(drawable);
-
-					menuCaptions.push_back(ss.str());
-					menuValues.push_back(drawable);
-					break;
-				}
-			}
+			int textures = PED::GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(PLAYER::PLAYER_PED_ID(), component, i);
+			std::ostringstream ss;
+			ss << "Drawable #" << i << " (" << textures << ")";
+			menuCaptions.push_back(ss.str());
+			menuValues.push_back(i);
 		}
 
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 	}
 
 	std::ostringstream ss;
-	ss << caption << " Drawables";
+	ss << "Available Drawables";
 
 	return draw_generic_menu<int>(menuCaptions, menuValues, skinDrawableMenuIndex, ss.str(), onconfirm_skinchanger_drawable_menu, onhighlight_skinchanger_drawable_menu, onexit_skinchanger_drawable_menu);
 }
@@ -370,6 +377,9 @@ void onhighlight_skinchanger_detail_menu(int selection, std::string caption, int
 	//do nothing
 }
 
+int lastTriedComponentIndex = 0;
+int lastTriedPalette = 0;
+
 bool onconfirm_skinchanger_detail_menu(int selection, std::string caption, int value)
 {
 	skinDetailMenuIndex = selection;
@@ -381,45 +391,133 @@ bool onconfirm_skinchanger_detail_menu(int selection, std::string caption, int v
 	skinTextureMenuIndex = 0;
 	skinTextureMenuValue = -1;
 
-	return process_skinchanger_drawable_menu(caption);
+	if (DEBUG_MODE_SKINS && value == -1)
+	{
+		DWORD playerModel = ENTITY::GET_ENTITY_MODEL(PLAYER::PLAYER_PED_ID());
+
+		std::ostringstream ss1;
+		for (int i = 0; i < 7; i++)
+		{
+			int d = PED::GET_PED_DRAWABLE_VARIATION(PLAYER::PLAYER_PED_ID(), i);
+			int t = PED::GET_PED_TEXTURE_VARIATION(PLAYER::PLAYER_PED_ID(), i);
+			ss1 << "D.T[" << i << "]=" << d << "." << t << "; ";
+		}
+		
+		set_status_text(ss1.str(), 3000);
+
+		DWORD time = GetTickCount() + 4000;
+		while (GetTickCount() < time)
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
+
+		std::ostringstream ss2;
+		for (int i = 7; i <= 12; i++)
+		{
+			int d = PED::GET_PED_DRAWABLE_VARIATION(PLAYER::PLAYER_PED_ID(), i);
+			int t = PED::GET_PED_TEXTURE_VARIATION(PLAYER::PLAYER_PED_ID(), i);
+			ss2 << "D.T[" << i << "]=" << d << "." << t << "; ";
+		}
+
+		set_status_text(ss2.str(), 3000);
+		
+		return false;
+	}
+	else if (DEBUG_MODE_SKINS && value == -2)
+	{
+		DWORD playerModel = ENTITY::GET_ENTITY_MODEL(PLAYER::PLAYER_PED_ID());
+
+		std::ostringstream ss1;
+		for (int i = 0; i < 7; i++)
+		{
+			int skins = PED::GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(PLAYER::PLAYER_PED_ID(), i);
+			ss1 << "D" << i << "=" << skins << "; ";
+		}
+
+		set_status_text(ss1.str(), 3000);
+
+		DWORD time = GetTickCount() + 4000;
+		while (GetTickCount() < time)
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
+
+		std::ostringstream ss2;
+		for (int i = 7; i <= 12; i++)
+		{
+			int skins = PED::GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(PLAYER::PLAYER_PED_ID(), i);
+			ss2 << "D" << i << "=" << skins << "; ";
+		}
+
+		set_status_text(ss2.str(), 3000);
+
+		return false;
+	}
+	else
+	{
+		return process_skinchanger_drawable_menu(caption, value);
+	}
 }
 
 bool process_skinchanger_detail_menu()
 {
-	if (!skinchanger_used)
-	{
-		set_status_text("Please apply a skin first");
-		return false;
-	}
-
 	DWORD waitTime = 150;
 	int foundTextures = 0;
 	std::vector<std::string> menuCaptions;
 	std::vector<int> menuValues;
 
-	DWORD model = GAMEPLAY::GET_HASH_KEY((char *)chosenSkinName.c_str());
-	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
-	{
-		STREAMING::REQUEST_MODEL(model);
-		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
+	int fixedChoices = 0;
+	const int partVariations = 12;
 
-		for (int i = 0; i < 15; i++)
+	int i = 0;
+
+	if (DEBUG_MODE_SKINS)
+	{
+		menuCaptions.push_back("Output current D/T");
+		menuValues.push_back(-1);
+		menuCaptions.push_back("Output drawable slots");
+		menuValues.push_back(-2);
+		fixedChoices += 2;
+	}
+
+	if (skinchanger_used)
+	{
+		DWORD model = GAMEPLAY::GET_HASH_KEY((char *)chosenSkinName.c_str());
+		if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
 		{
-			for (int j = 0; j < 1000; j++)
+			STREAMING::REQUEST_MODEL(model);
+			while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
+
+			for (; i < partVariations + fixedChoices; i++)
 			{
-				int drawable = rand() % 10;
-				int texture = rand() % 10;
-				if (PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), i, drawable, texture))
+				bool iFound = false;
+				int compIndex = i - fixedChoices;
+
+				int drawables = PED::GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(PLAYER::PLAYER_PED_ID(), compIndex);
+				int textures = 0;
+				if (drawables == 1)
 				{
-					std::string itemText = getSkinDetailAttribDescription(i);
-					menuCaptions.push_back(itemText);
-					menuValues.push_back(i);
-					break;
+					textures = PED::GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(PLAYER::PLAYER_PED_ID(), compIndex, 0);
+				}
+				if ( drawables > 1 || textures != 0 )
+				{
+					std::ostringstream ss;
+					std::string itemText = getSkinDetailAttribDescription(compIndex);
+					ss << "Slot " << compIndex << ": " << itemText << " (" << drawables << ")";
+					menuCaptions.push_back(ss.str());
+					menuValues.push_back(compIndex);
 				}
 			}
-		}
 
-		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+		}
+	}
+	else
+	{
+		set_status_text("Please apply a custom skin in order to access this");
+		return false;
 	}
 
 	return draw_generic_menu<int>(menuCaptions, menuValues, skinDetailMenuIndex, "Skin Details", onconfirm_skinchanger_detail_menu, onhighlight_skinchanger_detail_menu, NULL);

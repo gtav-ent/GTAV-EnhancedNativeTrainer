@@ -21,11 +21,6 @@ struct tele_location {
 	bool isLoaded;
 };
 
-bool operator==(const tele_location& lhs, const tele_location& rhs)
-{
-	return (lhs.text == rhs.text && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z);
-}
-
 std::vector<tele_location> LOCATIONS = {
 	{ "MARKER" },
 	{ "MICHAEL'S HOUSE", -852.4f, 160.0f, 65.6f },
@@ -107,9 +102,11 @@ void teleport_to_marker(Entity e)
 	}
 }
 
-bool onconfirm_teleport_location(int selection, std::string caption, tele_location value)
+bool onconfirm_teleport_location(int selection, std::string caption, int locationIndex)
 {
 	teleportMenuIndex = selection;
+
+	tele_location* value = &LOCATIONS[locationIndex];
 
 	// get entity to teleport
 	Entity e = PLAYER::PLAYER_PED_ID();
@@ -126,11 +123,11 @@ bool onconfirm_teleport_location(int selection, std::string caption, tele_locati
 	{
 		Vector3 coords;
 
-		if (value.scenery_loader != NULL && !value.isLoaded)
+		if (value->scenery_loader != NULL && !value->isLoaded)
 		{
 			set_status_text("Loading new scenery...");
-			value.scenery_loader();
-			value.isLoaded = true;
+			value->scenery_loader();
+			value->isLoaded = true;
 
 			DWORD time = GetTickCount() + 1000;
 			while (GetTickCount() < time)
@@ -149,9 +146,9 @@ bool onconfirm_teleport_location(int selection, std::string caption, tele_locati
 			}
 		}
 
-		coords.x = value.x;
-		coords.y = value.y;
-		coords.z = value.z;
+		coords.x = value->x;
+		coords.y = value->y;
+		coords.z = value->z;
 		teleport_to_coords(e, coords);
 
 		bool unloadedAnything = false;
@@ -159,12 +156,15 @@ bool onconfirm_teleport_location(int selection, std::string caption, tele_locati
 
 		for (int i = 0; i < LOCATIONS.size(); i++)
 		{
-			tele_location loc = LOCATIONS[i];
-			if (loc == value) //don't unload what we just loaded!
+			//don't unload our newly loaded scenery
+			if (i == locationIndex )
 			{
 				continue;
 			}
-			if (loc.isLoaded && loc.scenery_unloader != NULL)
+
+			tele_location* loc = &LOCATIONS[i];
+
+			if (loc->isLoaded && loc->scenery_unloader != NULL)
 			{
 				if (!unloadedAnything)
 				{
@@ -177,9 +177,9 @@ bool onconfirm_teleport_location(int selection, std::string caption, tele_locati
 					}
 				}
 
-				loc.scenery_unloader();
+				loc->scenery_unloader();
 				unloadedAnything = true;
-				loc.isLoaded = false;
+				loc->isLoaded = false;
 			}
 		}
 
@@ -203,12 +203,15 @@ bool process_teleport_menu()
 	std::string caption = "TELEPORT";
 
 	std::vector<std::string> menuCaptions;
+	std::vector<int> menuIndexes;
+
 	for (int i = 0; i < LOCATIONS.size(); i++)
 	{
 		menuCaptions.push_back(LOCATIONS[i].text);
+		menuIndexes.push_back(i);
 	}
 
-	return draw_generic_menu<tele_location>(menuCaptions, LOCATIONS, teleportMenuIndex, "Teleport Locations", onconfirm_teleport_location, NULL, NULL);
+	return draw_generic_menu<int>(menuCaptions, menuIndexes, teleportMenuIndex, "Teleport Locations", onconfirm_teleport_location, NULL, NULL);
 }
 
 void reset_teleporter_globals()
