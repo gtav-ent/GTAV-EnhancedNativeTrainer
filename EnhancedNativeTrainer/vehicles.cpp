@@ -26,14 +26,14 @@ struct struct_door_options {
 };
 
 std::vector<struct_door_options> DOOR_OPTIONS = {
-	{ "OPEN INSTANTLY", &featureVehicleDoorInstant },
-	{ "FRONT RIGHT", NULL }, //INDEX 0
-	{ "FRONT LEFT", NULL }, //INDEX 1
-	{ "BACK RIGHT", NULL }, //INDEX 2
-	{ "BACK LEFT", NULL }, //INDEX 3 (This opens the ramp on the An-225|CARGOPLANE)
-	{ "HOOD", NULL }, //INDEX 4
-	{ "TRUNK", NULL }, //INDEX 5 (Opens ramp on C-130|TITAN)
-	{ "TRUNK 2", NULL } //INDEX 6 (What uses this?)
+	{ "Open Instantly", &featureVehicleDoorInstant },
+	{ "Front Right", NULL }, //INDEX 0
+	{ "Front Left", NULL }, //INDEX 1
+	{ "Rear Right", NULL }, //INDEX 2
+	{ "Rear Left", NULL }, //INDEX 3 (This opens the ramp on the An-225|CARGOPLANE)
+	{ "Hood", NULL }, //INDEX 4
+	{ "Trunk ", NULL }, //INDEX 5 (Opens ramp on C-130|TITAN)
+	{ "Trunk 2", NULL } //INDEX 6 (What uses this?)
 };
 
 int doorOptionsMenuIndex = 0;
@@ -174,7 +174,7 @@ bool onconfirm_vehdoor_menu(int selection, std::string caption, int value) {
 }
 
 bool process_veh_door_menu() {
-	std::string caption = "DOOR OPTIONS";
+	std::string caption = "Door Options";
 
 	std::vector<std::string> menuCaptions;
 	std::vector<int>menuIndexes;
@@ -200,9 +200,9 @@ void process_veh_menu()
 		bool		*pUpdated;
 	} lines[lineCount] = {
 		{ "CAR SPAWNER", NULL, NULL },
-		{ "DOOR CONTROL", NULL, NULL },
 		{ "PAINT RANDOM", NULL, NULL },
 		{ "FIX", NULL, NULL },
+		{ "DOOR CONTROL", NULL, NULL },
 		{ "WRAP IN SPAWNED", &featureVehWrapInSpawned, NULL },
 		{ "INVINCIBLE", &featureVehInvincible, &featureVehInvincibleUpdated },
 		{ "SPEED BOOST", &featureVehSpeedBoost, NULL }
@@ -247,9 +247,6 @@ void process_veh_menu()
 				if (process_carspawn_menu()) return;
 				break;
 			case 1:
-				if (process_veh_door_menu()) return;
-				break;
-			case 2:
 				if (bPlayerExists)
 				{
 					if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -265,12 +262,15 @@ void process_veh_menu()
 					}
 				}
 				break;
-			case 3:
+			case 2:
 				if (bPlayerExists)
 					if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 						VEHICLE::SET_VEHICLE_FIXED(PED::GET_VEHICLE_PED_IS_USING(playerPed));
 					else
 						set_status_text("player isn't in a vehicle");
+				break;
+			case 3:
+				if (process_veh_door_menu()) return;
 				break;
 				// switchable features
 			default:
