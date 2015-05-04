@@ -8,7 +8,7 @@
     <ClCompile Include="io.cpp" />
     <ClCompile Include="vehicles.cpp" />
     <ClCompile Include="teleportation.cpp" />
-	<ClCompile Include="keyboard.cpp" />
+    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="Airbrake.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -21,10 +21,10 @@
     <ClInclude Include="inc\types.h" />
     <ClInclude Include="menu_functions.h" />
     <ClInclude Include="teleportation.h" />
-	<ClInclude Include="keyboard.h" />
+    <ClInclude Include="keyboard.h" />
     <ClInclude Include="Airbrake.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lib\ScriptHookV.lib" />
+	<Library Include="lib\ScriptHookV.lib"/>
   </ItemGroup>
 </Project>
