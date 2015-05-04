@@ -15,8 +15,28 @@ bool featureVehInvincible = false;
 bool featureVehInvincibleUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehWrapInSpawned = false;
+bool featureVehicleDoorInstant = false;
 
 int activeLineIndexVeh = 0;
+
+//Door Options list + struct
+struct struct_door_options {
+	std::string text;
+	bool *pState;
+};
+
+std::vector<struct_door_options> DOOR_OPTIONS = {
+	{ "OPEN INSTANTLY", &featureVehicleDoorInstant },
+	{ "FRONT RIGHT", NULL }, //INDEX 0
+	{ "FRONT LEFT", NULL }, //INDEX 1
+	{ "BACK RIGHT", NULL }, //INDEX 2
+	{ "BACK LEFT", NULL }, //INDEX 3 (This opens the ramp on the An-225|CARGOPLANE)
+	{ "HOOD", NULL }, //INDEX 4
+	{ "TRUNK", NULL }, //INDEX 5 (Opens ramp on C-130|TITAN)
+	{ "TRUNK 2", NULL } //INDEX 6 (What uses this?)
+};
+
+int doorOptionsMenuIndex = 0;
 
 //Top Level
 
@@ -128,10 +148,49 @@ const std::vector<std::string> VOV_SHALLOW_CAPTIONS[] = { CAPTIONS_EMERGENCY, CA
 
 const std::vector<std::string> VOV_SHALLOW_VALUES[] = { VALUES_EMERGENCY, VALUES_MOTORCYCLES, VALUES_PLANES, VALUES_HELOS, VALUES_BOATS, VALUES_BICYCLES };
 
+bool onconfirm_vehdoor_menu(int selection, std::string caption, int value) {
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (selection > 0) {
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)) {
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+			float doorAngle = VEHICLE::GET_VEHICLE_DOOR_ANGLE_RATIO(veh, selection - 1); //Best way I could figure out to detect if the part is animated.
+			if (doorAngle < 0.01) {
+				VEHICLE::SET_VEHICLE_DOOR_OPEN(veh, selection - 1, false, featureVehicleDoorInstant);
+			}
+			else {
+				VEHICLE::SET_VEHICLE_DOOR_SHUT(veh, selection - 1, featureVehicleDoorInstant);
+			}
+		}
+	}
+	else {
+		featureVehicleDoorInstant = !featureVehicleDoorInstant;
+		set_status_text((featureVehicleDoorInstant) ? "Open Instantly Enabled" : "Open Instantly Disabled");
+	}
+	return false;
+}
+
+bool process_veh_door_menu() {
+	std::string caption = "DOOR OPTIONS";
+
+	std::vector<std::string> menuCaptions;
+	std::vector<int>menuIndexes;
+
+	for (int i = 0; i < DOOR_OPTIONS.size(); i++) {
+		menuCaptions.push_back(DOOR_OPTIONS[i].text);
+		menuIndexes.push_back(i);
+	}
+
+	return draw_generic_menu<int>(menuCaptions, menuIndexes, doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
+}
+
 void process_veh_menu()
 {
 	const float lineWidth = 250.0;
-	const int lineCount = 6;
+	const int lineCount = 7;
 
 	std::string caption = "VEHICLE  OPTIONS";
 
@@ -141,6 +200,7 @@ void process_veh_menu()
 		bool		*pUpdated;
 	} lines[lineCount] = {
 		{ "CAR SPAWNER", NULL, NULL },
+		{ "DOOR CONTROL", NULL, NULL },
 		{ "PAINT RANDOM", NULL, NULL },
 		{ "FIX", NULL, NULL },
 		{ "WRAP IN SPAWNED", &featureVehWrapInSpawned, NULL },
@@ -187,6 +247,9 @@ void process_veh_menu()
 				if (process_carspawn_menu()) return;
 				break;
 			case 1:
+				if (process_veh_door_menu()) return;
+				break;
+			case 2:
 				if (bPlayerExists)
 				{
 					if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -202,7 +265,7 @@ void process_veh_menu()
 					}
 				}
 				break;
-			case 2:
+			case 3:
 				if (bPlayerExists)
 					if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 						VEHICLE::SET_VEHICLE_FIXED(PED::GET_VEHICLE_PED_IS_USING(playerPed));
@@ -245,7 +308,7 @@ void process_veh_menu()
 	}
 }
 
-void update_vehicle_features(BOOL bPlayerExists, Ped playerPed )
+void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 {
 
 	// player's vehicle invincible
@@ -312,12 +375,13 @@ void reset_vehicle_globals()
 	featureVehInvincible =
 		featureVehInvincibleUpdated =
 		featureVehSpeedBoost =
+		featureVehicleDoorInstant =
 		featureVehWrapInSpawned = false;
 }
 
 bool onconfirm_carspawn_menu(int selection, std::string caption, int value)
 {
-	switch ( selection )
+	switch (selection)
 	{
 	case 0:
 		process_spawn_menu_cars();
