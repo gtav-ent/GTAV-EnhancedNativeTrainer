@@ -77,38 +77,52 @@ int  frozenWantedLevel					=	0;
 
 // player model control, switching on normal ped model when needed	
 
-LPCSTR animalModels[] = { "a_c_boar", "a_c_chimp", "a_c_cow", "a_c_coyote", "a_c_deer", "a_c_fish", "a_c_hen", "a_c_cat_01", "a_c_chickenhawk",
-	"a_c_cormorant", "a_c_crow", "a_c_dolphin", "a_c_humpback", "a_c_killerwhale", "a_c_pigeon", "a_c_seagull", "a_c_sharkhammer",
-	"a_c_pig", "a_c_rat", "a_c_rhesus", "a_c_chop", "a_c_husky", "a_c_mtlion", "a_c_retriever", "a_c_sharktiger", "a_c_shepherd" };
+LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
 
-void check_player_model() 
+void check_player_model()
 {
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();	
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed)) return;
 
 	Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
+
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
-		for (int i = 0; i < (sizeof(animalModels) / sizeof(animalModels[0])); i++) 
-			if (GAMEPLAY::GET_HASH_KEY((char *)animalModels[i]) == model)
+	{
+
+		bool found = false;
+
+		for (int i = 0; i < (sizeof(player_models) / sizeof(player_models[0])); i++)
+		{
+			if (GAMEPLAY::GET_HASH_KEY((char *)player_models[i]) == model)
 			{
-				set_status_text("turning to human");
-				model = GAMEPLAY::GET_HASH_KEY("player_zero");
-				STREAMING::REQUEST_MODEL(model);
-				while (!STREAMING::HAS_MODEL_LOADED(model))
-					WAIT(0);
-				PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), model);
-				PED::SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID());
-				STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
-
-				// wait until player is ressurected
-				while (ENTITY::IS_ENTITY_DEAD(PLAYER::PLAYER_PED_ID()))
-					WAIT(0);
-
+				found = true;
 				break;
 			}
+		}
+
+		if (!found)
+		{
+			set_status_text("Resetting player model");
+			model = GAMEPLAY::GET_HASH_KEY("player_zero");
+			STREAMING::REQUEST_MODEL(model);
+			while (!STREAMING::HAS_MODEL_LOADED(model))
+			{
+				WAIT(0);
+			}
+			PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), model);
+			PED::SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID());
+			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+		}
+
+		// wait until player is ressurected
+		while (ENTITY::IS_ENTITY_DEAD(PLAYER::PLAYER_PED_ID()))
+		{
+			WAIT(0);
+		}
+	}
 }
 
 void update_vehicle_guns()
