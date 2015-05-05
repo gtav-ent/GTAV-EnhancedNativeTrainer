@@ -92,6 +92,7 @@ std::vector<tele_location> LOCATIONS_INACCESS = {
 	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
 	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
 	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
+	{ "10 Car Garage Back Room", 223.193f, -967.322f, -99.000f },
 };
 
 std::vector<tele_location> LOCATIONS_HIGH = {
@@ -127,7 +128,6 @@ std::vector<tele_location> LOCATIONS_REQSCEN = {
 };
 
 std::vector<tele_location> LOCATIONS_BROKEN = {
-	{ "10 Car Garage Back Room", 223.193f, -967.322f, 99.000f },
 	{ "Burnt FIB Building", 160.868f, -745.831f, 250.063f },
 	{ "Carrier", 3069.330f, -4704.220f, 15.043f },
 	{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
