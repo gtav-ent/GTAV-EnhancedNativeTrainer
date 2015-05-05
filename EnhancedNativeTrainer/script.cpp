@@ -1405,7 +1405,7 @@ void process_airbrake_menu()
 		// process buttons
 		bool bSelect, bBack, bUp, bDown;
 		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bBack || airbrake_switch_pressed() || !featureAirbrakeEnabled)
+		if (airbrake_switch_pressed() || !featureAirbrakeEnabled)
 		{
 			menu_beep();
 			break;
@@ -1480,15 +1480,8 @@ void main()
 		}
 		else if (airbrake_switch_pressed())
 		{
-			reset_trainer_switch();
+			menu_beep();
 			process_airbrake_menu();
-			DWORD time = GetTickCount() + 1000;
-			while (GetTickCount() < time)
-			{
-				update_features();
-				WAIT(0);
-			}
-			reset_trainer_switch();
 		}
 
 		update_features();

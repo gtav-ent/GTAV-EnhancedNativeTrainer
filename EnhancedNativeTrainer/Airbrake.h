@@ -19,3 +19,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 void moveThroughDoor();
 
 void airbrake();
+
+void set_airbrake_text(std::string str, DWORD time = 2500, bool isGxtEntry = false);
+
+void update_airbrake_text();

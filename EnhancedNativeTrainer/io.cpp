@@ -35,7 +35,7 @@ bool get_key_pressed(int nVirtKey)
 
 bool airbrake_switch_pressed()
 {
-	return (GetTickCount() > trainerResetTime + 1000) && get_key_pressed(VK_F6);
+	return IsKeyJustUp(VK_F6);
 }
 
 void reset_trainer_switch()
