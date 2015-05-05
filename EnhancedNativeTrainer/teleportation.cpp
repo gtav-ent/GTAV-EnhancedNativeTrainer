@@ -21,7 +21,7 @@ struct tele_location {
 	bool isLoaded;
 };
 
-std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Standard", "Additional", "Otherwise Inaccessible", "Roof/High Up", "Underwater", "Requires Scenery", "Currently Broken"};
+std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Standard", "Additional", "Safehouses", "Otherwise Inaccessible", "Roof/High Up", "Underwater", "Requires Scenery", "Currently Broken"};
 
 int lastChosenCategory = -1;
 
@@ -30,9 +30,6 @@ int lastMenuChoiceInCategories[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 std::vector<tele_location> LOCATIONS_STD = {
 	{ "MARKER" },
 	{ "SHOW CURRENT" },
-	{ "Michael's House", -852.4f, 160.0f, 65.6f },
-	{ "Franklin's House", 7.9f, 548.1f, 175.5f },
-	{ "Trevor's Trailer", 1985.7f, 3812.2f, 32.2f },
 	{ "Airport Entrance", -1034.6f, -2733.6f, 13.8f },
 	{ "Airport Field", -1336.0f, -3044.0f, 13.9f },
 	{ "Elysian Island", 338.2f, -2715.9f, 38.5f },
@@ -79,6 +76,12 @@ std::vector<tele_location> LOCATIONS_ADDITIONAL = {
 	{ "Trevor's Meth Lab", 1391.773f, 3608.716f, 38.942f },
 	{ "Vinewood Bowl Stage", 686.245f, 577.950f, 130.461f },
 	{ "Weed Farm", 2208.777f, 5578.235f, 53.735f },
+};
+
+std::vector<tele_location> LOCATIONS_SAFE = {
+	{ "Michael's House", -852.4f, 160.0f, 65.6f },
+	{ "Franklin's House", 7.9f, 548.1f, 175.5f },
+	{ "Trevor's Trailer", 1985.7f, 3812.2f, 32.2f },
 };
 
 std::vector<tele_location> LOCATIONS_INACCESS = {
@@ -135,7 +138,7 @@ std::vector<tele_location> LOCATIONS_BROKEN = {
 	{ "Yacht", -2023.661f, -1038.038f, 5.577f }
 };
 
-std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_STD, LOCATIONS_ADDITIONAL, LOCATIONS_INACCESS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_REQSCEN, LOCATIONS_BROKEN };
+std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_STD, LOCATIONS_ADDITIONAL, LOCATIONS_SAFE, LOCATIONS_INACCESS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_REQSCEN, LOCATIONS_BROKEN, };
 
 void teleport_to_coords(Entity e, Vector3 coords)
 {
