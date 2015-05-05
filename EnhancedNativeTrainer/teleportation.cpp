@@ -136,7 +136,7 @@ std::vector<tele_location> LOCATIONS_REQSCEN = {
 std::vector<tele_location> LOCATIONS_BROKEN = {
 	{ "Carrier", 3069.330f, -4704.220f, 15.043f },
 	{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
-	{ "Fort Zancudo UFO", 2052.000f, 3237.000f, 1456.973f },
+	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f },
 	{ "Yacht", -2023.661f, -1038.038f, 5.577f }
 };
 
