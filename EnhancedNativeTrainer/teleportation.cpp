@@ -86,6 +86,7 @@ std::vector<tele_location> LOCATIONS_INACCESS = {
 	{ "Ammunation Office", 12.494f, -1110.130f, 29.797f },
 	{ "Blaine County Savings Bank", -109.299f, 6464.035f, 31.627f },
 	{ "FIB Top Floor", 135.733f, -749.216f, 258.152f },
+	{ "Burnt FIB Building", 159.553f, -738.851f, 246.152f },
 	{ "Floyd's Apartment", -1150.703f, -1520.713f, 10.633f },
 	{ "Humane Labs Entrance", 3525.495f, 3705.301f, 20.992f },
 	{ "IAA Office", 117.220f, -620.938f, 206.047f },
@@ -133,7 +134,6 @@ std::vector<tele_location> LOCATIONS_REQSCEN = {
 };
 
 std::vector<tele_location> LOCATIONS_BROKEN = {
-	{ "Burnt FIB Building", 160.868f, -745.831f, 250.063f },
 	{ "Carrier", 3069.330f, -4704.220f, 15.043f },
 	{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
 	{ "Fort Zancudo UFO", 2052.000f, 3237.000f, 1456.973f },
