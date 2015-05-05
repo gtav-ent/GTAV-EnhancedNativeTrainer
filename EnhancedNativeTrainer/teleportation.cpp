@@ -92,7 +92,12 @@ std::vector<tele_location> LOCATIONS_INACCESS = {
 	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
 	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
 	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
+	{ "10 Car Garage Bay", 228.135f, -995.350f, -99.000f },
 	{ "10 Car Garage Back Room", 223.193f, -967.322f, -99.000f },
+	{ "Eclipse Apt 31", -762.762f, 322.634f, 221.855f },
+	{ "Eclipse Apt 40", -790.673f, 334.468f, 206.218f },
+	{ "Eclipse Apt 5", -762.762f, 322.634f, 175.401f },
+	{ "Eclipse Apt 9", -790.673f, 334.468f, 158.599f },
 };
 
 std::vector<tele_location> LOCATIONS_HIGH = {
