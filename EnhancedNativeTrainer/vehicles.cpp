@@ -40,7 +40,7 @@ int doorOptionsMenuIndex = 0;
 
 //Top Level
 
-const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "Emergency/Military", "Motorcycles", "Planes", "Helicopters", "Boats", "Bicycles" };
+const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "Emergency and Military", "Motorcycles", "Planes", "Helicopters", "Boats", "Bicycles" };
 
 //Cars
 
@@ -319,15 +319,9 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	}
 }
 
-
-int carspawnActiveLineIndex = 0;
-int carspawnActiveItemIndex = 0;
-
 void reset_vehicle_globals()
 {
-	activeLineIndexVeh =
-		carspawnActiveLineIndex =
-		carspawnActiveItemIndex = 0;
+	//veh_spawn_menu_index = 0;
 
 	featureVehInvincible =
 		featureVehInvincibleUpdated =
@@ -401,7 +395,7 @@ bool process_spawn_menu_cars()
 bool onconfirm_spawn_menu_indus(MenuItem<int> choice)
 {
 	int selection = choice.value;
-	std::string category = MENU_CAR_CATEGORIES[selection];
+	std::string category = choice.caption;
 
 	std::vector<MenuItem<std::string>*> menuItems;
 	for (int i = 0; i < VOV_INDUS_CAPTIONS[selection].size(); i++)
