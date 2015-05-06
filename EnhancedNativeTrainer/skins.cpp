@@ -462,7 +462,7 @@ bool process_skinchanger_choices_players()
 		MenuItem<std::string> *item = new MenuItem<std::string>();
 		item->caption = SKINS_PLAYER_CAPTIONS[i];
 		item->value = SKINS_PLAYER_VALUES[i];
-		item->isLeaf = false;
+		item->isLeaf = true;
 		menuItems.push_back(item);
 	}
 
@@ -490,7 +490,7 @@ bool process_skinchanger_choices_animals()
 		MenuItem<std::string> *item = new MenuItem<std::string>();
 		item->caption = SKINS_ANIMAL_CAPTIONS[i];
 		item->value = SKINS_ANIMAL_VALUES[i];
-		item->isLeaf = false;
+		item->isLeaf = true;
 		menuItems.push_back(item);
 	}
 
@@ -518,7 +518,7 @@ bool process_skinchanger_choices_misc()
 		MenuItem<std::string> *item = new MenuItem<std::string>();
 		item->caption = SKINS_GENERAL_CAPTIONS[i];
 		item->value = SKINS_GENERAL_VALUES[i];
-		item->isLeaf = false;
+		item->isLeaf = true;
 		menuItems.push_back(item);
 	}
 

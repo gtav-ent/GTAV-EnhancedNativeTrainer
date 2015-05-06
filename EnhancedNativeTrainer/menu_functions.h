@@ -420,7 +420,15 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 	void(*onHighlight)(MenuItem<T> value),
 	void(*onExit)(bool returnValue))
 {
-	int currentSelectionIndex = *menuSelectionPtr;
+	int currentSelectionIndex;
+	if (menuSelectionPtr != 0)
+	{
+		currentSelectionIndex = *menuSelectionPtr;
+	}
+	else
+	{
+		currentSelectionIndex = 0;
+	}
 
 	bool result = false;
 	DWORD waitTime = 150;
@@ -455,6 +463,7 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 
 		if (!is_menu_showing())
 		{
+			make_periodic_feature_call();
 			WAIT(10);
 			continue;
 		}
@@ -576,11 +585,18 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 							{
 								choice->handleLeftPress();
 							}
-							else
+							else if (lineCount > 1)
 							{
+								int mod = currentSelectionIndex % itemsPerLine;
 								currentSelectionIndex -= itemsPerLine;
 								if (currentSelectionIndex < 0)
-									currentSelectionIndex = totalItems - 1;
+								{
+									currentSelectionIndex = mod + ((lineCount-1) * itemsPerLine);
+									if (currentSelectionIndex >= totalItems)
+									{
+										currentSelectionIndex = totalItems - 1;
+									}
+								}
 							}
 							waitTime = 200;
 						}
@@ -593,13 +609,13 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 								{
 									choice->handleRightPress();
 								}
-								else
+								else if (lineCount > 1)
 								{
 									//if we're already at the end, restart
-									if (itemsOnThisLine < itemsPerLine || currentSelectionIndex == totalItems - 1)
+									if (currentLine == lineCount - 1)
 									{
 										currentSelectionIndex = currentSelectionIndex % itemsPerLine;
-										if (currentSelectionIndex > totalItems)
+										if (currentSelectionIndex >= totalItems)
 										{
 											currentSelectionIndex = totalItems - 1;
 										}
@@ -607,15 +623,10 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 									else
 									{
 										currentSelectionIndex += itemsPerLine;
-										if (currentSelectionIndex > totalItems)
+										if (currentSelectionIndex >= totalItems)
 										{
 											currentSelectionIndex = totalItems - 1;
 										}
-									}
-
-									if (currentSelectionIndex > totalItems)
-									{
-										currentSelectionIndex = 0;
 									}
 								}
 								
@@ -627,7 +638,10 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 					onHighlight(*items[currentSelectionIndex]);
 				}
 
-				*menuSelectionPtr = currentSelectionIndex;
+				if (menuSelectionPtr != 0)
+				{
+					*menuSelectionPtr = currentSelectionIndex;
+				}
 			}
 		}
 	}
@@ -647,6 +661,13 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 		} while (GetTickCount() < maxTickCount);
 		waitTime = 0;
 	}
+
+	//clean up the items memory
+	for (int i = 0; i< items.size(); i++)
+	{
+		delete (items[i]);
+	}
+	items.clear();
 
 	return result;
 }
