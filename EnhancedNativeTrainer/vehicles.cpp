@@ -167,10 +167,10 @@ bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 				VEHICLE::SET_VEHICLE_DOOR_SHUT(veh, value, featureVehicleDoorInstant);
 			}
 		}
-	}
-	else {
-		featureVehicleDoorInstant = !featureVehicleDoorInstant;
-		set_status_text((featureVehicleDoorInstant) ? "Open Instantly Enabled" : "Open Instantly Disabled");
+		else
+		{
+			set_status_text("Player isn't in a vehicle");
+		}
 	}
 	return false;
 }
@@ -181,7 +181,14 @@ bool process_veh_door_menu() {
 	std::vector<MenuItem<int>*> menuItems;
 	std::vector<int>menuIndexes;
 
-	for (int i = 0; i < DOOR_OPTIONS.size(); i++) {
+	ToggleMenuItem<int> *immediateToggle = new ToggleMenuItem<int>();
+	immediateToggle->value = 0;
+	immediateToggle->caption = DOOR_OPTIONS[0].text;
+	immediateToggle->toggleValue = DOOR_OPTIONS[0].pState;
+	menuItems.push_back(immediateToggle);
+
+	for (int i = 1; i < DOOR_OPTIONS.size(); i++) {
+
 		MenuItem<int> *item = new MenuItem<int>();
 		item->value = i;
 		item->caption = DOOR_OPTIONS[i].text;

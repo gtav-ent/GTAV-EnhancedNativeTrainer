@@ -554,7 +554,7 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 					{
 						currentSelectionIndex = lineStartPosition;
 					}
-					waitTime = 100;
+					waitTime = 150;
 				}
 				else
 					if (bUp)
@@ -565,7 +565,7 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 						{
 							currentSelectionIndex = lineStartPosition + itemsOnThisLine - 1;
 						}
-						waitTime = 100;
+						waitTime = 150;
 					}
 					else
 						if (bLeft)

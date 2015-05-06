@@ -23,26 +23,27 @@ struct tele_location {
 
 std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Standard", "Additional", "Safehouses", "Otherwise Inaccessible", "Roof/High Up", "Underwater", "Requires Scenery", "Currently Broken"};
 
+int mainMenuIndex = 0;
+
 int lastChosenCategory = -1;
 
 int lastMenuChoiceInCategories[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 std::vector<tele_location> LOCATIONS_STD = {
-	{ "MARKER" },
-	{ "SHOW CURRENT" },
 	{ "Airport Entrance", -1034.6f, -2733.6f, 13.8f },
 	{ "Airport Field", -1336.0f, -3044.0f, 13.9f },
-	{ "Elysian Island", 338.2f, -2715.9f, 38.5f },
-	{ "Jetsam", 760.4f, -2943.2f, 5.8f },
-	{ "Strip Club", 127.4f, -1307.7f, 29.2f },
-	{ "El Burro Heights", 1384.0f, -2057.1f, 52.0f },
-	{ "Ferris Wheel", -1670.7f, -1125.0f, 13.0f },
 	{ "Chumash", -3192.6f, 1100.0f, 20.2f },
-	{ "Wind Farm", 2354.0f, 1830.3f, 101.1f },
+	{ "Desert Airfield", 1747.0f, 3273.7f, 41.1f },
+	{ "El Burro Heights", 1384.0f, -2057.1f, 52.0f },
+	{ "Elysian Island", 338.2f, -2715.9f, 38.5f },
+	{ "Ferris Wheel", -1670.7f, -1125.0f, 13.0f },
+	{ "Jetsam", 760.4f, -2943.2f, 5.8f },
 	{ "Military Base", -2047.4f, 3132.1f, 32.8f },
 	{ "McKenzie Airfield", 2121.7f, 4796.3f, 41.1f },
-	{ "Desert Airfield", 1747.0f, 3273.7f, 41.1f },
-	{ "Mt. Chilliad", 425.4f, 5614.3f, 766.5f } };
+	{ "Mt. Chiliad", 425.4f, 5614.3f, 766.5f },
+	{ "Strip Club", 127.4f, -1307.7f, 29.2f },
+	{ "Wind Farm", 2354.0f, 1830.3f, 101.1f }
+};
 
 // Extra locations coordinates source: "PulseR_HD" @ http://gtaforums.com/topic/789786-vrelwip-simple-trainer-enhancements-skin-detail-chooser-menu-architecture/?p=1067398379
 
@@ -73,7 +74,7 @@ std::vector<tele_location> LOCATIONS_ADDITIONAL = {
 	{ "Quarry", 2954.196f, 2783.410f, 41.004f },
 	{ "Satellite Dishes", 2062.123f, 2942.055f, 47.431f },
 	{ "Sisyphus Theater Stage", 205.316f, 1167.378f, 227.005f },
-	{ "Top of the Mt Chiliad", 450.718f, 5566.614f, 806.183f },
+	{ "Top of Mt. Chiliad", 450.718f, 5566.614f, 806.183f },
 	{ "Tracey's Room", -799.95f, 170.041f, 76.7408f },
 	{ "Trevor's Meth Lab", 1391.773f, 3608.716f, 38.942f },
 	{ "Vinewood Bowl Stage", 686.245f, 577.950f, 130.461f },
@@ -90,8 +91,12 @@ std::vector<tele_location> LOCATIONS_INACCESS = {
 	{ "Ammunation Gun Range", 22.153f, -1072.854f, 29.797f },
 	{ "Ammunation Office", 12.494f, -1110.130f, 29.797f },
 	{ "Blaine County Savings Bank", -109.299f, 6464.035f, 31.627f },
-	{ "FIB Top Floor", 135.733f, -749.216f, 258.152f },
 	{ "Burnt FIB Building", 159.553f, -738.851f, 246.152f },
+	{ "Eclipse Apt 31", -762.762f, 322.634f, 221.855f },
+	{ "Eclipse Apt 40", -790.673f, 334.468f, 206.218f },
+	{ "Eclipse Apt 5", -762.762f, 322.634f, 175.401f },
+	{ "Eclipse Apt 9", -790.673f, 334.468f, 158.599f },
+	{ "FIB Top Floor", 135.733f, -749.216f, 258.152f },
 	{ "Floyd's Apartment", -1150.703f, -1520.713f, 10.633f },
 	{ "Humane Labs Entrance", 3525.495f, 3705.301f, 20.992f },
 	{ "IAA Office", 117.220f, -620.938f, 206.047f },
@@ -100,10 +105,6 @@ std::vector<tele_location> LOCATIONS_INACCESS = {
 	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
 	{ "10 Car Garage Bay", 228.135f, -995.350f, -99.000f },
 	{ "10 Car Garage Back Room", 223.193f, -967.322f, -99.000f },
-	{ "Eclipse Apt 31", -762.762f, 322.634f, 221.855f },
-	{ "Eclipse Apt 40", -790.673f, 334.468f, 206.218f },
-	{ "Eclipse Apt 5", -762.762f, 322.634f, 175.401f },
-	{ "Eclipse Apt 9", -790.673f, 334.468f, 158.599f },
 };
 
 std::vector<tele_location> LOCATIONS_HIGH = {
@@ -216,9 +217,21 @@ void teleport_to_marker(Entity e)
 
 bool onconfirm_teleport_category(MenuItem<int> choice)
 {
+	Entity e = PLAYER::PLAYER_PED_ID();
+	if (choice.value == -2)
+	{
+		teleport_to_marker(e);
+		return false;
+	}
+	else if (choice.value == -1)
+	{
+		output_current_location(e);
+		return false;
+	}
+
 	lastChosenCategory = choice.value;
 
-	if (process_teleport_menu(choice.value))
+	if (process_teleport_menu(lastChosenCategory))
 	{
 		return true;
 	}
@@ -238,101 +251,90 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 		e = PED::GET_VEHICLE_PED_IS_USING(e);
 	}
 
-	if (choice.currentMenuIndex == 0 && lastChosenCategory==0)
+	Vector3 coords;
+
+	if (value->scenery_loader != NULL && !value->isLoaded)
 	{
-		teleport_to_marker(e);
-	}
-	else if (choice.currentMenuIndex == 1 && lastChosenCategory == 0)
-	{
-		output_current_location(e);
-		return false;
-	}
-	else
-	{
-		Vector3 coords;
+		set_status_text("Loading new scenery...");
+		value->scenery_loader();
+		value->isLoaded = true;
 
-		if (value->scenery_loader != NULL && !value->isLoaded)
-		{
-			set_status_text("Loading new scenery...");
-			value->scenery_loader();
-			value->isLoaded = true;
-
-			DWORD time = GetTickCount() + 1000;
-			while (GetTickCount() < time)
-			{
-				make_periodic_feature_call();
-				WAIT(0);
-			}
-
-			set_status_text("New scenery loaded");
-
-			time = GetTickCount() + 1000;
-			while (GetTickCount() < time)
-			{
-				make_periodic_feature_call();
-				WAIT(0);
-			}
-		}
-
-		coords.x = value->x;
-		coords.y = value->y;
-		coords.z = value->z;
-		teleport_to_coords(e, coords);
-
-		bool unloadedAnything = false;
 		DWORD time = GetTickCount() + 1000;
-
-		for (int x = 0; x < MENU_LOCATION_CATEGORIES.size(); x++)
+		while (GetTickCount() < time)
 		{
-			for (int y = 0; y < VOV_LOCATIONS[x].size(); y++)
-			{
-				//don't unload our newly loaded scenery
-				if (x == lastChosenCategory && y == choice.value)
-				{
-					continue;
-				}
-
-				tele_location* loc = &VOV_LOCATIONS[x][y];
-
-				//don't unload something using same loader
-				if (loc->scenery_loader == value->scenery_loader)
-				{
-					continue;
-				}
-
-				if (loc->isLoaded && loc->scenery_unloader != NULL)
-				{
-					if (!unloadedAnything)
-					{
-						set_status_text("Unloading old scenery...");
-						time = GetTickCount() + 1000;
-						while (GetTickCount() < time)
-						{
-							make_periodic_feature_call();
-							WAIT(0);
-						}
-					}
-
-					loc->scenery_unloader();
-					unloadedAnything = true;
-					loc->isLoaded = false;
-				}
-			}
+			make_periodic_feature_call();
+			WAIT(0);
 		}
 
-		if (unloadedAnything)
-		{
-			set_status_text("Old scenery unloaded");
+		set_status_text("New scenery loaded");
 
-			time = GetTickCount() + 1000;
-			while (GetTickCount() < time)
+		time = GetTickCount() + 1000;
+		while (GetTickCount() < time)
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
+	}
+
+	coords.x = value->x;
+	coords.y = value->y;
+	coords.z = value->z;
+	teleport_to_coords(e, coords);
+
+	bool unloadedAnything = false;
+	DWORD time = GetTickCount() + 1000;
+
+	for (int x = 0; x < MENU_LOCATION_CATEGORIES.size(); x++)
+	{
+		for (int y = 0; y < VOV_LOCATIONS[x].size(); y++)
+		{
+			//don't unload our newly loaded scenery
+			if (x == lastChosenCategory && y == choice.value)
 			{
-				make_periodic_feature_call();
-				WAIT(0);
+				continue;
+			}
+
+			tele_location* loc = &VOV_LOCATIONS[x][y];
+
+			//don't unload something using same loader
+			if (loc->scenery_loader == value->scenery_loader)
+			{
+				continue;
+			}
+
+			if (loc->isLoaded && loc->scenery_unloader != NULL)
+			{
+				if (!unloadedAnything)
+				{
+					set_status_text("Unloading old scenery...");
+					time = GetTickCount() + 1000;
+					while (GetTickCount() < time)
+					{
+						make_periodic_feature_call();
+						WAIT(0);
+					}
+				}
+
+				loc->scenery_unloader();
+				unloadedAnything = true;
+				loc->isLoaded = false;
 			}
 		}
 	}
-	return true;
+
+	if (unloadedAnything)
+	{
+		set_status_text("Old scenery unloaded");
+
+		time = GetTickCount() + 1000;
+		while (GetTickCount() < time)
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
+	}
+
+	return false;
 }
 
 bool process_teleport_menu(int categoryIndex)
@@ -340,6 +342,18 @@ bool process_teleport_menu(int categoryIndex)
 	if (categoryIndex == -1)
 	{
 		std::vector<MenuItem<int>*> menuItems;
+
+		MenuItem<int> *markerItem = new MenuItem<int>();
+		markerItem->caption = "GO TO MARKER";
+		markerItem->value = -2;
+		markerItem->isLeaf = true;
+		menuItems.push_back(markerItem);
+
+		MenuItem<int> *dialogItem = new MenuItem<int>();
+		dialogItem->caption = "SHOW COORDINATES";
+		dialogItem->value = -1;
+		dialogItem->isLeaf = true;
+		menuItems.push_back(dialogItem);
 
 		for (int i = 0; i < MENU_LOCATION_CATEGORIES.size(); i++)
 		{
@@ -350,7 +364,8 @@ bool process_teleport_menu(int categoryIndex)
 			menuItems.push_back(item);
 		}
 
-		return draw_generic_menu<int>(menuItems, &lastChosenCategory, "Teleport Locations", onconfirm_teleport_category, NULL, NULL);
+		bool result = draw_generic_menu<int>(menuItems, &mainMenuIndex, "Teleport Locations", onconfirm_teleport_category, NULL, NULL);
+		return result;
 	}
 	else
 	{

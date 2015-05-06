@@ -484,12 +484,8 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		if (process_skinchanger_detail_menu())	return;
 		break;
 		*/
-		// teleport
-	case 1:
-		if (process_teleport_menu(-1)) return true;
-		break;
 		// fix player
-	case 2:
+	case 1:
 	{
 		ENTITY::SET_ENTITY_HEALTH(playerPed, ENTITY::GET_ENTITY_MAX_HEALTH(playerPed));
 		PED::ADD_ARMOUR_TO_PED(playerPed, PLAYER::GET_PLAYER_MAX_ARMOUR(player) - PED::GET_PED_ARMOUR(playerPed));
@@ -503,7 +499,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 	}
 	break;
 	// add cash
-	case 3:
+	case 2:
 		for (int i = 0; i < 3; i++)
 		{
 			char statNameFull[32];
@@ -517,7 +513,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		set_status_text("Cash Added");
 		break;
 		// wanted up or down, handled by item
-	case 4:
+	case 3:
 		break;
 	default:
 		break;
@@ -527,13 +523,12 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 13;
+	const int lineCount = 12;
 	
 	std::string caption = "Player Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{"Player Skin", NULL, NULL, false},
-		{"Teleport", NULL, NULL, false},
 		{"Heal Player", NULL, NULL, true},
 		{"Add Cash", NULL, NULL, true},
 		{"Wanted Level", NULL, NULL, true, WANTED},
@@ -661,6 +656,27 @@ int activeLineIndexTime = 0;
 
 bool onconfirm_time_menu(MenuItem<int> choice)
 {
+	switch (activeLineIndexTime)
+	{
+		// hour forward/backward
+	case 0:
+	case 1:
+	{
+		int h = TIME::GET_CLOCK_HOURS();
+		if (activeLineIndexTime == 0) h = (h == 23) ? 0 : h + 1; else h = (h == 0) ? 23 : h - 1;
+		int m = TIME::GET_CLOCK_MINUTES();
+		TIME::SET_CLOCK_TIME(h, m, 0);
+		char text[32];
+		sprintf_s(text, "time %02d:%02d", h, m);
+		set_status_text(text);
+	}
+	break;
+	case 3:
+		if (featureTimeSynced)
+		{
+			set_status_text("Time synced with system");
+		}
+	}
 	return false;
 }
 
@@ -671,8 +687,8 @@ void process_time_menu()
 	std::string caption = "Time Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Hour Forward",	 NULL,				 NULL},
-		{"Hour Backward",	 NULL,				 NULL},
+		{"Hour Forward",	 NULL,				 NULL, true},
+		{"Hour Backward",	 NULL,				 NULL, true},
 		{"Clock Paused",	 &featureTimePaused, &featureTimePausedUpdated},
 		{"Sync With System", &featureTimeSynced, NULL}
 	};
@@ -692,7 +708,6 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 	{
 		// wind
 	case 0:
-		featureWeatherWind = !featureWeatherWind;
 		if (featureWeatherWind)
 		{
 			GAMEPLAY::SET_WIND(1.0);
@@ -794,21 +809,24 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_player_menu();
 		break;
 	case 1:
-		process_weapon_menu();
+		process_teleport_menu(-1);
 		break;
 	case 2:
-		process_veh_menu();
+		process_weapon_menu();
 		break;
 	case 3:
-		process_world_menu();
+		process_veh_menu();
 		break;
 	case 4:
-		process_time_menu();
+		process_world_menu();
 		break;
 	case 5:
-		process_weather_menu();
+		process_time_menu();
 		break;
 	case 6:
+		process_weather_menu();
+		break;
+	case 7:
 		process_misc_menu();
 		break;
 	}
@@ -821,6 +839,7 @@ void process_main_menu()
 
 	std::vector<std::string> TOP_OPTIONS = {
 		"Player",
+		"Teleport",
 		"Weapon",
 		"Vehicle",
 		"World",
