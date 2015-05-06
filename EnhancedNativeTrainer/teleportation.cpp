@@ -65,6 +65,7 @@ std::vector<tele_location> LOCATIONS_ADDITIONAL = {
 	{ "Main LS Customs", -365.425f, -131.809f, 37.873f },
 	{ "Marlowe Vineyards", -1868.971f, 2095.674f, 139.115f },
 	{ "Merryweather Dock", 486.417f, -3339.692f, 6.070f },
+	{ "Michael's House Inside", -800.227f, 179.762f, 72.8348f },
 	{ "Mineshaft", -595.342f, 2086.008f, 131.412f },
 	{ "Most Northerly Point", 24.775f, 7644.102f, 19.055f },
 	{ "NOOSE Headquarters", 2535.243f, -383.799f, 92.993f },
@@ -75,7 +76,8 @@ std::vector<tele_location> LOCATIONS_ADDITIONAL = {
 	{ "Quarry", 2954.196f, 2783.410f, 41.004f },
 	{ "Satellite Dishes", 2062.123f, 2942.055f, 47.431f },
 	{ "Sisyphus Theater Stage", 205.316f, 1167.378f, 227.005f },
-	{ "Top of the Mt Chilad", 450.718f, 5566.614f, 806.183f },
+	{ "Top of the Mt Chiliad", 450.718f, 5566.614f, 806.183f },
+	{ "Tracey's Room", -799.95f, 170.041f, 76.7408f },
 	{ "Trevor's Meth Lab", 1391.773f, 3608.716f, 38.942f },
 	{ "Vinewood Bowl Stage", 686.245f, 577.950f, 130.461f },
 	{ "Weed Farm", 2208.777f, 5578.235f, 53.735f },
@@ -204,22 +206,22 @@ void teleport_to_marker(Entity e)
 	}
 }
 
-bool onconfirm_teleport_category(int selection, std::string caption, int category)
+bool onconfirm_teleport_category(MenuItem<int> choice)
 {
-	lastChosenCategory = category;
+	lastChosenCategory = choice.value;
 
-	if (process_teleport_menu(category))
+	if (process_teleport_menu(choice.value))
 	{
 		return true;
 	}
 	return false;
 }
 
-bool onconfirm_teleport_location(int selection, std::string caption, int locationIndex)
+bool onconfirm_teleport_location(MenuItem<int> choice)
 {
-	lastMenuChoiceInCategories[lastChosenCategory] = locationIndex;
+	lastMenuChoiceInCategories[lastChosenCategory] = choice.value;
 
-	tele_location* value = &VOV_LOCATIONS[lastChosenCategory][locationIndex];
+	tele_location* value = &VOV_LOCATIONS[lastChosenCategory][choice.value];
 
 	// get entity to teleport
 	Entity e = PLAYER::PLAYER_PED_ID();
@@ -228,11 +230,11 @@ bool onconfirm_teleport_location(int selection, std::string caption, int locatio
 		e = PED::GET_VEHICLE_PED_IS_USING(e);
 	}
 
-	if (selection == 0 && lastChosenCategory==0)
+	if (choice.currentMenuIndex == 0 && lastChosenCategory==0)
 	{
 		teleport_to_marker(e);
 	}
-	else if (selection == 1 && lastChosenCategory == 0)
+	else if (choice.currentMenuIndex == 1 && lastChosenCategory == 0)
 	{
 		output_current_location(e);
 		return false;
@@ -277,7 +279,7 @@ bool onconfirm_teleport_location(int selection, std::string caption, int locatio
 			for (int y = 0; y < VOV_LOCATIONS[x].size(); y++)
 			{
 				//don't unload our newly loaded scenery
-				if (x == lastChosenCategory && y == locationIndex)
+				if (x == lastChosenCategory && y == choice.value)
 				{
 					continue;
 				}
@@ -329,29 +331,32 @@ bool process_teleport_menu(int categoryIndex)
 {
 	if (categoryIndex == -1)
 	{
-		std::vector<std::string> menuCaptions;
-		std::vector<int> menuIndexes;
+		std::vector<MenuItem<int>*> menuItems;
 
 		for (int i = 0; i < MENU_LOCATION_CATEGORIES.size(); i++)
 		{
-			menuCaptions.push_back(MENU_LOCATION_CATEGORIES[i]);
-			menuIndexes.push_back(i);
+			MenuItem<int> *item = new MenuItem<int>();
+			item->caption = MENU_LOCATION_CATEGORIES[i];
+			item->value = i;
+			item->isLeaf = false;
+			menuItems.push_back(item);
 		}
 
-		return draw_generic_menu<int>(menuCaptions, menuIndexes, lastChosenCategory, "Teleport Locations", onconfirm_teleport_category, NULL, NULL);
+		return draw_generic_menu<int>(menuItems, &lastChosenCategory, "Teleport Locations", onconfirm_teleport_category, NULL, NULL);
 	}
 	else
 	{
-		std::vector<std::string> menuCaptions;
-		std::vector<int> menuIndexes;
+		std::vector<MenuItem<int>*> menuItems;
 
 		for (int i = 0; i < VOV_LOCATIONS[categoryIndex].size(); i++)
 		{
-			menuCaptions.push_back(VOV_LOCATIONS[categoryIndex][i].text);
-			menuIndexes.push_back(i);
+			MenuItem<int> *item = new MenuItem<int>();
+			item->caption = VOV_LOCATIONS[categoryIndex][i].text;
+			item->value = i;
+			menuItems.push_back(item);
 		}
 
-		 return draw_generic_menu<int>(menuCaptions, menuIndexes, lastMenuChoiceInCategories[lastChosenCategory], "Teleport Locations", onconfirm_teleport_location, NULL, NULL);
+		return draw_generic_menu<int>(menuItems, &lastMenuChoiceInCategories[lastChosenCategory], "Teleport Locations", onconfirm_teleport_location, NULL, NULL);
 	}
 }
 

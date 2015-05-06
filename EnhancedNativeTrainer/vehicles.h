@@ -16,6 +16,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
+#include "menu_functions.h"
+
 #include <string>
 
 /***
@@ -36,6 +38,6 @@ bool process_spawn_menu_indus();
 
 bool process_spawn_menu_generic(int topMenuSelection);
 
-bool onconfirm_spawn_menu_vehicle_selection(int selection, std::string caption, std::string value);
+bool onconfirm_spawn_menu_vehicle_selection(MenuItem<std::string> choice);
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle);

@@ -74,6 +74,8 @@ bool featureMiscHideHud					=	false;
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
 
+
+
 void check_player_model()
 {
 	// common variables
@@ -178,6 +180,8 @@ void update_features()
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();	
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
+
+	//PLAYER::DISABLE_PLAYER_FIRING(playerPed, TRUE);
 
 	// player invincible
 	if (featurePlayerInvincibleUpdated)
@@ -461,187 +465,103 @@ LPCSTR pedModelNames[69][10] = {
 
 int activeLineIndexPlayer = 0;
 
+bool onconfirm_player_menu(MenuItem<int> choice)
+{
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	switch (activeLineIndexPlayer)
+	{
+		// skin changer
+	case 0:
+		if (process_skinchanger_menu())	return true;
+		break;
+		/*
+		// skin changer
+		case 1:
+		if (process_skinchanger_detail_menu())	return;
+		break;
+		*/
+		// teleport
+	case 1:
+		if (process_teleport_menu(-1)) return true;
+		break;
+		// fix player
+	case 2:
+	{
+		ENTITY::SET_ENTITY_HEALTH(playerPed, ENTITY::GET_ENTITY_MAX_HEALTH(playerPed));
+		PED::ADD_ARMOUR_TO_PED(playerPed, PLAYER::GET_PLAYER_MAX_ARMOUR(player) - PED::GET_PED_ARMOUR(playerPed));
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle playerVeh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			if (ENTITY::DOES_ENTITY_EXIST(playerVeh) && !ENTITY::IS_ENTITY_DEAD(playerVeh))
+				VEHICLE::SET_VEHICLE_FIXED(playerVeh);
+		}
+		set_status_text("Player Healed");
+	}
+	break;
+	// add cash
+	case 3:
+		for (int i = 0; i < 3; i++)
+		{
+			char statNameFull[32];
+			sprintf_s(statNameFull, "SP%d_TOTAL_CASH", i);
+			Hash hash = GAMEPLAY::GET_HASH_KEY(statNameFull);
+			int val;
+			STATS::STAT_GET_INT(hash, &val, -1);
+			val += 1000000;
+			STATS::STAT_SET_INT(hash, val, 1);
+		}
+		set_status_text("Cash Added");
+		break;
+		// wanted up or down, handled by item
+	case 4:
+		break;
+	default:
+		break;
+	}
+	return false;
+}
+
 void process_player_menu()
 {
-	const float lineWidth = 250.0;
-	const int lineCount = 14;
+	const int lineCount = 13;
 	
-	std::string caption = "PLAYER  OPTIONS";
+	std::string caption = "Player Options";
 
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{"PLAYER SKIN", NULL, NULL},
-		{"TELEPORT", NULL, NULL},
-		{"FIX PLAYER", NULL, NULL},
-		{"ADD CASH", NULL, NULL},
-		{"WANTED UP", NULL, NULL},
-		{"WANTED DOWN", NULL, NULL},
-		{"NEVER WANTED", &featurePlayerNeverWanted, NULL},
-		{"INVINCIBLE", &featurePlayerInvincible, &featurePlayerInvincibleUpdated},
-		{"POLICE IGNORED", &featurePlayerIgnored, &featurePlayerIgnoredUpdated},
-		{"UNLIM ABILITY", &featurePlayerUnlimitedAbility, NULL},
-		{"NOISELESS", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated},
-		{"FAST SWIM", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated},
-		{"FAST RUN", &featurePlayerFastRun, &featurePlayerFastRunUpdated},
-		{"SUPER JUMP", &featurePlayerSuperJump, NULL}
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{"Player Skin", NULL, NULL, false},
+		{"Teleport", NULL, NULL, false},
+		{"Heal Player", NULL, NULL, true},
+		{"Add Cash", NULL, NULL, true},
+		{"Wanted Level", NULL, NULL, true, WANTED},
+		{"Never Wanted", &featurePlayerNeverWanted, NULL, true},
+		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
+		{"Police Ignored", &featurePlayerIgnored, &featurePlayerIgnoredUpdated, true},
+		{"Unlim. Ability", &featurePlayerUnlimitedAbility, NULL, true},
+		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
+		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
+		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
+		{"Super Jump", &featurePlayerSuperJump, NULL, true}
 	};
 
-	DWORD waitTime = 150;
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexPlayer)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState), 
-								   lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexPlayer].text, lines[activeLineIndexPlayer].pState), 
-						   lineWidth + 1.0, 11.0, 56.0 + activeLineIndexPlayer * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-
-			// common variables
-			BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-			Player player = PLAYER::PLAYER_ID();
-			Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-			switch (activeLineIndexPlayer)
-			{
-				// skin changer
-				case 0:
-					if (process_skinchanger_menu())	return;
-					break;
-					/*
-				// skin changer
-				case 1:
-					if (process_skinchanger_detail_menu())	return;
-					break;
-					*/
-				// teleport
-				case 1:
-					if (process_teleport_menu(-1)) return;
-					break;
-				// fix player
-				case 2:
-					{
-						ENTITY::SET_ENTITY_HEALTH(playerPed, ENTITY::GET_ENTITY_MAX_HEALTH(playerPed));
-						PED::ADD_ARMOUR_TO_PED(playerPed, PLAYER::GET_PLAYER_MAX_ARMOUR(player) - PED::GET_PED_ARMOUR(playerPed));
-						if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-						{
-							Vehicle playerVeh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-							if (ENTITY::DOES_ENTITY_EXIST(playerVeh) && !ENTITY::IS_ENTITY_DEAD(playerVeh))
-								VEHICLE::SET_VEHICLE_FIXED(playerVeh);
-						}
-						set_status_text("player fixed");
-					}
-					break;
-				// add cash
-				case 3: 
-					for (int i = 0; i < 3; i++)
-					{
-						char statNameFull[32];
-						sprintf_s(statNameFull, "SP%d_TOTAL_CASH", i);
-						Hash hash = GAMEPLAY::GET_HASH_KEY(statNameFull);
-						int val;
-						STATS::STAT_GET_INT(hash, &val, -1);
-						val += 1000000;
-						STATS::STAT_SET_INT(hash, val, 1);
-					}
-					set_status_text("cash added");
-					break;
-				// wanted up
-				case 4:	
-					if (bPlayerExists && PLAYER::GET_PLAYER_WANTED_LEVEL(player) < 5)
-					{
-						PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) + 1, 0);
-						PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-						set_status_text("wanted up");
-					}
-					break;
-				// wanted down
-				case 5:	
-					if (bPlayerExists && PLAYER::GET_PLAYER_WANTED_LEVEL(player) > 0)
-					{
-						PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) - 1, 0);
-						PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-						set_status_text("wanted down");
-					}
-					break;
-				// switchable features
-				default:
-					if (lines[activeLineIndexPlayer].pState)
-						*lines[activeLineIndexPlayer].pState = !(*lines[activeLineIndexPlayer].pState);
-					if (lines[activeLineIndexPlayer].pUpdated)
-						*lines[activeLineIndexPlayer].pUpdated = true;					
-			}
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (activeLineIndexPlayer == 0) 
-				activeLineIndexPlayer = lineCount;
-			activeLineIndexPlayer--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			activeLineIndexPlayer++;
-			if (activeLineIndexPlayer == lineCount) 
-				activeLineIndexPlayer = 0;			
-			waitTime = 150;
-		}
-	}
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
 }
 
 int activeLineIndexWeapon = 0;
 
-void process_weapon_menu()
+bool onconfirm_weapon_menu(MenuItem<int> choice)
 {
-	const float lineWidth = 250.0;
-	const int lineCount = 6;
-
-	std::string caption = "WEAPON  OPTIONS";
-
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{"GET ALL WEAPON",	NULL,						  NULL},
-		{"NO RELOAD",		&featureWeaponNoReload,		  NULL},
-		{"FIRE AMMO",		&featureWeaponFireAmmo,		  NULL},
-		{"EXPLOSIVE AMMO",  &featureWeaponExplosiveAmmo,  NULL},
-		{"EXPLOSIVE MELEE", &featureWeaponExplosiveMelee, NULL},
-		{"VEHICLE ROCKETS", &featureWeaponVehRockets,	  NULL}
-	};
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	static LPCSTR weaponNames[] = {
-		"WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR", 
-		"WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_MICROSMG", "WEAPON_SMG", 
+		"WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR",
+		"WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_MICROSMG", "WEAPON_SMG",
 		"WEAPON_ASSAULTSMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_MG",
 		"WEAPON_COMBATMG", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_BULLPUPSHOTGUN",
 		"WEAPON_STUNGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_GRENADELAUNCHER", "WEAPON_GRENADELAUNCHER_SMOKE",
@@ -652,599 +572,275 @@ void process_weapon_menu()
 		"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN"
 	};
 
-	DWORD waitTime = 150;
-	while (true)
+	switch (activeLineIndexWeapon)
 	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
+	case 0:
+		for (int i = 0; i < sizeof(weaponNames) / sizeof(weaponNames[0]); i++)
 		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexWeapon)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState), 
-								   lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexWeapon].text, lines[activeLineIndexWeapon].pState), 
-						   lineWidth + 1.0, 11.0, 56.0 + activeLineIndexWeapon * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-
-			// common variables
-			BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-			Player player = PLAYER::PLAYER_ID();
-			Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-			switch (activeLineIndexWeapon)
-			{
-				case 0:
-					for (int i = 0; i < sizeof(weaponNames) / sizeof(weaponNames[0]); i++)
-						WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, GAMEPLAY::GET_HASH_KEY((char *)weaponNames[i]), 1000, 0);
-
-					WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
-
-					set_status_text("All weapons added");
-					break;
-				// switchable features
-				default:
-					if (lines[activeLineIndexWeapon].pState)
-						*lines[activeLineIndexWeapon].pState = !(*lines[activeLineIndexWeapon].pState);
-					if (lines[activeLineIndexWeapon].pUpdated)
-						*lines[activeLineIndexWeapon].pUpdated = true;					
-			}
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (activeLineIndexWeapon == 0) 
-				activeLineIndexWeapon = lineCount;
-			activeLineIndexWeapon--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			activeLineIndexWeapon++;
-			if (activeLineIndexWeapon == lineCount) 
-				activeLineIndexWeapon = 0;			
-			waitTime = 150;
+			WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, GAMEPLAY::GET_HASH_KEY((char *)weaponNames[i]), 1000, 0);
 		}
+
+		//parachute
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
+
+		set_status_text("All weapons added");
+		break;
+		// switchable features
+	default:
+		break;
 	}
+	return false;
 }
 
-LPCSTR vehicleModels[35][10] = {
-	{"NINEF", "NINEF2", "BLISTA", "ASEA", "ASEA2", "BOATTRAILER", "BUS", "ARMYTANKER", "ARMYTRAILER", "ARMYTRAILER2"},
-	{"SUNTRAP", "COACH", "AIRBUS", "ASTEROPE", "AIRTUG", "AMBULANCE", "BARRACKS", "BARRACKS2", "BALLER", "BALLER2"},
-	{"BJXL", "BANSHEE", "BENSON", "BFINJECTION", "BIFF", "BLAZER", "BLAZER2", "BLAZER3", "BISON", "BISON2"},
-	{"BISON3", "BOXVILLE", "BOXVILLE2", "BOXVILLE3", "BOBCATXL", "BODHI2", "BUCCANEER", "BUFFALO", "BUFFALO2", "BULLDOZER"},
-	{"BULLET", "BLIMP", "BURRITO", "BURRITO2", "BURRITO3", "BURRITO4", "BURRITO5", "CAVALCADE", "CAVALCADE2", "POLICET"},
-	{"GBURRITO", "CABLECAR", "CADDY", "CADDY2", "CAMPER", "CARBONIZZARE", "CHEETAH", "COMET2", "COGCABRIO", "COQUETTE"},
-	{"CUTTER", "GRESLEY", "DILETTANTE", "DILETTANTE2", "DUNE", "DUNE2", "HOTKNIFE", "DLOADER", "DUBSTA", "DUBSTA2"},
-	{"DUMP", "RUBBLE", "DOCKTUG", "DOMINATOR", "EMPEROR", "EMPEROR2", "EMPEROR3", "ENTITYXF", "EXEMPLAR", "ELEGY2"},
-	{"F620", "FBI", "FBI2", "FELON", "FELON2", "FELTZER2", "FIRETRUK", "FLATBED", "FORKLIFT", "FQ2"},
-	{"FUSILADE", "FUGITIVE", "FUTO", "GRANGER", "GAUNTLET", "HABANERO", "HAULER", "HANDLER", "INFERNUS", "INGOT"},
-	{"INTRUDER", "ISSI2", "JACKAL", "JOURNEY", "JB700", "KHAMELION", "LANDSTALKER", "LGUARD", "MANANA", "MESA"},
-	{"MESA2", "MESA3", "CRUSADER", "MINIVAN", "MIXER", "MIXER2", "MONROE", "MOWER", "MULE", "MULE2"},
-	{"ORACLE", "ORACLE2", "PACKER", "PATRIOT", "PBUS", "PENUMBRA", "PEYOTE", "PHANTOM", "PHOENIX", "PICADOR"},
-	{"POUNDER", "POLICE", "POLICE4", "POLICE2", "POLICE3", "POLICEOLD1", "POLICEOLD2", "PONY", "PONY2", "PRAIRIE"},
-	{"PRANGER", "PREMIER", "PRIMO", "PROPTRAILER", "RANCHERXL", "RANCHERXL2", "RAPIDGT", "RAPIDGT2", "RADI", "RATLOADER"},
-	{"REBEL", "REGINA", "REBEL2", "RENTALBUS", "RUINER", "RUMPO", "RUMPO2", "RHINO", "RIOT", "RIPLEY"},
-	{"ROCOTO", "ROMERO", "SABREGT", "SADLER", "SADLER2", "SANDKING", "SANDKING2", "SCHAFTER2", "SCHWARZER", "SCRAP"},
-	{"SEMINOLE", "SENTINEL", "SENTINEL2", "ZION", "ZION2", "SERRANO", "SHERIFF", "SHERIFF2", "SPEEDO", "SPEEDO2"},
-	{"STANIER", "STINGER", "STINGERGT", "STOCKADE", "STOCKADE3", "STRATUM", "SULTAN", "SUPERD", "SURANO", "SURFER"},
-	{"SURFER2", "SURGE", "TACO", "TAILGATER", "TAXI", "TRASH", "TRACTOR", "TRACTOR2", "TRACTOR3", "GRAINTRAILER"},
-	{"BALETRAILER", "TIPTRUCK", "TIPTRUCK2", "TORNADO", "TORNADO2", "TORNADO3", "TORNADO4", "TOURBUS", "TOWTRUCK", "TOWTRUCK2"},
-	{"UTILLITRUCK", "UTILLITRUCK2", "UTILLITRUCK3", "VOODOO2", "WASHINGTON", "STRETCH", "YOUGA", "ZTYPE", "SANCHEZ", "SANCHEZ2"},
-	{"SCORCHER", "TRIBIKE", "TRIBIKE2", "TRIBIKE3", "FIXTER", "CRUISER", "BMX", "POLICEB", "AKUMA", "CARBONRS"},
-	{"BAGGER", "BATI", "BATI2", "RUFFIAN", "DAEMON", "DOUBLE", "PCJ", "VADER", "VIGERO", "FAGGIO2"},
-	{"HEXER", "ANNIHILATOR", "BUZZARD", "BUZZARD2", "CARGOBOB", "CARGOBOB2", "CARGOBOB3", "SKYLIFT", "POLMAV", "MAVERICK"},
-	{"NEMESIS", "FROGGER", "FROGGER2", "CUBAN800", "DUSTER", "STUNT", "MAMMATUS", "JET", "SHAMAL", "LUXOR"},
-	{"TITAN", "LAZER", "CARGOPLANE", "SQUALO", "MARQUIS", "DINGHY", "DINGHY2", "JETMAX", "PREDATOR", "TROPIC"},
-	{"SEASHARK", "SEASHARK2", "SUBMERSIBLE", "TRAILERS", "TRAILERS2", "TRAILERS3", "TVTRAILER", "RAKETRAILER", "TANKER", "TRAILERLOGS"},
-	{"TR2", "TR3", "TR4", "TRFLAT", "TRAILERSMALL", "VELUM", "ADDER", "VOLTIC", "VACCA", "BIFTA"},
-	{ "SPEEDER", "PARADISE", "KALAHARI", "JESTER", "TURISMOR", "VESTRA", "ALPHA", "HUNTLEY", "THRUST", "MASSACRO" },
-	{ "MASSACRO2", "ZENTORNO", "BLADE", "GLENDALE", "PANTO", "PIGALLE", "WARRENER", "RHAPSODY", "DUBSTA3", "MONSTER" },
-	{ "SOVEREIGN", "INNOVATION", "HAKUCHOU", "FUROREGT", "MILJET", "COQUETTE2", "BTYPE", "BUFFALO3", "DOMINATOR2", "GAUNTLET2" },
-	{ "MARSHALL", "DUKES", "DUKES2", "STALION", "STALION2", "BLISTA2", "BLISTA3", "DODO", "SUBMERSIBLE2", "HYDRA" },
-	{ "INSURGENT", "INSURGENT2", "TECHNICAL", "SAVAGE", "VALKYRIE", "KURUMA", "KURUMA2", "JESTER2", "CASCO", "VELUM2" },
-	{ "GUARDIAN", "ENDURO", "LECTRO", "SLAMVAN", "SLAMVAN2", "RATLOADER2", "", "", "", "" }
-};
+void process_weapon_menu()
+{
+	const int lineCount = 6;
 
+	std::string caption = "Weapon Options";
+
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{"Give All Weapons",	NULL,						  NULL},
+		{"No Reload",		&featureWeaponNoReload,		  NULL},
+		{"Fire Ammo",		&featureWeaponFireAmmo,		  NULL},
+		{"Explosive Ammo",  &featureWeaponExplosiveAmmo,  NULL},
+		{"Explosive Melee", &featureWeaponExplosiveMelee, NULL},
+		{"Vehicle Rockets", &featureWeaponVehRockets,	  NULL}
+	};
+
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexWeapon, caption, onconfirm_weapon_menu);
+}
+
+//==================
+// WORLD MENU
+//==================
 
 int activeLineIndexWorld = 0;
 
+bool onconfirm_world_menu(MenuItem<int> choice)
+{
+	switch (activeLineIndexWorld)
+	{
+	case 0:
+		GAMEPLAY::SET_GRAVITY_LEVEL(featureWorldMoonGravity);
+		break;
+	case 1:
+		// featureWorldRandomCops being set in update_features
+		PED::SET_CREATE_RANDOM_COPS(!featureWorldRandomCops);
+		break;
+	case 2:
+		VEHICLE::SET_RANDOM_TRAINS(featureWorldRandomTrains);
+		break;
+	case 3:
+		VEHICLE::SET_RANDOM_BOATS(featureWorldRandomBoats);
+		break;
+	case 4:
+		VEHICLE::SET_GARBAGE_TRUCKS(featureWorldGarbageTrucks);
+		break;
+	}
+	return false;
+}
+
 void process_world_menu()
 {
-	const float lineWidth = 250.0;
 	const int lineCount = 5;
 
-	std::string caption = "WORLD  OPTIONS";
+	std::string caption = "World Options";
 
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{"MOON GRAVITY",	&featureWorldMoonGravity,	NULL},
-		{"RANDOM COPS",		&featureWorldRandomCops,	NULL},
-		{"RANDOM TRAINS",	&featureWorldRandomTrains,	NULL},
-		{"RANDOM BOATS",	&featureWorldRandomBoats,	NULL},
-		{"GARBAGE TRUCKS",	&featureWorldGarbageTrucks,	NULL}
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{"Moon Gravity",	&featureWorldMoonGravity,	NULL},
+		{"Random Cops",		&featureWorldRandomCops,	NULL},
+		{"Random Trains",	&featureWorldRandomTrains,	NULL},
+		{"Random Boats",	&featureWorldRandomBoats,	NULL},
+		{"Garbage Trucks",	&featureWorldGarbageTrucks,	NULL}
 	};
 
-	DWORD waitTime = 150;
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexWorld)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState), 
-					lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexWorld].text, lines[activeLineIndexWorld].pState), 
-				lineWidth + 1.0, 11.0, 56.0 + activeLineIndexWorld * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-			switch (activeLineIndexWorld)
-			{
-				case 0: 
-					featureWorldMoonGravity = !featureWorldMoonGravity;
-					GAMEPLAY::SET_GRAVITY_LEVEL(featureWorldMoonGravity);
-					break;
-				case 1: 
-					// featureWorldRandomCops being set in update_features
-					PED::SET_CREATE_RANDOM_COPS(!featureWorldRandomCops);
-					break;
-				case 2:
-					featureWorldRandomTrains = !featureWorldRandomTrains;
-					VEHICLE::SET_RANDOM_TRAINS(featureWorldRandomTrains);
-					break;
-				case 3:
-					featureWorldRandomBoats = !featureWorldRandomBoats;
-					VEHICLE::SET_RANDOM_BOATS(featureWorldRandomBoats);
-					break;
-				case 4:
-					featureWorldGarbageTrucks = !featureWorldGarbageTrucks;
-					VEHICLE::SET_GARBAGE_TRUCKS(featureWorldGarbageTrucks);
-					break;
-			}
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (activeLineIndexWorld == 0) 
-				activeLineIndexWorld = lineCount;
-			activeLineIndexWorld--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			activeLineIndexWorld++;
-			if (activeLineIndexWorld == lineCount) 
-				activeLineIndexWorld = 0;			
-			waitTime = 150;
-		}
-	}
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexWorld, caption, onconfirm_world_menu);
 }
 
 int activeLineIndexTime = 0;
 
+bool onconfirm_time_menu(MenuItem<int> choice)
+{
+	return false;
+}
+
 void process_time_menu()
 {
-	const float lineWidth = 250.0;
 	const int lineCount = 4;
 
-	std::string caption = "TIME  OPTIONS";
+	std::string caption = "Time Options";
 
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{"HOUR FORWARD",	 NULL,				 NULL},
-		{"HOUR BACKWARD",	 NULL,				 NULL},
-		{"CLOCK PAUSED",	 &featureTimePaused, &featureTimePausedUpdated},
-		{"SYNC WITH SYSTEM", &featureTimeSynced, NULL}
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{"Hour Forward",	 NULL,				 NULL},
+		{"Hour Backward",	 NULL,				 NULL},
+		{"Clock Paused",	 &featureTimePaused, &featureTimePausedUpdated},
+		{"Sync With System", &featureTimeSynced, NULL}
 	};
 
-	DWORD waitTime = 150;
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexTime)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState), 
-					lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexTime].text, lines[activeLineIndexTime].pState), 
-				lineWidth + 1.0, 11.0, 56.0 + activeLineIndexTime * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-			switch (activeLineIndexTime)
-			{
-			// hour forward/backward
-			case 0: 
-			case 1:
-				{
-					int h = TIME::GET_CLOCK_HOURS();
-					if (activeLineIndexTime == 0) h = (h == 23) ? 0 : h + 1; else h = (h == 0) ? 23 : h - 1;
-					int m = TIME::GET_CLOCK_MINUTES();
-					TIME::SET_CLOCK_TIME(h, m, 0);
-					char text[32];
-					sprintf_s(text, "time %d:%d", h, m);
-					set_status_text(text);
-				}
-				break;
-			// switchable features
-			default:
-				if (lines[activeLineIndexTime].pState)
-					*lines[activeLineIndexTime].pState = !(*lines[activeLineIndexTime].pState);
-				if (lines[activeLineIndexTime].pUpdated)
-					*lines[activeLineIndexTime].pUpdated = true;	
-			}
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (activeLineIndexTime == 0) 
-				activeLineIndexTime = lineCount;
-			activeLineIndexTime--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			activeLineIndexTime++;
-			if (activeLineIndexTime == lineCount) 
-				activeLineIndexTime = 0;			
-			waitTime = 150;
-		}
-	}
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu);
 }
+
+//==================
+// WEATHER MENU
+//==================
 
 int activeLineIndexWeather = 0;
 
-void process_weather_menu()
+bool onconfirm_weather_menu(MenuItem<std::string> choice)
 {
-	const float lineWidth = 250.0;
-	const int lineCount = 15;
-
-	std::string caption = "WEATHER  OPTIONS";
-
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{"WIND",		&featureWeatherWind,	NULL},
-		{"EXTRASUNNY",	NULL,					NULL},
-		{"CLEAR",		NULL,					NULL},
-		{"CLOUDS",		NULL,					NULL},
-		{"SMOG",		NULL,					NULL},
-		{"FOGGY",		NULL,					NULL},
-		{"OVERCAST",	NULL,					NULL},
-		{"RAIN",		NULL,					NULL},
-		{"THUNDER",		NULL,					NULL},
-		{"CLEARING",	NULL,					NULL},
-		{"NEUTRAL",		NULL,					NULL},
-		{"SNOW",		NULL,					NULL},
-		{"BLIZZARD",	NULL,					NULL},
-		{"SNOWLIGHT",	NULL,					NULL},
-		{"XMAS",		NULL,					NULL}
-	};
-
-
-	DWORD waitTime = 150;
-	while (true)
+	switch (choice.currentMenuIndex)
 	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
+		// wind
+	case 0:
+		featureWeatherWind = !featureWeatherWind;
+		if (featureWeatherWind)
 		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexWeather)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState), 
-					lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexWeather].text, lines[activeLineIndexWeather].pState), 
-				lineWidth + 1.0, 11.0, 56.0 + activeLineIndexWeather * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-			switch (activeLineIndexWeather)
-			{
-			// wind
-			case 0: 
-				featureWeatherWind = !featureWeatherWind;
-				if (featureWeatherWind)
-				{
-					GAMEPLAY::SET_WIND(1.0);
-					GAMEPLAY::SET_WIND_SPEED(11.99);
-					GAMEPLAY::SET_WIND_DIRECTION(ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
-				} else
-				{
-					GAMEPLAY::SET_WIND(0.0);
-					GAMEPLAY::SET_WIND_SPEED(0.0);
-				}
-				break;
-			// set weather
-			default:
-				GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lines[activeLineIndexWeather].text);
-				GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();	
-				set_status_text(lines[activeLineIndexWeather].text);
-			}
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (activeLineIndexWeather == 0) 
-				activeLineIndexWeather = lineCount;
-			activeLineIndexWeather--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			activeLineIndexWeather++;
-			if (activeLineIndexWeather == lineCount) 
-				activeLineIndexWeather = 0;			
-			waitTime = 150;
+			GAMEPLAY::SET_WIND(1.0);
+			GAMEPLAY::SET_WIND_SPEED(11.99);
+			GAMEPLAY::SET_WIND_DIRECTION(ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
 		}
+		else
+		{
+			GAMEPLAY::SET_WIND(0.0);
+			GAMEPLAY::SET_WIND_SPEED(0.0);
+		}
+		break;
+		// set weather
+	default:
+		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)choice.value.c_str());
+		GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+		set_status_text(choice.caption);
 	}
+
+	return false;
 }
 
+void process_weather_menu()
+{
+	const int lineCount = 15;
+
+	std::string caption = "Weather Options";
+
+	StringStandardOrToggleMenuDef lines[lineCount] = {
+		{"Wind", "WIND",		&featureWeatherWind,	NULL},
+		{"Extra Sunny", "EXTRASUNNY",	NULL,					NULL},
+		{"Clear", "CLEAR",		NULL,					NULL},
+		{"Cloudy", "CLOUDS",		NULL,					NULL},
+		{"Smog", "SMOG",		NULL,					NULL},
+		{"Foggy", "FOGGY",		NULL,					NULL},
+		{"Overcast", "OVERCAST",	NULL,					NULL},
+		{"Rain", "RAIN",		NULL,					NULL},
+		{"Stormy", "THUNDER",		NULL,					NULL},
+		{"Clearing", "CLEARING",	NULL,					NULL},
+		{"Neutral", "NEUTRAL",		NULL,					NULL},
+		{"Snow", "SNOW",		NULL,					NULL},
+		{"Blizzard", "BLIZZARD",	NULL,					NULL},
+		{"Light Snow", "SNOWLIGHT",	NULL,					NULL},
+		{"Christmas", "XMAS",		NULL,					NULL}
+	};
+
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTime, caption, onconfirm_weather_menu);
+}
+
+//==================
+// MISC MENU
+//==================
+
 int activeLineIndexMisc = 0;
+
+bool onconfirm_misc_menu(MenuItem<int> choice)
+{
+	switch (activeLineIndexMisc)
+	{
+		// next radio track
+	case 0:
+		if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) &&
+			PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+			AUDIO::SKIP_RADIO_FORWARD();
+		break;
+		// switchable features
+	default:
+		break;
+	}
+	return false;
+}
 
 void process_misc_menu()
 {
 	const float lineWidth = 250.0;
 	const int lineCount = 2;
 
-	std::string caption = "MISC  OPTIONS";
+	std::string caption = "Misc Options";
 
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{"NEXT RADIO TRACK",	NULL,					NULL},
-		{"HIDE HUD",			&featureMiscHideHud,	NULL}		
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{"Next Radio Track",	NULL,					NULL},
+		{"Hide HUD",			&featureMiscHideHud,	NULL}		
 	};
 
-
-	DWORD waitTime = 150;
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexMisc)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState), 
-					lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexMisc].text, lines[activeLineIndexMisc].pState), 
-				lineWidth + 1.0, 11.0, 56.0 + activeLineIndexMisc * 36.0, 0.0, 7.0, true, false);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-			switch (activeLineIndexMisc)
-			{
-			// next radio track
-			case 0: 
-				if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) && 
-					PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
-						AUDIO::SKIP_RADIO_FORWARD();
-				break;
-			// switchable features
-			default:
-				if (lines[activeLineIndexMisc].pState)
-					*lines[activeLineIndexMisc].pState = !(*lines[activeLineIndexMisc].pState);
-				if (lines[activeLineIndexMisc].pUpdated)
-					*lines[activeLineIndexMisc].pUpdated = true;
-			}
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (activeLineIndexMisc == 0) 
-				activeLineIndexMisc = lineCount;
-			activeLineIndexMisc--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			activeLineIndexMisc++;
-			if (activeLineIndexMisc == lineCount) 
-				activeLineIndexMisc = 0;			
-			waitTime = 150;
-		}
-	}
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexMisc, caption, onconfirm_misc_menu);
 }
+
+//==================
+// MAIN MENU
+//==================
 
 int activeLineIndexMain = 0;
 
+bool onconfirm_main_menu(MenuItem<int> choice)
+{
+	switch (activeLineIndexMain)
+	{
+	case 0:
+		process_player_menu();
+		break;
+	case 1:
+		process_weapon_menu();
+		break;
+	case 2:
+		process_veh_menu();
+		break;
+	case 3:
+		process_world_menu();
+		break;
+	case 4:
+		process_time_menu();
+		break;
+	case 5:
+		process_weather_menu();
+		break;
+	case 6:
+		process_misc_menu();
+		break;
+	}
+	return false;
+}
+
 void process_main_menu()
 {
-	const float lineWidth = 250.0;
-	const int lineCount = 7;	
-
 	std::string caption = "Enhanced Native Trainer";
 
-	static LPCSTR lineCaption[lineCount] = {
-		"PLAYER",
-		"WEAPON",
-		"VEHICLE",
-		"WORLD",
-		"TIME",
-		"WEATHER",
-		"MISC"
+	std::vector<std::string> TOP_OPTIONS = {
+		"Player",
+		"Weapon",
+		"Vehicle",
+		"World",
+		"Time",
+		"Weather",
+		"Misc"
 	};
 
-	DWORD waitTime = 150;
-	while (true)
+	std::vector<MenuItem<int>*> menuItems;
+	for (int i = 0; i < TOP_OPTIONS.size(); i++)
 	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do 
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexMain)
-					draw_menu_line(lineCaption[i], lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(lineCaption[activeLineIndexMain], lineWidth + 1.0, 11.0, 56.0 + activeLineIndexMain * 36.0, 0.0, 7.0, true, false);
-			
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-			switch (activeLineIndexMain)
-			{
-				case 0:
-					process_player_menu();					
-					break;
-				case 1:
-					process_weapon_menu();
-					break;
-				case 2:
-					process_veh_menu();
-					break;
-				case 3:
-					process_world_menu();
-					break;
-				case 4:
-					process_time_menu();
-					break;
-				case 5:
-					process_weather_menu();
-					break;
-				case 6:
-					process_misc_menu();
-					break;
-			}
-			waitTime = 200;
-		} else
-		if (bBack || trainer_switch_pressed())
-		{
-			menu_beep();
-			break;
-		} else
-		if (bUp)
-		{
-			menu_beep();
-			if (activeLineIndexMain == 0) 
-				activeLineIndexMain = lineCount;
-			activeLineIndexMain--;
-			waitTime = 150;
-		} else
-		if (bDown)
-		{
-			menu_beep();
-			activeLineIndexMain++;
-			if (activeLineIndexMain == lineCount) 
-				activeLineIndexMain = 0;			
-			waitTime = 150;
-		}
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = TOP_OPTIONS[i];
+		item->value = i;
+		item->isLeaf = false;
+		item->currentMenuIndex = i;
+		menuItems.push_back(item);
 	}
+
+	draw_generic_menu<int>(menuItems, &activeLineIndexMain, caption, onconfirm_main_menu, NULL, NULL);
 }
 
 void reset_globals()
@@ -1306,6 +902,7 @@ void main()
 		if (trainer_switch_pressed())
 		{
 			menu_beep();
+			set_menu_showing(true);
 			process_main_menu();
 		}
 
