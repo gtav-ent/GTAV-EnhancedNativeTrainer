@@ -26,7 +26,7 @@ struct struct_door_options {
 };
 
 std::vector<struct_door_options> DOOR_OPTIONS = {
-	{ "Open Instantly", &featureVehicleDoorInstant },
+	{ "Toggle Open Instantly", &featureVehicleDoorInstant },
 	{ "Front Right", NULL }, //INDEX 0
 	{ "Front Left", NULL }, //INDEX 1
 	{ "Rear Right", NULL }, //INDEX 2
@@ -148,27 +148,29 @@ const std::vector<std::string> VOV_SHALLOW_CAPTIONS[] = { CAPTIONS_EMERGENCY, CA
 
 const std::vector<std::string> VOV_SHALLOW_VALUES[] = { VALUES_EMERGENCY, VALUES_MOTORCYCLES, VALUES_PLANES, VALUES_HELOS, VALUES_BOATS, VALUES_BICYCLES };
 
-bool onconfirm_vehdoor_menu(int selection, std::string caption, int value) {
+bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	if (selection > 0) {
-		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)) {
+	if (choice.currentMenuIndex > 0) {
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			int value = choice.currentMenuIndex - 1;
 
-			float doorAngle = VEHICLE::GET_VEHICLE_DOOR_ANGLE_RATIO(veh, selection - 1); //Best way I could figure out to detect if the part is animated.
+			float doorAngle = VEHICLE::GET_VEHICLE_DOOR_ANGLE_RATIO(veh, value); //Best way I could figure out to detect if the part is animated.
 			if (doorAngle < 0.01) {
-				VEHICLE::SET_VEHICLE_DOOR_OPEN(veh, selection - 1, false, featureVehicleDoorInstant);
+				VEHICLE::SET_VEHICLE_DOOR_OPEN(veh, value, false, featureVehicleDoorInstant);
 			}
 			else {
-				VEHICLE::SET_VEHICLE_DOOR_SHUT(veh, selection - 1, featureVehicleDoorInstant);
+				VEHICLE::SET_VEHICLE_DOOR_SHUT(veh, value, featureVehicleDoorInstant);
 			}
 		}
-	}
-	else {
-		featureVehicleDoorInstant = !featureVehicleDoorInstant;
-		set_status_text((featureVehicleDoorInstant) ? "Open Instantly Enabled" : "Open Instantly Disabled");
+		else
+		{
+			set_status_text("Player isn't in a vehicle");
+		}
 	}
 	return false;
 }
@@ -176,141 +178,96 @@ bool onconfirm_vehdoor_menu(int selection, std::string caption, int value) {
 bool process_veh_door_menu() {
 	std::string caption = "Door Options";
 
-	std::vector<std::string> menuCaptions;
+	std::vector<MenuItem<int>*> menuItems;
 	std::vector<int>menuIndexes;
 
-	for (int i = 0; i < DOOR_OPTIONS.size(); i++) {
-		menuCaptions.push_back(DOOR_OPTIONS[i].text);
-		menuIndexes.push_back(i);
+	ToggleMenuItem<int> *immediateToggle = new ToggleMenuItem<int>();
+	immediateToggle->value = 0;
+	immediateToggle->caption = DOOR_OPTIONS[0].text;
+	immediateToggle->toggleValue = DOOR_OPTIONS[0].pState;
+	menuItems.push_back(immediateToggle);
+
+	for (int i = 1; i < DOOR_OPTIONS.size(); i++) {
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->value = i;
+		item->caption = DOOR_OPTIONS[i].text;
+		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(menuCaptions, menuIndexes, doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, &doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
+}
+
+void on_toggle_invincibility(MenuItem<int> choice)
+{
+	featureVehInvincibleUpdated = true;
+}
+
+bool onconfirm_veh_menu(MenuItem<int> choice)
+{
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	switch (activeLineIndexVeh)
+	{
+	case 0:
+		if (process_carspawn_menu()) return false;
+		break;
+	case 1:
+		if (bPlayerExists)
+		{
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+			{
+				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
+				if (VEHICLE::_DOES_VEHICLE_HAVE_SECONDARY_COLOUR(veh))
+					VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
+			}
+			else
+			{
+				set_status_text("Player isn't in a vehicle");
+			}
+		}
+		break;
+	case 2:
+		if (bPlayerExists)
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+				VEHICLE::SET_VEHICLE_FIXED(PED::GET_VEHICLE_PED_IS_USING(playerPed));
+			else
+				set_status_text("Player isn't in a vehicle");
+		break;
+	case 3:
+		if (process_veh_door_menu()) return false;
+		break;
+		// switchable features
+	default:
+		break;
+	}
+	return false;
 }
 
 void process_veh_menu()
 {
-	const float lineWidth = 250.0;
 	const int lineCount = 7;
 
-	std::string caption = "VEHICLE  OPTIONS";
+	std::string caption = "Vehicle Options";
 
-	static struct {
-		LPCSTR		text;
-		bool		*pState;
-		bool		*pUpdated;
-	} lines[lineCount] = {
-		{ "CAR SPAWNER", NULL, NULL },
-		{ "PAINT RANDOM", NULL, NULL },
-		{ "FIX", NULL, NULL },
-		{ "DOOR CONTROL", NULL, NULL },
-		{ "WRAP IN SPAWNED", &featureVehWrapInSpawned, NULL },
-		{ "INVINCIBLE", &featureVehInvincible, &featureVehInvincibleUpdated },
-		{ "SPEED BOOST", &featureVehSpeedBoost, NULL }
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{ "Car Spawner", NULL, NULL, false },
+		{ "Paint Random", NULL, NULL, true },
+		{ "Fix", NULL, NULL, true },
+		{ "Door Control", NULL, NULL, false },
+		{ "Wrap In Spawned", &featureVehWrapInSpawned, NULL, true },
+		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
+		{ "Speed Boost", &featureVehSpeedBoost, NULL, true }
 	};
-
-	DWORD waitTime = 150;
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do
-		{
-			// draw menu
-			draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-			for (int i = 0; i < lineCount; i++)
-				if (i != activeLineIndexVeh)
-					draw_menu_line(line_as_str(lines[i].text, lines[i].pState),
-					lineWidth, 9.0, 60.0 + i * 36.0, 0.0, 9.0, false, false);
-			draw_menu_line(line_as_str(lines[activeLineIndexVeh].text, lines[activeLineIndexVeh].pState),
-				lineWidth + 1.0, 11.0, 56.0 + activeLineIndexVeh * 36.0, 0.0, 7.0, true, false);
-
-			make_periodic_feature_call();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		// process buttons
-		bool bSelect, bBack, bUp, bDown;
-		get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (bSelect)
-		{
-			menu_beep();
-
-			// common variables
-			BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-			Player player = PLAYER::PLAYER_ID();
-			Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-			switch (activeLineIndexVeh)
-			{
-			case 0:
-				if (process_carspawn_menu()) return;
-				break;
-			case 1:
-				if (bPlayerExists)
-				{
-					if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-					{
-						Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-						VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
-						if (VEHICLE::_DOES_VEHICLE_HAVE_SECONDARY_COLOUR(veh))
-							VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
-					}
-					else
-					{
-						set_status_text("player isn't in a vehicle");
-					}
-				}
-				break;
-			case 2:
-				if (bPlayerExists)
-					if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-						VEHICLE::SET_VEHICLE_FIXED(PED::GET_VEHICLE_PED_IS_USING(playerPed));
-					else
-						set_status_text("player isn't in a vehicle");
-				break;
-			case 3:
-				if (process_veh_door_menu()) return;
-				break;
-				// switchable features
-			default:
-				if (lines[activeLineIndexVeh].pState)
-					*lines[activeLineIndexVeh].pState = !(*lines[activeLineIndexVeh].pState);
-				if (lines[activeLineIndexVeh].pUpdated)
-					*lines[activeLineIndexVeh].pUpdated = true;
-			}
-			waitTime = 200;
-		}
-		else
-			if (bBack || trainer_switch_pressed())
-			{
-				menu_beep();
-				break;
-			}
-			else
-				if (bUp)
-				{
-					menu_beep();
-					if (activeLineIndexVeh == 0)
-						activeLineIndexVeh = lineCount;
-					activeLineIndexVeh--;
-					waitTime = 150;
-				}
-				else
-					if (bDown)
-					{
-						menu_beep();
-						activeLineIndexVeh++;
-						if (activeLineIndexVeh == lineCount)
-							activeLineIndexVeh = 0;
-						waitTime = 150;
-					}
-	}
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
 }
 
 void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 {
-
 	// player's vehicle invincible
 	if (featureVehInvincibleUpdated)
 	{
@@ -379,9 +336,9 @@ void reset_vehicle_globals()
 		featureVehWrapInSpawned = false;
 }
 
-bool onconfirm_carspawn_menu(int selection, std::string caption, int value)
+bool onconfirm_carspawn_menu(MenuItem<int> choice)
 {
-	switch (selection)
+	switch (choice.currentMenuIndex)
 	{
 	case 0:
 		process_spawn_menu_cars();
@@ -390,78 +347,111 @@ bool onconfirm_carspawn_menu(int selection, std::string caption, int value)
 		process_spawn_menu_indus();
 		break;
 	default:
-		process_spawn_menu_generic(selection);
+		process_spawn_menu_generic(choice.value);
 	}
 	return false;
 }
 
 bool process_carspawn_menu()
 {
-	std::vector<int> menuIDs;
+	std::vector<MenuItem<int>*> menuItems;
 	for (int i = 0; i < MENU_VEHICLE_CATEGORIES.size(); i++)
 	{
-		menuIDs.push_back(i);
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = MENU_VEHICLE_CATEGORIES[i];
+		item->value = i;
+		item->isLeaf = false;
+		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(MENU_VEHICLE_CATEGORIES, menuIDs, 0, "Vehicle Categories", onconfirm_carspawn_menu, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, 0, "Vehicle Categories", onconfirm_carspawn_menu, NULL, NULL);
 }
 
-bool onconfirm_spawn_menu_cars(int selection, std::string caption, int value)
+bool onconfirm_spawn_menu_cars(MenuItem<int> choice)
 {
-	std::string category = MENU_CAR_CATEGORIES[selection];
+	std::string category = choice.caption;
 
-	std::vector<std::string> vov_captions = VOV_CAR_CAPTIONS[selection];
-	std::vector<std::string> vov_values = VOV_CAR_VALUES[selection];
+	std::vector<MenuItem<std::string>*> menuItems;
+	for (int i = 0; i < VOV_CAR_VALUES[choice.value].size(); i++)
+	{
+		MenuItem<std::string> *item = new MenuItem<std::string>();
+		item->caption = VOV_CAR_CAPTIONS[choice.value][i];
+		item->value = VOV_CAR_VALUES[choice.value][i];
+		menuItems.push_back(item);
+	}
 
-	return draw_generic_menu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
 }
 
 bool process_spawn_menu_cars()
 {
-	std::vector<int> menuIDs;
+	std::vector<MenuItem<int>*> menuItems;
 	for (int i = 0; i < MENU_CAR_CATEGORIES.size(); i++)
 	{
-		menuIDs.push_back(i);
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = MENU_CAR_CATEGORIES[i];
+		item->value = i;
+		item->isLeaf = false;
+		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(MENU_CAR_CATEGORIES, menuIDs, 0, "Car Categories", onconfirm_spawn_menu_cars, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, 0, "Car Categories", onconfirm_spawn_menu_cars, NULL, NULL);
 }
 
-bool onconfirm_spawn_menu_indus(int selection, std::string caption, int value)
+bool onconfirm_spawn_menu_indus(MenuItem<int> choice)
 {
-	std::string category = MENU_INDUS_CATEGORIES[selection];
+	int selection = choice.value;
+	std::string category = MENU_CAR_CATEGORIES[selection];
 
-	std::vector<std::string> vov_captions = VOV_INDUS_CAPTIONS[selection];
-	std::vector<std::string> vov_values = VOV_INDUS_VALUES[selection];
+	std::vector<MenuItem<std::string>*> menuItems;
+	for (int i = 0; i < VOV_INDUS_CAPTIONS[selection].size(); i++)
+	{
+		MenuItem<std::string> *item = new MenuItem<std::string>();
+		item->caption = VOV_INDUS_CAPTIONS[selection][i];
+		item->value = VOV_INDUS_VALUES[selection][i];
+		menuItems.push_back(item);
+	}
 
-	return draw_generic_menu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
 }
 
 bool process_spawn_menu_indus()
 {
-	std::vector<int> menuIDs;
+	std::vector<MenuItem<int>*> menuItems;
 	for (int i = 0; i < MENU_INDUS_CATEGORIES.size(); i++)
 	{
-		menuIDs.push_back(i);
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = MENU_INDUS_CATEGORIES[i];
+		item->value = i;
+		item->isLeaf = false;
+		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(MENU_INDUS_CATEGORIES, menuIDs, 0, "Industrial Categories", onconfirm_spawn_menu_indus, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, 0, "Industrial Categories", onconfirm_spawn_menu_indus, NULL, NULL);
 }
 
-bool onconfirm_spawn_menu_vehicle_selection(int selection, std::string caption, std::string value)
+bool onconfirm_spawn_menu_vehicle_selection(MenuItem<std::string> choice)
 {
-	do_spawn_vehicle(value, caption);
+	do_spawn_vehicle(choice.value, choice.caption);
 	return false;
 }
 
 bool process_spawn_menu_generic(int topMenuSelection)
 {
+	int selection = topMenuSelection - 2;
+
 	std::string category = MENU_VEHICLE_CATEGORIES[topMenuSelection];
 
-	std::vector<std::string> vov_captions = VOV_SHALLOW_CAPTIONS[topMenuSelection - 2];
-	std::vector<std::string> vov_values = VOV_SHALLOW_VALUES[topMenuSelection - 2];
+	std::vector<MenuItem<std::string>*> menuItems;
+	for (int i = 0; i < VOV_SHALLOW_CAPTIONS[selection].size(); i++)
+	{
+		MenuItem<std::string> *item = new MenuItem<std::string>();
+		item->caption = VOV_SHALLOW_CAPTIONS[selection][i];
+		item->value = VOV_SHALLOW_VALUES[selection][i];
+		menuItems.push_back(item);
+	}
 
-	return draw_generic_menu<std::string>(vov_captions, vov_values, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
 }
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
@@ -473,7 +463,11 @@ bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 		while (!STREAMING::HAS_MODEL_LOADED(model)) WAIT(0);
 		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 5.0, 0.0);
 		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, 0.0, 1, 1);
-		VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh);
+
+		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(veh) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
+		{
+			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh);
+		}
 
 		if (featureVehWrapInSpawned)
 		{

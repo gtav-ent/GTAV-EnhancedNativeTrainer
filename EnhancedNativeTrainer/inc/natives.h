@@ -3335,7 +3335,7 @@ namespace GRAPHICS
 	static void _0xF5A2C681787E579D(float p0, float p1, float p2, float p3) { invoke<Void>(0xF5A2C681787E579D, p0, p1, p2, p3); } // F5A2C681787E579D 76C641E4
 	static void _0x6DD8F5AA635EB4B2(float p0, float p1, Any *p2, Any *p3) { invoke<Void>(0x6DD8F5AA635EB4B2, p0, p1, p2, p3); } // 6DD8F5AA635EB4B2
 	static float _0xBAF107B6BB2C97F0() { return invoke<float>(0xBAF107B6BB2C97F0); } // BAF107B6BB2C97F0 3F0D1A6F
-	static void DRAW_SPRITE(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6, Any p7, Any p8, Any p9, Any p10) { invoke<Void>(0xE7FFAE5EBF23D890, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); } // E7FFAE5EBF23D890 1FEC16B0
+	static void DRAW_SPRITE(char *p0, char *p1, float p2, float p3, float p4, float p5, float p6, int p7, int p8, int p9, int p10) { invoke<Void>(0xE7FFAE5EBF23D890, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); } // E7FFAE5EBF23D890 1FEC16B0
 	static Any ADD_ENTITY_ICON(Any p0, Any *p1) { return invoke<Any>(0x9CD43EEE12BF4DD0, p0, p1); } // 9CD43EEE12BF4DD0 F3027D21
 	static void SET_ENTITY_ICON_VISIBILITY(Any p0, BOOL p1) { invoke<Void>(0xE0E8BEECCA96BA31, p0, p1); } // E0E8BEECCA96BA31 D1D2FD52
 	static void SET_ENTITY_ICON_COLOR(Any p0, Any p1, Any p2, Any p3, Any p4) { invoke<Void>(0x1D5F595CCAE2E238, p0, p1, p2, p3, p4); } // 1D5F595CCAE2E238 6EE1E946

@@ -42,7 +42,7 @@ void update_airbrake_text()
 			UI::_SET_TEXT_ENTRY("STRING");
 			UI::_ADD_TEXT_COMPONENT_STRING((char *) airbrakeStatusText.c_str());
 		}
-		UI::_DRAW_TEXT(0.01, 0.12);
+		UI::_DRAW_TEXT(0.01, 0.1);
 	}
 }
 
@@ -130,8 +130,9 @@ void airbrake()
 	std::stringstream ss;
 	/*ss << "Heading: " << curHeading << " Rotation: " << curRotation.z
 	<< "\n xVect: " << xVect << "yVect: " << yVect;*/
+	std::string aa = ((travelSpeed) ? "On" : "Off");
 	ss << "W/S - Up/Down\nA/D - Rotate\nNUM8/NUM5 - Forwards/Backwards"
-		<< "\nShift - Movement Speed" << "\nTravel Speed On: " << travelSpeed;
+		<< "\nShift - Move Speed" << "\nTravel Speed: " << aa;
 	std::string s = ss.str();
 	set_airbrake_text(s);
 	update_airbrake_text();
