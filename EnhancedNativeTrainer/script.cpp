@@ -212,14 +212,6 @@ void update_features()
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 	}
 
-	// police ignore player
-	if (featurePlayerIgnoredUpdated)
-	{
-		if (bPlayerExists)
-			PLAYER::SET_POLICE_IGNORE_PLAYER(player, featurePlayerIgnored);
-		featurePlayerIgnoredUpdated = false;
-	}
-
 	// player special ability
 	if (featurePlayerUnlimitedAbility)
 	{
@@ -333,11 +325,18 @@ void update_features()
 	//Pushes player through solid door objects.
 	if (bPlayerExists)
 	{
-		bool throughDoorPressed = get_key_pressed(VK_OEM_7);
+		bool throughDoorPressed = IsKeyJustUp(VK_OEM_7);
+		bool disablePolicePressed = IsKeyJustUp(VK_OEM_4);
 		if (throughDoorPressed)
 		{
 			moveThroughDoor();
 			set_status_text("Moved through door.");
+		}
+		if (disablePolicePressed)
+		{
+			featurePlayerNeverWanted = !featurePlayerNeverWanted;
+			std::string s = ((featurePlayerNeverWanted) ? "Enabled" : "Disabled");
+			set_status_text("Never Wanted : " + s);
 		}
 	}
 }
@@ -588,7 +587,7 @@ int activeLineIndexPlayer = 0;
 void process_player_menu()
 {
 	const float lineWidth = 250.0;
-	const int lineCount = 15;
+	const int lineCount = 14;
 	
 	std::string caption = "PLAYER  OPTIONS";
 
@@ -606,7 +605,6 @@ void process_player_menu()
 		{"FREEZE WANTED LEVEL", NULL, NULL},
 		{"NEVER WANTED", &featurePlayerNeverWanted, NULL},
 		{"INVINCIBLE", &featurePlayerInvincible, &featurePlayerInvincibleUpdated},
-		{"POLICE IGNORED", &featurePlayerIgnored, &featurePlayerIgnoredUpdated},
 		{"UNLIM ABILITY", &featurePlayerUnlimitedAbility, NULL},
 		{"NOISELESS", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated},
 		{"FAST SWIM", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated},
