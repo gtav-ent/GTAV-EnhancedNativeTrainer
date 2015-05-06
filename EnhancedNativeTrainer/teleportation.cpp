@@ -21,7 +21,7 @@ struct tele_location {
 	bool isLoaded;
 };
 
-std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Standard", "Additional", "Otherwise Inaccessible", "Roof/High Up", "Underwater", "Requires Scenery", "Currently Broken"};
+std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Standard", "Additional", "Safehouses", "Otherwise Inaccessible", "Roof/High Up", "Underwater", "Requires Scenery", "Currently Broken"};
 
 int lastChosenCategory = -1;
 
@@ -30,9 +30,6 @@ int lastMenuChoiceInCategories[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 std::vector<tele_location> LOCATIONS_STD = {
 	{ "MARKER" },
 	{ "SHOW CURRENT" },
-	{ "Michael's House", -852.4f, 160.0f, 65.6f },
-	{ "Franklin's House", 7.9f, 548.1f, 175.5f },
-	{ "Trevor's Trailer", 1985.7f, 3812.2f, 32.2f },
 	{ "Airport Entrance", -1034.6f, -2733.6f, 13.8f },
 	{ "Airport Field", -1336.0f, -3044.0f, 13.9f },
 	{ "Elysian Island", 338.2f, -2715.9f, 38.5f },
@@ -83,17 +80,30 @@ std::vector<tele_location> LOCATIONS_ADDITIONAL = {
 	{ "Weed Farm", 2208.777f, 5578.235f, 53.735f },
 };
 
+std::vector<tele_location> LOCATIONS_SAFE = {
+	{ "Michael's House", -852.4f, 160.0f, 65.6f },
+	{ "Franklin's House", 7.9f, 548.1f, 175.5f },
+	{ "Trevor's Trailer", 1985.7f, 3812.2f, 32.2f },
+};
+
 std::vector<tele_location> LOCATIONS_INACCESS = {
 	{ "Ammunation Gun Range", 22.153f, -1072.854f, 29.797f },
 	{ "Ammunation Office", 12.494f, -1110.130f, 29.797f },
 	{ "Blaine County Savings Bank", -109.299f, 6464.035f, 31.627f },
 	{ "FIB Top Floor", 135.733f, -749.216f, 258.152f },
+	{ "Burnt FIB Building", 159.553f, -738.851f, 246.152f },
 	{ "Floyd's Apartment", -1150.703f, -1520.713f, 10.633f },
 	{ "Humane Labs Entrance", 3525.495f, 3705.301f, 20.992f },
 	{ "IAA Office", 117.220f, -620.938f, 206.047f },
 	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
 	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
 	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
+	{ "10 Car Garage Bay", 228.135f, -995.350f, -99.000f },
+	{ "10 Car Garage Back Room", 223.193f, -967.322f, -99.000f },
+	{ "Eclipse Apt 31", -762.762f, 322.634f, 221.855f },
+	{ "Eclipse Apt 40", -790.673f, 334.468f, 206.218f },
+	{ "Eclipse Apt 5", -762.762f, 322.634f, 175.401f },
+	{ "Eclipse Apt 9", -790.673f, 334.468f, 158.599f },
 };
 
 std::vector<tele_location> LOCATIONS_HIGH = {
@@ -129,15 +139,13 @@ std::vector<tele_location> LOCATIONS_REQSCEN = {
 };
 
 std::vector<tele_location> LOCATIONS_BROKEN = {
-	{ "10 Car Garage Back Room", 223.193f, -967.322f, 99.000f },
-	{ "Burnt FIB Building", 160.868f, -745.831f, 250.063f },
 	{ "Carrier", 3069.330f, -4704.220f, 15.043f },
 	{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
-	{ "Fort Zancudo UFO", 2052.000f, 3237.000f, 1456.973f },
+	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f },
 	{ "Yacht", -2023.661f, -1038.038f, 5.577f }
 };
 
-std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_STD, LOCATIONS_ADDITIONAL, LOCATIONS_INACCESS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_REQSCEN, LOCATIONS_BROKEN };
+std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_STD, LOCATIONS_ADDITIONAL, LOCATIONS_SAFE, LOCATIONS_INACCESS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_REQSCEN, LOCATIONS_BROKEN };
 
 void teleport_to_coords(Entity e, Vector3 coords)
 {
