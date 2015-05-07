@@ -330,7 +330,7 @@ void update_features()
 	if (bPlayerExists)
 	{
 		bool throughDoorPressed = IsKeyJustUp(VK_OEM_7);
-		bool disablePolicePressed = IsKeyJustUp(VK_OEM_4);
+		bool disablePolicePressed = IsKeyJustUp(VK_OEM_6);
 		if (throughDoorPressed)
 		{
 			moveThroughDoor();

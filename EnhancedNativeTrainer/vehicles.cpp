@@ -16,6 +16,8 @@ bool featureVehInvincibleUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehWrapInSpawned = false;
 bool featureVehicleDoorInstant = false;
+bool featureSeatbeltEnabled = false;
+bool featureSeatbeltUpdated = false;
 
 int activeLineIndexVeh = 0;
 
@@ -250,7 +252,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	const int lineCount = 7;
+	const int lineCount = 8;
 
 	std::string caption = "Vehicle Options";
 
@@ -261,6 +263,7 @@ void process_veh_menu()
 		{ "Door Control", NULL, NULL, false },
 		{ "Wrap In Spawned", &featureVehWrapInSpawned, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
+		{ "Bike Seatbelt", &featureSeatbeltEnabled, &featureSeatbeltUpdated, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
@@ -316,6 +319,17 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 				if (ENTITY::IS_ENTITY_IN_AIR(veh) || speed > 5.0)
 					VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
 		}
+	}
+
+	//Seatbelt (bike only ATM)
+	if (featureSeatbeltUpdated)
+	{
+		featureSeatbeltUpdated = false;
+		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, featureSeatbeltEnabled);
+		//PED::CREATE_RANDOM_PED_AS_DRIVER(PED::GET_VEHICLE_PED_IS_IN(playerPed, true),true);	
+		std::stringstream s;
+		s << "Bike Seatbelt: " << ((featureSeatbeltEnabled) ? "On" : "Off");
+		set_status_text(s.str());
 	}
 }
 
