@@ -464,7 +464,7 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 		if (!is_menu_showing())
 		{
 			make_periodic_feature_call();
-			WAIT(10);
+			WAIT(0);
 			continue;
 		}
 

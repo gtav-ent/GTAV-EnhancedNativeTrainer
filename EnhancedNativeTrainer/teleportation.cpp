@@ -182,6 +182,13 @@ void teleport_to_marker(Entity e)
 	}
 	if (blipFound)
 	{
+		// get entity to teleport
+		Entity e = PLAYER::PLAYER_PED_ID();
+		if (PED::IS_PED_IN_ANY_VEHICLE(e, 0))
+		{
+			e = PED::GET_VEHICLE_PED_IS_USING(e);
+		}
+
 		// load needed map region and check height levels for ground existence
 		bool groundFound = false;
 		static float groundCheckHeight[] = {
