@@ -21,61 +21,13 @@ struct tele_location {
 	bool isLoaded;
 };
 
-std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Standard", "Additional", "Safehouses", "Otherwise Inaccessible", "Roof/High Up", "Underwater", "Requires Scenery", "Currently Broken"};
+std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Otherwise Inaccessible", "Requires Scenery", "Currently Broken"};
 
 int mainMenuIndex = 0;
 
 int lastChosenCategory = -1;
 
 int lastMenuChoiceInCategories[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-std::vector<tele_location> LOCATIONS_STD = {
-	{ "Airport Entrance", -1034.6f, -2733.6f, 13.8f },
-	{ "Airport Field", -1336.0f, -3044.0f, 13.9f },
-	{ "Chumash", -3192.6f, 1100.0f, 20.2f },
-	{ "El Burro Heights", 1384.0f, -2057.1f, 52.0f },
-	{ "Elysian Island", 338.2f, -2715.9f, 38.5f },
-	{ "Ferris Wheel", -1670.7f, -1125.0f, 13.0f },
-	{ "Fort Zancudo", -2047.4f, 3132.1f, 32.8f },
-	{ "Jetsam", 760.4f, -2943.2f, 5.8f },
-	{ "McKenzie Airfield", 2121.7f, 4796.3f, 41.1f },
-	{ "Mt. Chiliad", 425.4f, 5614.3f, 766.5f },
-	{ "Sandy Shores Airfield", 1747.0f, 3273.7f, 41.1f },
-	{ "Wind Farm", 2354.0f, 1830.3f, 101.1f }
-};
-
-// Extra locations coordinates source: "PulseR_HD" @ http://gtaforums.com/topic/789786-vrelwip-simple-trainer-enhancements-skin-detail-chooser-menu-architecture/?p=1067398379
-
-std::vector<tele_location> LOCATIONS_ADDITIONAL = {
-	{ "Altruist Cult Camp", -1170.841f, 4926.646f, 224.295f },
-	{ "Calafia Train Bridge", -517.869f, 4425.284f, 89.795f },
-	{ "Cargo Ship", 899.678f, -2882.191f, 19.013f },
-	{ "Chumash Historic Family Pier", -3426.683f, 967.738f, 8.347f },
-	{ "Del Perro Pier", -1850.127f, -1231.751f, 13.017f },
-	{ "Devin Weston's House", -2639.872f, 1866.812f, 160.135f },
-	{ "Far North San Andreas", 24.775f, 7644.102f, 19.055f },
-	{ "Fort Zancudo ATC Entrance", -2344.373f, 3267.498f, 32.811f },
-	{ "Fort Zancudo ATC Top Floor", -2358.132f, 3249.754f, 101.451f },
-	{ "God's Thumb", -1006.402f, 6272.383f, 1.503f },
-	{ "Hippy Camp", 2476.712f, 3789.645f, 41.226f },
-	{ "Jolene Cranley-Evans Ghost", 3059.620f, 5564.246f, 197.091f },
-	{ "Kortz Center", -2243.810f, 264.048f, 174.615f },
-	{ "Main LS Customs", -365.425f, -131.809f, 37.873f },
-	{ "Marlowe Vineyards", -1868.971f, 2095.674f, 139.115f },
-	{ "Merryweather Dock", 486.417f, -3339.692f, 6.070f },
-	{ "Mineshaft", -595.342f, 2086.008f, 131.412f },
-	{ "NOOSE Headquarters", 2535.243f, -383.799f, 92.993f },
-	{ "Pacific Standard Bank", 235.046f, 216.434f, 106.287f },
-	{ "Paleto Bay Pier", -275.522f, 6635.835f, 7.425f },
-	{ "Playboy Mansion", -1475.234f, 167.088f, 55.841f },
-	{ "Police Station", 436.491f, -982.172f, 30.699f },
-	{ "Quarry", 2954.196f, 2783.410f, 41.004f },
-	{ "Satellite Dishes", 2062.123f, 2942.055f, 47.431f },
-	{ "Sisyphus Theater Stage", 686.245f, 577.950f, 130.461f },
-	{ "Top of Mt. Chiliad", 450.718f, 5566.614f, 806.183f },
-	{ "Trevor's Meth Lab", 1391.773f, 3608.716f, 38.942f },
-	{ "Weed Farm", 2208.777f, 5578.235f, 53.735f },
-};
 
 std::vector<tele_location> LOCATIONS_SAFE = {
 	{ "Michael's House Outside", -852.4f, 160.0f, 65.6f },
@@ -90,24 +42,50 @@ std::vector<tele_location> LOCATIONS_SAFE = {
 	{ "Trevor's Strip Club Inside", 96.1536f, -1290.73f, 29.2664f },
 };
 
-std::vector<tele_location> LOCATIONS_INACCESS = {
-	{ "Ammunation Gun Range", 22.153f, -1072.854f, 29.797f },
-	{ "Ammunation Office", 12.494f, -1110.130f, 29.797f },
-	{ "Blaine County Savings Bank", -109.299f, 6464.035f, 31.627f },
-	{ "Eclipse Apartment 31", -762.762f, 322.634f, 221.855f },
-	{ "Eclipse Apartment 40", -790.673f, 334.468f, 206.218f },
-	{ "Eclipse Apartment 5", -762.762f, 322.634f, 175.401f },
-	{ "Eclipse Apartment 9", -790.673f, 334.468f, 158.599f },
-	{ "FIB Building Burnt", 159.553f, -738.851f, 246.152f },
-	{ "FIB Building Top Floor", 135.733f, -749.216f, 258.152f },
-	{ "Humane Labs Entrance", 3525.495f, 3705.301f, 20.992f },
-	{ "IAA Office", 117.220f, -620.938f, 206.047f },
-	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
-	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
-	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
-	{ "10 Car Garage Bay", 228.135f, -995.350f, -99.000f },
-	{ "10 Car Garage Back Room", 223.193f, -967.322f, -99.000f },
+std::vector<tele_location> LOCATIONS_LANDMARKS = {
+	{ "Airport Entrance", -1034.6f, -2733.6f, 13.8f },
+	{ "Airport Field", -1336.0f, -3044.0f, 13.9f },
+	{ "Altruist Cult Camp", -1170.841f, 4926.646f, 224.295f },
+	{ "Calafia Train Bridge", -517.869f, 4425.284f, 89.795f },
+	{ "Cargo Ship", 899.678f, -2882.191f, 19.013f },
+	{ "Chumash", -3192.6f, 1100.0f, 20.2f },
+	{ "Chumash Historic Family Pier", -3426.683f, 967.738f, 8.347f },
+	{ "Del Perro Pier", -1850.127f, -1231.751f, 13.017f },
+	{ "Devin Weston's House", -2639.872f, 1866.812f, 160.135f },
+	{ "El Burro Heights", 1384.0f, -2057.1f, 52.0f },
+	{ "Elysian Island", 338.2f, -2715.9f, 38.5f },
+	{ "Far North San Andreas", 24.775f, 7644.102f, 19.055f },
+	{ "Ferris Wheel", -1670.7f, -1125.0f, 13.0f },
+	{ "Fort Zancudo", -2047.4f, 3132.1f, 32.8f },
+	{ "Fort Zancudo ATC Entrance", -2344.373f, 3267.498f, 32.811f },
+	{ "Fort Zancudo ATC Top Floor", -2358.132f, 3249.754f, 101.451f },
+	{ "God's Thumb", -1006.402f, 6272.383f, 1.503f },
+	{ "Hippy Camp", 2476.712f, 3789.645f, 41.226f },
+	{ "Jetsam", 760.4f, -2943.2f, 5.8f },
+	{ "Jolene Cranley-Evans Ghost", 3059.620f, 5564.246f, 197.091f },
+	{ "Kortz Center", -2243.810f, 264.048f, 174.615f },
+	{ "Main LS Customs", -365.425f, -131.809f, 37.873f },
+	{ "Marlowe Vineyards", -1868.971f, 2095.674f, 139.115f },
+	{ "McKenzie Airfield", 2121.7f, 4796.3f, 41.1f },
+	{ "Merryweather Dock", 486.417f, -3339.692f, 6.070f },
+	{ "Mineshaft", -595.342f, 2086.008f, 131.412f },
+	{ "Mt. Chiliad", 425.4f, 5614.3f, 766.5f },
+	{ "Mt. Chiliad Summit", 450.718f, 5566.614f, 806.183f },
+	{ "NOOSE Headquarters", 2535.243f, -383.799f, 92.993f },
+	{ "Pacific Standard Bank", 235.046f, 216.434f, 106.287f },
+	{ "Paleto Bay Pier", -275.522f, 6635.835f, 7.425f },
+	{ "Playboy Mansion", -1475.234f, 167.088f, 55.841f },
+	{ "Police Station", 436.491f, -982.172f, 30.699f },
+	{ "Quarry", 2954.196f, 2783.410f, 41.004f },
+	{ "Sandy Shores Airfield", 1747.0f, 3273.7f, 41.1f },
+	{ "Satellite Dishes", 2062.123f, 2942.055f, 47.431f },
+	{ "Sisyphus Theater Stage", 686.245f, 577.950f, 130.461f },
+	{ "Trevor's Meth Lab", 1391.773f, 3608.716f, 38.942f },
+	{ "Weed Farm", 2208.777f, 5578.235f, 53.735f },
+	{ "Wind Farm", 2354.0f, 1830.3f, 101.1f }
 };
+
+// Extra locations coordinates source: "PulseR_HD" @ http://gtaforums.com/topic/789786-vrelwip-simple-trainer-enhancements-skin-detail-chooser-menu-architecture/?p=1067398379
 
 std::vector<tele_location> LOCATIONS_HIGH = {
 	{ "Airplane Graveyard Airplane Tail ", 2395.096f, 3049.616f, 60.053f },
@@ -136,6 +114,25 @@ std::vector<tele_location> LOCATIONS_UNDERWATER = {
 	{ "Underwater WW2 Tank", 4201.633f, 3643.821f, -39.016f },
 };
 
+std::vector<tele_location> LOCATIONS_INACCESS = {
+	{ "Ammunation Gun Range", 22.153f, -1072.854f, 29.797f },
+	{ "Ammunation Office", 12.494f, -1110.130f, 29.797f },
+	{ "Blaine County Savings Bank", -109.299f, 6464.035f, 31.627f },
+	{ "Eclipse Apartment 31", -762.762f, 322.634f, 221.855f },
+	{ "Eclipse Apartment 40", -790.673f, 334.468f, 206.218f },
+	{ "Eclipse Apartment 5", -762.762f, 322.634f, 175.401f },
+	{ "Eclipse Apartment 9", -790.673f, 334.468f, 158.599f },
+	{ "FIB Building Burnt", 159.553f, -738.851f, 246.152f },
+	{ "FIB Building Top Floor", 135.733f, -749.216f, 258.152f },
+	{ "Humane Labs Entrance", 3525.495f, 3705.301f, 20.992f },
+	{ "IAA Office", 117.220f, -620.938f, 206.047f },
+	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
+	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
+	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
+	{ "10 Car Garage Bay", 228.135f, -995.350f, -99.000f },
+	{ "10 Car Garage Back Room", 223.193f, -967.322f, -99.000f },
+};
+
 std::vector<tele_location> LOCATIONS_REQSCEN = {
 	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, load_north_yankton, unload_north_yankton, false },
 	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, load_north_yankton, unload_north_yankton, false },
@@ -148,7 +145,7 @@ std::vector<tele_location> LOCATIONS_BROKEN = {
 	{ "Yacht", -2023.661f, -1038.038f, 5.577f }
 };
 
-std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_STD, LOCATIONS_ADDITIONAL, LOCATIONS_SAFE, LOCATIONS_INACCESS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_REQSCEN, LOCATIONS_BROKEN };
+std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INACCESS, LOCATIONS_REQSCEN, LOCATIONS_BROKEN };
 
 void teleport_to_coords(Entity e, Vector3 coords)
 {
