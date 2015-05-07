@@ -326,7 +326,6 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	{
 		featureSeatbeltUpdated = false;
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, featureSeatbeltEnabled);
-		//PED::CREATE_RANDOM_PED_AS_DRIVER(PED::GET_VEHICLE_PED_IS_IN(playerPed, true),true);	
 		std::stringstream s;
 		s << "Bike Seatbelt: " << ((featureSeatbeltEnabled) ? "On" : "Off");
 		set_status_text(s.str());
