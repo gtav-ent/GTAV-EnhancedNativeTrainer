@@ -30,7 +30,7 @@ int skinTextureMenuValue = -1;
 
 bool skinchanger_used = false;
 
-const std::vector<std::string> MENU_SKINS_TYPES_CAPTIONS{ "Players", "Animals", "Everything Else", "Customise Current", "Reset Current" };
+const std::vector<std::string> MENU_SKINS_TYPES_CAPTIONS{ "Players", "Animals", "NPCs", "Modify Current", "Reset Current" };
 
 int skinMainMenuPosition = 0;
 
