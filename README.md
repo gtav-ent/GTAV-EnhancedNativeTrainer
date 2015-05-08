@@ -1,6 +1,6 @@
 # GTAV-EnhancedNativeTrainer
 GTA V PC Enhanced Native Trainer, building on Alexander Blade's original sample.
-Additions by Sondai Smith
+Additions by Sondai Smith.
 
 ##Added Features
 #### Trainer Options
@@ -9,6 +9,8 @@ Additions by Sondai Smith
 	to reach areas. Can be used while in a vehicle. Has two movement speeds.
 	* Seatbelt (Bike Only) - Prevents the Player from falling off bike. 
 	  Still needs implementation for cars (to prevent shooting out the window).
+	* Freeze Weather - Allows you to freeze the weather at a selected weather option
+	  from the "Weather" sub-menu.
 #### New Hotkeys
 	' - Move Through Door
 	] - Never Wanted Enabled/Disabled

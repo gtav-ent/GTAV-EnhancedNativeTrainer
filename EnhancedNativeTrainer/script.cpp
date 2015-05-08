@@ -67,6 +67,8 @@ bool featureTimePausedUpdated			=	false;
 bool featureTimeSynced					=	false;
 
 bool featureWeatherWind					=	false;
+bool featureWeatherFreeze				=	false;
+std::string lastWeather;
 
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
@@ -832,9 +834,13 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		}
 		break;
 		// set weather
+	case 1:
+		if (featureWeatherFreeze && !lastWeather.empty()){ GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *) lastWeather.c_str()); set_status_text("Freeze after set weather"); }
+		else if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); }
 	default:
-		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)choice.value.c_str());
-		GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+		lastWeather = choice.value.c_str();
+		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lastWeather.c_str());
+		if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); }
 		set_status_text(choice.caption);
 	}
 
@@ -843,12 +849,13 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 
 void process_weather_menu()
 {
-	const int lineCount = 15;
+	const int lineCount = 16;
 
 	std::string caption = "Weather Options";
 
 	StringStandardOrToggleMenuDef lines[lineCount] = {
 		{"Wind", "WIND",		&featureWeatherWind,	NULL},
+		{"Freeze Weather", "FREEZEWEATHER", &featureWeatherFreeze ,NULL },
 		{"Extra Sunny", "EXTRASUNNY",	NULL,					NULL},
 		{"Clear", "CLEAR",		NULL,					NULL},
 		{"Cloudy", "CLOUDS",		NULL,					NULL},
@@ -1029,6 +1036,8 @@ void reset_globals()
 	activeLineIndexWantedFreeze	=
 	frozenWantedLevel			=	0;
 
+	lastWeather.clear();
+
 	featurePlayerInvincible			=
 	featurePlayerInvincibleUpdated	=
 	featurePlayerNeverWanted		=
@@ -1052,6 +1061,7 @@ void reset_globals()
 	featureTimePausedUpdated		=
 	featureTimeSynced				=
 	featureWeatherWind				=
+	featureWeatherFreeze			=
 	featureMiscLockRadio			=
 	featureMiscHideHud				=	
 	featureAirbrakeEnabled			= 
