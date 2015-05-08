@@ -89,11 +89,10 @@ void check_player_model()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed)) return;
 
-	Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
-
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
 	{
 		bool found = false;
+		Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
 
 		for (int i = 0; i < (sizeof(player_models) / sizeof(player_models[0])); i++)
 		{
@@ -173,9 +172,7 @@ void update_features()
 
 	update_vehicle_guns();
 
-	// changing player model if died while being an animal, since it can cause inf loading loop
-	if (is_custom_skin_applied())
-		check_player_model();
+	check_player_model();
 
 	// read default feature values from the game
 	featureWorldRandomCops = PED::CAN_CREATE_RANDOM_COPS() == TRUE;
@@ -674,11 +671,11 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 		"WEAPON_ASSAULTSMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_MG",
 		"WEAPON_COMBATMG", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_BULLPUPSHOTGUN",
 		"WEAPON_STUNGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_GRENADELAUNCHER", "WEAPON_GRENADELAUNCHER_SMOKE",
-		"WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_GRENADE", "WEAPON_STICKYBOMB", "WEAPON_SMOKEGRENADE", "WEAPON_BZGAS", "WEAPON_FLARE",
+		"WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_GRENADE", "WEAPON_STICKYBOMB", "WEAPON_SMOKEGRENADE", "WEAPON_FLAREGUN", "WEAPON_FLARE",
 		"WEAPON_MOLOTOV", "WEAPON_FIREEXTINGUISHER", "WEAPON_PETROLCAN",
 		"WEAPON_SNSPISTOL", "WEAPON_SPECIALCARBINE", "WEAPON_HEAVYPISTOL", "WEAPON_BULLPUPRIFLE", "WEAPON_HOMINGLAUNCHER",
 		"WEAPON_PROXMINE", "WEAPON_SNOWBALL", "WEAPON_VINTAGEPISTOL", "WEAPON_DAGGER", "WEAPON_FIREWORK", "WEAPON_MUSKET",
-		"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN"
+		"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN", "WEAPON_GARBAGEBAG"
 	};
 
 	switch (activeLineIndexWeapon)
@@ -708,7 +705,7 @@ void process_weapon_menu()
 	std::string caption = "Weapon Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Give All Weapons",	NULL,						  NULL},
+		{"Give All Weapons",	NULL,						  NULL, true},
 		{"No Reload",		&featureWeaponNoReload,		  NULL},
 		{"Fire Ammo",		&featureWeaponFireAmmo,		  NULL},
 		{"Explosive Ammo",  &featureWeaponExplosiveAmmo,  NULL},
@@ -902,7 +899,7 @@ void process_misc_menu()
 	std::string caption = "Misc Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Next Radio Track",	NULL,					NULL},
+		{"Next Radio Track",	NULL,					NULL, true},
 		{"Hide HUD",			&featureMiscHideHud,	NULL}
 	};
 
@@ -954,7 +951,7 @@ void process_main_menu()
 	std::vector<std::string> TOP_OPTIONS = {
 		"Player",
 		"Teleport",
-		"Weapon",
+		"Weapons",
 		"Vehicle",
 		"World",
 		"Time",
