@@ -664,7 +664,7 @@ void process_player_menu()
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
 		{"Super Jump", &featurePlayerSuperJump, NULL, true},
-		{"Invisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true}
+		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
