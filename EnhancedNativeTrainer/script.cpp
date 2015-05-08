@@ -47,6 +47,8 @@ bool featurePlayerFastSwimUpdated		=	false;
 bool featurePlayerFastRun				=	false;
 bool featurePlayerFastRunUpdated		=	false;
 bool featurePlayerSuperJump				=	false;
+bool featurePlayerInvisible				=	false;
+bool featurePlayerInvisibleUpdated		=	false;
 
 bool featureWeaponNoReload				=	false;
 bool featureWeaponFireAmmo				=	false;
@@ -257,6 +259,15 @@ void update_features()
 	{
 		if (bPlayerExists)
 			GAMEPLAY::SET_SUPER_JUMP_THIS_FRAME(player);
+	}
+
+	//Player Invisible
+	if (featurePlayerInvisibleUpdated)
+	{
+		featurePlayerInvisibleUpdated = false;
+		if (bPlayerExists && featurePlayerInvisible)
+			ENTITY::SET_ENTITY_VISIBLE(playerPed, false);
+		else if (bPlayerExists){ ENTITY::SET_ENTITY_VISIBLE(playerPed, true); }
 	}
 
 	// weapon
@@ -636,7 +647,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 12;
+	const int lineCount = 13;
 	
 	std::string caption = "Player Options";
 
@@ -652,7 +663,8 @@ void process_player_menu()
 		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
-		{"Super Jump", &featurePlayerSuperJump, NULL, true}
+		{"Super Jump", &featurePlayerSuperJump, NULL, true},
+		{"Invisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
@@ -1051,6 +1063,8 @@ void reset_globals()
 	featurePlayerFastRun			=
 	featurePlayerFastRunUpdated		=
 	featurePlayerSuperJump			=
+	featurePlayerInvisible			=
+	featurePlayerInvisibleUpdated	=
 	featureWeaponNoReload			=
 	featureWeaponFireAmmo			=
 	featureWeaponExplosiveAmmo		=

@@ -11,6 +11,8 @@ Additions by Sondai Smith.
 	  Still needs implementation for cars (to prevent shooting out the window).
 	* Freeze Weather - Allows you to freeze the weather at a selected weather option
 	  from the "Weather" sub-menu.
+	* Invisibility - The player model can be made invisible using the option under 
+	  the "Player" sub-menu.
 #### New Hotkeys
 	' - Move Through Door
 	] - Never Wanted Enabled/Disabled
