@@ -9,6 +9,7 @@
     <ClCompile Include="vehicles.cpp" />
     <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="keyboard.cpp" />
+    <ClCompile Include="config_io.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />
@@ -21,8 +22,12 @@
     <ClInclude Include="menu_functions.h" />
     <ClInclude Include="teleportation.h" />
     <ClInclude Include="keyboard.h" />
+    <ClInclude Include="config_io.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\ScriptHookV.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="ent-config.xml" />
   </ItemGroup>
 </Project>

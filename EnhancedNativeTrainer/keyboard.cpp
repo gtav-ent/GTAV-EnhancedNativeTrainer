@@ -5,6 +5,9 @@
 */
 
 #include "keyboard.h"
+#include "script.h"
+
+#include <sstream>
 
 const int KEYS_SIZE = 255;
 
@@ -45,4 +48,24 @@ void ResetKeyState(DWORD key)
 {
 	if (key < KEYS_SIZE)
 		memset(&keyStates[key], 0, sizeof(keyStates[0]));
+}
+
+int keyNameToVal(char * input)
+{
+	std::ostringstream ss;
+	ss << "Searching for " << input;
+	write_text_to_log_file(ss.str());
+
+	for (int i = 0; i < (sizeof ALL_KEYS / sizeof ALL_KEYS[0]); i++)
+	{
+		if (strcmp(input, ALL_KEYS[i].name) == 0)
+		{
+			ss.str(""); ss.clear();
+			ss << "Found match of " << ALL_KEYS[i].name << " with code " << ALL_KEYS[i].keyCode;
+			write_text_to_log_file(ss.str());
+
+			return ALL_KEYS[i].keyCode;
+		}
+	}
+	return -1;
 }

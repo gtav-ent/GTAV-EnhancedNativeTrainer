@@ -9,22 +9,27 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "io.h"
+#include "config_io.h"
+#include <string>
+#include <sstream>
 
 DWORD trainerResetTime = 0;
 
 bool trainer_switch_pressed()
 {
-	return IsKeyJustUp(VK_F4);
+	return IsKeyJustUp( config->get_key_config()->key_activate );
 }
 
 void get_button_state(bool *a, bool *b, bool *up, bool *down, bool *l, bool *r)
 {
-	if (a) *a = IsKeyDown(VK_NUMPAD5);
-	if (b) *b = IsKeyDown(VK_NUMPAD0) || IsKeyDown(VK_BACK);
-	if (up) *up = IsKeyDown(VK_NUMPAD8);
-	if (down) *down = IsKeyDown(VK_NUMPAD2);
-	if (r) *r = IsKeyDown(VK_NUMPAD6);
-	if (l) *l = IsKeyDown(VK_NUMPAD4);
+	KeyInputConfig *keyConf = config->get_key_config();
+
+	if (a) *a = IsKeyDown(keyConf->key_confirm);
+	if (b) *b = IsKeyDown(keyConf->key_back);
+	if (up) *up = IsKeyDown(keyConf->key_up);
+	if (down) *down = IsKeyDown(keyConf->key_down);
+	if (r) *r = IsKeyDown(keyConf->key_right);
+	if (l) *l = IsKeyDown(keyConf->key_left);
 }
 
 bool get_key_pressed(int nVirtKey)

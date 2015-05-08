@@ -16,6 +16,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
+#include <fstream>
+
 void ScriptMain();
 
 bool process_skinchanger_menu();
@@ -23,3 +25,5 @@ bool process_skinchanger_menu();
 bool process_skinchanger_detail_menu();
 
 void update_features();
+
+void write_text_to_log_file(const std::string &text);
