@@ -10,6 +10,7 @@
     <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="Airbrake.cpp" />
+    <ClCompile Include="Weapons.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />
@@ -23,8 +24,6 @@
     <ClInclude Include="teleportation.h" />
     <ClInclude Include="keyboard.h" />
     <ClInclude Include="Airbrake.h" />
-  </ItemGroup>
-  <ItemGroup>
-	<Library Include="lib\ScriptHookV.lib"/>
+    <ClInclude Include="Weapons.h" />
   </ItemGroup>
 </Project>

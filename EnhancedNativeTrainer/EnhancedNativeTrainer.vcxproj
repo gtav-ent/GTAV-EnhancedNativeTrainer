@@ -20,6 +20,7 @@
     <ClCompile Include="skins.cpp" />
     <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="vehicles.cpp" />
+    <ClCompile Include="Weapons.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Airbrake.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="skins.h" />
     <ClInclude Include="teleportation.h" />
     <ClInclude Include="vehicles.h" />
+    <ClInclude Include="Weapons.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8D82F34A-1D64-465B-84B1-37F89AD3D20B}</ProjectGuid>

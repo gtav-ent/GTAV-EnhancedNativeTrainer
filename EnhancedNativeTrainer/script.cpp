@@ -24,11 +24,13 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "vehicles.h"
 #include "teleportation.h"
 #include "Airbrake.h"
+#include "Weapons.h"
 
 #include <string>
 #include <sstream> 
 
 #include <ctime>
+#include <cctype>
 #include <vector>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
@@ -71,6 +73,7 @@ bool featureTimeSynced					=	false;
 bool featureWeatherWind					=	false;
 bool featureWeatherFreeze				=	false;
 std::string lastWeather;
+std::string lastWeatherName;
 
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
@@ -706,6 +709,9 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 		set_status_text("All weapons added");
 		break;
 		// switchable features
+	/*case 1:
+		process_weaponlist_menu();
+		break;*/
 	default:
 		break;
 	}
@@ -720,6 +726,7 @@ void process_weapon_menu()
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{"Give All Weapons",	NULL,						  NULL, true},
+		//{"Add Weapon", NULL, NULL, true },
 		{"No Reload",		&featureWeaponNoReload,		  NULL},
 		{"Fire Ammo",		&featureWeaponFireAmmo,		  NULL},
 		{"Explosive Ammo",  &featureWeaponExplosiveAmmo,  NULL},
@@ -829,6 +836,7 @@ int activeLineIndexWeather = 0;
 
 bool onconfirm_weather_menu(MenuItem<std::string> choice)
 {
+	std::stringstream ss; ss << "Weather Frozen at: " << lastWeatherName;
 	switch (choice.currentMenuIndex)
 	{
 		// wind
@@ -847,10 +855,13 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		break;
 		// set weather
 	case 1:
-		if (featureWeatherFreeze && !lastWeather.empty()){ GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *) lastWeather.c_str()); set_status_text("Freeze after set weather"); }
-		else if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); }
+		if (featureWeatherFreeze && !lastWeather.empty()){ GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *) lastWeather.c_str()); set_status_text(ss.str()); }
+		else if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); set_status_text("Weather Freeze Disabled"); }
+		else{ set_status_text("Weather Frozen"); }
+		break;
 	default:
 		lastWeather = choice.value.c_str();
+		lastWeatherName = choice.caption;
 		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lastWeather.c_str());
 		if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); }
 		set_status_text(choice.caption);
@@ -1049,6 +1060,7 @@ void reset_globals()
 	frozenWantedLevel			=	0;
 
 	lastWeather.clear();
+	lastWeatherName.clear();
 
 	featurePlayerInvincible			=
 	featurePlayerInvincibleUpdated	=
