@@ -13,6 +13,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 bool featureVehInvincible = false;
 bool featureVehInvincibleUpdated = false;
+bool featureVehFallOff = true;
+bool featureVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehWrapInSpawned = false;
 bool featureVehicleDoorInstant = false;
@@ -250,7 +252,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	const int lineCount = 7;
+	const int lineCount = 8;
 
 	std::string caption = "Vehicle Options";
 
@@ -261,6 +263,7 @@ void process_veh_menu()
 		{ "Door Control", NULL, NULL, false },
 		{ "Wrap In Spawned", &featureVehWrapInSpawned, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
+        { "Fall off vehicle", &featureVehFallOff, &featureVehFallOffUpdated, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
@@ -294,6 +297,16 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 0);
 		}
 	}
+
+    // fall off
+    if (featureVehFallOffUpdated && bPlayerExists && featureVehFallOff)
+    {
+        PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE ( playerPed, 0 );
+    }
+    if  (!featureVehFallOff && bPlayerExists)
+    {
+        PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE ( playerPed, 1 );
+    }
 
 	// player's vehicle boost
 	if (featureVehSpeedBoost && bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
