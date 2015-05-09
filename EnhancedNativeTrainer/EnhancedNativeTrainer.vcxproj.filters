@@ -11,6 +11,7 @@
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="Airbrake.cpp" />
     <ClCompile Include="Weapons.cpp" />
+	<ClCompile Include="config_io.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />
@@ -25,5 +26,12 @@
     <ClInclude Include="keyboard.h" />
     <ClInclude Include="Airbrake.h" />
     <ClInclude Include="Weapons.h" />
+	<ClInclude Include="config_io.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\ScriptHookV.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="ent-config.xml" />
   </ItemGroup>
 </Project>

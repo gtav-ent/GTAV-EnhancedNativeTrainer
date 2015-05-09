@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ent-config>
+  <keys>
+    <!--
+    A listing of available key values is available at http://www.garybeene.com/code/gbsnippets_gbs_00292.htm 
+    Most if not all of those are supported, at least in theory.
+    For now, if you want controller input, you need to map it to a key first using some utility.
+    If you cock up this file and enter an invalid key, the default will be used instead.
+    If you manage to assign the same key to multiple functions, who knows?
+    Modifiers like Ctrl and Alt (e.g. Ctrl-A) may come along later.
+    -->
+    <key function="up" value="VK_NUMPAD8"/>
+    <key function="down" value="VK_NUMPAD2"/>
+    <key function="left" value="VK_NUMPAD4"/>
+    <key function="right" value="VK_NUMPAD6"/>
+    <key function="select" value="VK_NUMPAD5"/>
+    <key function="back" value="VK_NUMPAD0"/>
+    <key function="activate" value="VK_F4"/>
+  </keys>
+</ent-config>

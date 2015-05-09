@@ -18,6 +18,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "io.h"
+#include "config_io.h"
 #include "menu_functions.h"
 #include "skins.h"
 #include "script.h"
@@ -28,12 +29,15 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 #include <sstream> 
+#include <fstream> 
 
 #include <ctime>
 #include <cctype>
 #include <vector>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
+
+const bool DEBUG_LOG_ENABLED = false;
 
 // features
 bool featurePlayerInvincible			=	false;
@@ -692,7 +696,7 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 		"WEAPON_MOLOTOV", "WEAPON_FIREEXTINGUISHER", "WEAPON_PETROLCAN",
 		"WEAPON_SNSPISTOL", "WEAPON_SPECIALCARBINE", "WEAPON_HEAVYPISTOL", "WEAPON_BULLPUPRIFLE", "WEAPON_HOMINGLAUNCHER",
 		"WEAPON_PROXMINE", "WEAPON_SNOWBALL", "WEAPON_VINTAGEPISTOL", "WEAPON_DAGGER", "WEAPON_FIREWORK", "WEAPON_MUSKET",
-		"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN", "WEAPON_GARBAGEBAG"
+		"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN"
 	};
 
 	switch (activeLineIndexWeapon)
@@ -1130,5 +1134,16 @@ void main()
 void ScriptMain()
 {
 	srand(GetTickCount());
+	read_config_file();
 	main();
+}
+
+void write_text_to_log_file(const std::string &text)
+{
+	if (!DEBUG_LOG_ENABLED)
+	{
+		return;
+	}
+	std::ofstream log_file( "ent-log.txt", std::ios_base::out | std::ios_base::app);
+	log_file << text << std::endl;
 }

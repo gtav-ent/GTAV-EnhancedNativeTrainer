@@ -16,6 +16,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
+#include <fstream>
+
 void ScriptMain();
 
 bool process_skinchanger_menu();
@@ -27,3 +29,4 @@ void update_features();
 int getFrozenWantedLvl();
 void setFrozenWantedLvl(int level);
 void setFrozenWantedFeature(bool b);
+void write_text_to_log_file(const std::string &text);
