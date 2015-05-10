@@ -29,4 +29,9 @@ void update_features();
 int getFrozenWantedLvl();
 void setFrozenWantedLvl(int level);
 void setFrozenWantedFeature(bool b);
+/**Append a line of text to the log file. Does nothing unless the debug
+constant is set.*/
 void write_text_to_log_file(const std::string &text);
+
+/**Wipe the debug log file. Called every time the trainer starts.*/
+void clear_log_file();

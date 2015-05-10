@@ -143,7 +143,7 @@ void update_vehicle_guns()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed) || !featureWeaponVehRockets) return;
 
-	bool bSelect = IsKeyDown(0x6B); // num plus
+	bool bSelect = IsKeyDown(get_config()->get_key_config()->key_rockets); // num plus
 	if (bSelect && featureWeaponVehShootLastTime + 150 < GetTickCount() &&
 		PLAYER::IS_PLAYER_CONTROL_ON(player) &&	PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
@@ -1133,9 +1133,15 @@ void main()
 
 void ScriptMain()
 {
+	clear_log_file();
 	srand(GetTickCount());
 	read_config_file();
 	main();
+}
+
+void clear_log_file()
+{
+	remove("ent-log.txt");
 }
 
 void write_text_to_log_file(const std::string &text)

@@ -16,5 +16,8 @@
     <key function="select" value="VK_NUMPAD5"/>
     <key function="back" value="VK_NUMPAD0"/>
     <key function="activate" value="VK_F4"/>
+    <key function="boost" value="VK_NUMPAD9"/>
+    <key function="airbrake" value="VK_NUMPAD3"/>
+    <key function="rockets" value="VK_ADD"/>
   </keys>
 </ent-config>
