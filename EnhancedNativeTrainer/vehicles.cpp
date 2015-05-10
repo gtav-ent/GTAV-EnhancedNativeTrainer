@@ -302,6 +302,7 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	if ( featureVehFallOffUpdated && bPlayerExists && featureVehFallOff )
 	{
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE ( playerPed, 0 );
+		featureVehFallOffUpdated = false;
 	}
 	if ( !featureVehFallOff && bPlayerExists )
 	{
