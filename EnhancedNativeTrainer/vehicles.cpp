@@ -10,6 +10,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "vehicles.h"
 #include "menu_functions.h"
+#include "config_io.h"
 
 bool featureVehInvincible = false;
 bool featureVehInvincibleUpdated = false;
@@ -301,8 +302,8 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 		DWORD model = ENTITY::GET_ENTITY_MODEL(veh);
 
-		bool bUp = IsKeyDown(VK_NUMPAD9);
-		bool bDown = IsKeyDown(VK_NUMPAD3);
+		bool bUp = IsKeyDown(get_config()->get_key_config()->key_boost);
+		bool bDown = IsKeyDown(get_config()->get_key_config()->key_airbrake);
 
 		if (bUp || bDown)
 		{
