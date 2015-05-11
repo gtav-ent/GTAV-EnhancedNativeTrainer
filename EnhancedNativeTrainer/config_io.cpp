@@ -25,7 +25,7 @@ void read_config_file()
 
 	//read XML
 	MSXML2::IXMLDOMDocumentPtr spXMLDoc;
-	spXMLDoc.CreateInstance(__uuidof(MSXML2::DOMDocument30));
+	spXMLDoc.CreateInstance(__uuidof(MSXML2::DOMDocument60));
 	if (!spXMLDoc->load("ent-config.xml"))
 	{
 		write_text_to_log_file("No config found, using defaults");
@@ -106,46 +106,80 @@ void KeyInputConfig::set_key(char* function, char* keyName)
 		return;
 	}
 
-	if (strcmp(function, "up") == 0)
+	if (strcmp(function, "menu_up") == 0)
 	{
-		key_up = vkID;
+		key_menu_up = vkID;
 	}
-	else if (strcmp(function, "down") == 0)
+	else if (strcmp(function, "menu_down") == 0)
 	{
-		key_down = vkID;
+		key_menu_down = vkID;
 	}
-	else if (strcmp(function, "left") == 0)
+	else if (strcmp(function, "menu_left") == 0)
 	{
-		key_left = vkID;
+		key_menu_left = vkID;
 	}
-	else if (strcmp(function, "right") == 0)
+	else if (strcmp(function, "menu_right") == 0)
 	{
-		key_right = vkID;
+		key_menu_right = vkID;
 	}
-	else if (strcmp(function, "select") == 0)
+	else if (strcmp(function, "menu_select") == 0)
 	{
-		key_confirm = vkID;
+		key_menu_confirm = vkID;
 	}
-	else if (strcmp(function,"back") == 0)
+	else if (strcmp(function,"menu_back") == 0)
 	{
-		key_back = vkID;
+		key_menu_back = vkID;
 	}
-	else if (strcmp(function, "activate") == 0)
+	else if (strcmp(function, "toggle_main_menu") == 0)
 	{
-		key_activate = vkID;
+		key_toggle_main_menu = vkID;
 	}
-	else if (strcmp(function, "boost") == 0)
+	else if (strcmp(function, "veh_boost") == 0)
 	{
-		key_boost = vkID;
+		key_veh_boost = vkID;
 	}
-	else if (strcmp(function, "airbrake") == 0)
+	else if (strcmp(function, "veh_stop") == 0)
 	{
-		key_airbrake = vkID;
+		key_veh_stop = vkID;
 	}
-	else if (strcmp(function, "rockets") == 0)
+	else if (strcmp(function, "veh_rockets") == 0)
 	{
-		key_rockets = vkID;
+		key_veh_rockets = vkID;
 	}
+
+	else if (strcmp(function, "toggle_airbrake") == 0)
+	{
+		key_toggle_airbrake = vkID;
+	}
+	else if (strcmp(function, "airbrake_up") == 0)
+	{
+		key_airbrake_up = vkID;
+	}
+	else if (strcmp(function, "airbrake_down") == 0)
+	{
+		key_airbrake_down = vkID;
+	}
+	else if (strcmp(function, "airbrake_forward") == 0)
+	{
+		key_airbrake_forward = vkID;
+	}
+	else if (strcmp(function, "airbrake_back") == 0)
+	{
+		key_airbrake_back = vkID;
+	}
+	else if (strcmp(function, "airbrake_rotate_left") == 0)
+	{
+		key_airbrake_rotate_left = vkID;
+	}
+	else if (strcmp(function, "airbrake_rotate_right") == 0)
+	{
+		key_airbrake_rotate_right = vkID;
+	}
+	else if (strcmp(function, "airbrake_speed") == 0)
+	{
+		key_airbrake_speed = vkID;
+	}
+
 	else
 	{
 		ss.str(""); ss.clear();

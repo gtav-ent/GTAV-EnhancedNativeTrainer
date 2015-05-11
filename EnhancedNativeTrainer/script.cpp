@@ -24,12 +24,15 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "vehicles.h"
 #include "teleportation.h"
+#include "airbrake.h"
+#include "Weapons.h"
 
 #include <string>
 #include <sstream> 
 #include <fstream> 
 
 #include <ctime>
+#include <cctype>
 #include <vector>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
@@ -40,8 +43,10 @@ const bool DEBUG_LOG_ENABLED = false;
 bool featurePlayerInvincible			=	false;
 bool featurePlayerInvincibleUpdated		=	false;
 bool featurePlayerNeverWanted			=	false;
-bool featurePlayerIgnored				=	false;
-bool featurePlayerIgnoredUpdated		=	false;
+bool featurePlayerIgnoredByPolice				=	false;
+bool featurePlayerIgnoredByPoliceUpdated		=	false;
+bool featurePlayerIgnoredByAll = false;
+bool featurePlayerIgnoredByAllUpdated = false;
 bool featurePlayerUnlimitedAbility		=	false;
 bool featurePlayerNoNoise				=	false;
 bool featurePlayerNoNoiseUpdated		=	false;
@@ -50,6 +55,8 @@ bool featurePlayerFastSwimUpdated		=	false;
 bool featurePlayerFastRun				=	false;
 bool featurePlayerFastRunUpdated		=	false;
 bool featurePlayerSuperJump				=	false;
+bool featurePlayerInvisible				=	false;
+bool featurePlayerInvisibleUpdated		=	false;
 
 bool featureWeaponNoReload				=	false;
 bool featureWeaponFireAmmo				=	false;
@@ -70,9 +77,16 @@ bool featureTimePausedUpdated			=	false;
 bool featureTimeSynced					=	false;
 
 bool featureWeatherWind					=	false;
+bool featureWeatherFreeze				=	false;
+std::string lastWeather;
+std::string lastWeatherName;
 
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
+
+bool featureAirbrakeEnabled				=	false;
+bool featureWantedLevelFrozen			=	false;
+int  frozenWantedLevel					=	0;
 
 // player model control, switching on normal ped model when needed	
 
@@ -131,7 +145,7 @@ void update_vehicle_guns()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed) || !featureWeaponVehRockets) return;
 
-	bool bSelect = IsKeyDown(get_config()->get_key_config()->key_rockets); // num plus
+	bool bSelect = IsKeyDown(get_config()->get_key_config()->key_veh_rockets);
 	if (bSelect && featureWeaponVehShootLastTime + 150 < GetTickCount() &&
 		PLAYER::IS_PLAYER_CONTROL_ON(player) &&	PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
@@ -196,6 +210,15 @@ void update_features()
 			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
+	//Wanted Level Frozen - prevents stars from disappearing
+	if (featureWantedLevelFrozen)
+	{
+		if (bPlayerExists)
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		if (getFrozenWantedLvl() == 0){ featureWantedLevelFrozen = false; }
+	}
+	
 	// player never wanted
 	if (featurePlayerNeverWanted)
 	{
@@ -204,12 +227,39 @@ void update_features()
 	}
 
 	// police ignore player
-	if (featurePlayerIgnoredUpdated)
+	if (featurePlayerIgnoredByPolice)
 	{
 		if (bPlayerExists)
-			PLAYER::SET_POLICE_IGNORE_PLAYER(player, featurePlayerIgnored);
-		featurePlayerIgnoredUpdated = false;
+		{
+			PLAYER::SET_POLICE_IGNORE_PLAYER(player, true);
+		}
 	}
+	else if (featurePlayerIgnoredByPoliceUpdated)
+	{
+		if (bPlayerExists)
+		{
+			PLAYER::SET_POLICE_IGNORE_PLAYER(player, false);
+		}
+		featurePlayerIgnoredByPoliceUpdated = false;
+	}
+
+	// police ignore player
+	if (featurePlayerIgnoredByAll)
+	{
+		if (bPlayerExists)
+		{
+			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, true);
+		}
+	}
+	else if (featurePlayerIgnoredByAllUpdated)
+	{
+		if (bPlayerExists)
+		{
+			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, false);
+		}
+		featurePlayerIgnoredByAllUpdated = false;
+	}
+
 
 	// player special ability
 	if (featurePlayerUnlimitedAbility)
@@ -253,6 +303,15 @@ void update_features()
 	{
 		if (bPlayerExists)
 			GAMEPLAY::SET_SUPER_JUMP_THIS_FRAME(player);
+	}
+
+	//Player Invisible
+	if (featurePlayerInvisibleUpdated)
+	{
+		featurePlayerInvisibleUpdated = false;
+		if (bPlayerExists && featurePlayerInvisible)
+			ENTITY::SET_ENTITY_VISIBLE(playerPed, false);
+		else if (bPlayerExists){ ENTITY::SET_ENTITY_VISIBLE(playerPed, true); }
 	}
 
 	// weapon
@@ -314,6 +373,36 @@ void update_features()
 	// hide hud
 	if (featureMiscHideHud)
 		UI::HIDE_HUD_AND_RADAR_THIS_FRAME();
+
+	//Disable airbrake on death
+	if (ENTITY::IS_ENTITY_DEAD(playerPed))
+	{
+		featureAirbrakeEnabled = false;
+	}
+
+	//----Hotkeys----
+	
+	//Move through door (use '-key)
+	//Pushes player through solid door objects.
+	if (bPlayerExists)
+	{
+		bool throughDoorPressed = IsKeyJustUp(get_config()->get_key_config()->key_hotkey_throughdoor);
+		//bool disablePolicePressed = IsKeyJustUp(VK_OEM_6);
+		if (throughDoorPressed)
+		{
+			moveThroughDoor();
+			//set_status_text("Moved through door");
+		}
+		/*
+		// Commented out until we deal with hotkeys properly, i.e at least have modifiers
+		if (disablePolicePressed)
+		{
+			featurePlayerNeverWanted = !featurePlayerNeverWanted;
+			std::string s = ((featurePlayerNeverWanted) ? "Enabled" : "Disabled");
+			set_status_text("Never Wanted : " + s);
+		}
+		*/
+	}
 }
 
 /*
@@ -462,11 +551,96 @@ LPCSTR pedModelNames[69][10] = {
 	{"GUNVEND", "HIPPIE", "IMPORAGE", "JUSTIN", "MANI", "MILITARYBUM", "PAPARAZZI", "PARTY", "POGO", "PRISONER"}
 };*/
 
+int activeLineIndexWantedFreeze = 0;
+
+const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF/Clear" };
+
+int getFrozenWantedLvl(){ return frozenWantedLevel; }
+void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
+void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
+bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	activeLineIndexWantedFreeze = selection;
+
+	switch (selection)
+	{
+	case 0:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 1;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 1 Star");
+		}
+		break;
+	case 1:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 2;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 2 Stars");
+		}
+		break;
+	case 2:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 3;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 3 Stars");
+		}
+		break;
+	case 3:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 4;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 4 Stars");
+		}
+		break;
+	case 4:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = true;
+			frozenWantedLevel = 5;
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			set_status_text("Wanted Level Frozen at 5 Stars");
+		}
+		break;
+	default:
+		if (bPlayerExists)
+		{
+			featureWantedLevelFrozen = false;
+			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
+			PLAYER::SET_MAX_WANTED_LEVEL(5);
+			set_status_text("Wanted Level settings returned to default.");
+		}
+		break;
+	}
+	return false;
+}
 
 int activeLineIndexPlayer = 0;
 
 bool onconfirm_player_menu(MenuItem<int> choice)
 {
+
 	// common variables
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
@@ -523,7 +697,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 12;
+	const int lineCount = 14;
 	
 	std::string caption = "Player Options";
 
@@ -534,12 +708,14 @@ void process_player_menu()
 		{"Wanted Level", NULL, NULL, true, WANTED},
 		{"Never Wanted", &featurePlayerNeverWanted, NULL, true},
 		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
-		{"Police Ignored", &featurePlayerIgnored, &featurePlayerIgnoredUpdated, true},
+		{"Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
+		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
 		{"Unlim. Ability", &featurePlayerUnlimitedAbility, NULL, true},
 		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
-		{"Super Jump", &featurePlayerSuperJump, NULL, true}
+		{"Super Jump", &featurePlayerSuperJump, NULL, true},
+		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
@@ -581,6 +757,9 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 		set_status_text("All weapons added");
 		break;
 		// switchable features
+	/*case 1:
+		process_weaponlist_menu();
+		break;*/
 	default:
 		break;
 	}
@@ -595,6 +774,7 @@ void process_weapon_menu()
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{"Give All Weapons",	NULL,						  NULL, true},
+		//{"Add Weapon", NULL, NULL, true },
 		{"No Reload",		&featureWeaponNoReload,		  NULL},
 		{"Fire Ammo",		&featureWeaponFireAmmo,		  NULL},
 		{"Explosive Ammo",  &featureWeaponExplosiveAmmo,  NULL},
@@ -704,6 +884,7 @@ int activeLineIndexWeather = 0;
 
 bool onconfirm_weather_menu(MenuItem<std::string> choice)
 {
+	std::stringstream ss; ss << "Weather Frozen at: " << lastWeatherName;
 	switch (choice.currentMenuIndex)
 	{
 		// wind
@@ -721,9 +902,16 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		}
 		break;
 		// set weather
+	case 1:
+		if (featureWeatherFreeze && !lastWeather.empty()){ GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *) lastWeather.c_str()); set_status_text(ss.str()); }
+		else if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); set_status_text("Weather Freeze Disabled"); }
+		else{ set_status_text("Weather Frozen"); }
+		break;
 	default:
-		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)choice.value.c_str());
-		GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+		lastWeather = choice.value.c_str();
+		lastWeatherName = choice.caption;
+		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lastWeather.c_str());
+		if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); }
 		set_status_text(choice.caption);
 	}
 
@@ -732,12 +920,13 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 
 void process_weather_menu()
 {
-	const int lineCount = 15;
+	const int lineCount = 16;
 
 	std::string caption = "Weather Options";
 
 	StringStandardOrToggleMenuDef lines[lineCount] = {
 		{"Wind", "WIND",		&featureWeatherWind,	NULL},
+		{"Freeze Weather", "FREEZEWEATHER", &featureWeatherFreeze ,NULL },
 		{"Extra Sunny", "EXTRASUNNY",	NULL,					NULL},
 		{"Clear", "CLEAR",		NULL,					NULL},
 		{"Cloudy", "CLOUDS",		NULL,					NULL},
@@ -789,7 +978,7 @@ void process_misc_menu()
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{"Next Radio Track",	NULL,					NULL, true},
-		{"Hide HUD",			&featureMiscHideHud,	NULL}		
+		{"Hide HUD",			&featureMiscHideHud,	NULL}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexMisc, caption, onconfirm_misc_menu);
@@ -862,6 +1051,57 @@ void process_main_menu()
 	draw_generic_menu<int>(menuItems, &activeLineIndexMain, caption, onconfirm_main_menu, NULL, NULL);
 }
 
+//Test for airbrake command.
+void process_airbrake_menu()
+{
+	featureAirbrakeEnabled = true;
+	const float lineWidth = 250.0;
+	const int lineCount = 1;
+
+	std::string caption = "Airbrake";
+
+	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
+
+	DWORD waitTime = 150;
+
+	airbrake_flip_angle();
+
+	while (true)
+	{
+		// timed menu draw, used for pause after active line switch
+		DWORD maxTickCount = GetTickCount() + waitTime;
+		do
+		{
+			// draw menu
+			draw_menu_header_line(caption, 350.0f, 50.0f, 15.0f, 0.0f, 15.0f, false);
+			//draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
+
+			update_features();
+			WAIT(0);
+		} while (GetTickCount() < maxTickCount);
+		waitTime = 0;
+
+		airbrake();
+
+		//// process buttons
+		//bool bSelect, bBack, bUp, bDown;
+		//get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
+		if (airbrake_switch_pressed() || !featureAirbrakeEnabled)
+		{
+			menu_beep();
+			break;
+		}
+	}
+
+	airbrake_flip_angle();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+	std::stringstream ss2;
+	ss2 << "Angle: " << curHeading;
+	set_status_text(ss2.str());
+}
+
 void reset_globals()
 {
 	reset_skin_globals();
@@ -874,13 +1114,20 @@ void reset_globals()
 	activeLineIndexPlayer		=
 	activeLineIndexWeapon		=
 	activeLineIndexWorld		=
-	activeLineIndexWeather		=	0;
+	activeLineIndexWeather		=
+	activeLineIndexWantedFreeze	=
+	frozenWantedLevel			=	0;
+
+	lastWeather.clear();
+	lastWeatherName.clear();
 
 	featurePlayerInvincible			=
 	featurePlayerInvincibleUpdated	=
 	featurePlayerNeverWanted		=
-	featurePlayerIgnored			=
-	featurePlayerIgnoredUpdated		=
+	featurePlayerIgnoredByPolice			=
+	featurePlayerIgnoredByPoliceUpdated		=
+	featurePlayerIgnoredByAll =
+	featurePlayerIgnoredByAllUpdated =
 	featurePlayerUnlimitedAbility	=
 	featurePlayerNoNoise			=
 	featurePlayerNoNoiseUpdated		=
@@ -889,6 +1136,8 @@ void reset_globals()
 	featurePlayerFastRun			=
 	featurePlayerFastRunUpdated		=
 	featurePlayerSuperJump			=
+	featurePlayerInvisible			=
+	featurePlayerInvisibleUpdated	=
 	featureWeaponNoReload			=
 	featureWeaponFireAmmo			=
 	featureWeaponExplosiveAmmo		=
@@ -899,8 +1148,11 @@ void reset_globals()
 	featureTimePausedUpdated		=
 	featureTimeSynced				=
 	featureWeatherWind				=
+	featureWeatherFreeze			=
 	featureMiscLockRadio			=
-	featureMiscHideHud				=	false;
+	featureMiscHideHud				=	
+	featureAirbrakeEnabled			= 
+	featureWantedLevelFrozen		=	false;
 
 	featureWorldRandomCops		=
 	featureWorldRandomTrains	=
@@ -924,6 +1176,14 @@ void main()
 			set_menu_showing(true);
 			process_main_menu();
 		}
+		/*
+		//Commented out for now as it's not ready for release
+		else if (airbrake_switch_pressed())
+		{
+			menu_beep();
+			process_airbrake_menu();
+		}
+		*/
 
 		update_features();
 
