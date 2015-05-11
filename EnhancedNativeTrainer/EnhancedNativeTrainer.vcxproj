@@ -11,7 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="config_io.cpp" />
+    <ClCompile Include="Airbrake.cpp" />
+	<ClCompile Include="config_io.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="main.cpp" />
@@ -20,9 +21,11 @@
     <ClCompile Include="skins.cpp" />
     <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="vehicles.cpp" />
+    <ClCompile Include="Weapons.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config_io.h" />
+    <ClInclude Include="Airbrake.h" />
+	<ClInclude Include="config_io.h" />
     <ClInclude Include="inc\main.h" />
     <ClInclude Include="inc\nativeCaller.h" />
     <ClInclude Include="inc\types.h" />
@@ -33,9 +36,7 @@
     <ClInclude Include="skins.h" />
     <ClInclude Include="teleportation.h" />
     <ClInclude Include="vehicles.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="lib\ScriptHookV.lib" />
+    <ClInclude Include="Weapons.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml">

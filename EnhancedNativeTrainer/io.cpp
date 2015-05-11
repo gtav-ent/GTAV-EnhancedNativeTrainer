@@ -38,6 +38,11 @@ bool get_key_pressed(int nVirtKey)
 	return (GetAsyncKeyState(nVirtKey) & 0x8000) != 0;
 }
 
+bool airbrake_switch_pressed()
+{
+	return IsKeyJustUp(VK_F6);
+}
+
 void reset_trainer_switch()
 {
 	trainerResetTime = GetTickCount();

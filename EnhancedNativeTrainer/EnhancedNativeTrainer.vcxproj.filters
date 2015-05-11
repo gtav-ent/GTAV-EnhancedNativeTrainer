@@ -9,7 +9,9 @@
     <ClCompile Include="vehicles.cpp" />
     <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="keyboard.cpp" />
-    <ClCompile Include="config_io.cpp" />
+    <ClCompile Include="Airbrake.cpp" />
+    <ClCompile Include="Weapons.cpp" />
+	<ClCompile Include="config_io.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />
@@ -22,7 +24,9 @@
     <ClInclude Include="menu_functions.h" />
     <ClInclude Include="teleportation.h" />
     <ClInclude Include="keyboard.h" />
-    <ClInclude Include="config_io.h" />
+    <ClInclude Include="Airbrake.h" />
+    <ClInclude Include="Weapons.h" />
+	<ClInclude Include="config_io.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\ScriptHookV.lib" />

@@ -5,7 +5,7 @@ http://dev-c.com
 
 It is now part of the Enhanced Native Trainer project.
 https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
-(C) Rob Pridham and fellow contributors 2015
+(C) Sondai Smith and fellow contributors 2015
 */
 
 #pragma once
@@ -16,14 +16,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
-#include "keyboard.h"
+void moveThroughDoor();
 
-bool get_key_pressed(int nVirtKey);
-
-void get_button_state(bool *a, bool *b, bool *up, bool *down, bool *l, bool *r);
-
-bool trainer_switch_pressed();
-
-void reset_trainer_switch();
-
-bool airbrake_switch_pressed();
+void airbrake();

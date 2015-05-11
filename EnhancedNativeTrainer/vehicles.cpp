@@ -19,6 +19,8 @@ bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehWrapInSpawned = false;
 bool featureVehicleDoorInstant = false;
+bool featureSeatbeltEnabled = false;
+bool featureSeatbeltUpdated = false;
 
 int activeLineIndexVeh = 0;
 
@@ -331,6 +333,16 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 				if (ENTITY::IS_ENTITY_IN_AIR(veh) || speed > 5.0)
 					VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
 		}
+	}
+
+	//Seatbelt (bike only ATM)
+	if (featureSeatbeltUpdated)
+	{
+		featureSeatbeltUpdated = false;
+		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, featureSeatbeltEnabled);
+		std::stringstream s;
+		s << "Bike Seatbelt: " << ((featureSeatbeltEnabled) ? "On" : "Off");
+		set_status_text(s.str());
 	}
 }
 
