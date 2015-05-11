@@ -9,6 +9,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "menu_functions.h"
+#include "script.h"
 
 std::string statusText;
 DWORD statusTextDrawTicksMax;
@@ -281,14 +282,18 @@ int WantedSymbolItem<T>::get_wanted_value()
 template<class T>
 void WantedSymbolItem<T>::handleLeftPress()
 {
-	set_status_text("Wanted down");
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
 	if (bPlayerExists && PLAYER::GET_PLAYER_WANTED_LEVEL(player) > 0)
 	{
+		setFrozenWantedFeature(true);
 		PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) - 1, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		set_status_text("Wanted Level Down");
+		setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
+		std::stringstream st;
+		if (getFrozenWantedLvl() > 0){ st << "Wanted Level: " << getFrozenWantedLvl() << " Star(s)"; }
+		else{ st << "Wanted Level Cleared"; }
+		set_status_text(st.str());
 	}
 }
 
@@ -299,8 +304,12 @@ void WantedSymbolItem<T>::handleRightPress()
 	Player player = PLAYER::PLAYER_ID();
 	if (bPlayerExists && PLAYER::GET_PLAYER_WANTED_LEVEL(player) < 5)
 	{
+		setFrozenWantedFeature(true);
 		PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) + 1, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		set_status_text("Wanted Level Up");
+		setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
+		std::stringstream st;
+		st << "Wanted Level: " << getFrozenWantedLvl() << " Star(s)";
+		set_status_text(st.str());
 	}
 }
