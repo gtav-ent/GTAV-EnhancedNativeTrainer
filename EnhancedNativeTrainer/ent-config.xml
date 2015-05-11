@@ -9,15 +9,29 @@
     If you manage to assign the same key to multiple functions, who knows?
     Modifiers like Ctrl and Alt (e.g. Ctrl-A) may come along later.
     -->
-    <key function="up" value="VK_NUMPAD8"/>
-    <key function="down" value="VK_NUMPAD2"/>
-    <key function="left" value="VK_NUMPAD4"/>
-    <key function="right" value="VK_NUMPAD6"/>
-    <key function="select" value="VK_NUMPAD5"/>
-    <key function="back" value="VK_NUMPAD0"/>
-    <key function="activate" value="VK_F4"/>
-    <key function="boost" value="VK_NUMPAD9"/>
-    <key function="airbrake" value="VK_NUMPAD3"/>
-    <key function="rockets" value="VK_ADD"/>
+    <key function="toggle_main_menu" value="VK_F4"/>
+
+    <key function="menu_up" value="VK_NUMPAD8"/>
+    <key function="menu_down" value="VK_NUMPAD2"/>
+    <key function="menu_left" value="VK_NUMPAD4"/>
+    <key function="menu_right" value="VK_NUMPAD6"/>
+    <key function="menu_select" value="VK_NUMPAD5"/>
+    <key function="menu_back" value="VK_NUMPAD0"/>
+
+    <key function="veh_boost" value="VK_NUMPAD9"/> <!--this is what speeds up a vehicle-->
+    <key function="veh_stop" value="VK_NUMPAD3"/> <!--this is what stops a vehicle immediately-->
+    <key function="veh_rockets" value="VK_ADD"/>
+
+    <!--The following are for the feature that lets you move around beyond normal limits, e.g. noclip-->
+    
+    <key function="toggle_airbrake" value="VK_F6"/>
+
+    <key function="airbrake_up" value="VK_KEY_Q"/>
+    <key function="airbrake_down" value="VK_KEY_Z"/>
+    <key function="airbrake_forward" value="VK_KEY_W"/>
+    <key function="airbrake_back" value="VK_KEY_S"/>
+    <key function="airbrake_rotate_left" value="VK_KEY_A"/>
+    <key function="airbrake_rotate_right" value="VK_KEY_D"/>
+    <key function="airbrake_speed" value="VK_SHIFT"/>
   </keys>
 </ent-config>

@@ -24,7 +24,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "vehicles.h"
 #include "teleportation.h"
-#include "Airbrake.h"
+#include "airbrake.h"
 #include "Weapons.h"
 
 #include <string>
@@ -43,8 +43,10 @@ const bool DEBUG_LOG_ENABLED = false;
 bool featurePlayerInvincible			=	false;
 bool featurePlayerInvincibleUpdated		=	false;
 bool featurePlayerNeverWanted			=	false;
-bool featurePlayerIgnored				=	false;
-bool featurePlayerIgnoredUpdated		=	false;
+bool featurePlayerIgnoredByPolice				=	false;
+bool featurePlayerIgnoredByPoliceUpdated		=	false;
+bool featurePlayerIgnoredByAll = false;
+bool featurePlayerIgnoredByAllUpdated = false;
 bool featurePlayerUnlimitedAbility		=	false;
 bool featurePlayerNoNoise				=	false;
 bool featurePlayerNoNoiseUpdated		=	false;
@@ -143,7 +145,7 @@ void update_vehicle_guns()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed) || !featureWeaponVehRockets) return;
 
-	bool bSelect = IsKeyDown(get_config()->get_key_config()->key_rockets); // num plus
+	bool bSelect = IsKeyDown(get_config()->get_key_config()->key_veh_rockets);
 	if (bSelect && featureWeaponVehShootLastTime + 150 < GetTickCount() &&
 		PLAYER::IS_PLAYER_CONTROL_ON(player) &&	PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
@@ -223,6 +225,41 @@ void update_features()
 		if (bPlayerExists)
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
 	}
+
+	// police ignore player
+	if (featurePlayerIgnoredByPolice)
+	{
+		if (bPlayerExists)
+		{
+			PLAYER::SET_POLICE_IGNORE_PLAYER(player, true);
+		}
+	}
+	else if (featurePlayerIgnoredByPoliceUpdated)
+	{
+		if (bPlayerExists)
+		{
+			PLAYER::SET_POLICE_IGNORE_PLAYER(player, false);
+		}
+		featurePlayerIgnoredByPoliceUpdated = false;
+	}
+
+	// police ignore player
+	if (featurePlayerIgnoredByAll)
+	{
+		if (bPlayerExists)
+		{
+			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, true);
+		}
+	}
+	else if (featurePlayerIgnoredByAllUpdated)
+	{
+		if (bPlayerExists)
+		{
+			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, false);
+		}
+		featurePlayerIgnoredByAllUpdated = false;
+	}
+
 
 	// player special ability
 	if (featurePlayerUnlimitedAbility)
@@ -338,7 +375,10 @@ void update_features()
 		UI::HIDE_HUD_AND_RADAR_THIS_FRAME();
 
 	//Disable airbrake on death
-	if (ENTITY::IS_ENTITY_DEAD(playerPed)){ featureAirbrakeEnabled = false; }
+	if (ENTITY::IS_ENTITY_DEAD(playerPed))
+	{
+		featureAirbrakeEnabled = false;
+	}
 
 	//----Hotkeys----
 	
@@ -346,19 +386,22 @@ void update_features()
 	//Pushes player through solid door objects.
 	if (bPlayerExists)
 	{
-		bool throughDoorPressed = IsKeyJustUp(VK_OEM_7);
-		bool disablePolicePressed = IsKeyJustUp(VK_OEM_6);
+		bool throughDoorPressed = IsKeyJustUp(get_config()->get_key_config()->key_hotkey_throughdoor);
+		//bool disablePolicePressed = IsKeyJustUp(VK_OEM_6);
 		if (throughDoorPressed)
 		{
 			moveThroughDoor();
-			set_status_text("Moved through door.");
+			//set_status_text("Moved through door");
 		}
+		/*
+		// Commented out until we deal with hotkeys properly, i.e at least have modifiers
 		if (disablePolicePressed)
 		{
 			featurePlayerNeverWanted = !featurePlayerNeverWanted;
 			std::string s = ((featurePlayerNeverWanted) ? "Enabled" : "Disabled");
 			set_status_text("Never Wanted : " + s);
 		}
+		*/
 	}
 }
 
@@ -654,7 +697,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 13;
+	const int lineCount = 14;
 	
 	std::string caption = "Player Options";
 
@@ -665,7 +708,8 @@ void process_player_menu()
 		{"Wanted Level", NULL, NULL, true, WANTED},
 		{"Never Wanted", &featurePlayerNeverWanted, NULL, true},
 		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
-		{"Police Ignored", &featurePlayerIgnored, &featurePlayerIgnoredUpdated, true},
+		{"Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
+		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
 		{"Unlim. Ability", &featurePlayerUnlimitedAbility, NULL, true},
 		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
@@ -1019,6 +1063,9 @@ void process_airbrake_menu()
 	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
 
 	DWORD waitTime = 150;
+
+	airbrake_flip_angle();
+
 	while (true)
 	{
 		// timed menu draw, used for pause after active line switch
@@ -1045,6 +1092,14 @@ void process_airbrake_menu()
 			break;
 		}
 	}
+
+	airbrake_flip_angle();
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+	std::stringstream ss2;
+	ss2 << "Angle: " << curHeading;
+	set_status_text(ss2.str());
 }
 
 void reset_globals()
@@ -1069,8 +1124,10 @@ void reset_globals()
 	featurePlayerInvincible			=
 	featurePlayerInvincibleUpdated	=
 	featurePlayerNeverWanted		=
-	featurePlayerIgnored			=
-	featurePlayerIgnoredUpdated		=
+	featurePlayerIgnoredByPolice			=
+	featurePlayerIgnoredByPoliceUpdated		=
+	featurePlayerIgnoredByAll =
+	featurePlayerIgnoredByAllUpdated =
 	featurePlayerUnlimitedAbility	=
 	featurePlayerNoNoise			=
 	featurePlayerNoNoiseUpdated		=
@@ -1119,11 +1176,14 @@ void main()
 			set_menu_showing(true);
 			process_main_menu();
 		}
+		/*
+		//Commented out for now as it's not ready for release
 		else if (airbrake_switch_pressed())
 		{
 			menu_beep();
 			process_airbrake_menu();
 		}
+		*/
 
 		update_features();
 

@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Airbrake.cpp" />
-	<ClCompile Include="config_io.cpp" />
+    <ClCompile Include="airbrake.cpp" />
+    <ClCompile Include="config_io.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="main.cpp" />
@@ -21,11 +21,11 @@
     <ClCompile Include="skins.cpp" />
     <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="vehicles.cpp" />
-    <ClCompile Include="Weapons.cpp" />
+    <ClCompile Include="weapons.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Airbrake.h" />
-	<ClInclude Include="config_io.h" />
+    <ClInclude Include="airbrake.h" />
+    <ClInclude Include="config_io.h" />
     <ClInclude Include="inc\main.h" />
     <ClInclude Include="inc\nativeCaller.h" />
     <ClInclude Include="inc\types.h" />
@@ -36,7 +36,7 @@
     <ClInclude Include="skins.h" />
     <ClInclude Include="teleportation.h" />
     <ClInclude Include="vehicles.h" />
-    <ClInclude Include="Weapons.h" />
+    <ClInclude Include="weapons.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml">

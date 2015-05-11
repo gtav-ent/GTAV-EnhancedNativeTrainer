@@ -19,8 +19,6 @@ bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehWrapInSpawned = false;
 bool featureVehicleDoorInstant = false;
-bool featureSeatbeltEnabled = false;
-bool featureSeatbeltUpdated = false;
 
 int activeLineIndexVeh = 0;
 
@@ -266,7 +264,7 @@ void process_veh_menu()
 		{ "Door Control", NULL, NULL, false },
 		{ "Wrap In Spawned", &featureVehWrapInSpawned, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
-		{ "No Falling Off/Out", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
+		{ "No Falling Off", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
@@ -318,8 +316,8 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 		DWORD model = ENTITY::GET_ENTITY_MODEL(veh);
 
-		bool bUp = IsKeyDown(get_config()->get_key_config()->key_boost);
-		bool bDown = IsKeyDown(get_config()->get_key_config()->key_airbrake);
+		bool bUp = IsKeyDown(get_config()->get_key_config()->key_veh_boost);
+		bool bDown = IsKeyDown(get_config()->get_key_config()->key_veh_stop);
 
 		if (bUp || bDown)
 		{
@@ -333,16 +331,6 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 				if (ENTITY::IS_ENTITY_IN_AIR(veh) || speed > 5.0)
 					VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
 		}
-	}
-
-	//Seatbelt (bike only ATM)
-	if (featureSeatbeltUpdated)
-	{
-		featureSeatbeltUpdated = false;
-		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, featureSeatbeltEnabled);
-		std::stringstream s;
-		s << "Bike Seatbelt: " << ((featureSeatbeltEnabled) ? "On" : "Off");
-		set_status_text(s.str());
 	}
 }
 
