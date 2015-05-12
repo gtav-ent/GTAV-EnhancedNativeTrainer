@@ -122,7 +122,7 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	{ "Bahama Mamas West", -1387.08f, -588.4f, 30.3195f },
 	{ "Blaine County Savings Bank", -109.299f, 6464.035f, 31.627f },
 	{ "Clucking Bell Farms Warehouse", -70.0624f, 6263.53f, 31.0909f },
-	{ "Control Office", 1080.97f, -1976f, 31.4721f },
+	{ "Control Office", 1080.97f, -1976.0f, 31.4721f },
 	{ "Devin's Garage", 482.027f, -1317.96f, 29.2021f },
 	{ "Eclipse Apartment 5", -762.762f, 322.634f, 175.401f },
 	{ "Eclipse Apartment 9", -790.673f, 334.468f, 158.599f },
