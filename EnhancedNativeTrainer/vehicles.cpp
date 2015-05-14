@@ -254,13 +254,16 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		// switchable features
 	default:
 		break;
+	case 9:
+		process_vehmod_menu();
+		break;
 	}
 	return false;
 }
 
 void process_veh_menu()
 {
-	const int lineCount = 9;
+	const int lineCount = 10;
 
 	std::string caption = "Vehicle Options";
 
@@ -273,7 +276,8 @@ void process_veh_menu()
 		{ "Warp In Spawned", &featureVehWrapInSpawned, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
-		{ "Speed Boost", &featureVehSpeedBoost, NULL, true }
+		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
+		{ "Vehicle Mod Menu", NULL, NULL, false }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
 }
