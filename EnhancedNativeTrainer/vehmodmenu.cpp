@@ -312,15 +312,15 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 				int currmod = VEHICLE::GET_VEHICLE_WINDOW_TINT(veh);
-				if (currmod < 5)
+				if (currmod < 3)
 				{
 					VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, currmod + 1); //Increment ModValue
 					set_status_text("Changed Window Tint");
 				}
 				else
 				{
-					VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, 0); //Start over from 0 = Sports Wheels
-					set_status_text("Removed Window Tint");
+					VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, 0); //Start from beginning
+					set_status_text("Default Window Tint");
 				}
 			}
 			else
@@ -469,6 +469,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				for (int i = 0; i < 25; i++) {
 					VEHICLE::REMOVE_VEHICLE_MOD(veh, i);
 				}
+				VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, 0);
 				VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 1);
 				set_status_text("Removed All Upgrades");
 			}
