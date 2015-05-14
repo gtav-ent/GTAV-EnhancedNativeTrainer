@@ -58,6 +58,7 @@ bool featurePlayerSuperJump				=	false;
 bool featurePlayerInvisible				=	false;
 bool featurePlayerInvisibleUpdated		=	false;
 
+bool featureWeaponInfiniteAmmo			=	false;
 bool featureWeaponNoReload				=	false;
 bool featureWeaponFireAmmo				=	false;
 bool featureWeaponExplosiveAmmo			=	false;
@@ -92,7 +93,18 @@ int  frozenWantedLevel					=	0;
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
 
-
+static LPCSTR weaponNames[] = {
+	"WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR", "WEAPON_BOTTLE",
+	"WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_MICROSMG", "WEAPON_SMG",
+	"WEAPON_ASSAULTSMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_MG",
+	"WEAPON_COMBATMG", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_BULLPUPSHOTGUN",
+	"WEAPON_STUNGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_GRENADELAUNCHER", "WEAPON_GRENADELAUNCHER_SMOKE",
+	"WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_GRENADE", "WEAPON_STICKYBOMB", "WEAPON_SMOKEGRENADE", "WEAPON_FLAREGUN", "WEAPON_FLARE",
+	"WEAPON_MOLOTOV", "WEAPON_FIREEXTINGUISHER", "WEAPON_PETROLCAN",
+	"WEAPON_SNSPISTOL", "WEAPON_SPECIALCARBINE", "WEAPON_HEAVYPISTOL", "WEAPON_BULLPUPRIFLE", "WEAPON_HOMINGLAUNCHER",
+	"WEAPON_PROXMINE", "WEAPON_SNOWBALL", "WEAPON_VINTAGEPISTOL", "WEAPON_DAGGER", "WEAPON_FIREWORK", "WEAPON_MUSKET",
+	"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN"
+};
 
 void check_player_model()
 {
@@ -329,6 +341,23 @@ void update_features()
 	{
 		if (bPlayerExists)
 			GAMEPLAY::SET_EXPLOSIVE_MELEE_THIS_FRAME(player);
+	}
+
+	// infinite ammo
+	if (bPlayerExists && featureWeaponInfiniteAmmo)
+	{
+		for (int i = 0; i < sizeof(weaponNames) / sizeof(weaponNames[0]); i++)
+		{
+			Hash weapon = GAMEPLAY::GET_HASH_KEY((char *)weaponNames[i]);
+			
+			if (WEAPON::IS_WEAPON_VALID(weapon) && WEAPON::HAS_PED_GOT_WEAPON(playerPed, weapon, 0))
+			{
+				int ammo;
+
+				if (WEAPON::GET_MAX_AMMO(playerPed, weapon, &ammo))
+					WEAPON::SET_PED_AMMO(playerPed, weapon, ammo);
+			}
+		}
 	}
 
 	// weapon no reload
@@ -730,19 +759,6 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	static LPCSTR weaponNames[] = {
-		"WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR", "WEAPON_BOTTLE",
-		"WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_MICROSMG", "WEAPON_SMG",
-		"WEAPON_ASSAULTSMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_MG",
-		"WEAPON_COMBATMG", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_BULLPUPSHOTGUN",
-		"WEAPON_STUNGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_GRENADELAUNCHER", "WEAPON_GRENADELAUNCHER_SMOKE",
-		"WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_GRENADE", "WEAPON_STICKYBOMB", "WEAPON_SMOKEGRENADE", "WEAPON_FLAREGUN", "WEAPON_FLARE",
-		"WEAPON_MOLOTOV", "WEAPON_FIREEXTINGUISHER", "WEAPON_PETROLCAN",
-		"WEAPON_SNSPISTOL", "WEAPON_SPECIALCARBINE", "WEAPON_HEAVYPISTOL", "WEAPON_BULLPUPRIFLE", "WEAPON_HOMINGLAUNCHER",
-		"WEAPON_PROXMINE", "WEAPON_SNOWBALL", "WEAPON_VINTAGEPISTOL", "WEAPON_DAGGER", "WEAPON_FIREWORK", "WEAPON_MUSKET",
-		"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN"
-	};
-
 	switch (activeLineIndexWeapon)
 	{
 	case 0:
@@ -768,13 +784,14 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 
 void process_weapon_menu()
 {
-	const int lineCount = 6;
+	const int lineCount = 7;
 
 	std::string caption = "Weapon Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{"Give All Weapons",	NULL,						  NULL, true},
 		//{"Add Weapon", NULL, NULL, true },
+		{"Infinite Ammo",	&featureWeaponInfiniteAmmo,	  NULL},
 		{"No Reload",		&featureWeaponNoReload,		  NULL},
 		{"Fire Ammo",		&featureWeaponFireAmmo,		  NULL},
 		{"Explosive Ammo",  &featureWeaponExplosiveAmmo,  NULL},
@@ -1138,6 +1155,7 @@ void reset_globals()
 	featurePlayerSuperJump			=
 	featurePlayerInvisible			=
 	featurePlayerInvisibleUpdated	=
+	featureWeaponInfiniteAmmo		=
 	featureWeaponNoReload			=
 	featureWeaponFireAmmo			=
 	featureWeaponExplosiveAmmo		=
