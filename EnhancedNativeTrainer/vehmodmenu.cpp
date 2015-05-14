@@ -9,7 +9,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "vehicles.h"
-//#include "menu_functions.h"
 
 int activeLineIndexVehMod = 0;
 
