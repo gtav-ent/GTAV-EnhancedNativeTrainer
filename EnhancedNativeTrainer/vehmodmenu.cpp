@@ -66,7 +66,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 			{
 				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 15);
+				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 15) - 1;
 				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 15);
 				if (currmod < nummods)
