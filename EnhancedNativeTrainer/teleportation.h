@@ -18,7 +18,11 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 
+void load_yacht();
+
 void load_north_yankton();
+
+void unload_yacht();
 
 void unload_north_yankton();
 
