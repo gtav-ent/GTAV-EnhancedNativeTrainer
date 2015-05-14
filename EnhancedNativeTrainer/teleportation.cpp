@@ -30,16 +30,18 @@ int lastChosenCategory = -1;
 int lastMenuChoiceInCategories[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 std::vector<tele_location> LOCATIONS_SAFE = {
-	{ "Michael's House Outside", -852.4f, 160.0f, 65.6f },
-	{ "Michael's House Inside", -813.603f, 179.474f, 72.1548f },
-	{ "Franklin's Aunt's House Inside", -14.3803f, -1438.51f, 31.1073f },
-	{ "Franklin's House Outside", 7.9f, 548.1f, 175.5f },
-	{ "Franklin's House Inside", 7.11903f, 536.615f, 176.028f },
-	{ "Trevor's Trailer Outside", 1985.7f, 3812.2f, 32.2f },
-	{ "Trevor's Trailer Inside", 1972.61f, 3817.04f, 33.4278f },
-	{ "Floyd's Apartment Inside", -1151.77f, -1518.14f, 10.6327f },
-	{ "Trevor's Strip Club Outside", 127.4f, -1307.7f, 29.2f },
-	{ "Trevor's Strip Club Inside", 96.1536f, -1290.73f, 29.2664f },
+	{ "Michael's Safehouse", -827.138f, 176.368f, 70.4999f },
+	{ "Franklin's Safehouse", -18.0355f, -1456.94f, 30.4548f },
+	{ "Franklin's Safehouse 2", 10.8766f, 545.654f, 175.419f },
+	{ "Trevor's Safehouse", 1982.13f, 3829.44f, 32.3662f },
+	{ "Trevor's Safehouse 2", -1157.05f, -1512.73f, 4.2127f },
+	{ "Trevor's Safehouse 3", 91.1407f, -1280.65f, 29.1353f },
+	{ "Michael's Safehouse Inside", -813.603f, 179.474f, 72.1548f },
+	{ "Franklin's Safehouse Inside", -14.3803f, -1438.51f, 31.1073f },
+	{ "Franklin's Safehouse 2 Inside", 7.11903f, 536.615f, 176.028f },
+	{ "Trevor's Safehouse Inside", 1972.61f, 3817.04f, 33.4278f },
+	{ "Trevor's Safehouse 2 Inside", -1151.77f, -1518.14f, 10.6327f },
+	{ "Trevor's Safehouse 3 Inside", 96.1536f, -1290.73f, 29.2664f },
 };
 
 std::vector<tele_location> LOCATIONS_LANDMARKS = {
@@ -139,11 +141,12 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	{ "IAA Office", 117.220f, -620.938f, 206.047f },
 	{ "Ice Planet Jewelery", 243.516f, 364.099f, 105.738f },
 	{ "Janitor's Apartment", -110.721f, -8.22095f, 70.5197f },
+	{ "Jewel Store", -630.07f, -236.332f, 38.0571f },
 	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
 	{ "Life Invader Office", -1049.13f, -231.779f, 39.0144f },
 	{ "Maze Bank Arena", -254.918f, -2019.75f, 30.1456f },
 	{ "Morgue", 275.446f, -1361.11f, 24.5378f },
-	{ "O'Neil House", 2454.78f, 4971.92f, 46.8103f },
+	{ "O'Neil Farm", 2454.78f, 4971.92f, 46.8103f },
 	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
 	{ "Paleto Bay Sheriff", -446.135f, 6012.91f, 31.7164f },
 	{ "Raven Slaughterhouse", 967.357f, -2184.71f, 30.0613f },
@@ -153,7 +156,6 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	{ "Split Sides West Comedy Club", -564.261f, 278.232f, 83.1364f },
 	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
 	{ "Torture Warehouse", 136.514f, -2203.15f, 7.30914f },
-	{ "Vangelico", -630.07f, -236.332f, 38.0571f },
 
 };
 
