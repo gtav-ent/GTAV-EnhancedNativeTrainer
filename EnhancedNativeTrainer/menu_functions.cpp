@@ -188,6 +188,13 @@ void draw_menu_from_struct_def(StandardOrToggleMenuDef defs[], int lineCount, in
 			}
 			menuItems.push_back(item);
 		}
+		else if (defs[i].itemType != NULL && defs[i].itemType == CASH)
+		{
+			CashItem<int> *item = new CashItem<int>();
+			item->caption = defs[i].text;
+			item->value = i;
+			menuItems.push_back(item);
+		}
 		else if (defs[i].itemType != NULL && defs[i].itemType == WANTED)
 		{
 			WantedSymbolItem<int> *item = new WantedSymbolItem<int>();
@@ -270,6 +277,44 @@ void ToggleMenuItem<T>::onConfirm()
 		}
 	}
 }
+
+
+template<class T>
+void CashItem<T>::onConfirm()
+{
+	for (int i = 0; i < 3; i++)
+	{
+		char statNameFull[32];
+		sprintf_s(statNameFull, "SP%d_TOTAL_CASH", i);
+		Hash hash = GAMEPLAY::GET_HASH_KEY(statNameFull);
+		int newAmount;
+		STATS::STAT_GET_INT(hash, &newAmount, -1);
+		newAmount += cash;
+		if (newAmount > INT_MAX) // Check for overflow, just in case
+			newAmount = INT_MAX;
+		STATS::STAT_SET_INT(hash, newAmount, 1);
+	}
+	set_status_text("Cash Added");
+}
+
+template<class T>
+void CashItem<T>::handleLeftPress()
+{
+	cash -= increment;
+
+	if (cash < min)
+		cash = max;
+}
+
+template<class T>
+void CashItem<T>::handleRightPress()
+{
+	cash += increment;
+
+	if (cash > max)
+		cash = min;
+}
+
 
 template<class T>
 int WantedSymbolItem<T>::get_wanted_value()

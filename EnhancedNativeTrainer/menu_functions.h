@@ -89,7 +89,26 @@ public:
 	virtual void handleRightPress();
 };
 
-enum MenuItemType { STANDARD, TOGGLE, WANTED };
+template<class T>
+class CashItem : public MenuItem <T>
+{
+	virtual ~CashItem() {}
+
+	int cash = 10000;
+	int increment = 10000;
+	int min = 10000;
+	int max = 10000000;
+
+	virtual void onConfirm();
+	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
+	virtual void handleLeftPress();
+	virtual void handleRightPress();
+
+public:
+	int GetCash() { return cash; }
+};
+
+enum MenuItemType { STANDARD, TOGGLE, CASH, WANTED };
 
 struct StandardOrToggleMenuDef {
 	std::string text;
@@ -302,6 +321,26 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		UI::_SET_TEXT_ENTRY("STRING");
 		UI::_ADD_TEXT_COMPONENT_STRING(toggleItem->get_toggle_value() ? "ON" : "OFF");
 		UI::_DRAW_TEXT(lineLeftScaled + lineWidthScaled - rightMarginScaled, textY);
+	}
+	else if (CashItem<T>* cashItem = dynamic_cast<CashItem<T>*>(item))
+	{
+		UI::SET_TEXT_FONT(font);
+		UI::SET_TEXT_SCALE(0.0, text_scale);
+		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
+		UI::SET_TEXT_CENTRE(0);
+
+		UI::SET_TEXT_OUTLINE();
+
+		if (dropShadow)
+		{
+			UI::SET_TEXT_DROPSHADOW(5, 0, 78, 255, 255);
+		}
+
+		UI::SET_TEXT_EDGE(0, 0, 0, 0, 0);
+		UI::SET_TEXT_WRAP(0, lineLeftScaled + lineWidthScaled - leftMarginScaled);
+		UI::_SET_TEXT_ENTRY("STRING");
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)(std::string("$") + std::to_string(cashItem->GetCash())).c_str());
+		UI::_DRAW_TEXT(lineLeftScaled + lineWidthScaled - rightMarginScaled - 0.06f, textY);
 	}
 	else if (WantedSymbolItem<T>* wantedItem = dynamic_cast<WantedSymbolItem<T>*>(item))
 	{

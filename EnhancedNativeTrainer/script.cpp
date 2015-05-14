@@ -587,6 +587,7 @@ const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars
 int getFrozenWantedLvl(){ return frozenWantedLevel; }
 void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
 void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
+
 bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
 {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
@@ -703,17 +704,6 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 	break;
 	// add cash
 	case 2:
-		for (int i = 0; i < 3; i++)
-		{
-			char statNameFull[32];
-			sprintf_s(statNameFull, "SP%d_TOTAL_CASH", i);
-			Hash hash = GAMEPLAY::GET_HASH_KEY(statNameFull);
-			int val;
-			STATS::STAT_GET_INT(hash, &val, -1);
-			val += 1000000;
-			STATS::STAT_SET_INT(hash, val, 1);
-		}
-		set_status_text("Cash Added");
 		break;
 		// wanted up or down, handled by item
 	case 3:
@@ -733,7 +723,7 @@ void process_player_menu()
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{"Player Skin", NULL, NULL, false},
 		{"Heal Player", NULL, NULL, true},
-		{"Add Cash", NULL, NULL, true},
+		{"Add Cash", NULL, NULL, true, CASH},
 		{"Wanted Level", NULL, NULL, true, WANTED},
 		{"Never Wanted", &featurePlayerNeverWanted, NULL, true},
 		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
