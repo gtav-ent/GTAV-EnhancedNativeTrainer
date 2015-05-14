@@ -160,10 +160,10 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 };
 
 std::vector<tele_location> LOCATIONS_REQSCEN = {
+	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, load_ufo, unload_ufo, false },
 	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, load_north_yankton, unload_north_yankton, false },
 	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, load_north_yankton, unload_north_yankton, false },
 	{ "Yacht", -2023.661f, -1038.038f, 5.577f, load_yacht, unload_yacht, false },
-	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, load_ufo, unload_ufo, false },
 };
 
 std::vector<tele_location> LOCATIONS_BROKEN = {
