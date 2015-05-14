@@ -160,13 +160,13 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 std::vector<tele_location> LOCATIONS_REQSCEN = {
 	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, load_north_yankton, unload_north_yankton, false },
 	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, load_north_yankton, unload_north_yankton, false },
+	{ "Yacht", -2023.661f, -1038.038f, 5.577f, load_yacht, unload_yacht, false },
 };
 
 std::vector<tele_location> LOCATIONS_BROKEN = {
 	{ "Carrier", 3069.330f, -4704.220f, 15.043f },
 	{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
 	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f },
-	{ "Yacht", -2023.661f, -1038.038f, 5.577f }
 };
 
 std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN, LOCATIONS_BROKEN };
@@ -422,6 +422,15 @@ void reset_teleporter_globals()
 	lastChosenCategory = 0;
 }
 
+void load_yacht()
+{
+	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )
+	{
+		STREAMING::REQUEST_IPL("smboat");
+		STREAMING::REQUEST_IPL("smboat_lod");
+	}
+}
+
 void load_north_yankton()
 {
 	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 0)
@@ -495,6 +504,15 @@ void load_north_yankton()
 		STREAMING::REQUEST_IPL("prologuerd");
 		STREAMING::REQUEST_IPL("prologuerdb");
 		STREAMING::REQUEST_IPL("prologuerd_lod");
+	}
+}
+
+void unload_yacht()
+{
+	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )
+	{
+		STREAMING::REMOVE_IPL("smboat");
+		STREAMING::REMOVE_IPL("smboat_lod");
 	}
 }
 
