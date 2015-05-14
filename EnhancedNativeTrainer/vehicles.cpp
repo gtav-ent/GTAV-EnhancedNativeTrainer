@@ -242,10 +242,20 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 				set_status_text("Player isn't in a vehicle");
 		break;
 	case 3:
+		if (bPlayerExists)
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+				VEHICLE::SET_VEHICLE_DIRT_LEVEL(PED::GET_VEHICLE_PED_IS_USING(playerPed), 0);
+			else
+				set_status_text("Player isn't in a vehicle");
+		break;
+	case 4:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
 	default:
+		break;
+	case 9:
+		process_vehmod_menu();
 		break;
 	}
 	return false;
@@ -253,7 +263,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	const int lineCount = 8;
+	const int lineCount = 10;
 
 	std::string caption = "Vehicle Options";
 
@@ -261,11 +271,13 @@ void process_veh_menu()
 		{ "Car Spawner", NULL, NULL, false },
 		{ "Paint Random", NULL, NULL, true },
 		{ "Fix", NULL, NULL, true },
+		{ "Clean", NULL, NULL, true },
 		{ "Door Control", NULL, NULL, false },
-		{ "Wrap In Spawned", &featureVehWrapInSpawned, NULL, true },
+		{ "Warp In Spawned", &featureVehWrapInSpawned, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
-		{ "Speed Boost", &featureVehSpeedBoost, NULL, true }
+		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
+		{ "Vehicle Mod Menu", NULL, NULL, false }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
 }

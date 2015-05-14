@@ -12,6 +12,7 @@
     <ClCompile Include="config_io.cpp" />
     <ClCompile Include="airbrake.cpp" />
     <ClCompile Include="weapons.cpp" />
+    <ClCompile Include="vehmodmenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />

@@ -26,6 +26,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 void process_veh_menu();
 
+void process_vehmod_menu();
+
 bool process_carspawn_menu();
 
 void update_vehicle_features(BOOL playerExists, Ped playerPed);
