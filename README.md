@@ -9,6 +9,6 @@ The VS project currently expects you to have C:\Program Files\Microsoft SDKs\Win
 
 The project license is the GPL, thus you have permission to create your own separate works from this project, and do as you like with them, subject to the license.
 
-However, to reduce the risk of malware, we also ask you to comply with this condition: you **must** name & label any derived public projects (i.e. any spinoffs you make and release) as something other than 'Enhanced Native Trainer' or any variation that is likely to cause confusion to users.
+However, to reduce the risk of malware inclusion causing damage to this project, we also ask you to comply with this condition: you **must** name & label any derived public projects (i.e. any spinoffs you make and release) as something other than 'Enhanced Native Trainer' or any variation that is likely to cause confusion to users.
 
-Additionally, members and users of **this project** must not make available public releases of this project without permission from the project coordinator(s), as it increases the risk of malware being introduced during compilation & release. The only trust that users can have in the built release is that to date the providers of it have been trustworthy, so please don't help bring that reputation into doubt.
+Additionally, members and users of **this project** must not make available public releases of this project without permission from the project coordinator(s). Unless they build it themselves, the only trust that users can have in the compiled release is that to date the providers of it have been trustworthy, so please don't help bring that reputation into doubt.
