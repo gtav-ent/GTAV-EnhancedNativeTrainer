@@ -459,7 +459,34 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 17: //Remove All Mods
+	case 17: //Custom Tires 
+		if (bPlayerExists)
+		{
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+			{
+				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+				int custire = VEHICLE::GET_VEHICLE_MOD_VARIATION(veh, 23);
+				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 23);
+				if (custire == 0 && currmod > -1)
+				{
+					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 1); //Add Custom Tires
+					set_status_text("Custom Tires");
+				}
+				else
+				{
+					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 0); //Remove Custom Tires
+					set_status_text("Default Tires");
+				}
+			}
+			else
+			{
+				set_status_text("Player isn't in a vehicle");
+			}
+		}
+		break;
+
+	case 18: //Remove All Mods
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -485,7 +512,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 void process_vehmod_menu()
 {
-	const int lineCount = 18;
+	const int lineCount = 19;
 
 	std::string caption = "Vehicle Mod Options";
 
@@ -507,6 +534,7 @@ void process_vehmod_menu()
 		{ "Add Xenon Headlights", NULL, NULL, true },
 		{ "Change Wheel Category", NULL, NULL, true },
 		{ "Change Wheels", NULL, NULL, true },
+		{ "Custom Tires", NULL, NULL, true },
 		{ "Remove All Upgrades", NULL, NULL, true }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVehMod, caption, onconfirm_vehmod_menu);
