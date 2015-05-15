@@ -32,4 +32,9 @@
   <ItemGroup>
     <Xml Include="ent-config.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Documents\Enhanced Trainer Release Notes.rtf" />
+    <None Include="Documents\GTA V Peds Master.xlsm" />
+    <None Include="Documents\GTA V Vehicles Master.xlsm" />
+  </ItemGroup>
 </Project>
