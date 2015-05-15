@@ -16,8 +16,7 @@ struct tele_location {
 	float x;
 	float y;
 	float z;
-	void (*scenery_loader)(void);
-	void (*scenery_unloader)(void);
+	std::vector<const char*> scenery_required;
 	bool isLoaded;
 };
 
@@ -159,11 +158,84 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 
 };
 
+std::vector<const char*> IPLS_NORTH_YANKTON = {
+	"plg_01",
+	"prologue01",
+	"prologue01_lod",
+	"prologue01c",
+	"prologue01c_lod",
+	"prologue01d",
+	"prologue01d_lod",
+	"prologue01e",
+	"prologue01e_lod",
+	"prologue01f",
+	"prologue01f_lod",
+	"prologue01g",
+	"prologue01h",
+	"prologue01h_lod",
+	"prologue01i",
+	"prologue01i_lod",
+	"prologue01j",
+	"prologue01j_lod",
+	"prologue01k",
+	"prologue01k_lod",
+	"prologue01z",
+	"prologue01z_lod",
+	"plg_02",
+	"prologue02",
+	"prologue02_lod",
+	"plg_03",
+	"prologue03",
+	"prologue03_lod",
+	"prologue03b",
+	"prologue03b_lod",
+	//the commented code disables the 'Prologue' grave and
+	//enables the 'Bury the Hatchet' grave
+	//"prologue03_grv_cov",
+	//"prologue03_grv_cov_lod",
+	"prologue03_grv_dug",
+	"prologue03_grv_dug_lod",
+	//"prologue03_grv_fun",
+	"prologue_grv_torch",
+	"plg_04",
+	"prologue04",
+	"prologue04_lod",
+	"prologue04b",
+	"prologue04b_lod",
+	"prologue04_cover",
+	"des_protree_end",
+	"des_protree_start",
+	"des_protree_start_lod",
+	"plg_05",
+	"prologue05",
+	"prologue05_lod",
+	"prologue05b",
+	"prologue05b_lod",
+	"plg_06",
+	"prologue06",
+	"prologue06_lod",
+	"prologue06b",
+	"prologue06b_lod",
+	"prologue06_int",
+	"prologue06_int_lod",
+	"prologue06_pannel",
+	"prologue06_pannel_lod",
+	//"prologue_m2_door",
+	//"prologue_m2_door_lod",
+	"plg_occl_00",
+	"prologue_occl",
+	"plg_rd",
+	"prologuerd",
+	"prologuerdb",
+	"prologuerd_lod"
+};
+
+
 std::vector<tele_location> LOCATIONS_REQSCEN = {
-	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, load_ufo, unload_ufo, false },
-	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, load_north_yankton, unload_north_yankton, false },
-	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, load_north_yankton, unload_north_yankton, false },
-	{ "Yacht", -2023.661f, -1038.038f, 5.577f, load_yacht, unload_yacht, false },
+	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, {"ufo", "ufo_lod", "ufo_eye"}, false },
+	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, IPLS_NORTH_YANKTON, false },
+	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, IPLS_NORTH_YANKTON, false },
+	{ "Yacht", -2023.661f, -1038.038f, 5.577f, {"smboat", "smboat_lod"}, false },
 };
 
 std::vector<tele_location> LOCATIONS_BROKEN = {
@@ -285,10 +357,18 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 
 	Vector3 coords;
 
-	if (value->scenery_loader != NULL && !value->isLoaded)
+	if (value->scenery_required.size() > 0 && !value->isLoaded)
 	{
 		set_status_text("Loading new scenery...");
-		value->scenery_loader();
+		
+		if ( ENTITY::DOES_ENTITY_EXIST ( PLAYER::PLAYER_PED_ID () ) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 0)
+		{
+			for each ( const char* scenery in value->scenery_required )
+			{
+				STREAMING::REQUEST_IPL ( scenery );
+			}
+		}
+
 		value->isLoaded = true;
 
 		DWORD time = GetTickCount() + 1000;
@@ -329,12 +409,12 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 			tele_location* loc = &VOV_LOCATIONS[x][y];
 
 			//don't unload something using same loader
-			if (loc->scenery_loader == value->scenery_loader)
+			if (loc->scenery_required == value->scenery_required)
 			{
 				continue;
 			}
 
-			if (loc->isLoaded && loc->scenery_unloader != NULL)
+			if (loc->isLoaded && loc->scenery_required.size() > 0)
 			{
 				if (!unloadedAnything)
 				{
@@ -347,7 +427,15 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 					}
 				}
 
-				loc->scenery_unloader();
+				
+				if ( ENTITY::DOES_ENTITY_EXIST ( PLAYER::PLAYER_PED_ID () ) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 1)
+				{
+					for each ( const char* scenery in loc->scenery_required )
+					{
+						STREAMING::REMOVE_IPL ( scenery );
+					}
+				}
+
 				unloadedAnything = true;
 				loc->isLoaded = false;
 			}
@@ -422,194 +510,4 @@ void reset_teleporter_globals()
 		lastMenuChoiceInCategories[i] = 0;
 	}
 	lastChosenCategory = 0;
-}
-
-void load_yacht()
-{
-	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )
-	{
-		STREAMING::REQUEST_IPL("smboat");
-		STREAMING::REQUEST_IPL("smboat_lod");
-	}
-}
-
-void load_ufo()
-{
-	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )
-	{
-		STREAMING::REQUEST_IPL("ufo");
-		STREAMING::REQUEST_IPL("ufo_lod");
-		STREAMING::REQUEST_IPL("ufo_eye");
-	}
-}
-
-void load_north_yankton()
-{
-	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 0)
-	{
-		STREAMING::REQUEST_IPL("plg_01");
-		STREAMING::REQUEST_IPL("prologue01");
-		STREAMING::REQUEST_IPL("prologue01_lod");
-		STREAMING::REQUEST_IPL("prologue01c");
-		STREAMING::REQUEST_IPL("prologue01c_lod");
-		STREAMING::REQUEST_IPL("prologue01d");
-		STREAMING::REQUEST_IPL("prologue01d_lod");
-		STREAMING::REQUEST_IPL("prologue01e");
-		STREAMING::REQUEST_IPL("prologue01e_lod");
-		STREAMING::REQUEST_IPL("prologue01f");
-		STREAMING::REQUEST_IPL("prologue01f_lod");
-		STREAMING::REQUEST_IPL("prologue01g");
-		STREAMING::REQUEST_IPL("prologue01h");
-		STREAMING::REQUEST_IPL("prologue01h_lod");
-		STREAMING::REQUEST_IPL("prologue01i");
-		STREAMING::REQUEST_IPL("prologue01i_lod");
-		STREAMING::REQUEST_IPL("prologue01j");
-		STREAMING::REQUEST_IPL("prologue01j_lod");
-		STREAMING::REQUEST_IPL("prologue01k");
-		STREAMING::REQUEST_IPL("prologue01k_lod");
-		STREAMING::REQUEST_IPL("prologue01z");
-		STREAMING::REQUEST_IPL("prologue01z_lod");
-		STREAMING::REQUEST_IPL("plg_02");
-		STREAMING::REQUEST_IPL("prologue02");
-		STREAMING::REQUEST_IPL("prologue02_lod");
-		STREAMING::REQUEST_IPL("plg_03");
-		STREAMING::REQUEST_IPL("prologue03");
-		STREAMING::REQUEST_IPL("prologue03_lod");
-		STREAMING::REQUEST_IPL("prologue03b");
-		STREAMING::REQUEST_IPL("prologue03b_lod");
-		//the commented code disables the 'Prologue' grave and
-		//enables the 'Bury the Hatchet' grave
-		//STREAMING::REQUEST_IPL("prologue03_grv_cov");
-		//STREAMING::REQUEST_IPL("prologue03_grv_cov_lod");
-		STREAMING::REQUEST_IPL("prologue03_grv_dug");
-		STREAMING::REQUEST_IPL("prologue03_grv_dug_lod");
-		//STREAMING::REQUEST_IPL("prologue03_grv_fun");
-		STREAMING::REQUEST_IPL("prologue_grv_torch");
-		STREAMING::REQUEST_IPL("plg_04");
-		STREAMING::REQUEST_IPL("prologue04");
-		STREAMING::REQUEST_IPL("prologue04_lod");
-		STREAMING::REQUEST_IPL("prologue04b");
-		STREAMING::REQUEST_IPL("prologue04b_lod");
-		STREAMING::REQUEST_IPL("prologue04_cover");
-		STREAMING::REQUEST_IPL("des_protree_end");
-		STREAMING::REQUEST_IPL("des_protree_start");
-		STREAMING::REQUEST_IPL("des_protree_start_lod");
-		STREAMING::REQUEST_IPL("plg_05");
-		STREAMING::REQUEST_IPL("prologue05");
-		STREAMING::REQUEST_IPL("prologue05_lod");
-		STREAMING::REQUEST_IPL("prologue05b");
-		STREAMING::REQUEST_IPL("prologue05b_lod");
-		STREAMING::REQUEST_IPL("plg_06");
-		STREAMING::REQUEST_IPL("prologue06");
-		STREAMING::REQUEST_IPL("prologue06_lod");
-		STREAMING::REQUEST_IPL("prologue06b");
-		STREAMING::REQUEST_IPL("prologue06b_lod");
-		STREAMING::REQUEST_IPL("prologue06_int");
-		STREAMING::REQUEST_IPL("prologue06_int_lod");
-		STREAMING::REQUEST_IPL("prologue06_pannel");
-		STREAMING::REQUEST_IPL("prologue06_pannel_lod");
-		//STREAMING::REQUEST_IPL("prologue_m2_door");
-		//STREAMING::REQUEST_IPL("prologue_m2_door_lod");
-		STREAMING::REQUEST_IPL("plg_occl_00");
-		STREAMING::REQUEST_IPL("prologue_occl");
-		STREAMING::REQUEST_IPL("plg_rd");
-		STREAMING::REQUEST_IPL("prologuerd");
-		STREAMING::REQUEST_IPL("prologuerdb");
-		STREAMING::REQUEST_IPL("prologuerd_lod");
-	}
-}
-
-void unload_yacht()
-{
-	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )
-	{
-		STREAMING::REMOVE_IPL("smboat");
-		STREAMING::REMOVE_IPL("smboat_lod");
-	}
-}
-
-void unload_ufo()
-{
-	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )
-	{
-		STREAMING::REMOVE_IPL("ufo");
-		STREAMING::REMOVE_IPL("ufo_lod");
-		STREAMING::REMOVE_IPL("ufo_eye");
-	}
-}
-
-void unload_north_yankton()
-{
-	if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 1)
-	{
-		STREAMING::REMOVE_IPL("plg_01");
-		STREAMING::REMOVE_IPL("prologue01");
-		STREAMING::REMOVE_IPL("prologue01_lod");
-		STREAMING::REMOVE_IPL("prologue01c");
-		STREAMING::REMOVE_IPL("prologue01c_lod");
-		STREAMING::REMOVE_IPL("prologue01d");
-		STREAMING::REMOVE_IPL("prologue01d_lod");
-		STREAMING::REMOVE_IPL("prologue01e");
-		STREAMING::REMOVE_IPL("prologue01e_lod");
-		STREAMING::REMOVE_IPL("prologue01f");
-		STREAMING::REMOVE_IPL("prologue01f_lod");
-		STREAMING::REMOVE_IPL("prologue01g");
-		STREAMING::REMOVE_IPL("prologue01h");
-		STREAMING::REMOVE_IPL("prologue01h_lod");
-		STREAMING::REMOVE_IPL("prologue01i");
-		STREAMING::REMOVE_IPL("prologue01i_lod");
-		STREAMING::REMOVE_IPL("prologue01j");
-		STREAMING::REMOVE_IPL("prologue01j_lod");
-		STREAMING::REMOVE_IPL("prologue01k");
-		STREAMING::REMOVE_IPL("prologue01k_lod");
-		STREAMING::REMOVE_IPL("prologue01z");
-		STREAMING::REMOVE_IPL("prologue01z_lod");
-		STREAMING::REMOVE_IPL("plg_02");
-		STREAMING::REMOVE_IPL("prologue02");
-		STREAMING::REMOVE_IPL("prologue02_lod");
-		STREAMING::REMOVE_IPL("plg_03");
-		STREAMING::REMOVE_IPL("prologue03");
-		STREAMING::REMOVE_IPL("prologue03_lod");
-		STREAMING::REMOVE_IPL("prologue03b");
-		STREAMING::REMOVE_IPL("prologue03b_lod");
-		//the commented code disables the 'Prologue' grave and
-		//enables the 'Bury the Hatchet' grave
-		//STREAMING::REMOVE_IPL("prologue03_grv_cov");
-		//STREAMING::REMOVE_IPL("prologue03_grv_cov_lod");
-		STREAMING::REMOVE_IPL("prologue03_grv_dug");
-		STREAMING::REMOVE_IPL("prologue03_grv_dug_lod");
-		//STREAMING::REMOVE_IPL("prologue03_grv_fun");
-		STREAMING::REMOVE_IPL("prologue_grv_torch");
-		STREAMING::REMOVE_IPL("plg_04");
-		STREAMING::REMOVE_IPL("prologue04");
-		STREAMING::REMOVE_IPL("prologue04_lod");
-		STREAMING::REMOVE_IPL("prologue04b");
-		STREAMING::REMOVE_IPL("prologue04b_lod");
-		STREAMING::REMOVE_IPL("prologue04_cover");
-		STREAMING::REMOVE_IPL("des_protree_end");
-		STREAMING::REMOVE_IPL("des_protree_start");
-		STREAMING::REMOVE_IPL("des_protree_start_lod");
-		STREAMING::REMOVE_IPL("plg_05");
-		STREAMING::REMOVE_IPL("prologue05");
-		STREAMING::REMOVE_IPL("prologue05_lod");
-		STREAMING::REMOVE_IPL("prologue05b");
-		STREAMING::REMOVE_IPL("prologue05b_lod");
-		STREAMING::REMOVE_IPL("plg_06");
-		STREAMING::REMOVE_IPL("prologue06");
-		STREAMING::REMOVE_IPL("prologue06_lod");
-		STREAMING::REMOVE_IPL("prologue06b");
-		STREAMING::REMOVE_IPL("prologue06b_lod");
-		STREAMING::REMOVE_IPL("prologue06_int");
-		STREAMING::REMOVE_IPL("prologue06_int_lod");
-		STREAMING::REMOVE_IPL("prologue06_pannel");
-		STREAMING::REMOVE_IPL("prologue06_pannel_lod");
-		//STREAMING::REMOVE_IPL("prologue_m2_door");
-		//STREAMING::REMOVE_IPL("prologue_m2_door_lod");
-		STREAMING::REMOVE_IPL("plg_occl_00");
-		STREAMING::REMOVE_IPL("prologue_occl");
-		STREAMING::REMOVE_IPL("plg_rd");
-		STREAMING::REMOVE_IPL("prologuerd");
-		STREAMING::REMOVE_IPL("prologuerdb");
-		STREAMING::REMOVE_IPL("prologuerd_lod");
-	}
 }
