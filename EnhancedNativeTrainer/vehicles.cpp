@@ -17,7 +17,7 @@ bool featureVehInvincibleUpdated = false;
 bool featureNoVehFallOff = false;
 bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
-bool featureVehWrapInSpawned = false;
+bool featureVehSpawnInto = false;
 bool featureVehicleDoorInstant = false;
 
 int activeLineIndexVeh = 0;
@@ -273,9 +273,9 @@ void process_veh_menu()
 		{ "Fix", NULL, NULL, true },
 		{ "Clean", NULL, NULL, true },
 		{ "Door Control", NULL, NULL, false },
-		{ "Warp In Spawned", &featureVehWrapInSpawned, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
+		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
 		{ "Vehicle Mod Menu", NULL, NULL, false }
 	};
@@ -354,7 +354,7 @@ void reset_vehicle_globals()
 		featureVehInvincibleUpdated =
 		featureVehSpeedBoost =
 		featureVehicleDoorInstant =
-		featureVehWrapInSpawned = false;
+		featureVehSpawnInto = false;
 }
 
 bool onconfirm_carspawn_menu(MenuItem<int> choice)
@@ -490,7 +490,7 @@ bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh);
 		}
 
-		if (featureVehWrapInSpawned)
+		if (featureVehSpawnInto)
 		{
 			ENTITY::SET_ENTITY_HEADING(veh, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
 			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
