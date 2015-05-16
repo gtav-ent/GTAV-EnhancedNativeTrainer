@@ -408,22 +408,28 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 				int currmod = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
-				if (currmod < 5)
+				if (PED::IS_PED_ON_ANY_BIKE(playerPed))
+				{
+					set_status_text("Bikes only have One Wheel Category");
+				}
+				else if (currmod < 5)
 				{
 					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, currmod + 1); //Increment ModValue
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
+					set_status_text("Changed Wheel Category");
 				}
 				else if (currmod == 5)
 				{
 					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, currmod + 2); //Increment ModValue to 7 to skip bike wheels that glitch with cars
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0);
+					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
+					set_status_text("Changed Wheel Category");
 				}
 				else
 				{
 					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, 0); //Start over from 0 = Sports Wheels
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0);
+					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
+					set_status_text("Changed Wheel Category");
 				}
-				set_status_text("Changed Wheel Category");
 			}
 			else
 			{
@@ -444,11 +450,13 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				if (currmod < nummods)
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod + 1, 0); //Increment ModValue
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod + 1, 0); //Increment ModValue (For bike rear wheels if they exist)
 					set_status_text("Changed Wheels");
 				}
 				else
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, -1, 0); //Remove mod and start from beginning
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, -1, 0); //Remove mod and start from beginning (For bike rear wheels if they exist)
 					set_status_text("Default Wheels");
 				}
 			}
