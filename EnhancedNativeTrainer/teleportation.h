@@ -18,18 +18,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 
-void load_yacht();
-
-void load_ufo();
-
-void load_north_yankton();
-
-void unload_yacht();
-
-void unload_ufo();
-
-void unload_north_yankton();
-
 bool process_teleport_menu(int categoryIndex);
 
 void reset_teleporter_globals();
