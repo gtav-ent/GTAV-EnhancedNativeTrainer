@@ -479,11 +479,13 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				if (custire == 0 && currmod > -1)
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 1); //Add Custom Tires
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, 1); //Add Custom Tires (For bike rear wheels if they exist)
 					set_status_text("Custom Tires");
 				}
 				else
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 0); //Remove Custom Tires
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, 0); //Remove Custom Tires (For bike rear wheels if they exist)
 					set_status_text("Default Tires");
 				}
 			}
