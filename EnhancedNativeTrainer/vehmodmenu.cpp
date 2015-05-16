@@ -383,7 +383,32 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 14: //Xenon Headlights
+	case 14: //Change license plate style
+		if (bPlayerExists)
+		{
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+			{
+				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+				int currmod = VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh);
+				if (currmod < 5)
+				{
+					VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, currmod + 1); //Increment ModValue
+				}
+				else
+				{
+					VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, 0); //Start from beginning
+				}
+				set_status_text("Changed License Plate");
+			}
+			else
+			{
+				set_status_text("Player isn't in a vehicle");
+			}
+		}
+		break;
+
+	case 15: //Xenon Headlights
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -400,7 +425,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 15: //Change Wheel Category
+	case 16: //Change Wheel Category
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -438,7 +463,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 16: //Change Wheels 
+	case 17: //Change Wheels 
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -467,7 +492,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 17: //Custom Tires 
+	case 18: //Custom Tires 
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -496,7 +521,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 18: //Remove All Mods
+	case 19: //Remove All Mods
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -522,7 +547,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 void process_vehmod_menu()
 {
-	const int lineCount = 19;
+	const int lineCount = 20;
 
 	std::string caption = "Vehicle Mod Options";
 
@@ -541,6 +566,7 @@ void process_vehmod_menu()
 		{ "Change Window Tint", NULL, NULL, true },
 		{ "Change Fenders", NULL, NULL, true },
 		{ "Change Rollcage", NULL, NULL, true },
+		{ "Change License Plate Type", NULL, NULL, true },
 		{ "Add Xenon Headlights", NULL, NULL, true },
 		{ "Change Wheel Category", NULL, NULL, true },
 		{ "Change Wheels", NULL, NULL, true },
