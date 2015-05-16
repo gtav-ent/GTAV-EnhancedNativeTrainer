@@ -383,7 +383,32 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 14: //Xenon Headlights
+	case 14: //Change license plate style
+		if (bPlayerExists)
+		{
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+			{
+				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+				int currmod = VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh);
+				if (currmod < 5)
+				{
+					VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, currmod + 1); //Increment ModValue
+				}
+				else
+				{
+					VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, 0); //Start from beginning
+				}
+				set_status_text("Changed License Plate");
+			}
+			else
+			{
+				set_status_text("Player isn't in a vehicle");
+			}
+		}
+		break;
+
+	case 15: //Xenon Headlights
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -400,7 +425,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 15: //Change Wheel Category
+	case 16: //Change Wheel Category
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -408,22 +433,28 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 				int currmod = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
-				if (currmod < 5)
+				if (PED::IS_PED_ON_ANY_BIKE(playerPed))
+				{
+					set_status_text("Bikes only have One Wheel Category");
+				}
+				else if (currmod < 5)
 				{
 					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, currmod + 1); //Increment ModValue
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
+					set_status_text("Changed Wheel Category");
 				}
 				else if (currmod == 5)
 				{
 					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, currmod + 2); //Increment ModValue to 7 to skip bike wheels that glitch with cars
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0);
+					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
+					set_status_text("Changed Wheel Category");
 				}
 				else
 				{
 					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, 0); //Start over from 0 = Sports Wheels
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0);
+					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
+					set_status_text("Changed Wheel Category");
 				}
-				set_status_text("Changed Wheel Category");
 			}
 			else
 			{
@@ -432,7 +463,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 16: //Change Wheels 
+	case 17: //Change Wheels 
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -444,11 +475,13 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				if (currmod < nummods)
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod + 1, 0); //Increment ModValue
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod + 1, 0); //Increment ModValue (For bike rear wheels if they exist)
 					set_status_text("Changed Wheels");
 				}
 				else
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, -1, 0); //Remove mod and start from beginning
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, -1, 0); //Remove mod and start from beginning (For bike rear wheels if they exist)
 					set_status_text("Default Wheels");
 				}
 			}
@@ -459,7 +492,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 17: //Custom Tires 
+	case 18: //Custom Tires 
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -471,11 +504,13 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 				if (custire == 0 && currmod > -1)
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 1); //Add Custom Tires
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, 1); //Add Custom Tires (For bike rear wheels if they exist)
 					set_status_text("Custom Tires");
 				}
 				else
 				{
 					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 0); //Remove Custom Tires
+					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, 0); //Remove Custom Tires (For bike rear wheels if they exist)
 					set_status_text("Default Tires");
 				}
 			}
@@ -486,7 +521,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		break;
 
-	case 18: //Remove All Mods
+	case 19: //Remove All Mods
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -512,7 +547,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 void process_vehmod_menu()
 {
-	const int lineCount = 19;
+	const int lineCount = 20;
 
 	std::string caption = "Vehicle Mod Options";
 
@@ -531,6 +566,7 @@ void process_vehmod_menu()
 		{ "Change Window Tint", NULL, NULL, true },
 		{ "Change Fenders", NULL, NULL, true },
 		{ "Change Rollcage", NULL, NULL, true },
+		{ "Change License Plate Type", NULL, NULL, true },
 		{ "Add Xenon Headlights", NULL, NULL, true },
 		{ "Change Wheel Category", NULL, NULL, true },
 		{ "Change Wheels", NULL, NULL, true },
