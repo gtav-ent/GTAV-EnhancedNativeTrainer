@@ -797,91 +797,96 @@ void process_weapon_menu()
 //==================
 
 int activeLineIndexWorld = 0;
-
-bool onconfirm_world_menu(MenuItem<int> choice)
-{
-	switch (activeLineIndexWorld)
-	{
-	case 0:
-		GAMEPLAY::SET_GRAVITY_LEVEL(featureWorldMoonGravity);
-		break;
-	case 1:
-		// featureWorldRandomCops being set in update_features
-		PED::SET_CREATE_RANDOM_COPS(!featureWorldRandomCops);
-		break;
-	case 2:
-		VEHICLE::SET_RANDOM_TRAINS(featureWorldRandomTrains);
-		break;
-	case 3:
-		VEHICLE::SET_RANDOM_BOATS(featureWorldRandomBoats);
-		break;
-	case 4:
-		VEHICLE::SET_GARBAGE_TRUCKS(featureWorldGarbageTrucks);
-		break;
-	}
-	return false;
-}
-
-void process_world_menu()
-{
-	const int lineCount = 5;
-
-	std::string caption = "World Options";
-
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Moon Gravity",	&featureWorldMoonGravity,	NULL},
-		{"Random Cops",		&featureWorldRandomCops,	NULL},
-		{"Random Trains",	&featureWorldRandomTrains,	NULL},
-		{"Random Boats",	&featureWorldRandomBoats,	NULL},
-		{"Garbage Trucks",	&featureWorldGarbageTrucks,	NULL}
-	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexWorld, caption, onconfirm_world_menu);
-}
-
 int activeLineIndexTime = 0;
 
-bool onconfirm_time_menu(MenuItem<int> choice)
+bool onconfirm_time_menu ( MenuItem<int> choice )
 {
-	switch (activeLineIndexTime)
+	switch ( activeLineIndexTime )
 	{
 		// hour forward/backward
 	case 0:
 	case 1:
 	{
-		int h = TIME::GET_CLOCK_HOURS();
-		if (activeLineIndexTime == 0) h = (h == 23) ? 0 : h + 1; else h = (h == 0) ? 23 : h - 1;
-		int m = TIME::GET_CLOCK_MINUTES();
-		TIME::SET_CLOCK_TIME(h, m, 0);
+		int h = TIME::GET_CLOCK_HOURS ();
+		if ( activeLineIndexTime == 0 ) h = ( h == 23 ) ? 0 : h + 1; else h = ( h == 0 ) ? 23 : h - 1;
+		int m = TIME::GET_CLOCK_MINUTES ();
+		TIME::SET_CLOCK_TIME ( h, m, 0 );
 		char text[32];
-		sprintf_s(text, "time %02d:%02d", h, m);
-		set_status_text(text);
+		sprintf_s ( text, "time %02d:%02d", h, m );
+		set_status_text ( text );
 	}
 	break;
 	case 3:
-		if (featureTimeSynced)
+		if ( featureTimeSynced )
 		{
-			set_status_text("Time synced with system");
+			set_status_text ( "Time synced with system" );
 		}
 	}
 	return false;
 }
 
-void process_time_menu()
+void process_time_menu ()
 {
 	const int lineCount = 4;
 
 	std::string caption = "Time Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Hour Forward",	 NULL,				 NULL, true},
-		{"Hour Backward",	 NULL,				 NULL, true},
-		{"Clock Paused",	 &featureTimePaused, &featureTimePausedUpdated},
-		{"Sync With System", &featureTimeSynced, NULL}
+		{ "Hour Forward", NULL, NULL, true },
+		{ "Hour Backward", NULL, NULL, true },
+		{ "Clock Paused", &featureTimePaused, &featureTimePausedUpdated },
+		{ "Sync With System", &featureTimeSynced, NULL }
 	};
 
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu);
+	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu );
 }
+
+
+bool onconfirm_world_menu ( MenuItem<int> choice )
+{
+	switch ( activeLineIndexWorld )
+	{
+	case 0:
+		process_time_menu ();
+		break;
+	case 1:
+		GAMEPLAY::SET_GRAVITY_LEVEL ( featureWorldMoonGravity );
+		break;
+	case 2:
+		// featureWorldRandomCops being set in update_features
+		PED::SET_CREATE_RANDOM_COPS ( !featureWorldRandomCops );
+		break;
+	case 3:
+		VEHICLE::SET_RANDOM_TRAINS ( featureWorldRandomTrains );
+		break;
+	case 4:
+		VEHICLE::SET_RANDOM_BOATS ( featureWorldRandomBoats );
+		break;
+	case 5:
+		VEHICLE::SET_GARBAGE_TRUCKS ( featureWorldGarbageTrucks );
+		break;
+	}
+	return false;
+}
+
+void process_world_menu ()
+{
+	const int lineCount = 6;
+
+	std::string caption = "World Options";
+
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{ "Time", NULL, NULL },
+		{ "Moon Gravity", &featureWorldMoonGravity, NULL },
+		{ "Random Cops", &featureWorldRandomCops, NULL },
+		{ "Random Trains", &featureWorldRandomTrains, NULL },
+		{ "Random Boats", &featureWorldRandomBoats, NULL },
+		{ "Garbage Trucks", &featureWorldGarbageTrucks, NULL }
+	};
+
+	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexWorld, caption, onconfirm_world_menu );
+}
+
 
 //==================
 // WEATHER MENU
@@ -1017,12 +1022,9 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_world_menu();
 		break;
 	case 5:
-		process_time_menu();
-		break;
-	case 6:
 		process_weather_menu();
 		break;
-	case 7:
+	case 6:
 		process_misc_menu();
 		break;
 	}
@@ -1039,7 +1041,6 @@ void process_main_menu()
 		"Weapons",
 		"Vehicle",
 		"World",
-		"Time",
 		"Weather",
 		"Misc"
 	};
