@@ -12,7 +12,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 int activeLineIndexVehMod = 0;
 
-
 bool onconfirm_vehmod_menu(MenuItem<int> choice)
 {
 	// common variables
@@ -545,7 +544,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 }
 
 
-void process_vehmod_menu()
+bool process_vehmod_menu()
 {
 	const int lineCount = 20;
 
@@ -574,4 +573,5 @@ void process_vehmod_menu()
 		{ "Remove All Upgrades", NULL, NULL, true }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVehMod, caption, onconfirm_vehmod_menu);
+	return false;
 }

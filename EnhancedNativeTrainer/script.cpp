@@ -85,7 +85,6 @@ std::string lastWeatherName;
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
 
-bool featureAirbrakeEnabled				=	false;
 bool featureWantedLevelFrozen			=	false;
 int  frozenWantedLevel					=	0;
 
@@ -406,7 +405,7 @@ void update_features()
 	//Disable airbrake on death
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
 	{
-		featureAirbrakeEnabled = false;
+		exit_airbrake_menu_if_showing();
 	}
 
 	//----Hotkeys----
@@ -1040,9 +1039,9 @@ void process_main_menu()
 		"Teleport",
 		"Weapons",
 		"Vehicle",
-		"World",
+		"World/Time",
 		"Weather",
-		"Misc"
+		"Miscellaneous"
 	};
 
 	std::vector<MenuItem<int>*> menuItems;
@@ -1057,57 +1056,6 @@ void process_main_menu()
 	}
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexMain, caption, onconfirm_main_menu, NULL, NULL);
-}
-
-//Test for airbrake command.
-void process_airbrake_menu()
-{
-	featureAirbrakeEnabled = true;
-	const float lineWidth = 250.0;
-	const int lineCount = 1;
-
-	std::string caption = "Airbrake";
-
-	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
-
-	DWORD waitTime = 150;
-
-	airbrake_flip_angle();
-
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do
-		{
-			// draw menu
-			draw_menu_header_line(caption, 350.0f, 50.0f, 15.0f, 0.0f, 15.0f, false);
-			//draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		airbrake();
-
-		//// process buttons
-		//bool bSelect, bBack, bUp, bDown;
-		//get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (airbrake_switch_pressed() || !featureAirbrakeEnabled)
-		{
-			menu_beep();
-			break;
-		}
-	}
-
-	airbrake_flip_angle();
-
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
-	std::stringstream ss2;
-	ss2 << "Angle: " << curHeading;
-	set_status_text(ss2.str());
 }
 
 void reset_globals()
@@ -1160,7 +1108,6 @@ void reset_globals()
 	featureWeatherFreeze			=
 	featureMiscLockRadio			=
 	featureMiscHideHud				=	
-	featureAirbrakeEnabled			= 
 	featureWantedLevelFrozen		=	false;
 
 	featureWorldRandomCops		=
@@ -1185,14 +1132,11 @@ void main()
 			set_menu_showing(true);
 			process_main_menu();
 		}
-		/*
-		//Commented out for now as it's not ready for release
 		else if (airbrake_switch_pressed())
 		{
 			menu_beep();
 			process_airbrake_menu();
 		}
-		*/
 
 		update_features();
 

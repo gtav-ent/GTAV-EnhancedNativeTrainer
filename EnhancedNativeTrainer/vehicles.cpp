@@ -218,7 +218,21 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 0:
 		if (process_carspawn_menu()) return false;
 		break;
-	case 1:
+	case 1: //fix
+		if (bPlayerExists)
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+				VEHICLE::SET_VEHICLE_FIXED(PED::GET_VEHICLE_PED_IS_USING(playerPed));
+			else
+				set_status_text("Player isn't in a vehicle");
+		break;
+	case 2: //clean
+		if (bPlayerExists)
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+				VEHICLE::SET_VEHICLE_DIRT_LEVEL(PED::GET_VEHICLE_PED_IS_USING(playerPed), 0);
+			else
+				set_status_text("Player isn't in a vehicle");
+		break;
+	case 3: //paint random
 		if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -234,28 +248,15 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 			}
 		}
 		break;
-	case 2:
-		if (bPlayerExists)
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-				VEHICLE::SET_VEHICLE_FIXED(PED::GET_VEHICLE_PED_IS_USING(playerPed));
-			else
-				set_status_text("Player isn't in a vehicle");
+	
+	case 8:
+		if (process_vehmod_menu()) return false;
 		break;
-	case 3:
-		if (bPlayerExists)
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-				VEHICLE::SET_VEHICLE_DIRT_LEVEL(PED::GET_VEHICLE_PED_IS_USING(playerPed), 0);
-			else
-				set_status_text("Player isn't in a vehicle");
-		break;
-	case 4:
+	case 9:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
 	default:
-		break;
-	case 9:
-		process_vehmod_menu();
 		break;
 	}
 	return false;
@@ -269,15 +270,15 @@ void process_veh_menu()
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Car Spawner", NULL, NULL, false },
-		{ "Paint Random", NULL, NULL, true },
 		{ "Fix", NULL, NULL, true },
 		{ "Clean", NULL, NULL, true },
-		{ "Door Control", NULL, NULL, false },
+		{ "Paint Random", NULL, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
 		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
-		{ "Vehicle Mod Menu", NULL, NULL, false }
+		{ "Modifications", NULL, NULL, false },
+		{ "Door Control", NULL, NULL, false }
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
 }

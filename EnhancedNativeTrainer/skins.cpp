@@ -107,10 +107,22 @@ bool applyChosenSkin(std::string skinName)
 		STREAMING::REQUEST_MODEL(model);
 		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
 		//STREAMING::LOAD_ALL_OBJECTS_NOW();
+
+		Vehicle veh = NULL;
+		if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+		{
+			veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+		}
+
 		PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), model);
 		//PED::SET_PED_RANDOM_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID(), FALSE);
 		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID());
 		WAIT(0);
+
+		if (veh != NULL)
+		{
+			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
+		}
 
 		skinchanger_used = true;
 
@@ -566,7 +578,7 @@ bool process_skinchanger_menu()
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = MENU_SKINS_TYPES_CAPTIONS[i];
 		item->value = i;
-		item->isLeaf = false;
+		item->isLeaf = ( i == 4 ); //only Reset is a leaf
 		menuItems.push_back(item);
 	}
 
