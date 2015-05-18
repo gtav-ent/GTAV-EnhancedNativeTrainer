@@ -127,7 +127,7 @@ void check_player_model()
 			}
 		}
 
-		if (!found)
+		if (!found && is_custom_skin_applied())
 		{
 			set_status_text("Resetting player model");
 			model = GAMEPLAY::GET_HASH_KEY("player_zero");
