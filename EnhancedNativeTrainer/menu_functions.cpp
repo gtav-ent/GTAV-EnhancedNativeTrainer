@@ -335,10 +335,20 @@ void WantedSymbolItem<T>::handleLeftPress()
 		PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) - 1, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 		setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
-		std::stringstream st;
-		if (getFrozenWantedLvl() > 0){ st << "Wanted Level: " << getFrozenWantedLvl() << " Star(s)"; }
-		else{ st << "Wanted Level Cleared"; }
-		set_status_text(st.str());
+		std::stringstream ss;
+		if (getFrozenWantedLvl() > 0)
+		{
+			ss << "Wanted Level: " << getFrozenWantedLvl() << " Star";
+			if (getFrozenWantedLvl() > 1)
+			{
+				ss << "s"; //plural
+			}
+		}
+		else
+		{
+			ss << "Wanted Level Cleared";
+		}
+		set_status_text(ss.str());
 	}
 }
 
@@ -353,8 +363,12 @@ void WantedSymbolItem<T>::handleRightPress()
 		PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) + 1, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 		setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
-		std::stringstream st;
-		st << "Wanted Level: " << getFrozenWantedLvl() << " Star(s)";
-		set_status_text(st.str());
+		std::stringstream ss;
+		ss << "Wanted Level: " << getFrozenWantedLvl() << " Star";
+		if (getFrozenWantedLvl() > 1)
+		{
+			ss << "s"; //plural
+		}
+		set_status_text(ss.str());
 	}
 }

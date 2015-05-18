@@ -17,6 +17,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "inc\main.h"
 
 #include "io.h"
+#include "airbrake.h"
 
 #include <string>
 #include <sstream> 
@@ -327,7 +328,7 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		UI::SET_TEXT_FONT(font);
 		UI::SET_TEXT_SCALE(0.0, text_scale);
 		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
-		UI::SET_TEXT_CENTRE(0);
+		UI::SET_TEXT_RIGHT_JUSTIFY(1);
 
 		UI::SET_TEXT_OUTLINE();
 
@@ -337,10 +338,15 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		}
 
 		UI::SET_TEXT_EDGE(0, 0, 0, 0, 0);
-		UI::SET_TEXT_WRAP(0, lineLeftScaled + lineWidthScaled - leftMarginScaled);
+		UI::SET_TEXT_WRAP(0.0f, lineLeftScaled + lineWidthScaled - leftMarginScaled);
 		UI::_SET_TEXT_ENTRY("STRING");
-		UI::_ADD_TEXT_COMPONENT_STRING((char *)(std::string("$") + std::to_string(cashItem->GetCash())).c_str());
-		UI::_DRAW_TEXT(lineLeftScaled + lineWidthScaled - rightMarginScaled - 0.06f, textY);
+
+		std::stringstream ss;
+		ss.imbue(std::locale(""));
+		ss << std::string("$") << std::fixed << cashItem->GetCash();
+
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)ss.str().c_str());
+		UI::_DRAW_TEXT(0, textY);
 	}
 	else if (WantedSymbolItem<T>* wantedItem = dynamic_cast<WantedSymbolItem<T>*>(item))
 	{
@@ -490,6 +496,8 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 	{
 		if (trainer_switch_pressed())
 		{
+			menu_beep();
+
 			set_menu_showing(!is_menu_showing());
 
 			//avoid repeat of key press
@@ -498,6 +506,12 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 			{
 				WAIT(0);
 			} while (GetTickCount() < maxTickCount);
+		}
+		else if (airbrake_switch_pressed())
+		{
+			menu_beep();
+			set_menu_showing(false);
+			process_airbrake_menu();
 		}
 
 		if (!is_menu_showing())

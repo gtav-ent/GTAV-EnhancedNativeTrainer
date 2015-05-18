@@ -85,7 +85,6 @@ std::string lastWeatherName;
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
 
-bool featureAirbrakeEnabled				=	false;
 bool featureWantedLevelFrozen			=	false;
 int  frozenWantedLevel					=	0;
 
@@ -406,7 +405,7 @@ void update_features()
 	//Disable airbrake on death
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
 	{
-		featureAirbrakeEnabled = false;
+		exit_airbrake_menu_if_showing();
 	}
 
 	//----Hotkeys----
@@ -797,91 +796,96 @@ void process_weapon_menu()
 //==================
 
 int activeLineIndexWorld = 0;
-
-bool onconfirm_world_menu(MenuItem<int> choice)
-{
-	switch (activeLineIndexWorld)
-	{
-	case 0:
-		GAMEPLAY::SET_GRAVITY_LEVEL(featureWorldMoonGravity);
-		break;
-	case 1:
-		// featureWorldRandomCops being set in update_features
-		PED::SET_CREATE_RANDOM_COPS(!featureWorldRandomCops);
-		break;
-	case 2:
-		VEHICLE::SET_RANDOM_TRAINS(featureWorldRandomTrains);
-		break;
-	case 3:
-		VEHICLE::SET_RANDOM_BOATS(featureWorldRandomBoats);
-		break;
-	case 4:
-		VEHICLE::SET_GARBAGE_TRUCKS(featureWorldGarbageTrucks);
-		break;
-	}
-	return false;
-}
-
-void process_world_menu()
-{
-	const int lineCount = 5;
-
-	std::string caption = "World Options";
-
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Moon Gravity",	&featureWorldMoonGravity,	NULL},
-		{"Random Cops",		&featureWorldRandomCops,	NULL},
-		{"Random Trains",	&featureWorldRandomTrains,	NULL},
-		{"Random Boats",	&featureWorldRandomBoats,	NULL},
-		{"Garbage Trucks",	&featureWorldGarbageTrucks,	NULL}
-	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexWorld, caption, onconfirm_world_menu);
-}
-
 int activeLineIndexTime = 0;
 
-bool onconfirm_time_menu(MenuItem<int> choice)
+bool onconfirm_time_menu ( MenuItem<int> choice )
 {
-	switch (activeLineIndexTime)
+	switch ( activeLineIndexTime )
 	{
 		// hour forward/backward
 	case 0:
 	case 1:
 	{
-		int h = TIME::GET_CLOCK_HOURS();
-		if (activeLineIndexTime == 0) h = (h == 23) ? 0 : h + 1; else h = (h == 0) ? 23 : h - 1;
-		int m = TIME::GET_CLOCK_MINUTES();
-		TIME::SET_CLOCK_TIME(h, m, 0);
+		int h = TIME::GET_CLOCK_HOURS ();
+		if ( activeLineIndexTime == 0 ) h = ( h == 23 ) ? 0 : h + 1; else h = ( h == 0 ) ? 23 : h - 1;
+		int m = TIME::GET_CLOCK_MINUTES ();
+		TIME::SET_CLOCK_TIME ( h, m, 0 );
 		char text[32];
-		sprintf_s(text, "time %02d:%02d", h, m);
-		set_status_text(text);
+		sprintf_s ( text, "time %02d:%02d", h, m );
+		set_status_text ( text );
 	}
 	break;
 	case 3:
-		if (featureTimeSynced)
+		if ( featureTimeSynced )
 		{
-			set_status_text("Time synced with system");
+			set_status_text ( "Time synced with system" );
 		}
 	}
 	return false;
 }
 
-void process_time_menu()
+void process_time_menu ()
 {
 	const int lineCount = 4;
 
 	std::string caption = "Time Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Hour Forward",	 NULL,				 NULL, true},
-		{"Hour Backward",	 NULL,				 NULL, true},
-		{"Clock Paused",	 &featureTimePaused, &featureTimePausedUpdated},
-		{"Sync With System", &featureTimeSynced, NULL}
+		{ "Hour Forward", NULL, NULL, true },
+		{ "Hour Backward", NULL, NULL, true },
+		{ "Clock Paused", &featureTimePaused, &featureTimePausedUpdated },
+		{ "Sync With System", &featureTimeSynced, NULL }
 	};
 
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu);
+	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu );
 }
+
+
+bool onconfirm_world_menu ( MenuItem<int> choice )
+{
+	switch ( activeLineIndexWorld )
+	{
+	case 0:
+		process_time_menu ();
+		break;
+	case 1:
+		GAMEPLAY::SET_GRAVITY_LEVEL ( featureWorldMoonGravity );
+		break;
+	case 2:
+		// featureWorldRandomCops being set in update_features
+		PED::SET_CREATE_RANDOM_COPS ( !featureWorldRandomCops );
+		break;
+	case 3:
+		VEHICLE::SET_RANDOM_TRAINS ( featureWorldRandomTrains );
+		break;
+	case 4:
+		VEHICLE::SET_RANDOM_BOATS ( featureWorldRandomBoats );
+		break;
+	case 5:
+		VEHICLE::SET_GARBAGE_TRUCKS ( featureWorldGarbageTrucks );
+		break;
+	}
+	return false;
+}
+
+void process_world_menu ()
+{
+	const int lineCount = 6;
+
+	std::string caption = "World Options";
+
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{ "Time", NULL, NULL },
+		{ "Moon Gravity", &featureWorldMoonGravity, NULL },
+		{ "Random Cops", &featureWorldRandomCops, NULL },
+		{ "Random Trains", &featureWorldRandomTrains, NULL },
+		{ "Random Boats", &featureWorldRandomBoats, NULL },
+		{ "Garbage Trucks", &featureWorldGarbageTrucks, NULL }
+	};
+
+	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexWorld, caption, onconfirm_world_menu );
+}
+
 
 //==================
 // WEATHER MENU
@@ -1017,12 +1021,9 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_world_menu();
 		break;
 	case 5:
-		process_time_menu();
-		break;
-	case 6:
 		process_weather_menu();
 		break;
-	case 7:
+	case 6:
 		process_misc_menu();
 		break;
 	}
@@ -1038,10 +1039,9 @@ void process_main_menu()
 		"Teleport",
 		"Weapons",
 		"Vehicle",
-		"World",
-		"Time",
+		"World/Time",
 		"Weather",
-		"Misc"
+		"Miscellaneous"
 	};
 
 	std::vector<MenuItem<int>*> menuItems;
@@ -1056,57 +1056,6 @@ void process_main_menu()
 	}
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexMain, caption, onconfirm_main_menu, NULL, NULL);
-}
-
-//Test for airbrake command.
-void process_airbrake_menu()
-{
-	featureAirbrakeEnabled = true;
-	const float lineWidth = 250.0;
-	const int lineCount = 1;
-
-	std::string caption = "Airbrake";
-
-	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
-
-	DWORD waitTime = 150;
-
-	airbrake_flip_angle();
-
-	while (true)
-	{
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do
-		{
-			// draw menu
-			draw_menu_header_line(caption, 350.0f, 50.0f, 15.0f, 0.0f, 15.0f, false);
-			//draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-
-			update_features();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		airbrake();
-
-		//// process buttons
-		//bool bSelect, bBack, bUp, bDown;
-		//get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (airbrake_switch_pressed() || !featureAirbrakeEnabled)
-		{
-			menu_beep();
-			break;
-		}
-	}
-
-	airbrake_flip_angle();
-
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
-	std::stringstream ss2;
-	ss2 << "Angle: " << curHeading;
-	set_status_text(ss2.str());
 }
 
 void reset_globals()
@@ -1159,7 +1108,6 @@ void reset_globals()
 	featureWeatherFreeze			=
 	featureMiscLockRadio			=
 	featureMiscHideHud				=	
-	featureAirbrakeEnabled			= 
 	featureWantedLevelFrozen		=	false;
 
 	featureWorldRandomCops		=
@@ -1184,14 +1132,11 @@ void main()
 			set_menu_showing(true);
 			process_main_menu();
 		}
-		/*
-		//Commented out for now as it's not ready for release
 		else if (airbrake_switch_pressed())
 		{
 			menu_beep();
 			process_airbrake_menu();
 		}
-		*/
 
 		update_features();
 

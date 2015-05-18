@@ -14,11 +14,15 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 
+void process_airbrake_menu();
+
+void exit_airbrake_menu_if_showing();
+
 void moveThroughDoor();
 
 void airbrake();
 
-void set_airbrake_text(std::string str, DWORD time = 2500, bool isGxtEntry = false);
+void create_airbrake_help_text();
 
 void update_airbrake_text();
 
