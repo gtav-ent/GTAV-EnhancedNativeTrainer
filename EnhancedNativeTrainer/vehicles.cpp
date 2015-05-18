@@ -233,7 +233,8 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 				set_status_text("Player isn't in a vehicle");
 		break;
 	case 3: //paint random
-		if (bPlayerExists)
+		if (process_paint_menu()) return false;
+		/*if (bPlayerExists)
 		{
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 			{
@@ -246,7 +247,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 			{
 				set_status_text("Player isn't in a vehicle");
 			}
-		}
+		}*/
 		break;
 	
 	case 8:
@@ -272,7 +273,7 @@ void process_veh_menu()
 		{ "Car Spawner", NULL, NULL, false },
 		{ "Fix", NULL, NULL, true },
 		{ "Clean", NULL, NULL, true },
-		{ "Paint Random", NULL, NULL, true },
+		{ "Paint Menu", NULL, NULL, false },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
 		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
