@@ -43,6 +43,7 @@ const bool DEBUG_LOG_ENABLED = false;
 bool featurePlayerInvincible			=	false;
 bool featurePlayerInvincibleUpdated		=	false;
 bool featurePlayerNeverWanted			=	false;
+bool featurePlayerNeverWantedUpdated = false;
 bool featurePlayerIgnoredByPolice				=	false;
 bool featurePlayerIgnoredByPoliceUpdated		=	false;
 bool featurePlayerIgnoredByAll = false;
@@ -234,7 +235,14 @@ void update_features()
 	if (featurePlayerNeverWanted)
 	{
 		if (bPlayerExists)
+		{
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
+			PLAYER::SET_MAX_WANTED_LEVEL(0);
+		}
+	}
+	else if (featurePlayerNeverWantedUpdated)
+	{
+		PLAYER::SET_MAX_WANTED_LEVEL(5);
 	}
 
 	// police ignore player
@@ -260,6 +268,8 @@ void update_features()
 		if (bPlayerExists)
 		{
 			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, true);
+			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, false);
+			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, true);
 		}
 	}
 	else if (featurePlayerIgnoredByAllUpdated)
@@ -267,6 +277,8 @@ void update_features()
 		if (bPlayerExists)
 		{
 			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, false);
+			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, true);
+			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, false);
 		}
 		featurePlayerIgnoredByAllUpdated = false;
 	}
@@ -724,11 +736,11 @@ void process_player_menu()
 		{"Heal Player", NULL, NULL, true},
 		{"Add Cash", NULL, NULL, true, CASH},
 		{"Wanted Level", NULL, NULL, true, WANTED},
-		{"Never Wanted", &featurePlayerNeverWanted, NULL, true},
+		{ "Never Wanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated, true },
 		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
 		{"Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
 		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
-		{"Unlim. Ability", &featurePlayerUnlimitedAbility, NULL, true},
+		{"Unlimited Ability", &featurePlayerUnlimitedAbility, NULL, true},
 		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
@@ -1080,6 +1092,7 @@ void reset_globals()
 	featurePlayerInvincible			=
 	featurePlayerInvincibleUpdated	=
 	featurePlayerNeverWanted		=
+	featurePlayerNeverWantedUpdated =
 	featurePlayerIgnoredByPolice			=
 	featurePlayerIgnoredByPoliceUpdated		=
 	featurePlayerIgnoredByAll =

@@ -12,6 +12,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "menu_functions.h"
 #include "config_io.h"
 
+bool lastSeenInVehicle = false;
+
 bool featureVehInvincible = false;
 bool featureVehInvincibleUpdated = false;
 bool featureNoVehFallOff = false;
@@ -221,7 +223,21 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 1: //fix
 		if (bPlayerExists)
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-				VEHICLE::SET_VEHICLE_FIXED(PED::GET_VEHICLE_PED_IS_USING(playerPed));
+			{
+				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+				VEHICLE::SET_VEHICLE_FIXED(veh);
+
+				VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 1000.0f);
+				VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 1000.0f);
+
+				VEHICLE::SET_VEHICLE_UNDRIVEABLE(veh, false);
+				VEHICLE::SET_VEHICLE_ENGINE_CAN_DEGRADE(veh, false);
+				
+				VEHICLE::SET_VEHICLE_ENGINE_ON(veh, true, true);
+
+				set_status_text("Vehicle Repaired");
+			}
 			else
 				set_status_text("Player isn't in a vehicle");
 		break;
@@ -269,12 +285,12 @@ void process_veh_menu()
 	std::string caption = "Vehicle Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Car Spawner", NULL, NULL, false },
+		{ "Vehicle Spawner", NULL, NULL, false },
 		{ "Fix", NULL, NULL, true },
 		{ "Clean", NULL, NULL, true },
 		{ "Paint Random", NULL, NULL, true },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
-		{ "No Falling Off", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
+		{ "No Falling Off/Out", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
 		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
 		{ "Modifications", NULL, NULL, false },
@@ -321,6 +337,27 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	else if (bPlayerExists && featureNoVehFallOff)
 	{
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 1);
+	}
+
+	if (bPlayerExists && featureNoVehFallOff)
+	{
+		if (PED::IS_PED_RAGDOLL(playerPed) && !PED::IS_PED_BEING_JACKED(playerPed) && lastSeenInVehicle)
+		{
+			PED::SET_PED_INTO_VEHICLE(playerPed, PED::GET_VEHICLE_PED_IS_IN(playerPed, true), -1);
+			//set_status_text("That's Why We Wear Seatbelts!");
+		}
+		else if (!PED::IS_PED_RAGDOLL(playerPed))
+		{
+			bool curInVeh = PED::IS_PED_IN_ANY_VEHICLE(playerPed, true) ? true : false;
+			if (!curInVeh)
+			{
+				lastSeenInVehicle = false;
+			}
+			else if (PED::IS_PED_GETTING_INTO_A_VEHICLE(playerPed))
+			{
+				lastSeenInVehicle = true;
+			}
+		}
 	}
 
 	// player's vehicle boost
@@ -495,6 +532,7 @@ bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 		{
 			ENTITY::SET_ENTITY_HEADING(veh, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
 			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
+			lastSeenInVehicle = true;
 		}
 
 		WAIT(0);
