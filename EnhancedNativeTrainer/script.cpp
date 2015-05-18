@@ -57,6 +57,8 @@ bool featurePlayerFastRunUpdated		=	false;
 bool featurePlayerSuperJump				=	false;
 bool featurePlayerInvisible				=	false;
 bool featurePlayerInvisibleUpdated		=	false;
+bool featurePlayerRadio					=	false;
+bool featurePlayerRadioUpdated			=	false;
 
 bool featureWeaponInfiniteAmmo			=	false;
 bool featureWeaponNoReload				=	false;
@@ -127,7 +129,7 @@ void check_player_model()
 			}
 		}
 
-		if (!found)
+		if (!found && is_custom_skin_applied())
 		{
 			set_status_text("Resetting player model");
 			model = GAMEPLAY::GET_HASH_KEY("player_zero");
@@ -323,6 +325,15 @@ void update_features()
 		if (bPlayerExists && featurePlayerInvisible)
 			ENTITY::SET_ENTITY_VISIBLE(playerPed, false);
 		else if (bPlayerExists){ ENTITY::SET_ENTITY_VISIBLE(playerPed, true); }
+	}
+
+	// Portable radio
+	if (featurePlayerRadio || featurePlayerRadioUpdated)
+	{
+		if (featurePlayerRadio)
+			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(true);
+		else
+			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(false);
 	}
 
 	// weapon
@@ -715,7 +726,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 14;
+	const int lineCount = 15;
 	
 	std::string caption = "Player Options";
 
@@ -733,7 +744,8 @@ void process_player_menu()
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
 		{"Super Jump", &featurePlayerSuperJump, NULL, true},
-		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true}
+		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
+		{"Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
@@ -1094,6 +1106,8 @@ void reset_globals()
 	featurePlayerSuperJump			=
 	featurePlayerInvisible			=
 	featurePlayerInvisibleUpdated	=
+	featurePlayerRadio				=
+	featurePlayerRadioUpdated		=
 	featureWeaponInfiniteAmmo		=
 	featureWeaponNoReload			=
 	featureWeaponFireAmmo			=
