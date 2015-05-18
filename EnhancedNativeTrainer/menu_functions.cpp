@@ -130,7 +130,7 @@ void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int
 	GRAPHICS::DRAW_RECT((A_0 + (A_2 * 0.5f)), (A_1 + (A_3 * 0.5f)), A_2, A_3, A_4, A_5, A_6, A_7);
 }
 
-void set_status_text(std::string str, DWORD time, bool isGxtEntry)
+void set_status_text(std::string str, bool isGxtEntry)
 {
 	UI::_0x202709F4C58A0424 ( (Any*) (isGxtEntry ? &str[0u] : "STRING") );
 	UI::_ADD_TEXT_COMPONENT_STRING ( &str[0u] );

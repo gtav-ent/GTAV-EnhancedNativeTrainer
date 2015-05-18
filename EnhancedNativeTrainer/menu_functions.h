@@ -810,7 +810,7 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 	return result;
 }
 
-void set_status_text(std::string str, DWORD time = 2500, bool isGxtEntry = false);
+void set_status_text(std::string str, bool isGxtEntry = false);
 
 void menu_beep();
 
