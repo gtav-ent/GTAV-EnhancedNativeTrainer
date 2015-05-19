@@ -749,6 +749,7 @@ bool process_prop_menu()
 	const int partVariations = 10;
 
 	int i = 0;
+	int count = 0;
 
 	for (; i < partVariations + fixedChoices; i++)
 	{
@@ -769,7 +770,14 @@ bool process_prop_menu()
 			item->value = compIndex;
 			item->isLeaf = false;
 			menuItems.push_back(item);
+			count++;
 		}
+	}
+
+	if (count == 0)
+	{
+		set_status_text("Nothing available for this model");
+		return false;
 	}
 
 	return draw_generic_menu<int>(menuItems, &skinPropsMenuPosition, "Prop Categories", onconfirm_props_menu, NULL, NULL);
