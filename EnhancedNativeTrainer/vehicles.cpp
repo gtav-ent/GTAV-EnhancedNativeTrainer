@@ -248,21 +248,22 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 			else
 				set_status_text("Player isn't in a vehicle");
 		break;
-	case 3: //paint random
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
-				if (VEHICLE::_DOES_VEHICLE_HAVE_SECONDARY_COLOUR(veh))
-					VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
+	case 3: //Replaced random paint with paint menu, not sure if random would still be a desired feature
+		if (process_paint_menu()) return false;
+		//if (bPlayerExists)
+		//{
+		//	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		//	{
+		//		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+		//		VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
+		//		if (VEHICLE::_DOES_VEHICLE_HAVE_SECONDARY_COLOUR(veh))
+		//			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
+		//	}
+		//	else
+		//	{
+		//		set_status_text("Player isn't in a vehicle");
+		//	}
+		//}
 		break;
 	
 	case 8:
@@ -288,7 +289,7 @@ void process_veh_menu()
 		{ "Vehicle Spawner", NULL, NULL, false },
 		{ "Fix", NULL, NULL, true },
 		{ "Clean", NULL, NULL, true },
-		{ "Paint Random", NULL, NULL, true },
+		{ "Paint Menu", NULL, NULL, false },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off/Out", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
 		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },

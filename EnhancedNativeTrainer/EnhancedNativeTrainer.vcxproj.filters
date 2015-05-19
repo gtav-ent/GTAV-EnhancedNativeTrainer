@@ -13,6 +13,7 @@
     <ClCompile Include="airbrake.cpp" />
     <ClCompile Include="weapons.cpp" />
     <ClCompile Include="vehmodmenu.cpp" />
+    <ClCompile Include="paintmenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />

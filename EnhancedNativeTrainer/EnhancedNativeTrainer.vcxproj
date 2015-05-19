@@ -17,6 +17,7 @@
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="menu_functions.cpp" />
+    <ClCompile Include="paintmenu.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="skins.cpp" />
     <ClCompile Include="teleportation.cpp" />
