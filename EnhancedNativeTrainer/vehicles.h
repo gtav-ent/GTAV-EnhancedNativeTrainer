@@ -49,3 +49,5 @@ bool process_paint_menu();
 bool process_paint_menu_type();
 
 bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
+
+void onhighlight_color_menu_selection(MenuItem<std::string> choice);

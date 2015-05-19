@@ -329,17 +329,18 @@ void WantedSymbolItem<T>::handleLeftPress()
 {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
-	if (bPlayerExists && PLAYER::GET_PLAYER_WANTED_LEVEL(player) > 0)
+	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+	if (bPlayerExists && currentLevel > 0)
 	{
-		setFrozenWantedFeature(true);
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) - 1, 0);
+		//setFrozenWantedFeature(true);
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, --currentLevel, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
+		//setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
 		std::stringstream ss;
-		if (getFrozenWantedLvl() > 0)
+		if (currentLevel > 0)
 		{
-			ss << "Wanted Level: " << getFrozenWantedLvl() << " Star";
-			if (getFrozenWantedLvl() > 1)
+			ss << "Wanted Level: " << currentLevel << " Star";
+			if (currentLevel > 1)
 			{
 				ss << "s"; //plural
 			}
@@ -355,17 +356,19 @@ void WantedSymbolItem<T>::handleLeftPress()
 template<class T>
 void WantedSymbolItem<T>::handleRightPress()
 {
+	turn_off_never_wanted();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
-	if (bPlayerExists && PLAYER::GET_PLAYER_WANTED_LEVEL(player) < 5)
+	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+	if (bPlayerExists && currentLevel < 5)
 	{
-		setFrozenWantedFeature(true);
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, PLAYER::GET_PLAYER_WANTED_LEVEL(player) + 1, 0);
+		//setFrozenWantedFeature(true);
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, ++currentLevel, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
+		//setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
 		std::stringstream ss;
-		ss << "Wanted Level: " << getFrozenWantedLvl() << " Star";
-		if (getFrozenWantedLvl() > 1)
+		ss << "Wanted Level: " << currentLevel << " Star";
+		if (currentLevel > 1)
 		{
 			ss << "s"; //plural
 		}

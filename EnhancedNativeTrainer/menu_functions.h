@@ -465,21 +465,25 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 	void(*onHighlight)(MenuItem<T> value),
 	void(*onExit)(bool returnValue))
 {
+	bool result = false;
+	DWORD waitTime = 150;
+	const int totalItems = (int) items.size();
+	const int itemsPerLine = 10;
+	const int lineCount = (int)(ceil((double)totalItems / (double)itemsPerLine));
+
 	int currentSelectionIndex;
 	if (menuSelectionPtr != 0)
 	{
+		if (*menuSelectionPtr >= totalItems)
+		{
+			*menuSelectionPtr = 0;
+		}
 		currentSelectionIndex = *menuSelectionPtr;
 	}
 	else
 	{
 		currentSelectionIndex = 0;
 	}
-
-	bool result = false;
-	DWORD waitTime = 150;
-	const int totalItems = (int) items.size();
-	const int itemsPerLine = 10;
-	const int lineCount = (int)(ceil((double)totalItems / (double)itemsPerLine));
 
 	if (onHighlight != NULL)
 	{

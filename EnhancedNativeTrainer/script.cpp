@@ -224,6 +224,7 @@ void update_features()
 			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
+	/*
 	//Wanted Level Frozen - prevents stars from disappearing
 	if (featureWantedLevelFrozen)
 	{
@@ -232,6 +233,7 @@ void update_features()
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 		if (getFrozenWantedLvl() == 0){ featureWantedLevelFrozen = false; }
 	}
+	*/
 	
 	// player never wanted
 	if (featurePlayerNeverWanted)
@@ -606,9 +608,11 @@ int activeLineIndexWantedFreeze = 0;
 
 const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF/Clear" };
 
+/*
 int getFrozenWantedLvl(){ return frozenWantedLevel; }
 void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
 void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
+*/
 
 bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
 {
@@ -738,7 +742,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 15;
+	const int lineCount = 14;
 	
 	std::string caption = "Player Options";
 
@@ -756,8 +760,7 @@ void process_player_menu()
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
 		{"Super Jump", &featurePlayerSuperJump, NULL, true},
-		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
-		{"Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true}
+		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
@@ -992,10 +995,8 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 	switch (activeLineIndexMisc)
 	{
 		// next radio track
-	case 0:
-		if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) &&
-			PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
-			AUDIO::SKIP_RADIO_FORWARD();
+	case 1:
+		AUDIO::SKIP_RADIO_FORWARD();
 		break;
 		// switchable features
 	default:
@@ -1006,12 +1007,12 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 
 void process_misc_menu()
 {
-	const float lineWidth = 250.0;
-	const int lineCount = 2;
+	const int lineCount = 3;
 
 	std::string caption = "Misc Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
+		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
 		{"Next Radio Track",	NULL,					NULL, true},
 		{"Hide HUD",			&featureMiscHideHud,	NULL}
 	};
@@ -1062,7 +1063,7 @@ void process_main_menu()
 		"Player",
 		"Teleport",
 		"Weapons",
-		"Vehicle",
+		"Vehicles",
 		"World/Time",
 		"Weather",
 		"Miscellaneous"
@@ -1192,4 +1193,11 @@ void write_text_to_log_file(const std::string &text)
 	}
 	std::ofstream log_file( "ent-log.txt", std::ios_base::out | std::ios_base::app);
 	log_file << text << std::endl;
+}
+
+void turn_off_never_wanted()
+{
+	featurePlayerNeverWanted = false;
+	featurePlayerNeverWantedUpdated = false;
+	PLAYER::SET_MAX_WANTED_LEVEL(5);
 }
