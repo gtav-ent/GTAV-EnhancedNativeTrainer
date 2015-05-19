@@ -162,6 +162,9 @@ bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+//			if (choice.currentMenuIndex == 1){
+//				do_veh_doors_unbreakable(veh);
+//			}
 			int value = choice.currentMenuIndex - 1;
 
 			float doorAngle = VEHICLE::GET_VEHICLE_DOOR_ANGLE_RATIO(veh, value); //Best way I could figure out to detect if the part is animated.
@@ -201,6 +204,12 @@ bool process_veh_door_menu() {
 	}
 
 	return draw_generic_menu<int>(menuItems, &doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
+}
+
+void do_veh_doors_unbreakable(Vehicle veh, BOOL isBreakable){
+	for ( int i = 0 ; i < 6 ; i++ ){
+		VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, isBreakable); //_0x2FA133A4A9D37ED8(vehicle, doorIndex, isBreakable)
+	}
 }
 
 void on_toggle_invincibility(MenuItem<int> choice)
@@ -312,6 +321,7 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 1);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 1);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 1);
+			do_veh_doors_unbreakable(veh, true);
 		}
 		featureVehInvincibleUpdated = false;
 	}
@@ -325,6 +335,7 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 0);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 0);
+			do_veh_doors_unbreakable(veh, false);
 		}
 	}
 

@@ -28,6 +28,8 @@ void process_veh_menu();
 
 bool process_vehmod_menu();
 
+void do_veh_doors_unbreakable(Vehicle veh, BOOL isBreakable);
+
 bool process_carspawn_menu();
 
 void update_vehicle_features(BOOL playerExists, Ped playerPed);
