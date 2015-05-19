@@ -624,6 +624,10 @@ namespace PED
 	static Vector3 _0x4B805E6046EE9E47(Any *p0, Any *p1, float p2, float p3, float p4, float p5, float p6, float p7, float p8, Any p9) { return invoke<Vector3>(0x4B805E6046EE9E47, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9); } // 4B805E6046EE9E47 5F7789E6
 	static Any GET_PED_DRAWABLE_VARIATION(Any p0, Any p1) { return invoke<Any>(0x67F3780DD425D4FC, p0, p1); } // 67F3780DD425D4FC 29850FE2
 	static Any GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(Any p0, Any p1) { return invoke<Any>(0x27561561732A7842, p0, p1); } // 27561561732A7842 9754C27D
+
+	//Added
+	static int GET_NUMBER_OF_PED_PROP_DRAWABLE_VARIATIONS(Ped ped, int propID) { return invoke<Any>(0x5FAF9754E789FB47, ped, propID); }
+
 	static Any GET_PED_TEXTURE_VARIATION(Any p0, Any p1) { return invoke<Any>(0x04A355E041E004E6, p0, p1); } // 04A355E041E004E6 C0A8590A
 	static Any GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(Any p0, Any p1, Any p2) { return invoke<Any>(0x8F7156A3142A6BAD, p0, p1, p2); } // 8F7156A3142A6BAD 83D9FBE7
 	static Any _0x5FAF9754E789FB47(Any p0, Any p1) { return invoke<Any>(0x5FAF9754E789FB47, p0, p1); } // 5FAF9754E789FB47 C9780B95
@@ -1125,6 +1129,7 @@ namespace VEHICLE
 	static BOOL IS_VEHICLE_DOOR_FULLY_OPEN(Any p0, Any p1) { return invoke<BOOL>(0x3E933CFF7B111C22, p0, p1); } // 3E933CFF7B111C22 C2385B6F
 	static void SET_VEHICLE_ENGINE_ON(Any p0, BOOL p1, BOOL p2) { invoke<Void>(0x2497C4717C8B881E, p0, p1, p2); } // 2497C4717C8B881E 7FBC86F1
 	static void SET_VEHICLE_UNDRIVEABLE(Any p0, BOOL p1) { invoke<Void>(0x8ABA6AF54B942B95, p0, p1); } // 8ABA6AF54B942B95 48D02A4E
+	static void SET_VEHICLE_ENGINE_CAN_DEGRADE(Any p0, BOOL p1) { invoke<Void>(0x983765856F2564F9, p0, p1); }// 0x983765856F2564F9  0x081DAC12
 	static void SET_VEHICLE_PROVIDES_COVER(Any p0, BOOL p1) { invoke<Void>(0x5AFEEDD9BB2899D7, p0, p1); } // 5AFEEDD9BB2899D7 EFC01CA9
 	static void SET_VEHICLE_DOOR_CONTROL(Any p0, Any p1, Any p2, float p3) { invoke<Void>(0xF2BFA0430F0A0FCB, p0, p1, p2, p3); } // F2BFA0430F0A0FCB 572DD360
 	static void SET_VEHICLE_DOOR_LATCHED(Any p0, Any p1, BOOL p2, BOOL p3, BOOL p4) { invoke<Void>(0xA5A9653A8D2CAF48, p0, p1, p2, p3, p4); } // A5A9653A8D2CAF48 4EB7BBFC

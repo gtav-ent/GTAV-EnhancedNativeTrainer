@@ -35,3 +35,5 @@ bool is_custom_skin_applied();
 void set_custom_skin_applied(bool applied);
 
 bool process_skinchanger_menu();
+
+bool process_prop_menu();

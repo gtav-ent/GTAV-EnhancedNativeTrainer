@@ -43,3 +43,11 @@ bool process_spawn_menu_generic(int topMenuSelection);
 bool onconfirm_spawn_menu_vehicle_selection(MenuItem<std::string> choice);
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle);
+
+bool process_paint_menu();
+
+bool process_paint_menu_type();
+
+bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
+
+void onhighlight_color_menu_selection(MenuItem<std::string> choice);

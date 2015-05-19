@@ -11,7 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 bool exitFlag = false;
 
-bool travelSpeed = false;
+int travelSpeed = 0;
 
 //Converts Radians to Degrees
 float degToRad(float degs)
@@ -113,7 +113,21 @@ void create_airbrake_help_text()
 	/*ss << "Heading: " << curHeading << " Rotation: " << curRotation.z
 	<< "\n xVect: " << xVect << "yVect: " << yVect;*/
 
-	ss << "Current Travel Speed: " << ((travelSpeed) ? "Fast" : "Slow");
+	std::string travelSpeedStr;
+	switch (travelSpeed)
+	{
+	case 0:
+		travelSpeedStr = "Slow";
+		break;
+	case 1:
+		travelSpeedStr = "Fast";
+		break;
+	case 2:
+		travelSpeedStr = "Very Fast";
+		break;
+	}
+
+	ss << "Current Travel Speed: " << travelSpeedStr;
 
 	airbrakeStatusLines[0] = "Default Airbrake Keys (may be changed in config):";
 	airbrakeStatusLines[1] = "Q/Z - Move Up/Down";
@@ -173,23 +187,28 @@ void airbrake()
 	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
 	//float tmpHeading = curHeading += ;
 
-	float forwardPush;
-	if (travelSpeed)
-	{
-		forwardPush = 1.8f;
-	}
-	else
-	{
-		forwardPush = 0.2f;
-	}
 	float rotationSpeed = 2.5;
+	float forwardPush;
+
+	switch (travelSpeed)
+	{
+	case 0:
+		forwardPush = 0.2f;
+		break;
+	case 1:
+		forwardPush = 1.8f;
+		break;
+	case 2:
+		forwardPush = 3.6f;
+		break;
+	}
 
 	float xVect = forwardPush * sin(degToRad(curHeading)) * -1.0f;
 	float yVect = forwardPush * cos(degToRad(curHeading));
 
 	KeyInputConfig* keyConfig = get_config()->get_key_config();
 
-	bool moveUpKey		=	get_key_pressed(keyConfig->key_airbrake_up);
+	bool moveUpKey =	get_key_pressed(keyConfig->key_airbrake_up);
 	bool moveDownKey = get_key_pressed(keyConfig->key_airbrake_down);
 	bool moveForwardKey = get_key_pressed(keyConfig->key_airbrake_forward);
 	bool moveBackKey = get_key_pressed(keyConfig->key_airbrake_back);
@@ -211,9 +230,15 @@ void airbrake()
 	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
 	ENTITY::SET_ENTITY_HEADING(playerPed, curHeading);
 
-	if (IsKeyJustUp(keyConfig->key_airbrake_speed)){ travelSpeed = !travelSpeed; }
+	if (IsKeyJustUp(keyConfig->key_airbrake_speed))
+	{
+		travelSpeed++;
+		if (travelSpeed > 2)
+		{
+			travelSpeed = 0;
+		}
+	}
 
-	
 	create_airbrake_help_text();
 	update_airbrake_text();
 

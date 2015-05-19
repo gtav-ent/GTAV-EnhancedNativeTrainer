@@ -43,6 +43,7 @@ const bool DEBUG_LOG_ENABLED = false;
 bool featurePlayerInvincible			=	false;
 bool featurePlayerInvincibleUpdated		=	false;
 bool featurePlayerNeverWanted			=	false;
+bool featurePlayerNeverWantedUpdated = false;
 bool featurePlayerIgnoredByPolice				=	false;
 bool featurePlayerIgnoredByPoliceUpdated		=	false;
 bool featurePlayerIgnoredByAll = false;
@@ -57,6 +58,8 @@ bool featurePlayerFastRunUpdated		=	false;
 bool featurePlayerSuperJump				=	false;
 bool featurePlayerInvisible				=	false;
 bool featurePlayerInvisibleUpdated		=	false;
+bool featurePlayerRadio					=	false;
+bool featurePlayerRadioUpdated			=	false;
 
 bool featureWeaponInfiniteAmmo			=	false;
 bool featureWeaponNoReload				=	false;
@@ -127,7 +130,7 @@ void check_player_model()
 			}
 		}
 
-		if (!found)
+		if (!found && is_custom_skin_applied())
 		{
 			set_status_text("Resetting player model");
 			model = GAMEPLAY::GET_HASH_KEY("player_zero");
@@ -221,6 +224,7 @@ void update_features()
 			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
+	/*
 	//Wanted Level Frozen - prevents stars from disappearing
 	if (featureWantedLevelFrozen)
 	{
@@ -229,12 +233,20 @@ void update_features()
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 		if (getFrozenWantedLvl() == 0){ featureWantedLevelFrozen = false; }
 	}
+	*/
 	
 	// player never wanted
 	if (featurePlayerNeverWanted)
 	{
 		if (bPlayerExists)
+		{
 			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
+			PLAYER::SET_MAX_WANTED_LEVEL(0);
+		}
+	}
+	else if (featurePlayerNeverWantedUpdated)
+	{
+		PLAYER::SET_MAX_WANTED_LEVEL(5);
 	}
 
 	// police ignore player
@@ -260,6 +272,8 @@ void update_features()
 		if (bPlayerExists)
 		{
 			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, true);
+			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, false);
+			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, true);
 		}
 	}
 	else if (featurePlayerIgnoredByAllUpdated)
@@ -267,6 +281,8 @@ void update_features()
 		if (bPlayerExists)
 		{
 			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, false);
+			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, true);
+			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, false);
 		}
 		featurePlayerIgnoredByAllUpdated = false;
 	}
@@ -323,6 +339,15 @@ void update_features()
 		if (bPlayerExists && featurePlayerInvisible)
 			ENTITY::SET_ENTITY_VISIBLE(playerPed, false);
 		else if (bPlayerExists){ ENTITY::SET_ENTITY_VISIBLE(playerPed, true); }
+	}
+
+	// Portable radio
+	if (featurePlayerRadio || featurePlayerRadioUpdated)
+	{
+		if (featurePlayerRadio)
+			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(true);
+		else
+			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(false);
 	}
 
 	// weapon
@@ -583,9 +608,11 @@ int activeLineIndexWantedFreeze = 0;
 
 const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF/Clear" };
 
+/*
 int getFrozenWantedLvl(){ return frozenWantedLevel; }
 void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
 void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
+*/
 
 bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
 {
@@ -724,11 +751,11 @@ void process_player_menu()
 		{"Heal Player", NULL, NULL, true},
 		{"Add Cash", NULL, NULL, true, CASH},
 		{"Wanted Level", NULL, NULL, true, WANTED},
-		{"Never Wanted", &featurePlayerNeverWanted, NULL, true},
+		{ "Never Wanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated, true },
 		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
 		{"Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
 		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
-		{"Unlim. Ability", &featurePlayerUnlimitedAbility, NULL, true},
+		{"Unlimited Ability", &featurePlayerUnlimitedAbility, NULL, true},
 		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
@@ -968,10 +995,8 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 	switch (activeLineIndexMisc)
 	{
 		// next radio track
-	case 0:
-		if (ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID()) &&
-			PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
-			AUDIO::SKIP_RADIO_FORWARD();
+	case 1:
+		AUDIO::SKIP_RADIO_FORWARD();
 		break;
 		// switchable features
 	default:
@@ -982,12 +1007,12 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 
 void process_misc_menu()
 {
-	const float lineWidth = 250.0;
-	const int lineCount = 2;
+	const int lineCount = 3;
 
 	std::string caption = "Misc Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
+		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
 		{"Next Radio Track",	NULL,					NULL, true},
 		{"Hide HUD",			&featureMiscHideHud,	NULL}
 	};
@@ -1038,7 +1063,7 @@ void process_main_menu()
 		"Player",
 		"Teleport",
 		"Weapons",
-		"Vehicle",
+		"Vehicles",
 		"World/Time",
 		"Weather",
 		"Miscellaneous"
@@ -1080,6 +1105,7 @@ void reset_globals()
 	featurePlayerInvincible			=
 	featurePlayerInvincibleUpdated	=
 	featurePlayerNeverWanted		=
+	featurePlayerNeverWantedUpdated =
 	featurePlayerIgnoredByPolice			=
 	featurePlayerIgnoredByPoliceUpdated		=
 	featurePlayerIgnoredByAll =
@@ -1094,6 +1120,8 @@ void reset_globals()
 	featurePlayerSuperJump			=
 	featurePlayerInvisible			=
 	featurePlayerInvisibleUpdated	=
+	featurePlayerRadio				=
+	featurePlayerRadioUpdated		=
 	featureWeaponInfiniteAmmo		=
 	featureWeaponNoReload			=
 	featureWeaponFireAmmo			=
@@ -1165,4 +1193,11 @@ void write_text_to_log_file(const std::string &text)
 	}
 	std::ofstream log_file( "ent-log.txt", std::ios_base::out | std::ios_base::app);
 	log_file << text << std::endl;
+}
+
+void turn_off_never_wanted()
+{
+	featurePlayerNeverWanted = false;
+	featurePlayerNeverWantedUpdated = false;
+	PLAYER::SET_MAX_WANTED_LEVEL(5);
 }
