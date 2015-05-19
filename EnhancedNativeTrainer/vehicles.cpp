@@ -206,7 +206,7 @@ bool process_veh_door_menu() {
 }
 
 void do_veh_doors_unbreakable(Vehicle veh){
-	for ( int i = 1 ; i < 6 ; i++ ){
+	for ( int i = 0 ; i < 6 ; i++ ){
 		VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, false); //_0x2FA133A4A9D37ED8(vehicle, doorIndex, isBreakable)
 	}
 }
