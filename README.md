@@ -5,6 +5,8 @@ Because of the MSXML parser, this project may now require the Windows SDK: https
 
 The VS project currently expects you to have C:\Program Files\Microsoft SDKs\Windows\v6.0A\ and descendents. This may ultimately be unnecessary, I'm not sure.
 
+Feel free to submit your pull requests, and also feel free to raise issues or assign existing unassigned issues to yourselves.
+
 ####Licensing & Distribution
 
 The project license is the GPL, thus you have permission to create your own separate works from this project, and do as you like with them, subject to the license.
