@@ -141,15 +141,7 @@ bool onconfirm_color_menu_selection(MenuItem<std::string> choice)
 			{
 				Any paint1, paint2, paint3;
 				VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
-
-				if (paint1 == 2) //Check if pearlescent is set as primary paint type
-				{
-					VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, paint1, paint2, whichpaint -1); //apply topcoat
-				}
-				else
-				{
-					set_status_text("Set a Pearlescent Basecoat first");
-				}
+				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, 2, paint2, whichpaint - 1); //change type to pearl and apply topcoat
 			}
 			else if (::whichpart == 3) //Wheels
 			{
