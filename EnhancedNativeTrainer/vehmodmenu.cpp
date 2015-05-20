@@ -187,6 +187,11 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, choice.value); //Start from beginning
 		set_status_text("Changed Window Tint");
+		/*
+		std::ostringstream ss;
+		ss << "Set tint value " << choice.value;
+		set_status_text(ss.str());
+		*/
 	}
 	break;
 
@@ -288,7 +293,14 @@ bool process_vehmod_category_special_menu(int category)
 		item->isLeaf = true;
 		menuItems.push_back(item);
 	}
-	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, "Mod Items", onconfirm_vehmod_category_menu, NULL, NULL);
+
+	//Find menu index to return to
+	int modChoiceMenuIndex = find_menu_index_to_restore(category, category, veh);
+
+	std::ostringstream ss;
+	ss << getModCategoryName(category);
+
+	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL);
 
 	return false;
 }
@@ -351,7 +363,7 @@ bool process_vehmod_category_menu(int category)
 	if (category == SPECIAL_ID_FOR_WHEEL_SELECTION)
 	{
 		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = "Default";
+		item->caption = "Default Wheel For Vehicle";
 		item->value = -1;
 		item->isLeaf = true;
 		menuItems.push_back(item);
@@ -359,7 +371,7 @@ bool process_vehmod_category_menu(int category)
 	else
 	{
 		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = "Default Wheel For Vehicle";
+		item->caption = "Default";
 		item->value = -1;
 		item->isLeaf = true;
 		menuItems.push_back(item);
@@ -394,7 +406,20 @@ bool process_vehmod_category_menu(int category)
 		menuItems.push_back(item);
 	}
 
-	modChoiceMenuIndex = 0;
+	//Find menu index to return to
+	int modChoiceMenuIndex = find_menu_index_to_restore(category, actualCategory, veh);
+
+	std::ostringstream ss;
+	ss << getModCategoryName(lastSelectedModValue);
+
+	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL);
+	return false;
+}
+
+int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh)
+{
+	int modChoiceMenuIndex = 0;
+
 	if (category == SPECIAL_ID_FOR_WHEEL_CATEGORY)
 	{
 		modChoiceMenuIndex = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
@@ -403,16 +428,24 @@ bool process_vehmod_category_menu(int category)
 			modChoiceMenuIndex--;
 		}
 	}
+	else if (category == SPECIAL_ID_FOR_LICENSE_PLATES)
+	{
+		modChoiceMenuIndex = VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh);
+	}
+	else if (category == SPECIAL_ID_FOR_WINDOW_TINT)
+	{
+		modChoiceMenuIndex = VEHICLE::GET_VEHICLE_WINDOW_TINT(veh);
+		/*
+		std::ostringstream ss;
+		ss << "Retrieved tint value " << modChoiceMenuIndex;
+		set_status_text(ss.str());
+		*/
+	}
 	else
 	{
 		modChoiceMenuIndex = VEHICLE::GET_VEHICLE_MOD(veh, actualCategory);
 	}
-
-	std::ostringstream ss;
-	ss << getModCategoryName(lastSelectedModValue);
-
-	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL);
-	return false;
+	return modChoiceMenuIndex;
 }
 
 bool onconfirm_vehmod_menu(MenuItem<int> choice)
@@ -594,13 +627,6 @@ bool process_vehmod_menu()
 	ss.str(""); ss.clear();
 
 	FunctionDrivenToggleMenuItem<int> *toggleItem = new FunctionDrivenToggleMenuItem<int>();
-	toggleItem->caption = "Toggle Custom Tires";
-	toggleItem->getter_call = is_custom_tyres;
-	toggleItem->setter_call = set_custom_tyres;
-	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
-	menuItems.push_back(toggleItem);
-
-	toggleItem = new FunctionDrivenToggleMenuItem<int>();
 	toggleItem->caption = "Toggle Turbocharger";
 	toggleItem->getter_call = is_turbocharged;
 	toggleItem->setter_call = set_turbocharged;
@@ -611,6 +637,13 @@ bool process_vehmod_menu()
 	toggleItem->caption = "Toggle Bulletproof Tires";
 	toggleItem->getter_call = is_bulletproof_tyres;
 	toggleItem->setter_call = set_bulletproof_tyres;
+	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new FunctionDrivenToggleMenuItem<int>();
+	toggleItem->caption = "Toggle Custom Tires";
+	toggleItem->getter_call = is_custom_tyres;
+	toggleItem->setter_call = set_custom_tyres;
 	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
 	menuItems.push_back(toggleItem);
 

@@ -69,3 +69,5 @@ void set_bulletproof_tyres(bool applied, std::vector<int> extras);
 bool is_extra_enabled(std::vector<int> extras);
 
 void set_extra_enabled(bool applied, std::vector<int> extras);
+
+int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
