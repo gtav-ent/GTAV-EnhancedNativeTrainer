@@ -11,6 +11,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 bool exitFlag = false;
 
+char* AIRBRAKE_ANIM_A = "amb@world_human_stand_impatient@male@no_sign@base";
+char* AIRBRAKE_ANIM_B = "base";
+
 int travelSpeed = 0;
 
 //Converts Radians to Degrees
@@ -36,12 +39,26 @@ void process_airbrake_menu()
 
 	const float lineWidth = 250.0;
 	const int lineCount = 1;
+	bool loadedAnims = false;
 
 	std::string caption = "Airbrake";
 
 	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
 
 	DWORD waitTime = 150;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	bool inVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0);
+
+	if (!inVehicle)
+	{
+		STREAMING::REQUEST_ANIM_DICT(AIRBRAKE_ANIM_A);
+		while (!STREAMING::HAS_ANIM_DICT_LOADED(AIRBRAKE_ANIM_A))
+		{
+			WAIT(0);
+		}
+		loadedAnims = true;
+	}
 
 	while (true && !exitFlag)
 	{
@@ -58,7 +75,7 @@ void process_airbrake_menu()
 		} while (GetTickCount() < maxTickCount);
 		waitTime = 0;
 
-		airbrake();
+		airbrake(inVehicle);
 
 		//// process buttons
 		//bool bSelect, bBack, bUp, bDown;
@@ -68,6 +85,11 @@ void process_airbrake_menu()
 			menu_beep();
 			break;
 		}
+	}
+
+	if (!inVehicle)
+	{
+		AI::CLEAR_PED_TASKS_IMMEDIATELY(PLAYER::PLAYER_PED_ID());
 	}
 
 	exitFlag = false;
@@ -176,7 +198,7 @@ void moveThroughDoor()
 
 bool lshiftWasDown = false;
 
-void airbrake()
+void airbrake(bool inVehicle)
 {
 	// common variables
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
@@ -221,14 +243,19 @@ void airbrake()
 		playerPed = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 	}
 
-	BOOL xBoolParam = 0;
-	BOOL yBoolParam = 0;
+	BOOL xBoolParam = 1;
+	BOOL yBoolParam = 1;
 	BOOL zBoolParam = 1;
 
 	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0, 0, 0);
 	ENTITY::SET_ENTITY_ROTATION(playerPed, 0, 0, 0, 0, false);
 	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
 	ENTITY::SET_ENTITY_HEADING(playerPed, curHeading);
+
+	if (!inVehicle)
+	{
+		AI::TASK_PLAY_ANIM(PLAYER::PLAYER_PED_ID(), AIRBRAKE_ANIM_A, AIRBRAKE_ANIM_B, 8.0f, 0.0f, -1, 9, 0, 0, 0, 0);
+	}
 
 	if (IsKeyJustUp(keyConfig->key_airbrake_speed))
 	{

@@ -1584,7 +1584,10 @@ namespace AI
 	static void TASK_GO_TO_COORD_ANY_MEANS(Any p0, float p1, float p2, float p3, float p4, Any p5, BOOL p6, Any p7, float p8) { invoke<Void>(0x5BC448CB78FA3E88, p0, p1, p2, p3, p4, p5, p6, p7, p8); } // 5BC448CB78FA3E88 F91DF93B
 	static void _0x1DD45F9ECFDB1BC9(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6, Any p7, Any p8, Any p9, Any p10, Any p11) { invoke<Void>(0x1DD45F9ECFDB1BC9, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11); } // 1DD45F9ECFDB1BC9 094B75EF
 	static void _0xB8ECD61F531A7B02(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6, Any p7, Any p8, Any p9, Any p10, Any p11, Any p12) { invoke<Void>(0xB8ECD61F531A7B02, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12); } // B8ECD61F531A7B02 86DC03F9
-	static void TASK_PLAY_ANIM(Any p0, Any *p1, Any *p2, float p3, float p4, Any p5, Any p6, float p7, BOOL p8, Any p9, BOOL p10) { invoke<Void>(0xEA47FE3719165B94, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); } // EA47FE3719165B94 5AB552C6
+
+	//Modified
+	static void TASK_PLAY_ANIM(Ped p0, char *p1, char *p2, float p3, float p4, Any p5, Any p6, float p7, BOOL p8, Any p9, BOOL p10) { invoke<Void>(0xEA47FE3719165B94, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10); } // EA47FE3719165B94 5AB552C6
+
 	static void _0x83CDB10EA29B370B(Any p0, Any *p1, Any *p2, float p3, float p4, float p5, float p6, float p7, float p8, float p9, float p10, Any p11, Any p12, float p13, Any p14, Any p15) { invoke<Void>(0x83CDB10EA29B370B, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15); } // 83CDB10EA29B370B 3DDEB0E6
 	static void STOP_ANIM_TASK(Any p0, Any *p1, Any *p2, float p3) { invoke<Void>(0x97FF36A1D40EA00A, p0, p1, p2, p3); } // 97FF36A1D40EA00A 2B520A57
 	static void TASK_SCRIPTED_ANIMATION(Any p0, Any *p1, Any *p2, Any *p3, float p4, float p5) { invoke<Void>(0x126EF75F1E17ABE5, p0, p1, p2, p3, p4, p5); } // 126EF75F1E17ABE5 FC2DCF47
@@ -2730,9 +2733,12 @@ namespace STREAMING
 	static BOOL HAS_COLLISION_FOR_MODEL_LOADED(Any p0) { return invoke<BOOL>(0x22CCA434E368F03A, p0); } // 22CCA434E368F03A 41A094F8
 	static void REQUEST_ADDITIONAL_COLLISION_AT_COORD(float p0, float p1, float p2) { invoke<Void>(0xC9156DC11411A9EA, p0, p1, p2); } // C9156DC11411A9EA C2CC1DF2
 	static BOOL _0x2DA49C3B79856961(Any *p0) { return invoke<BOOL>(0x2DA49C3B79856961, p0); } // 2DA49C3B79856961 CD31C872
-	static void REQUEST_ANIM_DICT(Any *p0) { invoke<Void>(0xD3BD40951412FEF6, p0); } // D3BD40951412FEF6 DCA96950
-	static BOOL HAS_ANIM_DICT_LOADED(Any *p0) { return invoke<BOOL>(0xD031A9162D01088C, p0); } // D031A9162D01088C 05E6763C
-	static void REMOVE_ANIM_DICT(Any *p0) { invoke<Void>(0xF66A602F829E2A06, p0); } // F66A602F829E2A06 0AE050B5
+
+	//Modified
+	static void REQUEST_ANIM_DICT(char *p0) { invoke<Void>(0xD3BD40951412FEF6, p0); } // D3BD40951412FEF6 DCA96950
+	static BOOL HAS_ANIM_DICT_LOADED(char *p0) { return invoke<BOOL>(0xD031A9162D01088C, p0); } // D031A9162D01088C 05E6763C
+	static void REMOVE_ANIM_DICT(char *p0) { invoke<Void>(0xF66A602F829E2A06, p0); } // F66A602F829E2A06 0AE050B5
+
 	static void REQUEST_ANIM_SET(Any *p0) { invoke<Void>(0x6EA47DAE7FAD0EED, p0); } // 6EA47DAE7FAD0EED 2988B3FC
 	static BOOL HAS_ANIM_SET_LOADED(Any *p0) { return invoke<BOOL>(0xC4EA073D86FB29B0, p0); } // C4EA073D86FB29B0 4FFF397D
 	static void REMOVE_ANIM_SET(Any *p0) { invoke<Void>(0x16350528F93024B3, p0); } // 16350528F93024B3 D04A817A
