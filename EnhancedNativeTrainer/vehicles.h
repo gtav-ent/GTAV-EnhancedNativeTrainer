@@ -52,6 +52,8 @@ bool process_paint_menu_type();
 
 bool process_paint_menu_liveries();
 
+bool process_paint_menu_special(int category);
+
 bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
 
 void onhighlight_color_menu_selection(MenuItem<std::string> choice);
