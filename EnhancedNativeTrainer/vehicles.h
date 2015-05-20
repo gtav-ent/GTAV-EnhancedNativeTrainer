@@ -52,6 +52,8 @@ bool process_paint_menu_type();
 
 bool process_paint_menu_liveries();
 
+bool process_paint_menu_special(int category);
+
 bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
 
 void onhighlight_color_menu_selection(MenuItem<std::string> choice);
@@ -79,3 +81,5 @@ bool is_extra_enabled(std::vector<int> extras);
 void set_extra_enabled(bool applied, std::vector<int> extras);
 
 int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
+
+bool vehicle_menu_interrupt();

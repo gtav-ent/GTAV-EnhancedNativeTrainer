@@ -20,7 +20,7 @@ void exit_airbrake_menu_if_showing();
 
 void moveThroughDoor();
 
-void airbrake();
+void airbrake(bool inVehicle);
 
 void create_airbrake_help_text();
 
