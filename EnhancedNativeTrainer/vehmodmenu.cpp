@@ -669,6 +669,7 @@ bool process_vehmod_menu()
 		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
 		toggleItem->extra_arguments.push_back(i);
 		menuItems.push_back(toggleItem);
+		ss.str(""); ss.clear();
 	}
 
 	draw_generic_menu<int>(menuItems, 0, "Vehicle Mods", onconfirm_vehmod_menu, NULL, NULL);
@@ -727,7 +728,12 @@ void set_extra_enabled(bool applied, std::vector<int> extras)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 	int extraIndex = extras.at(0);
-	VEHICLE::SET_VEHICLE_EXTRA(veh, extraIndex, applied);
+
+	/*std::ostringstream ss;
+	ss << "Asked for extra at " << extraIndex << " and state " << (applied? "true" : "false");
+	set_status_text(ss.str());*/
+
+	VEHICLE::SET_VEHICLE_EXTRA(veh, extraIndex, applied ? 0 : -1);
 }
 
 bool is_xenon_headlights(std::vector<int> extras)
