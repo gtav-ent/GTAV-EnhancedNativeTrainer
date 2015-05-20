@@ -481,13 +481,21 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 * - onConfirmation: a method that is sent the chosen entry when a choice is made. This should return true if the menu should close now, else false.
 * - onHighlight: an optional method that is sent the highlighted entry when menu navigation occurs. Supply NULL if you don't care.
 * - onExit: an optional method that allows you to insert behaviour on closing a menu, i.e. pressing back, in case you want to save positions etc. Supply NULL if you don't care.
+* - interruptCheck: an optional method that will be called to see if the menu should be aborted
 */
 template<typename T>
 bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, std::string headerText,
 	bool(*onConfirmation)(MenuItem<T> value),
 	void(*onHighlight)(MenuItem<T> value),
-	void(*onExit)(bool returnValue))
+	void(*onExit)(bool returnValue),
+	bool(*interruptCheck)(void) = NULL)
 {
+	if (items.size() == 0)
+	{
+		set_status_text("Whoops, nothing to see here");
+		return false;
+	}
+
 	bool result = false;
 	DWORD waitTime = 150;
 	const int totalItems = (int) items.size();
@@ -544,9 +552,18 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 			set_menu_showing(false);
 			process_airbrake_menu();
 		}
+		else if (interruptCheck != NULL && interruptCheck())
+		{
+			return false;
+		}
 
 		if (!is_menu_showing())
 		{
+			if (interruptCheck != NULL && interruptCheck())
+			{
+				return false;
+			}
+
 			make_periodic_feature_call();
 			WAIT(0);
 			continue;

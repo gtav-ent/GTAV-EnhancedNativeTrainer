@@ -77,7 +77,7 @@ void onhighlight_livery(MenuItem<int> choice)
 
 bool onconfirm_livery(MenuItem<int> choice)
 {
-	return false;
+	return true;
 }
 
 bool process_paint_menu_liveries()
@@ -133,7 +133,7 @@ bool process_paint_menu_liveries()
 	}
 
 	int currentSelection = VEHICLE::GET_VEHICLE_LIVERY(veh);
-	return draw_generic_menu<int>(menuItems, &currentSelection, "Liveries", onconfirm_livery, onhighlight_livery, NULL);
+	return draw_generic_menu<int>(menuItems, &currentSelection, "Liveries", onconfirm_livery, onhighlight_livery, NULL, vehicle_menu_interrupt);
 }
 
 bool onconfirm_paint_menu(MenuItem<int> choice)
@@ -202,7 +202,7 @@ bool process_paint_menu()
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, "Choose which part to paint", onconfirm_paint_menu, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, 0, "Choose which part to paint", onconfirm_paint_menu, NULL, NULL, vehicle_menu_interrupt);
 }
 
 bool onconfirm_paint_menu_type(MenuItem<int> choice)
@@ -219,7 +219,7 @@ bool onconfirm_paint_menu_type(MenuItem<int> choice)
 	}
 	::whichtype = choice.value;
 	if (whichtype > 1) { ::whichtype = whichtype + 1; }
-	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL);
+	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL, vehicle_menu_interrupt);
 }
 
 bool process_paint_menu_type()
@@ -234,7 +234,7 @@ bool process_paint_menu_type()
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, "Choose Paint Type", onconfirm_paint_menu_type, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, 0, "Choose Paint Type", onconfirm_paint_menu_type, NULL, NULL, vehicle_menu_interrupt);
 }
 
 void onhighlight_color_menu_selection(MenuItem<std::string> choice)
@@ -282,5 +282,5 @@ bool onconfirm_color_menu_selection(MenuItem<std::string> choice)
 			set_status_text("Player isn't in a vehicle");
 		}
 	}
-	return false;
+	return true;
 }

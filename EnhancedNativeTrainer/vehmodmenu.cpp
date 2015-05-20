@@ -109,6 +109,178 @@ std::string geSpecialItemTitle(int category, int index)
 	return std::string();
 }
 
+const static std::string BRAKES_AND_TRANS_PREFIXES[] = { "Street", "Sports", "Race" };
+
+const static std::string SUSP_PREFIXES[] = { "Lowered", "Street", "Sports", "Competition" };
+
+std::string getHornTitle(int index)
+{
+	if (index == 0)
+	{
+		return "Truck Horn";
+	}
+	else if (index == 1)
+	{
+		return "Cop Horn";
+	}
+	else if (index == 2)
+	{
+		return "Clown Horn";
+	}
+	else if (index >= 3 && index <= 7)
+	{
+		std::ostringstream ss;
+		ss << "Musical Horn " << (index - 2);
+		return ss.str();
+	}
+	else if (index == 8)
+	{
+		return "Sad Trombone";
+	}
+	else if (index >= 9 && index <= 15)
+	{
+		std::ostringstream ss;
+		ss << "Classical Horn " << (index - 8);
+		return ss.str();
+	}
+	else if (index >= 16 && index <= 23)
+	{
+		std::string suffix;
+		switch (index)
+		{
+		case 16:
+			suffix = "Do";
+			break;
+		case 17:
+			suffix = "Re";
+			break;
+		case 18:
+			suffix = "Mi";
+			break;
+		case 19:
+			suffix = "Fa";
+			break;
+		case 20:
+			suffix = "Sol";
+			break;
+		case 21:
+			suffix = "La";
+			break;
+		case 22:
+			suffix = "Ti";
+			break;
+		case 23:
+			suffix = "Do (High)";
+			break;
+		}
+		std::ostringstream ss;
+		ss << "Scale - " << suffix;
+		return ss.str();
+	}
+	else if (index >= 24 && index <= 26)
+	{
+		std::ostringstream ss;
+		ss << "Jazz Horn " << (index - 23);
+		return ss.str();
+	}
+	else if (index == 27)
+	{
+		return "Jazz Horn Loop";
+	}
+	else if (index >= 28)
+	{
+		std::ostringstream ss;
+		ss << "Star Spangled Banner " << (index - 27);
+		return ss.str();
+	}
+	return "Unknown Horn";
+}
+
+std::string getNormalItemTitle(Vehicle veh, int category, int index)
+{
+	//Engine stuff is EMS Upgrade, Level 1-4
+	//Brakes/trans are stock, street, sports, race
+	//Susp is stock,lowered,street,sport,competition
+	//Armor is none, 20, 40, 60, 80, 100%
+
+	std::string modItemNameStr;
+	
+	if (index == -1)
+	{
+		if (category == 16)
+		{
+			modItemNameStr = "No Armor";
+		}
+		else
+		{
+			std::ostringstream ss;
+			ss << "Stock " << getModCategoryName(lastSelectedModValue);
+			modItemNameStr = ss.str();
+		}
+	}
+	else if (category == 11) //Engine
+	{
+		std::ostringstream ss;
+		ss << "EMS Upgrade, Level " << (index + 1);
+		modItemNameStr = ss.str();
+	}
+	else if (category == 12 || category == 13) //brakes, trans
+	{
+		std::ostringstream ss;
+		ss << BRAKES_AND_TRANS_PREFIXES[index];
+		if (category == 12)
+		{
+			ss << " Brakes";
+		}
+		else
+		{
+			ss << " Transmission";
+		}
+		modItemNameStr = ss.str();
+	}
+	else if (category == 14) //suspension
+	{
+		modItemNameStr = getHornTitle(index);
+	}
+	else if (category == 15) //suspension
+	{
+		std::ostringstream ss;
+		ss << SUSP_PREFIXES[index] << " Suspension";
+		modItemNameStr = ss.str();
+	}
+	else if (category == 16) //Armor
+	{
+		std::ostringstream ss;
+		ss << ((index + 1) * 20) << "% Armor";
+		modItemNameStr = ss.str();
+	}
+	else
+	{
+		char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, category, index);
+		bool foundName = false;
+		if (modItemNameChr != NULL && strlen(modItemNameChr)>0)
+		{
+			char* modItemNameTxt = UI::GET_LABEL_TEXT(modItemNameChr);
+			if (modItemNameTxt != NULL)
+			{
+				modItemNameStr = std::string(modItemNameTxt);
+				foundName = true;
+			}
+		}
+
+		if (!foundName)
+		{
+			std::ostringstream ss;
+			ss << getModCategoryName(lastSelectedModValue) << " Item " << (index+1);
+			modItemNameStr = ss.str();
+		}
+	}
+
+	return modItemNameStr;
+}
+
+//std::string HORN_NAMES[] = { "Stock Horn", "Star Spangled Banner 1", "Star Spangled Banner 1", "Star Spangled Banner 1", "Star Spangled Banner 1", "Jazz Horn 1", };
+
 bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 {
 	// common variables
@@ -155,25 +327,7 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 	{
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
-		std::string modItemNameStr;
-		if (choice.value != -1)
-		{
-			char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, lastSelectedModValue, choice.value);
-			if (modItemNameChr == NULL)
-			{
-				std::ostringstream ss;
-				ss << getModCategoryName(lastSelectedModValue) << " Item " << choice.value;
-				modItemNameStr = ss.str();
-			}
-			else
-			{
-				modItemNameStr = std::string(modItemNameChr);
-			}
-		}
-		else
-		{
-			modItemNameStr = "Default ";
-		}
+		std::string modItemNameStr = getNormalItemTitle(veh, lastSelectedModValue, choice.value);
 
 		VEHICLE::SET_VEHICLE_MOD(veh, lastSelectedModValue, choice.value, 1);
 		std::ostringstream ss;
@@ -300,7 +454,7 @@ bool process_vehmod_category_special_menu(int category)
 	std::ostringstream ss;
 	ss << getModCategoryName(category);
 
-	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL);
+	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL, vehicle_menu_interrupt);
 
 	return false;
 }
@@ -371,7 +525,7 @@ bool process_vehmod_category_menu(int category)
 	else
 	{
 		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = "Default";
+		item->caption = getNormalItemTitle(veh, category, -1);
 		item->value = -1;
 		item->isLeaf = true;
 		menuItems.push_back(item);
@@ -379,26 +533,7 @@ bool process_vehmod_category_menu(int category)
 
 	for (int i = 0; i < count; i++)
 	{
-		char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, actualCategory, i);
-		std::string modItemNameStr;
-		bool foundName = false;
-		if (modItemNameChr != NULL)
-		{
-			char* modItemNameTxt = UI::GET_LABEL_TEXT(modItemNameChr);
-			if (modItemNameTxt != NULL)
-			{
-				modItemNameStr = std::string(modItemNameTxt);
-				foundName = true;
-			}
-		}
-
-		if ( !foundName)
-		{
-			std::ostringstream ss;
-			ss << getModCategoryName(lastSelectedModValue) << " Item " << i;
-			modItemNameStr = ss.str();
-		}
-
+		std::string modItemNameStr = getNormalItemTitle(veh, actualCategory, i);
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = modItemNameStr;
 		item->value = i;
@@ -412,7 +547,7 @@ bool process_vehmod_category_menu(int category)
 	std::ostringstream ss;
 	ss << getModCategoryName(lastSelectedModValue);
 
-	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL);
+	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL, vehicle_menu_interrupt);
 	return false;
 }
 
@@ -444,6 +579,7 @@ int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh)
 	else
 	{
 		modChoiceMenuIndex = VEHICLE::GET_VEHICLE_MOD(veh, actualCategory);
+		modChoiceMenuIndex++; //to compensate for extra 'default' item
 	}
 	return modChoiceMenuIndex;
 }
@@ -479,7 +615,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		VEHICLE::SET_VEHICLE_MOD(veh, 12, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 12) - 1, 1); //Brakes
 		VEHICLE::SET_VEHICLE_MOD(veh, 13, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 13) - 1, 1); //Transmission
 		VEHICLE::TOGGLE_VEHICLE_MOD(veh, 18, 1); //Turbo Tuning
-		set_status_text("Added all Performance Upgrades");
+		set_status_text("Added All Performance Upgrades");
 		break;
 
 	case -2: //Upgrade Armor and Tires
@@ -487,7 +623,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 		VEHICLE::SET_VEHICLE_MOD(veh, 16, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 16) - 1, 1); //Armor
 		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0); //Bulletproof Tires
-		set_status_text("Added all Armor Upgrades and Bulletproof Tires");
+		set_status_text("Added All Armor Upgrades and Bulletproof Tires");
 		break;
 
 	case -3: //Remove All Mods
@@ -517,142 +653,172 @@ bool process_vehmod_menu()
 {
 	if (!PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
 	{
+		set_status_text("Player isn't in a vehicle");
 		return false;
 	}
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 
+	VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+
+	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
+
+	BOOL isABike = VEHICLE::IS_THIS_MODEL_A_BIKE(et);
+	BOOL isAircraft = VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et);
+	BOOL isWeird = VEHICLE::IS_THIS_MODEL_A_TRAIN(et) || VEHICLE::IS_THIS_MODEL_A_BICYCLE(et) || VEHICLE::IS_THIS_MODEL_A_BOAT(et);
+
 	std::string caption = "Vehicle Mod Options";
 
 	std::vector<MenuItem<int>*> menuItems;
 
-	MenuItem<int> *item1 = new MenuItem<int>();
-	item1->caption = "Add All Performance Upgrades";
-	item1->value = -1;
-	item1->isLeaf = true;
-	menuItems.push_back(item1);
-
-	MenuItem<int> *item2 = new MenuItem<int>();
-	item2->caption = "Add All Armor Upgrades";
-	item2->value = -2;
-	item2->isLeaf = true;
-	menuItems.push_back(item2);
-
-	MenuItem<int> *item3 = new MenuItem<int>();
-	item3->caption = "Remove All Upgrades";
-	item3->value = -3;
-	item3->isLeaf = true;
-	menuItems.push_back(item3);
-
-	for (int i = 0; i < 30; i++)
+	if (!isWeird && !isAircraft)
 	{
-		if (i == 23 || i == 24 || i == 21)
+		MenuItem<int> *item1 = new MenuItem<int>();
+		item1->caption = "Add All Performance Upgrades";
+		item1->value = -1;
+		item1->isLeaf = true;
+		menuItems.push_back(item1);
+
+		MenuItem<int> *item2 = new MenuItem<int>();
+		item2->caption = "Add All Armor Upgrades";
+		item2->value = -2;
+		item2->isLeaf = true;
+		menuItems.push_back(item2);
+
+		MenuItem<int> *item3 = new MenuItem<int>();
+		item3->caption = "Remove All Upgrades";
+		item3->value = -3;
+		item3->isLeaf = true;
+		menuItems.push_back(item3);
+	}
+
+	if (!isWeird && !isAircraft)
+	{
+		for (int i = 0; i < 30; i++)
 		{
-			continue;
-		}
+			if (i == 23 || i == 24 || i == 21)
+			{
+				continue;
+			}
 
-		bool iFound = false;
-		int compIndex = i;
+			bool iFound = false;
+			int compIndex = i;
 
-		int mods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, i);
-		if (mods > 0)
-		{
-			std::ostringstream ss;
-			//ss << "Slot " << (compIndex + 1) << ": ";
-			ss << getModCategoryName(i) << " (" << (mods + 1) << ")";
+			int mods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, i);
+			if (mods > 0)
+			{
+				std::ostringstream ss;
+				//ss << "Slot " << (compIndex + 1) << ": ";
+				ss << getModCategoryName(i) << " (" << (mods + 1) << ")";
 
-			MenuItem<int> *item = new MenuItem<int>();
-			item->caption = ss.str();
-			item->value = compIndex;
-			item->isLeaf = false;
-			menuItems.push_back(item);
+				MenuItem<int> *item = new MenuItem<int>();
+				item->caption = ss.str();
+				item->value = compIndex;
+				item->isLeaf = false;
+				menuItems.push_back(item);
+			}
 		}
 	}
 
-	int tintCount = VEHICLE::GET_NUM_VEHICLE_WINDOW_TINTS();
-	MenuItem<int> *item = new MenuItem<int>();
 	std::ostringstream ss;
-	ss << getModCategoryName(SPECIAL_ID_FOR_WINDOW_TINT) << " (" << tintCount << ")";
-	item->caption = ss.str();
-	item->value = SPECIAL_ID_FOR_WINDOW_TINT;
-	item->isLeaf = false;
-	menuItems.push_back(item);
 
-	ss.str(""); ss.clear();
-
-	int plateCount = VEHICLE::GET_NUMBER_OF_VEHICLE_NUMBER_PLATES();
-	item = new MenuItem<int>();
-	ss << getModCategoryName(SPECIAL_ID_FOR_LICENSE_PLATES) << " (" << plateCount << ")";
-	item->caption = ss.str();
-	item->value = SPECIAL_ID_FOR_LICENSE_PLATES;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	ss.str(""); ss.clear();
-
-	if (!VEHICLE::IS_THIS_MODEL_A_BIKE(ENTITY::GET_ENTITY_MODEL(veh)) )
+	if (!isWeird && !isAircraft)
 	{
-		item = new MenuItem<int>();
-		ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_CATEGORY) << " (" << WHEEL_CATEGORY_COUNT << ")";
+		int tintCount = VEHICLE::GET_NUM_VEHICLE_WINDOW_TINTS();
+		MenuItem<int> *item = new MenuItem<int>();
+		ss << getModCategoryName(SPECIAL_ID_FOR_WINDOW_TINT) << " (" << tintCount << ")";
 		item->caption = ss.str();
-		item->value = SPECIAL_ID_FOR_WHEEL_CATEGORY;
+		item->value = SPECIAL_ID_FOR_WINDOW_TINT;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+
+		ss.str(""); ss.clear();
+
+		int plateCount = VEHICLE::GET_NUMBER_OF_VEHICLE_NUMBER_PLATES();
+		item = new MenuItem<int>();
+		ss << getModCategoryName(SPECIAL_ID_FOR_LICENSE_PLATES) << " (" << plateCount << ")";
+		item->caption = ss.str();
+		item->value = SPECIAL_ID_FOR_LICENSE_PLATES;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+
+		ss.str(""); ss.clear();
+
+		if (!VEHICLE::IS_THIS_MODEL_A_BIKE(ENTITY::GET_ENTITY_MODEL(veh)))
+		{
+			item = new MenuItem<int>();
+			ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_CATEGORY) << " (" << WHEEL_CATEGORY_COUNT << ")";
+			item->caption = ss.str();
+			item->value = SPECIAL_ID_FOR_WHEEL_CATEGORY;
+			item->isLeaf = false;
+			menuItems.push_back(item);
+
+			ss.str(""); ss.clear();
+		}
+
+		int wheelCount = 0;
+		int wheelType = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
+		if (wheelType == 6)
+		{
+			wheelCount = WHEEL_CATEGORY_COUNT_BIKE;
+		}
+		else if (wheelType == 7)
+		{
+			wheelCount = WHEEL_CATEGORY_COUNTS[6];
+		}
+		else
+		{
+			wheelCount = WHEEL_CATEGORY_COUNTS[wheelType];
+		}
+
+		item = new MenuItem<int>();
+		ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_SELECTION) << " (" << wheelCount << ")";
+		item->caption = ss.str();
+		item->value = SPECIAL_ID_FOR_WHEEL_SELECTION;
 		item->isLeaf = false;
 		menuItems.push_back(item);
 
 		ss.str(""); ss.clear();
 	}
 
-	int wheelCount = 0;
-	int wheelType = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
-	if (wheelType == 6)
+	FunctionDrivenToggleMenuItem<int> *toggleItem;
+
+	if (!isWeird && !isAircraft)
 	{
-		wheelCount = WHEEL_CATEGORY_COUNT_BIKE;
+		toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = "Toggle Turbo Tuning";
+		toggleItem->getter_call = is_turbocharged;
+		toggleItem->setter_call = set_turbocharged;
+		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+		menuItems.push_back(toggleItem);
+
+		toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = "Toggle Xenon Lights";
+		toggleItem->getter_call = is_xenon_headlights;
+		toggleItem->setter_call = set_xenon_headlights;
+		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+		menuItems.push_back(toggleItem);
 	}
-	else if (wheelType == 7)
+
+	if (!isWeird && !isAircraft)
 	{
-		wheelCount = WHEEL_CATEGORY_COUNTS[6];
+		toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = "Toggle Bulletproof Tires";
+		toggleItem->getter_call = is_bulletproof_tyres;
+		toggleItem->setter_call = set_bulletproof_tyres;
+		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+		menuItems.push_back(toggleItem);
 	}
-	else
+
+	if (!isWeird && !isAircraft && !isABike)
 	{
-		wheelCount = WHEEL_CATEGORY_COUNTS[wheelType];
+		toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = "Toggle Custom Tires";
+		toggleItem->getter_call = is_custom_tyres;
+		toggleItem->setter_call = set_custom_tyres;
+		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+		menuItems.push_back(toggleItem);
 	}
-
-	item = new MenuItem<int>();
-	ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_SELECTION) << " (" << wheelCount << ")";
-	item->caption = ss.str();
-	item->value = SPECIAL_ID_FOR_WHEEL_SELECTION;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	ss.str(""); ss.clear();
-
-	FunctionDrivenToggleMenuItem<int> *toggleItem = new FunctionDrivenToggleMenuItem<int>();
-	toggleItem->caption = "Toggle Turbocharger";
-	toggleItem->getter_call = is_turbocharged;
-	toggleItem->setter_call = set_turbocharged;
-	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
-	menuItems.push_back(toggleItem);
-
-	toggleItem = new FunctionDrivenToggleMenuItem<int>();
-	toggleItem->caption = "Toggle Xenon Lights";
-	toggleItem->getter_call = is_xenon_headlights;
-	toggleItem->setter_call = set_xenon_headlights;
-	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
-	menuItems.push_back(toggleItem);
-
-	toggleItem = new FunctionDrivenToggleMenuItem<int>();
-	toggleItem->caption = "Toggle Bulletproof Tires";
-	toggleItem->getter_call = is_bulletproof_tyres;
-	toggleItem->setter_call = set_bulletproof_tyres;
-	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
-	menuItems.push_back(toggleItem);
-
-	toggleItem = new FunctionDrivenToggleMenuItem<int>();
-	toggleItem->caption = "Toggle Custom Tires";
-	toggleItem->getter_call = is_custom_tyres;
-	toggleItem->setter_call = set_custom_tyres;
-	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
-	menuItems.push_back(toggleItem);
 
 	for (int i = 1; i < 10; i++)
 	{
@@ -672,7 +838,13 @@ bool process_vehmod_menu()
 		ss.str(""); ss.clear();
 	}
 
-	draw_generic_menu<int>(menuItems, 0, "Vehicle Mods", onconfirm_vehmod_menu, NULL, NULL);
+	if (menuItems.size() == 0)
+	{
+		set_status_text("No relevant mods for this vehicle");
+		return false;
+	}
+
+	draw_generic_menu<int>(menuItems, 0, "Vehicle Mods", onconfirm_vehmod_menu, NULL, NULL, vehicle_menu_interrupt);
 	return false;
 }
 
@@ -746,4 +918,24 @@ void set_xenon_headlights(bool applied, std::vector<int> extras)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, 22, applied); //Headlights
+}
+
+bool vehicle_menu_interrupt()
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+
+	if (!bPlayerExists)
+	{
+		return true;
+	}
+
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		return true;
+	}
+
+	return false;
 }
