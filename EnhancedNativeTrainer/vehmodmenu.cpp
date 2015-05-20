@@ -12,532 +12,468 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 int activeLineIndexVehMod = 0;
 
-bool onconfirm_vehmod_menu(MenuItem<int> choice)
+int lastSelectedModValue = 0;
+
+int modChoiceMenuIndex = 0;
+
+const static int CUSTOM_TYRE_COUNT = 1;
+
+const static int WHEEL_CATEGORY_COUNT = 7;
+
+const static std::string WHEEL_CATEGORY_NAMES[] = { "Sports", "Muscle", "Lowrider", "SUV", "Offroad", "Tuner", "High End" };
+
+const static int WHEEL_CATEGORY_COUNTS[] = { 25, 18, 15, 19, 10, 24, 20 };
+
+const static int WHEEL_CATEGORY_COUNT_BIKE = 13;
+
+const static std::string TINT_NAMES[] = { "No Tint", "Dark", "Medium", "Light", "Very Light", "Safety Value" };
+
+const static std::string PLATE_NAMES[] = { "Blue on White", "Yellow/Black", "Gold/Blue", "Blue/White SA Caps", "Blue/White SA Exempt", "Blue/White Yankton"};
+
+const static int SPECIAL_ID_START = 90;
+
+const static int SPECIAL_ID_FOR_WHEEL_CATEGORY = 91;
+
+const static int SPECIAL_ID_FOR_WHEEL_SELECTION = 92;
+
+const static int SPECIAL_ID_FOR_WINDOW_TINT = 93;
+
+const static int SPECIAL_ID_FOR_LICENSE_PLATES = 94;
+
+const static int SPECIAL_ID_FOR_TOGGLE_VARIATIONS = 95;
+
+std::string getModCategoryName(int i)
+{
+	switch (i)
+	{
+	case 0:
+		return "Spoiler";
+	case 1:
+		return "Front Bumper";
+	case 2:
+		return "Rear Bumper";
+	case 3:
+		return "Side Skirts";
+	case 4:
+		return "Exhaust";
+	case 5:
+		return "Rollcage";
+	case 6:
+		return "Grille";
+	case 7:
+		return "Bonnet";
+	case 8:
+		return "Fenders/Arches";
+	case 10:
+		return "Roof";
+	case 11:
+		return "Engine";
+	case 12:
+		return "Brakes";
+	case 13:
+		return "Transmission";
+	case 14:
+		return "Horn";
+	case 15:
+		return "Suspension";
+	case 16:
+		return "Armor";
+	case 22:
+		return "Headlights";
+	case SPECIAL_ID_FOR_WHEEL_CATEGORY:
+		return "Wheel Category";
+	case SPECIAL_ID_FOR_WHEEL_SELECTION:
+		return "Wheel Choice";
+	case SPECIAL_ID_FOR_WINDOW_TINT:
+		return "Window Tint";
+	case SPECIAL_ID_FOR_LICENSE_PLATES:
+		return "License Plates";
+	default:
+		return std::to_string(i);
+	}
+}
+
+std::string geSpecialItemTitle(int category, int index)
+{
+	switch (category)
+	{
+	case SPECIAL_ID_FOR_LICENSE_PLATES:
+		return PLATE_NAMES[index];
+
+	case SPECIAL_ID_FOR_WHEEL_CATEGORY:
+		return WHEEL_CATEGORY_NAMES[index];
+
+	case SPECIAL_ID_FOR_WINDOW_TINT:
+		return TINT_NAMES[index];
+	}
+	return std::string();
+}
+
+bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 {
 	// common variables
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+
+	if (!bPlayerExists)
+	{
+		return false;
+	}
+
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	switch (activeLineIndexVehMod)
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
-	case 0: //Upgrade Performance
-		if (bPlayerExists)
+		set_status_text("Player isn't in a vehicle");
+		return false;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+	switch (lastSelectedModValue)
+	{
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+	case 10:
+	case 11:
+	case 12:
+	case 13:
+	case 14:
+	case 15:
+	case 21:
+	case 22:
+	case 23:
+	case 24:
+
+	{
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+
+		std::string modItemNameStr;
+		if (choice.value != -1)
 		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+			char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, lastSelectedModValue, choice.value);
+			if (modItemNameChr == NULL)
 			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				VEHICLE::SET_VEHICLE_MOD(veh, 11, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 11) - 1, 1); //Engine
-				VEHICLE::SET_VEHICLE_MOD(veh, 12, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 12) - 1, 1); //Brakes
-				VEHICLE::SET_VEHICLE_MOD(veh, 13, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 13) - 1, 1); //Transmission
-				VEHICLE::TOGGLE_VEHICLE_MOD(veh, 18, 1); //Turbo Tuning
-				set_status_text("Added all Performance Upgrades");
+				std::ostringstream ss;
+				ss << getModCategoryName(lastSelectedModValue) << " Item " << choice.value;
+				modItemNameStr = ss.str();
 			}
 			else
 			{
-				set_status_text("Player isn't in a vehicle");
+				modItemNameStr = std::string(modItemNameChr);
 			}
 		}
+		else
+		{
+			modItemNameStr = "Default ";
+		}
+
+		VEHICLE::SET_VEHICLE_MOD(veh, lastSelectedModValue, choice.value, 1);
+		std::ostringstream ss;
+		ss << modItemNameStr << " Applied";
+		set_status_text(ss.str());
+	}
+	break;
+
+	case SPECIAL_ID_FOR_WINDOW_TINT: //Change Window Tint
+	{
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, choice.value); //Start from beginning
+		set_status_text("Changed Window Tint");
+	}
+	break;
+
+	case SPECIAL_ID_FOR_LICENSE_PLATES: //Change license plate style
+	{
+		int plateCount = VEHICLE::GET_NUMBER_OF_VEHICLE_NUMBER_PLATES();
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, choice.value); //Start from beginning
+		set_status_text("Changed License Plate");
+	}
+	break;
+
+	case SPECIAL_ID_FOR_WHEEL_CATEGORY: //Change Wheel Category
+	{
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+		VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, choice.value); //Increment ModValue
+		VEHICLE::SET_VEHICLE_MOD(veh, 23, 0, 0);
+		set_status_text("Changed Wheel Category");
+	}
+	break;
+
+	case SPECIAL_ID_FOR_WHEEL_SELECTION: //Change Wheels 
+	{
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+		VEHICLE::SET_VEHICLE_MOD(veh, 23, choice.value, 0); //Remove mod and start from beginning
+		VEHICLE::SET_VEHICLE_MOD(veh, 24, choice.value, 0); //Remove mod and start from beginning (For bike rear wheels if they exist)
+		set_status_text("Changed Wheels");
+	}
+	break;
+	}
+	return false;
+}
+
+bool process_vehmod_category_special_menu(int category)
+{
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+	std::vector<int> values;
+
+	switch (category)
+	{
+	case SPECIAL_ID_FOR_LICENSE_PLATES:
+	{
+		int plateCount = VEHICLE::GET_NUMBER_OF_VEHICLE_NUMBER_PLATES();
+		for (int i = 0; i < plateCount; i++)
+		{
+			values.push_back(i);
+		}
+	}
+		break;
+	case SPECIAL_ID_FOR_WHEEL_CATEGORY:
+	{
+		for (int i = 0; i < WHEEL_CATEGORY_COUNT; i++)
+		{
+			int j = i;
+			if (j >= 6)
+			{
+				j = j + 1; //skip 6
+			}
+			values.push_back(j);
+		}
+	}
+		break;
+	case SPECIAL_ID_FOR_WINDOW_TINT:
+	{
+		int tintCount = VEHICLE::GET_NUM_VEHICLE_WINDOW_TINTS();
+		for (int i = 0; i < tintCount; i++)
+		{
+			values.push_back(i);
+		}
+	}
+		break;
+	default:
+		return false;
+	}
+
+	std::vector<MenuItem<int>*> menuItems;
+	for (int i = 0; i < values.size(); i++)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		std::string specialName = geSpecialItemTitle(category, i);
+		if (!specialName.empty())
+		{
+			item->caption = specialName;
+		}
+		else if (i == 0 && values.at(i) == -1)
+		{
+			item->caption = "Default";
+		}
+		else
+		{
+			std::ostringstream ss;
+			ss << getModCategoryName(category) << " Item " << i;
+			item->caption = ss.str();
+		}
+		item->value = values.at(i);
+		item->isLeaf = true;
+		menuItems.push_back(item);
+	}
+	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, "Mod Items", onconfirm_vehmod_category_menu, NULL, NULL);
+
+	return false;
+}
+
+bool process_vehmod_category_menu(int category)
+{
+	int actualCategory = category;
+
+	if (category == SPECIAL_ID_FOR_WHEEL_SELECTION)
+	{
+		actualCategory = 23;
+	}
+	else if (category > SPECIAL_ID_START)
+	{
+		return process_vehmod_category_special_menu(category);
+	}
+
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+
+	if (!bPlayerExists)
+	{
+		return false;
+	}
+
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		set_status_text("Player isn't in a vehicle");
+		return false;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+	std::vector<MenuItem<int>*> menuItems;
+
+	int count = 0;
+	if (category == SPECIAL_ID_FOR_WHEEL_SELECTION)
+	{
+		int wheelType = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
+		if (wheelType == 6)
+		{
+			count = WHEEL_CATEGORY_COUNT_BIKE;
+		}
+		else if ( wheelType == 7)
+		{
+			count = WHEEL_CATEGORY_COUNTS[6];
+		}
+		else
+		{
+			count = WHEEL_CATEGORY_COUNTS[wheelType];
+		}
+	}
+	else
+	{
+		count = VEHICLE::GET_NUM_VEHICLE_MODS(veh, actualCategory);
+	}
+
+	if (category == SPECIAL_ID_FOR_WHEEL_SELECTION)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = "Default";
+		item->value = -1;
+		item->isLeaf = true;
+		menuItems.push_back(item);
+	}
+	else
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = "Default Wheel For Vehicle";
+		item->value = -1;
+		item->isLeaf = true;
+		menuItems.push_back(item);
+	}
+
+	for (int i = 0; i < count; i++)
+	{
+		char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, actualCategory, i);
+		std::string modItemNameStr;
+		bool foundName = false;
+		if (modItemNameChr != NULL)
+		{
+			char* modItemNameTxt = UI::GET_LABEL_TEXT(modItemNameChr);
+			if (modItemNameTxt != NULL)
+			{
+				modItemNameStr = std::string(modItemNameTxt);
+				foundName = true;
+			}
+		}
+
+		if ( !foundName)
+		{
+			std::ostringstream ss;
+			ss << getModCategoryName(lastSelectedModValue) << " Item " << i;
+			modItemNameStr = ss.str();
+		}
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = modItemNameStr;
+		item->value = i;
+		item->isLeaf = true;
+		menuItems.push_back(item);
+	}
+
+	modChoiceMenuIndex = 0;
+	if (category == SPECIAL_ID_FOR_WHEEL_CATEGORY)
+	{
+		modChoiceMenuIndex = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
+		if (modChoiceMenuIndex > 6)
+		{
+			modChoiceMenuIndex--;
+		}
+	}
+	else
+	{
+		modChoiceMenuIndex = VEHICLE::GET_VEHICLE_MOD(veh, actualCategory);
+	}
+
+	std::ostringstream ss;
+	ss << getModCategoryName(lastSelectedModValue);
+
+	draw_generic_menu<int>(menuItems, &modChoiceMenuIndex, ss.str(), onconfirm_vehmod_category_menu, NULL, NULL);
+	return false;
+}
+
+bool onconfirm_vehmod_menu(MenuItem<int> choice)
+{
+	lastSelectedModValue = choice.value;
+
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+
+	if (!bPlayerExists)
+	{
+		return false;
+	}
+
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		set_status_text("Player isn't in a vehicle");
+		return false;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+	switch (choice.value)
+	{
+	case -1: //Upgrade Performance
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+		VEHICLE::SET_VEHICLE_MOD(veh, 11, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 11) - 1, 1); //Engine
+		VEHICLE::SET_VEHICLE_MOD(veh, 12, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 12) - 1, 1); //Brakes
+		VEHICLE::SET_VEHICLE_MOD(veh, 13, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 13) - 1, 1); //Transmission
+		VEHICLE::TOGGLE_VEHICLE_MOD(veh, 18, 1); //Turbo Tuning
+		set_status_text("Added all Performance Upgrades");
 		break;
 
-	case 1: //Upgrade Armor and Tires
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				VEHICLE::SET_VEHICLE_MOD(veh, 16, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 16) - 1, 1); //Armor
-				VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0); //Bulletproof Tires
-				set_status_text("Added all Armor Upgrades and Bulletproof Tires");
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
+	case -2: //Upgrade Armor and Tires
+
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+		VEHICLE::SET_VEHICLE_MOD(veh, 16, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 16) - 1, 1); //Armor
+		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0); //Bulletproof Tires
+		set_status_text("Added all Armor Upgrades and Bulletproof Tires");
 		break;
 
-	case 2: //Upgrade Suspension
-		if (bPlayerExists)
+	case -3: //Remove All Mods
+
+		for (int i = 0; i < 25; i++)
 		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 15) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 15);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 15, currmod + 1, 1); //Increment ModValue
-					set_status_text("Suspension Upgraded");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 15, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Suspension");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
+			VEHICLE::REMOVE_VEHICLE_MOD(veh, i);
 		}
+		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, 0);
+		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 1);
+		set_status_text("Removed All Upgrades");
 		break;
 
-	case 3: //Change Spoiler
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 0) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 0);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 0, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Spoiler");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 0, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Spoiler");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
+	case  SPECIAL_ID_FOR_TOGGLE_VARIATIONS:
+		//these are toggles, do nothing
+		return false;
 
-	case 4: //Change Exhaust
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 4) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 4);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 4, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Exhaust");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 4, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Exhaust");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 5: //Change Hood
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 7) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 7);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 7, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Hood");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 7, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Hood");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 6: //Change Front Bumper
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 1) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 1);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 1, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Front Bumper");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 1, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Front Bumper");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 7: //Change Rear Bumper
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 2) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 2);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 2, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Rear Bumper");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 2, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Rear Bumper");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 8: //Change Grille
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 6) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 6);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 6, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Grille");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 6, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Grille");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 9: //Change Side Skirts
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 3) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 3);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 3, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Side Skirts");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 3, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Side Skirts");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 10: //Change Roof
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 10) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 10);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 10, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Roof");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 10, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Roof");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 11: //Change Window Tint
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int currmod = VEHICLE::GET_VEHICLE_WINDOW_TINT(veh);
-				if (currmod < 3)
-				{
-					VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, currmod + 1); //Increment ModValue
-					set_status_text("Changed Window Tint");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, 0); //Start from beginning
-					set_status_text("Default Window Tint");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 12: //Change Fenders
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 8) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 8);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 8, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Fenders");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 8, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Fenders");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 13: //Change Rollcage
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 5) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 5);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 5, currmod + 1, 1); //Increment ModValue
-					set_status_text("Changed Rollcage");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 5, -1, 1); //Remove mod and start from beginning
-					set_status_text("Default Rollcage");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 14: //Change license plate style
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int currmod = VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh);
-				if (currmod < 5)
-				{
-					VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, currmod + 1); //Increment ModValue
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, 0); //Start from beginning
-				}
-				set_status_text("Changed License Plate");
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 15: //Xenon Headlights
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				VEHICLE::TOGGLE_VEHICLE_MOD(veh, 22, 1); //Headlights
-				set_status_text("Added Xenon Headlights");
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 16: //Change Wheel Category
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int currmod = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
-				if (PED::IS_PED_ON_ANY_BIKE(playerPed))
-				{
-					set_status_text("Bikes only have One Wheel Category");
-				}
-				else if (currmod < 5)
-				{
-					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, currmod + 1); //Increment ModValue
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
-					set_status_text("Changed Wheel Category");
-				}
-				else if (currmod == 5)
-				{
-					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, currmod + 2); //Increment ModValue to 7 to skip bike wheels that glitch with cars
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
-					set_status_text("Changed Wheel Category");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, 0); //Start over from 0 = Sports Wheels
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, 1, 0); //Change to non-default wheel in category
-					set_status_text("Changed Wheel Category");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 17: //Change Wheels 
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int nummods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 23) - 1;
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 23);
-				if (currmod < nummods)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod + 1, 0); //Increment ModValue
-					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod + 1, 0); //Increment ModValue (For bike rear wheels if they exist)
-					set_status_text("Changed Wheels");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, -1, 0); //Remove mod and start from beginning
-					VEHICLE::SET_VEHICLE_MOD(veh, 24, -1, 0); //Remove mod and start from beginning (For bike rear wheels if they exist)
-					set_status_text("Default Wheels");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 18: //Custom Tires 
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-				int custire = VEHICLE::GET_VEHICLE_MOD_VARIATION(veh, 23);
-				int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 23);
-				if (custire == 0 && currmod > -1)
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 1); //Add Custom Tires
-					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, 1); //Add Custom Tires (For bike rear wheels if they exist)
-					set_status_text("Custom Tires");
-				}
-				else
-				{
-					VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, 0); //Remove Custom Tires
-					VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, 0); //Remove Custom Tires (For bike rear wheels if they exist)
-					set_status_text("Default Tires");
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-		break;
-
-	case 19: //Remove All Mods
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				for (int i = 0; i < 25; i++) {
-					VEHICLE::REMOVE_VEHICLE_MOD(veh, i);
-				}
-				VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, 0);
-				VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 1);
-				set_status_text("Removed All Upgrades");
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
+	default:
+		process_vehmod_category_menu(choice.value);
 		break;
 	}
 	return false;
@@ -546,32 +482,210 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 bool process_vehmod_menu()
 {
-	const int lineCount = 20;
+	if (!PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+	{
+		return false;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 
 	std::string caption = "Vehicle Mod Options";
 
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "All Performance Upgrades", NULL, NULL, true },
-		{ "All Armor Upgrades", NULL, NULL, true },
-		{ "Change Suspension", NULL, NULL, true },
-		{ "Change Spoiler", NULL, NULL, true },
-		{ "Change Exhaust", NULL, NULL, true },
-		{ "Change Hood", NULL, NULL, true },
-		{ "Change Front Bumper", NULL, NULL, true },
-		{ "Change Rear Bumper", NULL, NULL, true },
-		{ "Change Grille", NULL, NULL, true },
-		{ "Change Side Skirts", NULL, NULL, true },
-		{ "Change Roof", NULL, NULL, true },
-		{ "Change Window Tint", NULL, NULL, true },
-		{ "Change Fenders", NULL, NULL, true },
-		{ "Change Rollcage", NULL, NULL, true },
-		{ "Change License Plate Type", NULL, NULL, true },
-		{ "Add Xenon Headlights", NULL, NULL, true },
-		{ "Change Wheel Category", NULL, NULL, true },
-		{ "Change Wheels", NULL, NULL, true },
-		{ "Custom Tires", NULL, NULL, true },
-		{ "Remove All Upgrades", NULL, NULL, true }
-	};
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVehMod, caption, onconfirm_vehmod_menu);
+	std::vector<MenuItem<int>*> menuItems;
+
+	MenuItem<int> *item1 = new MenuItem<int>();
+	item1->caption = "Add All Performance Upgrades";
+	item1->value = -1;
+	item1->isLeaf = true;
+	menuItems.push_back(item1);
+
+	MenuItem<int> *item2 = new MenuItem<int>();
+	item2->caption = "Add All Armor Upgrades";
+	item2->value = -2;
+	item2->isLeaf = true;
+	menuItems.push_back(item2);
+
+	MenuItem<int> *item3 = new MenuItem<int>();
+	item3->caption = "Remove All Upgrades";
+	item3->value = -3;
+	item3->isLeaf = true;
+	menuItems.push_back(item3);
+
+	for (int i = 0; i < 30; i++)
+	{
+		if (i == 23 || i == 24 || i == 21)
+		{
+			continue;
+		}
+
+		bool iFound = false;
+		int compIndex = i;
+
+		int mods = VEHICLE::GET_NUM_VEHICLE_MODS(veh, i);
+		if (mods > 0)
+		{
+			std::ostringstream ss;
+			//ss << "Slot " << (compIndex + 1) << ": ";
+			ss << getModCategoryName(i) << " (" << (mods + 1) << ")";
+
+			MenuItem<int> *item = new MenuItem<int>();
+			item->caption = ss.str();
+			item->value = compIndex;
+			item->isLeaf = false;
+			menuItems.push_back(item);
+		}
+	}
+
+	int tintCount = VEHICLE::GET_NUM_VEHICLE_WINDOW_TINTS();
+	MenuItem<int> *item = new MenuItem<int>();
+	std::ostringstream ss;
+	ss << getModCategoryName(SPECIAL_ID_FOR_WINDOW_TINT) << " (" << tintCount << ")";
+	item->caption = ss.str();
+	item->value = SPECIAL_ID_FOR_WINDOW_TINT;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	ss.str(""); ss.clear();
+
+	int plateCount = VEHICLE::GET_NUMBER_OF_VEHICLE_NUMBER_PLATES();
+	item = new MenuItem<int>();
+	ss << getModCategoryName(SPECIAL_ID_FOR_LICENSE_PLATES) << " (" << plateCount << ")";
+	item->caption = ss.str();
+	item->value = SPECIAL_ID_FOR_LICENSE_PLATES;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	ss.str(""); ss.clear();
+
+	if (!VEHICLE::IS_THIS_MODEL_A_BIKE(ENTITY::GET_ENTITY_MODEL(veh)) )
+	{
+		item = new MenuItem<int>();
+		ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_CATEGORY) << " (" << WHEEL_CATEGORY_COUNT << ")";
+		item->caption = ss.str();
+		item->value = SPECIAL_ID_FOR_WHEEL_CATEGORY;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+
+		ss.str(""); ss.clear();
+	}
+
+	int wheelCount = 0;
+	int wheelType = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
+	if (wheelType == 6)
+	{
+		wheelCount = WHEEL_CATEGORY_COUNT_BIKE;
+	}
+	else if (wheelType == 7)
+	{
+		wheelCount = WHEEL_CATEGORY_COUNTS[6];
+	}
+	else
+	{
+		wheelCount = WHEEL_CATEGORY_COUNTS[wheelType];
+	}
+
+	item = new MenuItem<int>();
+	ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_SELECTION) << " (" << wheelCount << ")";
+	item->caption = ss.str();
+	item->value = SPECIAL_ID_FOR_WHEEL_SELECTION;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	ss.str(""); ss.clear();
+
+	FunctionDrivenToggleMenuItem<int> *toggleItem = new FunctionDrivenToggleMenuItem<int>();
+	toggleItem->caption = "Toggle Custom Tires";
+	toggleItem->getter_call = is_custom_tyres;
+	toggleItem->setter_call = set_custom_tyres;
+	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new FunctionDrivenToggleMenuItem<int>();
+	toggleItem->caption = "Toggle Turbocharger";
+	toggleItem->getter_call = is_turbocharged;
+	toggleItem->setter_call = set_turbocharged;
+	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new FunctionDrivenToggleMenuItem<int>();
+	toggleItem->caption = "Toggle Bulletproof Tires";
+	toggleItem->getter_call = is_bulletproof_tyres;
+	toggleItem->setter_call = set_bulletproof_tyres;
+	toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+	menuItems.push_back(toggleItem);
+
+	for (int i = 1; i < 10; i++)
+	{
+		if (!VEHICLE::DOES_EXTRA_EXIST(veh, i))
+		{
+			continue;
+		}
+
+		ss << "Toggle Extra #" << i;
+		toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = ss.str();
+		toggleItem->getter_call = is_extra_enabled;
+		toggleItem->setter_call = set_extra_enabled;
+		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+		toggleItem->extra_arguments.push_back(i);
+		menuItems.push_back(toggleItem);
+	}
+
+	draw_generic_menu<int>(menuItems, 0, "Vehicle Mods", onconfirm_vehmod_menu, NULL, NULL);
 	return false;
+}
+
+bool is_custom_tyres(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	int tyreCount = VEHICLE::GET_VEHICLE_MOD_VARIATION(veh, 23);
+	return (tyreCount != 0);
+}
+
+void set_custom_tyres(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+	int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 23);
+	VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, applied); //Add Custom Tires
+	VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, applied); //Add Custom Tires (For bike rear wheels if they exist)
+	set_status_text("Changed Tires");
+}
+
+bool is_turbocharged(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	return VEHICLE::IS_TOGGLE_MOD_ON(veh, 18) ? true : false;
+}
+
+void set_turbocharged(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	VEHICLE::TOGGLE_VEHICLE_MOD(veh, 18, applied); //Turbo Tuning
+}
+
+bool is_bulletproof_tyres(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	return VEHICLE::GET_VEHICLE_TYRES_CAN_BURST(veh) ? false : true;
+}
+
+void set_bulletproof_tyres(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, !applied); //Bulletproof Tires
+}
+
+bool is_extra_enabled(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	int extraIndex = extras.at(0);
+	return VEHICLE::IS_VEHICLE_EXTRA_TURNED_ON(veh, extraIndex) ? true : false;
+}
+
+void set_extra_enabled(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	int extraIndex = extras.at(0);
+	VEHICLE::SET_VEHICLE_EXTRA(veh, extraIndex, applied);
 }

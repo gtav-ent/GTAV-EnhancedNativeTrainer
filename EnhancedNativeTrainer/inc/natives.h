@@ -1293,8 +1293,13 @@ namespace VEHICLE
 	static void REMOVE_VEHICLE_MOD(Any p0, Any p1) { invoke<Void>(0x92D619E420858204, p0, p1); } // 92D619E420858204 9CC80A43
 	static void TOGGLE_VEHICLE_MOD(Any p0, Any p1, BOOL p2) { invoke<Void>(0x2A1F4F37F95BAD08, p0, p1, p2); } // 2A1F4F37F95BAD08 D095F811
 	static BOOL IS_TOGGLE_MOD_ON(Any p0, Any p1) { return invoke<BOOL>(0x84B233A8C8FC8AE7, p0, p1); } // 84B233A8C8FC8AE7 F0E1689F
+
+	//Added
+	static char* GET_MOD_TEXT_LABEL(Vehicle vehicle, int ModType, int ModValue) { return invoke<char*>(0x8935624F8C5592CC, vehicle, ModType, ModValue); }
+	static int GET_NUM_VEHICLE_WINDOW_TINTS() { return invoke<int>(0x9D1224004B3A6707); } // 84B233A8C8FC8AE7 F0E1689F
+
 	static Any GET_MOD_TEXT_LABEL(Any p0, Any p1, Any p2) { return invoke<Any>(0x8935624F8C5592CC, p0, p1, p2); } // 8935624F8C5592CC 0BA39CA7
-	static Any GET_MOD_SLOT_NAME(Any p0, Any p1) { return invoke<Any>(0x51F0FEB9F6AE98C0, p0, p1); } // 51F0FEB9F6AE98C0 5E113483
+	static char *GET_MOD_SLOT_NAME(Any p0, Any p1) { return invoke<char *>(0x51F0FEB9F6AE98C0, p0, p1); } // 51F0FEB9F6AE98C0 5E113483
 	static Any GET_LIVERY_NAME(Any p0, Any p1) { return invoke<Any>(0xB4C7A93837C91A1F, p0, p1); } // B4C7A93837C91A1F ED80B5BE
 	static Any GET_VEHICLE_MOD_MODIFIER_VALUE(Any p0, Any p1, Any p2) { return invoke<Any>(0x90A38E9838E0A8C1, p0, p1, p2); } // 90A38E9838E0A8C1 73AE5505
 	static Any _0x4593CF82AA179706(Any p0, Any p1, Any p2) { return invoke<Any>(0x4593CF82AA179706, p0, p1, p2); } // 4593CF82AA179706 94850968
@@ -2937,7 +2942,10 @@ namespace UI
 	static Any _0x169BD9382084C8C0(Any *p0, Any p1, Any p2) { return invoke<Any>(0x169BD9382084C8C0, p0, p1, p2); } // 169BD9382084C8C0 34A396EE
 	static Any _0xB2798643312205C5(Any *p0, Any p1, Any p2, Any p3) { return invoke<Any>(0xB2798643312205C5, p0, p1, p2, p3); } // B2798643312205C5 0183A66C
 	static Any _0xCE94AEBA5D82908A(Any *p0, Any p1, Any p2) { return invoke<Any>(0xCE94AEBA5D82908A, p0, p1, p2); } // CE94AEBA5D82908A FA6373BB
-	static Any _0x7B5280EBA9840C72(Any *p0) { return invoke<Any>(0x7B5280EBA9840C72, p0); } // 7B5280EBA9840C72 95C4B5AD
+
+	//Modified
+	static char* GET_LABEL_TEXT(char *p0) { return invoke<char*>(0x7B5280EBA9840C72, p0); } // 7B5280EBA9840C72 95C4B5AD
+
 	static void CLEAR_PRINTS() { invoke<Void>(0xCC33FA791322B9D9); } // CC33FA791322B9D9 216CB1C5
 	static void CLEAR_BRIEF() { invoke<Void>(0x9D292F73ADBD9313); } // 9D292F73ADBD9313 9F75A929
 	static void CLEAR_ALL_HELP_MESSAGES() { invoke<Void>(0x6178F68A87A4D3A0); } // 6178F68A87A4D3A0 9E5D9198

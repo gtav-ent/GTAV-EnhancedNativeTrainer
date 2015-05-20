@@ -51,3 +51,21 @@ bool process_paint_menu_type();
 bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
 
 void onhighlight_color_menu_selection(MenuItem<std::string> choice);
+
+//Vehicle mod getters and setters
+
+bool is_custom_tyres(std::vector<int> extras);
+
+void set_custom_tyres(bool applied, std::vector<int> extras);
+
+bool is_turbocharged(std::vector<int> extras);
+
+void set_turbocharged(bool applied, std::vector<int> extras);
+
+bool is_bulletproof_tyres(std::vector<int> extras);
+
+void set_bulletproof_tyres(bool applied, std::vector<int> extras);
+
+bool is_extra_enabled(std::vector<int> extras);
+
+void set_extra_enabled(bool applied, std::vector<int> extras);
