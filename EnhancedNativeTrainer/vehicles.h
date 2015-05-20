@@ -44,10 +44,38 @@ bool onconfirm_spawn_menu_vehicle_selection(MenuItem<std::string> choice);
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle);
 
+//Paint menus
+
 bool process_paint_menu();
 
 bool process_paint_menu_type();
 
+bool process_paint_menu_liveries();
+
 bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
 
 void onhighlight_color_menu_selection(MenuItem<std::string> choice);
+
+//Vehicle mod getters and setters
+
+bool is_custom_tyres(std::vector<int> extras);
+
+void set_custom_tyres(bool applied, std::vector<int> extras);
+
+bool is_turbocharged(std::vector<int> extras);
+
+void set_turbocharged(bool applied, std::vector<int> extras);
+
+bool is_bulletproof_tyres(std::vector<int> extras);
+
+void set_bulletproof_tyres(bool applied, std::vector<int> extras);
+
+bool is_xenon_headlights(std::vector<int> extras);
+
+void set_xenon_headlights(bool applied, std::vector<int> extras);
+
+bool is_extra_enabled(std::vector<int> extras);
+
+void set_extra_enabled(bool applied, std::vector<int> extras);
+
+int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);

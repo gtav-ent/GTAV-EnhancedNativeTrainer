@@ -233,7 +233,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 				VEHICLE::SET_VEHICLE_UNDRIVEABLE(veh, false);
 				VEHICLE::SET_VEHICLE_ENGINE_CAN_DEGRADE(veh, false);
-				
+
 				VEHICLE::SET_VEHICLE_ENGINE_ON(veh, true, true);
 
 				set_status_text("Vehicle Repaired");
@@ -265,7 +265,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		//	}
 		//}
 		break;
-	
+
 	case 8:
 		if (process_vehmod_menu()) return false;
 		break;
@@ -313,9 +313,13 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 1);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 1);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 1);
+			for (int i = 0; i < 6; i++){
+				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, TRUE); //(Vehicle, doorIndex, isBreakable)
+			}
+			featureVehInvincibleUpdated = false;
 		}
-		featureVehInvincibleUpdated = false;
 	}
+
 	if (featureVehInvincible)
 	{
 		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -326,13 +330,16 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 0);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 0);
+			for (int i = 0; i < 6; i++){
+				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, FALSE); //(Vehicle, doorIndex, isBreakable)
+			}
 		}
 	}
 
 	// fall off
 	if (bPlayerExists && featureNoVehFallOffUpdated && !featureNoVehFallOff)
 	{
-		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 0 );
+		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 0);
 		featureNoVehFallOffUpdated = false;
 	}
 	else if (bPlayerExists && featureNoVehFallOff)
@@ -521,18 +528,22 @@ bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 	{
 		STREAMING::REQUEST_MODEL(model);
 		while (!STREAMING::HAS_MODEL_LOADED(model)) WAIT(0);
+		FLOAT lookDir = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
 		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 5.0, 0.0);
-		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, 0.0, 1, 0);
+		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, lookDir, 1, 0);
 
-		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(veh) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
-		{
-			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh);
-		}
+		//		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
+		//		{
+		//			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh); //returns BOOL of Vehicle on ground status.
+		//		}
 
 		if (featureVehSpawnInto)
 		{
-			ENTITY::SET_ENTITY_HEADING(veh, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
 			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
+			if (VEHICLE::IS_THIS_MODEL_A_HELI(ENTITY::GET_ENTITY_MODEL(veh)) || VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)))
+			{
+				VEHICLE::SET_HELI_BLADES_FULL_SPEED(PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()));
+			}
 			lastSeenInVehicle = true;
 		}
 

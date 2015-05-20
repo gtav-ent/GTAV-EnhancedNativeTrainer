@@ -64,12 +64,35 @@ public:
 	bool *toggleValue = NULL;
 	bool *toggleValueUpdated = NULL;
 
-	bool get_toggle_value()
+	virtual bool get_toggle_value()
 	{
 		return *toggleValue;
 	}
 
 	virtual void onConfirm();
+};
+
+template<class T>
+class FunctionDrivenToggleMenuItem : public ToggleMenuItem < T >
+{
+public:
+
+	virtual ~FunctionDrivenToggleMenuItem() {}
+
+	bool(*getter_call)(std::vector<int> extras);
+	void(*setter_call)(bool, std::vector<T> extras);
+
+	std::vector<T> extra_arguments;
+
+	virtual bool get_toggle_value()
+	{
+		return getter_call(extra_arguments);
+	}
+
+	virtual void onConfirm()
+	{
+		setter_call(!getter_call(extra_arguments), extra_arguments);
+	}
 };
 
 template<class T>
@@ -475,6 +498,10 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 	if (menuSelectionPtr != 0)
 	{
 		if (*menuSelectionPtr >= totalItems)
+		{
+			*menuSelectionPtr = 0;
+		}
+		else if (*menuSelectionPtr < 0)
 		{
 			*menuSelectionPtr = 0;
 		}
