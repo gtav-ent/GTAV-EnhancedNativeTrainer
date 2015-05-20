@@ -313,7 +313,9 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 1);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 1);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 1);
-		}
+			for ( int i = 0 ; i < 6 ; i++ ){
+				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, TRUE); //(Vehicle, doorIndex, isBreakable)
+			}
 		featureVehInvincibleUpdated = false;
 	}
 	if (featureVehInvincible)
@@ -326,6 +328,9 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 0);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 0);
+			for ( int i = 0 ; i < 6 ; i++ ){
+				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, FALSE); //(Vehicle, doorIndex, isBreakable)
+			}
 		}
 	}
 
