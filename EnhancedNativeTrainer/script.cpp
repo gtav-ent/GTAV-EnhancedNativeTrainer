@@ -719,6 +719,8 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 	{
 		ENTITY::SET_ENTITY_HEALTH(playerPed, ENTITY::GET_ENTITY_MAX_HEALTH(playerPed));
 		PED::ADD_ARMOUR_TO_PED(playerPed, PLAYER::GET_PLAYER_MAX_ARMOUR(player) - PED::GET_PED_ARMOUR(playerPed));
+		PED::SET_PED_WETNESS_HEIGHT(playerPed, -1.0);
+		PED::CLEAR_PED_BLOOD_DAMAGE(playerPed);
 		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 		{
 			Vehicle playerVeh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
