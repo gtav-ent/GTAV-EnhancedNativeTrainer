@@ -526,18 +526,22 @@ bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 	{
 		STREAMING::REQUEST_MODEL(model);
 		while (!STREAMING::HAS_MODEL_LOADED(model)) WAIT(0);
+		FLOAT lookDir = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
 		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 5.0, 0.0);
-		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, 0.0, 1, 0);
+		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, lookDir, 1, 0);
 
-		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(veh) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
-		{
-			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh);
-		}
+//		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
+//		{
+//			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh); //returns BOOL of Vehicle on ground status.
+//		}
 
 		if (featureVehSpawnInto)
 		{
-			ENTITY::SET_ENTITY_HEADING(veh, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
 			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
+			if (VEHICLE::IS_THIS_MODEL_A_HELI(ENTITY::GET_ENTITY_MODEL(veh)) || VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)))
+			{
+				VEHICLE::SET_HELI_BLADES_FULL_SPEED(PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()));
+			}
 			lastSeenInVehicle = true;
 		}
 
