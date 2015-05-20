@@ -20,13 +20,11 @@ const std::vector<std::string> MENU_PAINT_WHAT{ "Primary Color", "Secondary Colo
 
 
 //Paint Names
-const std::vector<std::string> MENU_PAINT_TYPE{ "Metallic", "Normal", "Pearlescent", "Matte", "Metal", "Chrome", "Wheel Colors" }; 
+const std::vector<std::string> MENU_PAINT_TYPE{ "Metallic", "Normal", "Matte", "Metal", "Chrome", "Wheel Colors" };
 
 const std::vector<std::string> CAPTIONS_NORMAL{ "Black", "Carbon Black", "Graphite Black", "Anthracite Black", "Black Steel", "Dark Steel", "Silver", "Bluish Silver", "Rolled Steel", "Shadow Silver", "Stone Silver", "Midnight Silver", "Cast Iron Silver", "Red", "Torino Red", "Formula Red", "Lava Red", "Blaze Red", "Grace Red", "Garnet Red", "Sunset Red", "Cabernet Red", "Wine Red", "Candy Red", "Hot Pink", "Pfister Pink", "Salmon Pink", "Sunrise Orange", "Orange", "Bright Orange", "Gold", "Bronze", "Yellow", "Race Yellow", "Dew Yellow", "Dark Green", "Racing Green", "Sea Green", "Olive Green", "Bright Green", "Gasoline Green", "Lime Green", "Midnight Blue", "Galaxy Blue", "Dark Blue", "Saxon Blue", "Blue", "Mariner Blue", "Harbor Blue", "Diamond Blue", "Surf Blue", "Nautical Blue", "Racing Blue", "Ultra Blue", "Light Blue", "Chocolate Brown", "Bison Brown", "Creek Brown", "Feltzer Brown", "Maple Brown", "Beechwood Brown", "Sienna Brown", "Saddle Brown", "Moss Brown", "Woodbeech Brown", "Straw Brown", "Sandy Brown", "Bleached Brown", "Schafter Purple", "Spinnaker Purple", "Midnight Purple", "Bright Purple", "Cream", "Ice White", "Frost White" };
 
 const std::vector<std::string> CAPTIONS_METALLIC{ "Black", "Carbon Black", "Graphite Black", "Anthracite Black", "Black Steel", "Dark Steel", "Silver", "Bluish Silver", "Rolled Steel", "Shadow Silver", "Stone Silver", "Midnight Silver", "Cast Iron Silver", "Red", "Torino Red", "Formula Red", "Lava Red", "Blaze Red", "Grace Red", "Garnet Red", "Sunset Red", "Cabernet Red", "Wine Red", "Candy Red", "Hot Pink", "Pfister Pink", "Salmon Pink", "Sunrise Orange", "Orange", "Bright Orange", "Gold", "Bronze", "Yellow", "Race Yellow", "Dew Yellow", "Dark Green", "Racing Green", "Sea Green", "Olive Green", "Bright Green", "Gasoline Green", "Lime Green", "Midnight Blue", "Galaxy Blue", "Dark Blue", "Saxon Blue", "Blue", "Mariner Blue", "Harbor Blue", "Diamond Blue", "Surf Blue", "Nautical Blue", "Racing Blue", "Ultra Blue", "Light Blue", "Chocolate Brown", "Bison Brown", "Creek Brown", "Feltzer Brown", "Maple Brown", "Beechwood Brown", "Sienna Brown", "Saddle Brown", "Moss Brown", "Woodbeech Brown", "Straw Brown", "Sandy Brown", "Bleached Brown", "Schafter Purple", "Spinnaker Purple", "Midnight Purple", "Bright Purple", "Cream", "Ice White", "Frost White" };
-
-const std::vector<std::string> CAPTIONS_PEARL{ "Black", "Carbon Black", "Graphite Black", "Anthracite Black", "Black Steel", "Dark Steel", "Silver", "Bluish Silver", "Rolled Steel", "Shadow Silver", "Stone Silver", "Midnight Silver", "Cast Iron Silver", "Red", "Torino Red", "Formula Red", "Lava Red", "Blaze Red", "Grace Red", "Garnet Red", "Sunset Red", "Cabernet Red", "Wine Red", "Candy Red", "Hot Pink", "Pfister Pink", "Salmon Pink", "Sunrise Orange", "Orange", "Bright Orange", "Gold", "Bronze", "Yellow", "Race Yellow", "Dew Yellow", "Dark Green", "Racing Green", "Sea Green", "Olive Green", "Bright Green", "Gasoline Green", "Lime Green", "Midnight Blue", "Galaxy Blue", "Dark Blue", "Saxon Blue", "Blue", "Mariner Blue", "Harbor Blue", "Diamond Blue", "Surf Blue", "Nautical Blue", "Racing Blue", "Ultra Blue", "Light Blue", "Chocolate Brown", "Bison Brown", "Creek Brown", "Feltzer Brown", "Maple Brown", "Beechwood Brown", "Sienna Brown", "Saddle Brown", "Moss Brown", "Woodbeech Brown", "Straw Brown", "Sandy Brown", "Bleached Brown", "Schafter Purple", "Spinnaker Purple", "Midnight Purple", "Bright Purple", "Cream", "Ice White", "Frost White" };
 
 const std::vector<std::string> CAPTIONS_MATTE{ "Black", "Gray", "Light Gray", "Ice White", "Blue", "Dark Blue", "Midnight Blue", "Midnight Purple", "Schafter Purple", "Red", "Dark Red", "Orange", "Yellow", "Lime Green", "Green", "Forest Green", "Foliage Green", "Olive Drab", "Dark Earth", "Desert Tan" };
 
@@ -42,8 +40,6 @@ const std::vector<std::string> VALUES_NORMAL{ "0", "1", "2", "3", "4", "5", "6",
 
 const std::vector<std::string> VALUES_METALLIC{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74" };
 
-const std::vector<std::string> VALUES_PEARL{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74" };
-
 const std::vector<std::string> VALUES_MATTE{ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19" };
 
 const std::vector<std::string> VALUES_METAL{ "0", "1", "2", "3", "4" };
@@ -53,15 +49,26 @@ const std::vector<std::string> VALUES_CHROME{ "0" };
 const std::vector<std::string> VALUES_WHEELS{ "156", "0", "1", "11", "2", "8", "122", "27", "30", "45", "35", "33", "136", "135", "36", "41", "138", "37", "99", "90", "95", "115", "109", "153", "154", "88", "89", "91", "55", "125", "53", "56", "151", "82", "64", "87", "70", "140", "81", "145", "142" };
 
 
-const std::vector<std::string> VOV_PAINT_CAPTIONS[] = { CAPTIONS_METALLIC, CAPTIONS_NORMAL, CAPTIONS_PEARL, CAPTIONS_MATTE, CAPTIONS_METAL, CAPTIONS_CHROME, CAPTIONS_WHEELS };
-const std::vector<std::string> VOV_PAINT_VALUES[] = { VALUES_METALLIC, VALUES_NORMAL, VALUES_PEARL, VALUES_MATTE, VALUES_METAL, VALUES_CHROME, VALUES_WHEELS };
+const std::vector<std::string> VOV_PAINT_CAPTIONS[] = { CAPTIONS_METALLIC, CAPTIONS_NORMAL, CAPTIONS_MATTE, CAPTIONS_METAL, CAPTIONS_CHROME, CAPTIONS_WHEELS };
+const std::vector<std::string> VOV_PAINT_VALUES[] = { VALUES_METALLIC, VALUES_NORMAL, VALUES_MATTE, VALUES_METAL, VALUES_CHROME, VALUES_WHEELS };
 
 
 
 bool onconfirm_paint_menu(MenuItem<int> choice)
 {
 	::whichpart = choice.value;
-	process_paint_menu_type();
+	if (whichpart == 3) //Wheels
+	{
+		process_paint_menu_type();
+	}
+	else if (whichpart == 2) //Pearl topcoat
+	{
+		process_paint_menu_type();
+	}
+	else
+	{
+		process_paint_menu_type();
+	}
 	return false;
 }
 
@@ -93,6 +100,7 @@ bool onconfirm_paint_menu_type(MenuItem<int> choice)
 		menuItems.push_back(item);
 	}
 	::whichtype = choice.value;
+	if (whichtype > 1) { ::whichtype = whichtype + 1; }
 	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL);
 }
 
