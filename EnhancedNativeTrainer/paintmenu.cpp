@@ -52,7 +52,89 @@ const std::vector<std::string> VALUES_WHEELS{ "156", "0", "1", "11", "2", "8", "
 const std::vector<std::string> VOV_PAINT_CAPTIONS[] = { CAPTIONS_METALLIC, CAPTIONS_NORMAL, CAPTIONS_MATTE, CAPTIONS_METAL, CAPTIONS_CHROME, CAPTIONS_WHEELS };
 const std::vector<std::string> VOV_PAINT_VALUES[] = { VALUES_METALLIC, VALUES_NORMAL, VALUES_MATTE, VALUES_METAL, VALUES_CHROME, VALUES_WHEELS };
 
+void onhighlight_livery(MenuItem<int> choice)
+{
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 
+	if (!bPlayerExists)
+	{
+		return;
+	}
+
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		set_status_text("Player isn't in a vehicle");
+		return;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+	VEHICLE::SET_VEHICLE_LIVERY(veh, choice.value);
+}
+
+bool onconfirm_livery(MenuItem<int> choice)
+{
+	return false;
+}
+
+bool process_paint_menu_liveries()
+{
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+
+	if (!bPlayerExists)
+	{
+		return false;
+	}
+
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		set_status_text("Player isn't in a vehicle");
+		return false;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+	int count = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
+	if (count <= 1)
+	{
+		set_status_text("No liveries for this vehicle");
+	}
+
+	std::vector<MenuItem<int>*> menuItems;
+
+	for (int i = 0; i < count; i++)
+	{
+		std::string modItemNameStr;
+
+		char* modItemNameChr = VEHICLE::GET_LIVERY_NAME(veh, i);
+		if (modItemNameChr == NULL)
+		{
+			std::ostringstream ss;
+			ss << "Livery #" << (i+1);
+			modItemNameStr = ss.str();
+		}
+		else
+		{
+			modItemNameStr = std::string(modItemNameChr);
+		}
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = modItemNameStr;
+		item->value = i;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
+	int currentSelection = VEHICLE::GET_VEHICLE_LIVERY(veh);
+	return draw_generic_menu<int>(menuItems, &currentSelection, "Liveries", onconfirm_livery, onhighlight_livery, NULL);
+}
 
 bool onconfirm_paint_menu(MenuItem<int> choice)
 {
@@ -65,6 +147,10 @@ bool onconfirm_paint_menu(MenuItem<int> choice)
 	{
 		process_paint_menu_type();
 	}
+	else if (whichpart == -1)
+	{
+		process_paint_menu_liveries();
+	}
 	else
 	{
 		process_paint_menu_type();
@@ -74,12 +160,44 @@ bool onconfirm_paint_menu(MenuItem<int> choice)
 
 bool process_paint_menu()
 {
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+
+	if (!bPlayerExists)
+	{
+		return false;
+	}
+
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		set_status_text("Player isn't in a vehicle");
+		return false;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+	int liveryCount = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
+
 	std::vector<MenuItem<int>*> menuItems;
+
 	for (int i = 0; i < MENU_PAINT_WHAT.size(); i++)
 	{
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = MENU_PAINT_WHAT[i];
 		item->value = i;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
+	if (liveryCount > 1)
+	{
+		std::ostringstream ss;
+		ss << "Liveries (" << liveryCount << ")";
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = ss.str();
+		item->value = -1;
 		item->isLeaf = false;
 		menuItems.push_back(item);
 	}

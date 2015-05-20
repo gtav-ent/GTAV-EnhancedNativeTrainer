@@ -1298,9 +1298,10 @@ namespace VEHICLE
 	static char* GET_MOD_TEXT_LABEL(Vehicle vehicle, int ModType, int ModValue) { return invoke<char*>(0x8935624F8C5592CC, vehicle, ModType, ModValue); }
 	static int GET_NUM_VEHICLE_WINDOW_TINTS() { return invoke<int>(0x9D1224004B3A6707); } // 84B233A8C8FC8AE7 F0E1689F
 
-	static Any GET_MOD_TEXT_LABEL(Any p0, Any p1, Any p2) { return invoke<Any>(0x8935624F8C5592CC, p0, p1, p2); } // 8935624F8C5592CC 0BA39CA7
+	//Modified
 	static char *GET_MOD_SLOT_NAME(Any p0, Any p1) { return invoke<char *>(0x51F0FEB9F6AE98C0, p0, p1); } // 51F0FEB9F6AE98C0 5E113483
-	static Any GET_LIVERY_NAME(Any p0, Any p1) { return invoke<Any>(0xB4C7A93837C91A1F, p0, p1); } // B4C7A93837C91A1F ED80B5BE
+	static char* GET_LIVERY_NAME(Any p0, Any p1) { return invoke<char*>(0xB4C7A93837C91A1F, p0, p1); } // B4C7A93837C91A1F ED80B5BE
+
 	static Any GET_VEHICLE_MOD_MODIFIER_VALUE(Any p0, Any p1, Any p2) { return invoke<Any>(0x90A38E9838E0A8C1, p0, p1, p2); } // 90A38E9838E0A8C1 73AE5505
 	static Any _0x4593CF82AA179706(Any p0, Any p1, Any p2) { return invoke<Any>(0x4593CF82AA179706, p0, p1, p2); } // 4593CF82AA179706 94850968
 	static void PRELOAD_VEHICLE_MOD(Any p0, Any p1, Any p2) { invoke<Void>(0x758F49C24925568A, p0, p1, p2); } // 758F49C24925568A 6EA5F4A8

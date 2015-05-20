@@ -44,9 +44,13 @@ bool onconfirm_spawn_menu_vehicle_selection(MenuItem<std::string> choice);
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle);
 
+//Paint menus
+
 bool process_paint_menu();
 
 bool process_paint_menu_type();
+
+bool process_paint_menu_liveries();
 
 bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
 
