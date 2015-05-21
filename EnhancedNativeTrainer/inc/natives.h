@@ -631,7 +631,10 @@ namespace PED
 	static Any GET_PED_TEXTURE_VARIATION(Any p0, Any p1) { return invoke<Any>(0x04A355E041E004E6, p0, p1); } // 04A355E041E004E6 C0A8590A
 	static Any GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(Any p0, Any p1, Any p2) { return invoke<Any>(0x8F7156A3142A6BAD, p0, p1, p2); } // 8F7156A3142A6BAD 83D9FBE7
 	static Any _0x5FAF9754E789FB47(Any p0, Any p1) { return invoke<Any>(0x5FAF9754E789FB47, p0, p1); } // 5FAF9754E789FB47 C9780B95
-	static Any REMOVE_NIGHTVISION_MELEE(Any p0, Any p1, Any p2) { return invoke<Any>(0xA6E7F1CEB523E171, p0, p1, p2); } // A6E7F1CEB523E171 4892B882
+
+	//Modified - was 'remove_nightvision_melee'
+	static int GET_NUMBER_OF_PED_PROP_TEXTURE_VARIATIONS(Ped ped, int propId, int drawableId) { return invoke<Any>(0xA6E7F1CEB523E171, ped, propId, drawableId); } // A6E7F1CEB523E171 4892B882
+
 	static int GET_PED_PALETTE_VARIATION(Any p0, Any p1) { return invoke<int>(0xE3DD5F2A84B42281, p0, p1); } // E3DD5F2A84B42281 EF1BC082
 	static BOOL IS_PED_COMPONENT_VARIATION_VALID(Any p0, Any p1, Any p2, Any p3) { return invoke<BOOL>(0xE825F6B6CEA7671D, p0, p1, p2, p3); } // E825F6B6CEA7671D 952ABD9A
 	static void SET_PED_COMPONENT_VARIATION(Any p0, Any p1, Any p2, Any p3, Any p4) { invoke<Void>(0x262B14F48D29DE80, p0, p1, p2, p3, p4); } // 262B14F48D29DE80 D4F7B05C

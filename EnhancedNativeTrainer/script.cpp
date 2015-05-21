@@ -35,6 +35,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <cctype>
 #include <vector>
 
+#include <locale>
+#include <iostream>
+#include <iomanip>
+
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
 const bool DEBUG_LOG_ENABLED = false;
@@ -108,6 +112,21 @@ static LPCSTR weaponNames[] = {
 	"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN"
 };
 
+//Ensures numbers are formatted with commas, not the locale option
+class comma_numpunct : public std::numpunct<char>
+{
+protected:
+	virtual char do_thousands_sep() const
+	{
+		return ',';
+	}
+
+	virtual std::string do_grouping() const
+	{
+		return "\03";
+	}
+};
+
 void check_player_model()
 {
 	// common variables
@@ -130,7 +149,7 @@ void check_player_model()
 			}
 		}
 
-		if (!found && is_custom_skin_applied())
+		if (!found)
 		{
 			set_status_text("Resetting player model");
 			model = GAMEPLAY::GET_HASH_KEY("player_zero");
@@ -1144,8 +1163,6 @@ void reset_globals()
 	featureWorldRandomTrains	=
 	featureWorldRandomBoats		=
 	featureWorldGarbageTrucks	=	true;
-
-	set_custom_skin_applied(false);
 }
 
 void main()
@@ -1153,6 +1170,15 @@ void main()
 	reset_globals();
 
 	set_periodic_feature_call(update_features);
+
+	// this creates a new locale based on the current application default
+	// (which is either the one given on startup, but can be overriden with
+	// std::locale::global) - then extends it with an extra facet that 
+	// controls numeric output.
+	std::locale comma_locale(std::locale(), new comma_numpunct());
+
+	// tell cout to use our new locale.
+	std::cout.imbue(comma_locale);
 
 	while (true)
 	{

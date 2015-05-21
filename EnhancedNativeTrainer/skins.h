@@ -15,6 +15,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "inc\enums.h"
 
 #include "inc\main.h"
+#include "menu_functions.h"
 
 #include <string>
 
@@ -30,10 +31,10 @@ bool applyChosenSkin(std::string skinName);
 
 void reset_skin_globals();
 
-bool is_custom_skin_applied();
-
-void set_custom_skin_applied(bool applied);
-
 bool process_skinchanger_menu();
 
 bool process_prop_menu();
+
+bool onconfirm_props_texture_menu(MenuItem<int> choice);
+
+void onhighlight_props_texture_menu(MenuItem<int> choice);
