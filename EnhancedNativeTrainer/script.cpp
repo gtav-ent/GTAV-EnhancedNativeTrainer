@@ -35,6 +35,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <cctype>
 #include <vector>
 
+#include <locale>
+#include <iostream>
+#include <iomanip>
+
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
 const bool DEBUG_LOG_ENABLED = false;
@@ -61,15 +65,6 @@ bool featurePlayerInvisibleUpdated		=	false;
 bool featurePlayerRadio					=	false;
 bool featurePlayerRadioUpdated			=	false;
 
-bool featureWeaponInfiniteAmmo			=	false;
-bool featureWeaponNoReload				=	false;
-bool featureWeaponFireAmmo				=	false;
-bool featureWeaponExplosiveAmmo			=	false;
-bool featureWeaponExplosiveMelee		=	false;
-bool featureWeaponVehRockets			=	false;
-
-DWORD featureWeaponVehShootLastTime		=	0;
-
 bool featureWorldMoonGravity			=	false;
 bool featureWorldRandomCops				=	true;
 bool featureWorldRandomTrains			=	true;
@@ -95,17 +90,19 @@ int  frozenWantedLevel					=	0;
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
 
-static LPCSTR weaponNames[] = {
-	"WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR", "WEAPON_BOTTLE",
-	"WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_MICROSMG", "WEAPON_SMG",
-	"WEAPON_ASSAULTSMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_MG",
-	"WEAPON_COMBATMG", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_BULLPUPSHOTGUN",
-	"WEAPON_STUNGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_GRENADELAUNCHER", "WEAPON_GRENADELAUNCHER_SMOKE",
-	"WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_GRENADE", "WEAPON_STICKYBOMB", "WEAPON_SMOKEGRENADE", "WEAPON_FLAREGUN", "WEAPON_FLARE",
-	"WEAPON_MOLOTOV", "WEAPON_FIREEXTINGUISHER", "WEAPON_PETROLCAN",
-	"WEAPON_SNSPISTOL", "WEAPON_SPECIALCARBINE", "WEAPON_HEAVYPISTOL", "WEAPON_BULLPUPRIFLE", "WEAPON_HOMINGLAUNCHER",
-	"WEAPON_PROXMINE", "WEAPON_SNOWBALL", "WEAPON_VINTAGEPISTOL", "WEAPON_DAGGER", "WEAPON_FIREWORK", "WEAPON_MUSKET",
-	"WEAPON_MARKSMANRIFLE", "WEAPON_HEAVYSHOTGUN", "WEAPON_GUSENBERG", "WEAPON_HATCHET", "WEAPON_RAILGUN"
+//Ensures numbers are formatted with commas, not the locale option
+class comma_numpunct : public std::numpunct<char>
+{
+protected:
+	virtual char do_thousands_sep() const
+	{
+		return ',';
+	}
+
+	virtual std::string do_grouping() const
+	{
+		return "\03";
+	}
 };
 
 void check_player_model()
@@ -130,7 +127,7 @@ void check_player_model()
 			}
 		}
 
-		if (!found && is_custom_skin_applied())
+		if (!found)
 		{
 			set_status_text("Resetting player model");
 			model = GAMEPLAY::GET_HASH_KEY("player_zero");
@@ -149,46 +146,6 @@ void check_player_model()
 		{
 			WAIT(0);
 		}
-	}
-}
-
-void update_vehicle_guns()
-{
-	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();	
-
-	if (!ENTITY::DOES_ENTITY_EXIST(playerPed) || !featureWeaponVehRockets) return;
-
-	bool bSelect = IsKeyDown(get_config()->get_key_config()->key_veh_rockets);
-	if (bSelect && featureWeaponVehShootLastTime + 150 < GetTickCount() &&
-		PLAYER::IS_PLAYER_CONTROL_ON(player) &&	PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-	{
-		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-
-		Vector3 v0, v1;
-		GAMEPLAY::GET_MODEL_DIMENSIONS(ENTITY::GET_ENTITY_MODEL(veh), &v0, &v1);
-
-		Hash weaponAssetRocket = GAMEPLAY::GET_HASH_KEY("WEAPON_VEHICLE_ROCKET");
-		if (!WEAPON::HAS_WEAPON_ASSET_LOADED(weaponAssetRocket))
-		{
-			WEAPON::REQUEST_WEAPON_ASSET(weaponAssetRocket, 31, 0);
-			while (!WEAPON::HAS_WEAPON_ASSET_LOADED(weaponAssetRocket))
-				WAIT(0);
-		}
-
-		Vector3 coords0from = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh, -(v1.x + 0.25f), v1.y + 1.25f, 0.1);
-		Vector3 coords1from = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh,  (v1.x + 0.25f), v1.y + 1.25f, 0.1);
-		Vector3 coords0to = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh, -v1.x, v1.y + 100.0f, 0.1f);
-		Vector3 coords1to = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh,  v1.x, v1.y + 100.0f, 0.1f);
-
-		GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(coords0from.x, coords0from.y, coords0from.z, 
-													 coords0to.x, coords0to.y, coords0to.z, 
-													 250, 1, weaponAssetRocket, playerPed, 1, 0, -1.0);
-		GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(coords1from.x, coords1from.y, coords1from.z, 
-													 coords1to.x, coords1to.y, coords1to.z, 
-													 250, 1, weaponAssetRocket, playerPed, 1, 0, -1.0);
-
-		featureWeaponVehShootLastTime = GetTickCount();
 	}
 }
 
@@ -350,60 +307,7 @@ void update_features()
 			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(false);
 	}
 
-	// weapon
-	if (featureWeaponFireAmmo)
-	{
-		if (bPlayerExists)
-			GAMEPLAY::SET_FIRE_AMMO_THIS_FRAME(player);
-	}
-	if (featureWeaponExplosiveAmmo)
-	{
-		if (bPlayerExists)
-			GAMEPLAY::SET_EXPLOSIVE_AMMO_THIS_FRAME(player);
-	}
-	if (featureWeaponExplosiveMelee)
-	{
-		if (bPlayerExists)
-			GAMEPLAY::SET_EXPLOSIVE_MELEE_THIS_FRAME(player);
-	}
-
-	// infinite ammo
-	if (bPlayerExists && featureWeaponInfiniteAmmo)
-	{
-		for (int i = 0; i < sizeof(weaponNames) / sizeof(weaponNames[0]); i++)
-		{
-			Hash weapon = GAMEPLAY::GET_HASH_KEY((char *)weaponNames[i]);
-			
-			if (WEAPON::IS_WEAPON_VALID(weapon) && WEAPON::HAS_PED_GOT_WEAPON(playerPed, weapon, 0))
-			{
-				int ammo;
-
-				if (WEAPON::GET_MAX_AMMO(playerPed, weapon, &ammo))
-					WEAPON::SET_PED_AMMO(playerPed, weapon, ammo);
-			}
-		}
-	}
-
-	// weapon no reload
-	if (bPlayerExists && featureWeaponNoReload)
-	{
-		Hash cur;
-		if (WEAPON::GET_CURRENT_PED_WEAPON(playerPed, &cur, 1))
-		{
-			if (WEAPON::IS_WEAPON_VALID(cur))
-			{
-				int maxAmmo;
-				if (WEAPON::GET_MAX_AMMO(playerPed, cur, &maxAmmo))
-				{
-					WEAPON::SET_PED_AMMO(playerPed, cur, maxAmmo);
-
-					maxAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, cur, 1);
-					if (maxAmmo > 0)
-						WEAPON::SET_AMMO_IN_CLIP(playerPed, cur, maxAmmo);
-				}
-			}
-		}
-	}
+	update_weapon_features(bPlayerExists, playerPed);
 
 	update_vehicle_features(bPlayerExists, playerPed);
 
@@ -768,57 +672,6 @@ void process_player_menu()
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
 }
 
-int activeLineIndexWeapon = 0;
-
-bool onconfirm_weapon_menu(MenuItem<int> choice)
-{
-	// common variables
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-	switch (activeLineIndexWeapon)
-	{
-	case 0:
-		for (int i = 0; i < sizeof(weaponNames) / sizeof(weaponNames[0]); i++)
-		{
-			WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, GAMEPLAY::GET_HASH_KEY((char *)weaponNames[i]), 1000, 0);
-		}
-
-		//parachute
-		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
-
-		set_status_text("All weapons added");
-		break;
-		// switchable features
-	/*case 1:
-		process_weaponlist_menu();
-		break;*/
-	default:
-		break;
-	}
-	return false;
-}
-
-void process_weapon_menu()
-{
-	const int lineCount = 7;
-
-	std::string caption = "Weapon Options";
-
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Give All Weapons",	NULL,						  NULL, true},
-		//{"Add Weapon", NULL, NULL, true },
-		{"Infinite Ammo",	&featureWeaponInfiniteAmmo,	  NULL},
-		{"No Reload",		&featureWeaponNoReload,		  NULL},
-		{"Fire Ammo",		&featureWeaponFireAmmo,		  NULL},
-		{"Explosive Ammo",  &featureWeaponExplosiveAmmo,  NULL},
-		{"Explosive Melee", &featureWeaponExplosiveMelee, NULL},
-		{"Vehicle Rockets", &featureWeaponVehRockets,	  NULL}
-	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexWeapon, caption, onconfirm_weapon_menu);
-}
 
 //==================
 // WORLD MENU
@@ -1093,9 +946,10 @@ void reset_globals()
 
 	reset_teleporter_globals();
 
+	reset_weapon_globals();
+
 	activeLineIndexMain			=
 	activeLineIndexPlayer		=
-	activeLineIndexWeapon		=
 	activeLineIndexWorld		=
 	activeLineIndexWeather		=
 	activeLineIndexWantedFreeze	=
@@ -1124,12 +978,6 @@ void reset_globals()
 	featurePlayerInvisibleUpdated	=
 	featurePlayerRadio				=
 	featurePlayerRadioUpdated		=
-	featureWeaponInfiniteAmmo		=
-	featureWeaponNoReload			=
-	featureWeaponFireAmmo			=
-	featureWeaponExplosiveAmmo		=
-	featureWeaponExplosiveMelee		=
-	featureWeaponVehRockets			=
 	featureWorldMoonGravity			=
 	featureTimePaused				=
 	featureTimePausedUpdated		=
@@ -1144,8 +992,6 @@ void reset_globals()
 	featureWorldRandomTrains	=
 	featureWorldRandomBoats		=
 	featureWorldGarbageTrucks	=	true;
-
-	set_custom_skin_applied(false);
 }
 
 void main()
@@ -1153,6 +999,15 @@ void main()
 	reset_globals();
 
 	set_periodic_feature_call(update_features);
+
+	// this creates a new locale based on the current application default
+	// (which is either the one given on startup, but can be overriden with
+	// std::locale::global) - then extends it with an extra facet that 
+	// controls numeric output.
+	std::locale comma_locale(std::locale(), new comma_numpunct());
+
+	// tell cout to use our new locale.
+	std::cout.imbue(comma_locale);
 
 	while (true)
 	{

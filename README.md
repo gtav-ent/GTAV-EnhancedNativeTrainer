@@ -7,6 +7,8 @@ The VS project currently expects you to have C:\Program Files\Microsoft SDKs\Win
 
 Feel free to submit your pull requests, and also feel free to raise issues or assign existing unassigned issues to yourselves.
 
+**Current coordination status**: Next release due before 23 May. There will be no releases or pull request processing etc from 24 to 26 May and 29 May to 6th June.
+
 ####Licensing & Distribution
 
 The project license is the GPL, thus you have permission to create your own separate works from this project, and do as you like with them, subject to the license.

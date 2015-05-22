@@ -16,6 +16,14 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
+void process_weapon_menu();
+
 bool process_give_melee();
 bool do_give_weapon(std::string modelName);
 bool process_weaponlist_menu();
+
+void reset_weapon_globals();
+
+void update_weapon_features(BOOL playerExists, Ped playerPed);
+
+void update_vehicle_guns();
