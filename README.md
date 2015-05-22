@@ -10,4 +10,4 @@ However, before doing anything, please familiarise yourself with [our wiki](http
 
 Update 15 was released on May 22.
 
-Due to holiday, there will be no releases or pull request processing etc from May 24-26, and again between May 29 and June 6.
+Due to holiday, there will be no releases or pull request processing etc from May 23-25, and again between May 29 and June 6.
