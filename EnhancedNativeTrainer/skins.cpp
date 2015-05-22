@@ -10,6 +10,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "skins.h"
 #include "menu_functions.h"
+#include "weapons.h"
 
 /***
 * VARS
@@ -102,6 +103,8 @@ bool applyChosenSkin(std::string skinName)
 			veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 		}
 
+		save_player_weapons();
+
 		PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), model);
 		//PED::SET_PED_RANDOM_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID(), FALSE);
 		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID());
@@ -111,6 +114,8 @@ bool applyChosenSkin(std::string skinName)
 		{
 			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
 		}
+
+		restore_player_weapons();
 
 		//reset the skin detail choice
 		skinDetailMenuIndex = 0;

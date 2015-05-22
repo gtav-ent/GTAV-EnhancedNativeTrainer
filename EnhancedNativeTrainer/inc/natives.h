@@ -2649,8 +2649,11 @@ namespace WEAPON
 	static void SET_PED_DROPS_WEAPON(Any p0) { invoke<Void>(0x6B7513D9966FBEC0, p0); } // 6B7513D9966FBEC0 3D3329FA
 	static void SET_PED_DROPS_INVENTORY_WEAPON(Any p0, Any p1, float p2, float p3, float p4, Any p5) { invoke<Void>(0x208A1888007FC0E6, p0, p1, p2, p3, p4, p5); } // 208A1888007FC0E6 81FFB874
 	static Any GET_MAX_AMMO_IN_CLIP(Any p0, Any p1, BOOL p2) { return invoke<Any>(0xA38DCFFCEA8962FA, p0, p1, p2); } // A38DCFFCEA8962FA 6961E2A4
-	static BOOL GET_AMMO_IN_CLIP(Any p0, Any p1, Any *p2) { return invoke<BOOL>(0x2E1202248937775C, p0, p1, p2); } // 2E1202248937775C 73C100C3
-	static BOOL SET_AMMO_IN_CLIP(Any p0, Any p1, Any p2) { return invoke<BOOL>(0xDCD2A934D65CB497, p0, p1, p2); } // DCD2A934D65CB497 A54B0B10
+
+	//Modified
+	static BOOL GET_AMMO_IN_CLIP(Any p0, Any p1, int *p2) { return invoke<BOOL>(0x2E1202248937775C, p0, p1, p2); } // 2E1202248937775C 73C100C3
+	static BOOL SET_AMMO_IN_CLIP(Any p0, Any p1, int p2) { return invoke<BOOL>(0xDCD2A934D65CB497, p0, p1, p2); } // DCD2A934D65CB497 A54B0B10
+
 	static BOOL GET_MAX_AMMO(Any p0, Any p1, int *p2) { return invoke<BOOL>(0xDC16122C7A20C933, p0, p1, p2); } // DC16122C7A20C933 0B294796
 	static void SET_PED_AMMO_BY_TYPE(Any p0, Any p1, Any p2) { invoke<Void>(0x5FD1E1F011E76D7E, p0, p1, p2); } // 5FD1E1F011E76D7E 311C52BB
 	static Any GET_PED_AMMO_BY_TYPE(Any p0, Any p1) { return invoke<Any>(0x39D22031557946C1, p0, p1); } // 39D22031557946C1 54077C4D

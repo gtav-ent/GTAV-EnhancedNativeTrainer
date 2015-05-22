@@ -48,7 +48,7 @@ void process_airbrake_menu()
 	DWORD waitTime = 150;
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	bool inVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0);
+	bool inVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0) ? true : false;
 
 	if (!inVehicle)
 	{
