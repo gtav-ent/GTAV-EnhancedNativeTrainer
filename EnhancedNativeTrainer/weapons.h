@@ -35,3 +35,7 @@ void restore_player_weapons();
 bool is_weapon_equipped(std::vector<int> extras);
 
 void set_weapon_equipped(bool equipped, std::vector<int> extras);
+
+void give_weapon_clip(MenuItem<int> choice);
+
+void fill_weapon_ammo(MenuItem<int> choice);

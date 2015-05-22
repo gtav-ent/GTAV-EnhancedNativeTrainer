@@ -41,7 +41,8 @@ const int TOTAL_WEAPONS_SLOTS = 57;
 
 int activeLineIndexWeapon = 0;
 int lastSelectedWeaponCategory = 0;
-int lastSelectedIndexInIndivMenu = 0;
+int lastSelectedWeapon = 0;
+//int lastSelectedIndexInIndivMenu = 0;
 
 bool featureWeaponInfiniteAmmo = false;
 bool featureWeaponInfiniteParachutes = false;
@@ -61,22 +62,47 @@ int saved_armour = 0;
 
 bool process_individual_weapon_menu(int weaponIndex)
 {
+	lastSelectedWeapon = weaponIndex;
+
 	std::string caption = VOV_WEAPON_CAPTIONS[lastSelectedWeaponCategory].at(weaponIndex);
 	std::string value = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(weaponIndex);
 	std::vector<MenuItem<int>*> menuItems;
 
-	FunctionDrivenToggleMenuItem<int> *item = new FunctionDrivenToggleMenuItem<int>();
+	FunctionDrivenToggleMenuItem<int> *equipItem = new FunctionDrivenToggleMenuItem<int>();
 	std::stringstream ss;
 	ss << "Equip "<<caption<<"?";
-	item->caption = ss.str();
-	item->value = 1;
-	item->getter_call = is_weapon_equipped;
-	item->setter_call = set_weapon_equipped;
-	item->extra_arguments.push_back(lastSelectedWeaponCategory);
-	item->extra_arguments.push_back(weaponIndex);
-	menuItems.push_back(item);
+	equipItem->caption = ss.str();
+	equipItem->value = 1;
+	equipItem->getter_call = is_weapon_equipped;
+	equipItem->setter_call = set_weapon_equipped;
+	equipItem->extra_arguments.push_back(lastSelectedWeaponCategory);
+	equipItem->extra_arguments.push_back(weaponIndex);
+	menuItems.push_back(equipItem);
 
-	return draw_generic_menu<int>(menuItems, &lastSelectedIndexInIndivMenu, caption, NULL, NULL, NULL);
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(lastSelectedWeapon);
+	char *weaponChar = (char*)weaponValue.c_str();
+	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
+	int maxClipAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, weapHash, false);
+
+	if (maxClipAmmo > 0)
+	{
+		MenuItem<int> *giveClipItem = new MenuItem<int>();
+		giveClipItem->caption = "Give Clip";
+		giveClipItem->value = 2;
+		giveClipItem->isLeaf = true;
+		giveClipItem->onConfirmFunction = give_weapon_clip;
+		menuItems.push_back(giveClipItem);
+
+		MenuItem<int> *fillAmmoItem = new MenuItem<int>();
+		fillAmmoItem->caption = "Fill Ammo";
+		fillAmmoItem->value = 3;
+		fillAmmoItem->isLeaf = true;
+		fillAmmoItem->onConfirmFunction = fill_weapon_ammo;
+		menuItems.push_back(fillAmmoItem);
+	}
+
+	return draw_generic_menu<int>(menuItems, 0, caption, NULL, NULL, NULL);
 
 	return false;
 }
@@ -380,12 +406,59 @@ void set_weapon_equipped(bool equipped, std::vector<int> extras)
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	std::string weaponValue = VOV_WEAPON_VALUES[extras.at(0)].at(extras.at(1));
 	char *weaponChar = (char*) weaponValue.c_str();
+	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
 	if (equipped)
 	{
-		WEAPON::GIVE_WEAPON_TO_PED(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar), 1000, 0, 0);
+		WEAPON::GIVE_WEAPON_TO_PED(playerPed, weapHash, 1000, 0, 0);
+
+		//fill the clip and one spare
+		int maxClipAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, weapHash, false);
+		WEAPON::SET_PED_AMMO(playerPed, weapHash, maxClipAmmo);
+		WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
 	}
 	else
 	{
 		WEAPON::REMOVE_WEAPON_FROM_PED(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar));
 	}
+}
+
+void give_weapon_clip(MenuItem<int> choice)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(lastSelectedWeapon);
+	char *weaponChar = (char*)weaponValue.c_str();
+	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
+
+	int curAmmo = WEAPON::GET_AMMO_IN_PED_WEAPON(playerPed, weapHash);
+	int curClipAmmo = 0;
+	WEAPON::GET_AMMO_IN_CLIP(playerPed, weapHash, &curClipAmmo);
+	int maxClipAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, weapHash, false);
+
+	if (curClipAmmo < maxClipAmmo)
+	{
+		set_status_text("Clip Filled");
+		WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
+	}
+	else
+	{
+		set_status_text("Extra Clip Added");
+		WEAPON::SET_PED_AMMO(playerPed, weapHash, curAmmo+maxClipAmmo);
+	}
+}
+
+void fill_weapon_ammo(MenuItem<int> choice)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(lastSelectedWeapon);
+	char *weaponChar = (char*)weaponValue.c_str();
+	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
+
+	int maxAmmo = 0;
+	WEAPON::GET_MAX_AMMO(playerPed, weapHash, &maxAmmo);
+	int maxClipAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, weapHash, false);
+
+	WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
+	WEAPON::SET_PED_AMMO(playerPed, weapHash, maxAmmo);
+
+	set_status_text("Ammo Filled");
 }
