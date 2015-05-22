@@ -4,6 +4,6 @@ GTA V PC Enhanced Native Trainer, building on Alexander Blade's original sample.
 
 Feel free to submit your pull requests, and also feel free to raise issues or assign existing unassigned issues to yourselves.
 
-However, before doing anything, please familiarise yourself with [our wiki](https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer/wiki) 
+However, before doing anything, please familiarise yourself with [our wiki](https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer/wiki).
 
 **Current coordination status**: Next release due before 23 May. There will be no releases or pull request processing etc from 24 to 26 May and 29 May to 6th June.
