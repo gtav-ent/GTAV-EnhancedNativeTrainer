@@ -12,7 +12,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "weapons.h"
 #include "config_io.h"
 
-const std::vector<std::string> MENU_WEAPON_CATEGORIES{ "Melee", "Handguns", "Sub-machine Guns", "Shotguns", "Assault Rifles", "Light Machine Guns", "Sniper Rifles", "Heavy Weapons", "Thrown Weapons" };
+const std::vector<std::string> MENU_WEAPON_CATEGORIES{ "Melee", "Handguns", "Submachine Guns", "Assault Rifles", "Shotguns", "Sniper Rifles", "Heavy Weapons", "Thrown Weapons" };
 
 const std::vector<std::string> CAPTIONS_MELEE{ "Knife", "Nightstick", "Hammer", "Baseball Bat", "Golf Club", "Crowbar", "Bottle", "Antique Dagger", "Hatchet" };
 const std::vector<std::string> VALUES_MELEE{ "WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR", "WEAPON_BOTTLE", "WEAPON_DAGGER", "WEAPON_HATCHET" }; //9
@@ -31,6 +31,7 @@ const std::vector<std::string> VALUES_HEAVY{ "WEAPON_GRENADELAUNCHER", "WEAPON_R
 const std::vector<std::string> CAPTIONS_THROWN{ "Grenade", "Sticky Bomb", "Proximity Mine", "Teargas", "Molotov", "Fire Extinguisher", "Jerry Can", "Snowball", "Flare" };
 const std::vector<std::string> VALUES_THROWN{ "WEAPON_GRENADE", "WEAPON_STICKYBOMB", "WEAPON_PROXMINE", "WEAPON_SMOKEGRENADE", "WEAPON_MOLOTOV", "WEAPON_FIREEXTINGUISHER", "WEAPON_PETROLCAN", "WEAPON_SNOWBALL", "WEAPON_FLARE" }; //9
 
+const std::vector<std::string> VOV_WEAPON_CAPTIONS[] = { CAPTIONS_MELEE, CAPTIONS_HANDGUN, CAPTIONS_SUBMACHINE, CAPTIONS_ASSAULT, CAPTIONS_SHOTGUN, CAPTIONS_SNIPER, CAPTIONS_HEAVY, CAPTIONS_THROWN };
 const std::vector<std::string> VOV_WEAPON_VALUES[] = { VALUES_MELEE, VALUES_HANDGUN, VALUES_SUBMACHINE, VALUES_ASSAULT, VALUES_SHOTGUN, VALUES_SNIPER, VALUES_HEAVY, VALUES_THROWN };
 
 const int PARACHUTE_ID = 0xFBAB5776;
@@ -39,6 +40,8 @@ const int TOTAL_WEAPONS_COUNT = 53;
 const int TOTAL_WEAPONS_SLOTS = 57;
 
 int activeLineIndexWeapon = 0;
+int lastSelectedWeaponCategory = 0;
+int lastSelectedIndexInIndivMenu = 0;
 
 bool featureWeaponInfiniteAmmo = false;
 bool featureWeaponInfiniteParachutes = false;
@@ -56,70 +59,53 @@ int saved_clip_ammo[TOTAL_WEAPONS_SLOTS];
 bool saved_parachute = false;
 int saved_armour = 0;
 
-bool onconfirm_give_weapon_selection(std::string choice, std::string name)
+bool process_individual_weapon_menu(int weaponIndex)
 {
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	if (bPlayerExists)
-	{
-		do_give_weapon(choice);
-		std::stringstream ss;
-		ss << name << " recieved.";
-		set_status_text(ss.str());
-		return true;
-	}
+	std::string caption = VOV_WEAPON_CAPTIONS[lastSelectedWeaponCategory].at(weaponIndex);
+	std::string value = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(weaponIndex);
+	std::vector<MenuItem<int>*> menuItems;
+
+	FunctionDrivenToggleMenuItem<int> *item = new FunctionDrivenToggleMenuItem<int>();
+	std::stringstream ss;
+	ss << "Equip "<<caption<<"?";
+	item->caption = ss.str();
+	item->value = 1;
+	item->getter_call = is_weapon_equipped;
+	item->setter_call = set_weapon_equipped;
+	item->extra_arguments.push_back(lastSelectedWeaponCategory);
+	item->extra_arguments.push_back(weaponIndex);
+	menuItems.push_back(item);
+
+	return draw_generic_menu<int>(menuItems, &lastSelectedIndexInIndivMenu, caption, NULL, NULL, NULL);
+
 	return false;
 }
 
-bool onconfirm_give_melee(MenuItem<int> choice)
+bool onconfirm_weapon_in_category(MenuItem<int> choice)
 {
-	/*std::vector<MenuItem<std::string>*> menuItems;
-	MenuItem<std::string> *item = new MenuItem<std::string>();
-	item->caption = CAPTIONS_MELEE[choice.value];
-	item->value = VALUES_MELEE[choice.value];
-	menuItems.push_back(item);*/
-	std::string w = VALUES_MELEE[choice.value];
-	std::string n = CAPTIONS_MELEE[choice.value];
-
-	return onconfirm_give_weapon_selection(w,n);
+	process_individual_weapon_menu(choice.value);
+	return false;
 }
 
-bool process_give_melee()
+bool process_weapons_in_category_menu(int category)
 {
+	lastSelectedWeaponCategory = category;
 	std::vector<MenuItem<int>*> menuItems;
-	for (int i = 0; i < CAPTIONS_MELEE.size(); i++)
+	for (int i = 0; i < VOV_WEAPON_CAPTIONS[category].size(); i++)
 	{
 		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = CAPTIONS_MELEE[i];
+		item->caption = VOV_WEAPON_CAPTIONS[category].at(i);
 		item->value = i;
 		item->isLeaf = false;
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, "Melee Weapons", onconfirm_give_melee, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, 0, "Melee Weapons", onconfirm_weapon_in_category, NULL, NULL);
 }
 
 bool onconfirm_weaponlist_menu(MenuItem<int> choice)
 {
-	switch (choice.currentMenuIndex)
-	{
-	case 0:
-		process_give_melee();
-		break;
-	case 1:
-		break;
-	case 2:
-		break;
-	case 3:
-		break;
-	case 4:
-		break;
-	case 5:
-		break;
-	case 6:
-		break;
-	case 7:
-		break;
-	}
+	process_weapons_in_category_menu(choice.value);
 	return false;
 }
 
@@ -173,10 +159,10 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 
 		set_status_text("All weapons added");
 		break;
-		// switchable features
-		/*case 1:
+	// switchable features
+	case 1:
 		process_weaponlist_menu();
-		break;*/
+		break;
 	default:
 		break;
 	}
@@ -185,13 +171,13 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 
 void process_weapon_menu()
 {
-	const int lineCount = 8;
+	const int lineCount = 9;
 
 	std::string caption = "Weapon Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Give All Weapons", NULL, NULL, true },
-		//{"Add Weapon", NULL, NULL, true },
+		{ "Individual Weapons", NULL, NULL, false },
 		{ "Infinite Ammo", &featureWeaponInfiniteAmmo, NULL },
 		{ "Infinite Parachutes", &featureWeaponInfiniteParachutes, NULL },
 		{ "No Reload", &featureWeaponNoReload, NULL },
@@ -379,4 +365,27 @@ void restore_player_weapons()
 	}
 
 	PED::SET_PED_ARMOUR(playerPed, saved_armour);
+}
+
+bool is_weapon_equipped(std::vector<int> extras)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[extras.at(0)].at(extras.at(1));
+	char *weaponChar = (char*) weaponValue.c_str();
+	return (WEAPON::HAS_PED_GOT_WEAPON(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar), 0) ? true : false);
+}
+
+void set_weapon_equipped(bool equipped, std::vector<int> extras)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[extras.at(0)].at(extras.at(1));
+	char *weaponChar = (char*) weaponValue.c_str();
+	if (equipped)
+	{
+		WEAPON::GIVE_WEAPON_TO_PED(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar), 1000, 0, 0);
+	}
+	else
+	{
+		WEAPON::REMOVE_WEAPON_FROM_PED(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar));
+	}
 }
