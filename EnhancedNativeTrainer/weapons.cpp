@@ -189,6 +189,9 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 	case 1:
 		process_weaponlist_menu();
 		break;
+	case 2:
+		process_weapon_mod_menu();
+		break;
 	default:
 		break;
 	}
@@ -197,13 +200,14 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 
 void process_weapon_menu()
 {
-	const int lineCount = 9;
+	const int lineCount = 10;
 
 	std::string caption = "Weapon Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Give All Weapons", NULL, NULL, true },
 		{ "Individual Weapons", NULL, NULL, false },
+		{ "Weapon Mods and Tints", NULL, NULL, false },
 		{ "Infinite Ammo", &featureWeaponInfiniteAmmo, NULL },
 		{ "Infinite Parachutes", &featureWeaponInfiniteParachutes, NULL },
 		{ "No Reload", &featureWeaponNoReload, NULL },

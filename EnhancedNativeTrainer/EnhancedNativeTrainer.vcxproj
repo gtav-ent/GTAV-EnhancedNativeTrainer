@@ -20,6 +20,7 @@
     <ClCompile Include="paintmenu.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="skins.cpp" />
+    <ClCompile Include="weaponmodmenu.cpp" />
     <ClCompile Include="teleportation.cpp" />
     <ClCompile Include="vehicles.cpp" />
     <ClCompile Include="vehmodmenu.cpp" />
