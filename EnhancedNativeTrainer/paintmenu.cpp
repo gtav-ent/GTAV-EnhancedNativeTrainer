@@ -145,11 +145,11 @@ bool onconfirm_paint_menu(MenuItem<int> choice)
 	::whichpart = choice.value;
 	if (whichpart == 3) //Wheels
 	{
-		process_paint_menu_special(2);
+		process_paint_menu_special(1);
 	}
 	else if (whichpart == 2) //Pearl topcoat
 	{
-		process_paint_menu_special(1);
+		process_paint_menu_special(0);
 	}
 	else if (whichpart == -1)
 	{
