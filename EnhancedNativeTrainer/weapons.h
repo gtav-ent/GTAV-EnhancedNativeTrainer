@@ -58,3 +58,8 @@ bool onconfirm_weapon_mod_menu_tint(MenuItem<std::string> choice);
 bool process_weapon_mod_menu_attachments(int wepindex);
 
 bool onconfirm_weapon_mod_menu_attachments(MenuItem<std::string> choice);
+
+
+int checkweapon_modlist(Weapon wep);
+
+int checkweapon_tintlist(Weapon wep);

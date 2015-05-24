@@ -114,10 +114,11 @@ const std::vector<std::string> VOV_WEAPON_CAPTIONS[] = { CAPTIONS_ATTACH_PISTOL,
 const std::vector<std::string> VOV_WEAPON_VALUES[] = { VALUES_ATTACH_PISTOL, VALUES_ATTACH_COMBATPISTOL, VALUES_ATTACH_APPISTOL, VALUES_ATTACH_PISTOL50, VALUES_ATTACH_MICROSMG, VALUES_ATTACH_SMG, VALUES_ATTACH_ASSAULTSMG, VALUES_ATTACH_ASSAULTRIFLE, VALUES_ATTACH_CARBINERIFLE, VALUES_ATTACH_ADVANCEDRIFLE, VALUES_ATTACH_MG, VALUES_ATTACH_COMBATMG, VALUES_ATTACH_PUMPSHOTGUN, VALUES_ATTACH_ASSAULTSHOTGUN, VALUES_ATTACH_BULLPUPSHOTGUN, VALUES_ATTACH_SNIPERRIFLE, VALUES_ATTACH_HEAVYSNIPER, VALUES_ATTACH_GRENADELAUNCHER, VALUES_ATTACH_BULLPUPRIFLE, VALUES_ATTACH_GUSENBERG, VALUES_ATTACH_HEAVYPISTOL, VALUES_ATTACH_HEAVYSHOTGUN, VALUES_ATTACH_MARKSMANRIFLE, VALUES_ATTACH_SNSPISTOL, VALUES_ATTACH_SPECIALCARBINE, VALUES_ATTACH_VINTAGEPISTOL };
 
 
+//Tintable weapons list
+const std::vector<std::string> WEAPONTYPES_TINT{ "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_SNSPISTOL", "WEAPON_HEAVYPISTOL", "WEAPON_VINTAGEPISTOL", "WEAPON_STUNGUN", "WEAPON_FLAREGUN", "WEAPON_MICROSMG", "WEAPON_SMG", "WEAPON_ASSAULTSMG", "WEAPON_MG", "WEAPON_COMBATMG", "WEAPON_GUSENBERG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_SPECIALCARBINE", "WEAPON_BULLPUPRIFLE", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_BULLPUPSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_MUSKET", "WEAPON_HEAVYSHOTGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_MARKSMANRIFLE", "WEAPON_GRENADELAUNCHER", "WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_FIREWORK", "WEAPON_RAILGUN", "WEAPON_HOMINGLAUNCHER" };
 
 //moddable weapons list
 const std::vector<std::string> WEAPONTYPES_MOD{ "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_MICROSMG", "WEAPON_SMG", "WEAPON_ASSAULTSMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_MG", "WEAPON_COMBATMG", "WEAPON_PUMPSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_BULLPUPSHOTGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_GRENADELAUNCHER", "WEAPON_BULLPUPRIFLE", "WEAPON_GUSENBERG", "WEAPON_HEAVYPISTOL", "WEAPON_HEAVYSHOTGUN", "WEAPON_MARKSMANRIFLE", "WEAPON_SNSPISTOL", "WEAPON_SPECIALCARBINE", "WEAPON_VINTAGEPISTOL" };
-
 
 
 bool onconfirm_weapon_mod_menu(MenuItem<int> choice)
@@ -129,7 +130,8 @@ bool onconfirm_weapon_mod_menu(MenuItem<int> choice)
 	switch (choice.currentMenuIndex)
 	{
 	case 0:
-		if (WEAPON::IS_PED_ARMED(playerPed, 6) && WEAPON::GET_WEAPON_TINT_COUNT(wep) > 1) //This always returns all possible tints even if weapon is not tintable. Need to find a better way to check.
+		wepindex = checkweapon_tintlist(wep);
+		if (wepindex > -1)
 		{
 			process_weapon_mod_menu_tint();
 		}
@@ -140,17 +142,7 @@ bool onconfirm_weapon_mod_menu(MenuItem<int> choice)
 		break;
 
 	case 1:
-		for (int i = 0; i < WEAPONTYPES_MOD.size(); i++)
-		{
-			DWORD weplist = GAMEPLAY::GET_HASH_KEY((char *)WEAPONTYPES_MOD[i].c_str());
-
-			if (wep == weplist)
-			{
-				wepindex = i;
-				break;
-			}
-		}
-
+		wepindex = checkweapon_modlist(wep);
 		if (wepindex > -1)
 		{
 			process_weapon_mod_menu_attachments(wepindex);
@@ -159,7 +151,6 @@ bool onconfirm_weapon_mod_menu(MenuItem<int> choice)
 		{
 			set_status_text("You do not have a moddable weapon selected");
 		}
-
 		break;
 	}
 	return false;
@@ -207,9 +198,17 @@ bool onconfirm_weapon_mod_menu_tint(MenuItem<std::string> choice)
 {
 	int whichtint = std::stoi(choice.value);
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
-
 	Weapon wep = WEAPON::GET_SELECTED_PED_WEAPON(playerPed);
-	WEAPON::SET_PED_WEAPON_TINT_INDEX(playerPed, wep, whichtint);
+	int wepindex = checkweapon_tintlist(wep); //Check again if weapon is tintable
+
+	if (wepindex > -1)
+	{
+		WEAPON::SET_PED_WEAPON_TINT_INDEX(playerPed, wep, whichtint);
+	}
+	else
+	{
+		set_status_text("Weapon was changed. You do not have a tintable weapon selected.");
+	}
 
 	return true;
 }
@@ -258,8 +257,49 @@ bool onconfirm_weapon_mod_menu_attachments(MenuItem<std::string> choice)
 	}
 	else
 	{
-		set_status_text("Weapon was changed while in menu.");
+		int wepindex = checkweapon_modlist(wep); //Check new weapon and reload menu or exit
+		if (wepindex > -1)
+		{
+			set_status_text("Weapon changed. Refreshing Menu.");
+			process_weapon_mod_menu_attachments(wepindex);
+		}
+		else
+		{
+			set_status_text("Weapon changed. You do not have a moddable weapon selected.");
+		}
 		return true;
 	}
 	return false;
+}
+
+int checkweapon_modlist(Weapon wep)
+{
+	int wepindex = -1;
+	for (int i = 0; i < WEAPONTYPES_MOD.size(); i++)
+	{
+		DWORD weplist = GAMEPLAY::GET_HASH_KEY((char *)WEAPONTYPES_MOD[i].c_str());
+
+		if (wep == weplist)
+		{
+			wepindex = i;
+			break;
+		}
+	}
+	return wepindex;
+}
+
+int checkweapon_tintlist(Weapon wep)
+{
+	int wepindex = -1;
+	for (int i = 0; i < WEAPONTYPES_TINT.size(); i++)
+	{
+		DWORD weplist = GAMEPLAY::GET_HASH_KEY((char *)WEAPONTYPES_TINT[i].c_str());
+
+		if (wep == weplist)
+		{
+			wepindex = i;
+			break;
+		}
+	}
+	return wepindex;
 }
