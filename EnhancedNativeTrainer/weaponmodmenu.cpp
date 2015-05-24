@@ -11,6 +11,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "weapons.h"
 #include "menu_functions.h"
 
+Weapon wepcheck;
+
 
 //Main
 const std::vector<std::string> MENU_WEAPON_MAIN{ "Change Weapon Tint", "Weapon Mods" };
@@ -91,7 +93,7 @@ bool onconfirm_weapon_mod_menu(MenuItem<int> choice)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	Weapon wep = WEAPON::GET_SELECTED_PED_WEAPON(playerPed);
-	int wepindex = 0;
+	int wepindex = -1;
 
 	switch (choice.currentMenuIndex)
 	{
@@ -107,32 +109,25 @@ bool onconfirm_weapon_mod_menu(MenuItem<int> choice)
 		break;
 
 	case 1:
-		if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_PISTOL")) { wepindex = 0; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_COMBATPISTOL")){ wepindex = 1; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_APPISTOL")){ wepindex = 2; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_PISTOL50")){ wepindex = 3; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_MICROSMG")){ wepindex = 4; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_SMG")){ wepindex = 5; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_ASSAULTSMG")){ wepindex = 6; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_ASSAULTRIFLE")){ wepindex = 7; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_CARBINERIFLE")){ wepindex = 8; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_ADVANCEDRIFLE")){ wepindex = 9; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_MG")){ wepindex = 10; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_COMBATMG")){ wepindex = 11; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_PUMPSHOTGUN")){ wepindex = 12; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_ASSAULTSHOTGUN")){ wepindex = 13; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_BULLPUPSHOTGUN")){ wepindex = 14; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_SNIPERRIFLE")){ wepindex = 15; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_HEAVYSNIPER")){ wepindex = 16; }
-		else if (wep == GAMEPLAY::GET_HASH_KEY("WEAPON_GRENADELAUNCHER")){ wepindex = 17; }
+		for (int i = 0; i < WEAPONTYPES.size(); i++)
+		{
+			DWORD weplist = GAMEPLAY::GET_HASH_KEY((char *)WEAPONTYPES[i].c_str());
 
+			if (wep == weplist)
+			{
+				wepindex = i;
+				break;
+			}
+		}
+
+		if (wepindex > -1)
+		{
+			process_weapon_mod_menu_attachments(wepindex);
+		}
 		else
 		{
 			set_status_text("You do not have a moddable weapon selected");
-			break;
 		}
-
-		process_weapon_mod_menu_attachments(wepindex);
 
 		break;
 	}
@@ -192,6 +187,7 @@ bool process_weapon_mod_menu_attachments(int wepindex)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	Weapon wep = WEAPON::GET_SELECTED_PED_WEAPON(playerPed);
+	::wepcheck = wep;
 
 	std::vector<MenuItem<std::string>*> menuItems;
 	for (int i = 0; i < VOV_WEAPON_VALUES[wepindex].size(); i++)
@@ -212,20 +208,27 @@ bool onconfirm_weapon_mod_menu_attachments(MenuItem<std::string> choice)
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	Weapon wep = WEAPON::GET_SELECTED_PED_WEAPON(playerPed);
 
-	if (WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, wep, component))
+	if (wep == ::wepcheck) //check if player swapped weapons since menu was generated
 	{
-		WEAPON::REMOVE_WEAPON_COMPONENT_FROM_PED(playerPed, wep, component);
-		std::ostringstream ss;
-		ss << choice.caption << " Removed";
-		set_status_text(ss.str());
+		if (WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, wep, component))
+		{
+			WEAPON::REMOVE_WEAPON_COMPONENT_FROM_PED(playerPed, wep, component);
+			std::ostringstream ss;
+			ss << choice.caption << " Removed";
+			set_status_text(ss.str());
+		}
+		else
+		{
+			WEAPON::GIVE_WEAPON_COMPONENT_TO_PED(playerPed, wep, component);
+			std::ostringstream ss;
+			ss << choice.caption << " Added";
+			set_status_text(ss.str());
+		}
 	}
 	else
 	{
-		WEAPON::GIVE_WEAPON_COMPONENT_TO_PED(playerPed, wep, component);
-		std::ostringstream ss;
-		ss << choice.caption << " Added";
-		set_status_text(ss.str());
+		set_status_text("Weapon was changed while in menu.");
+		return true;
 	}
-
 	return false;
 }
