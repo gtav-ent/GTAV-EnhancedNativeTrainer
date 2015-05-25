@@ -22,10 +22,12 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "menu_functions.h"
 #include "skins.h"
 #include "script.h"
+#include "database.h"
+#include "debuglog.h"
 #include "vehicles.h"
 #include "teleportation.h"
 #include "airbrake.h"
-#include "Weapons.h"
+#include "weapons.h"
 
 #include <string>
 #include <sstream> 
@@ -41,9 +43,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
-const bool DEBUG_LOG_ENABLED = false;
-
 int game_frame_num = 0;
+
+ENTDatabase *database = new ENTDatabase();
 
 // features
 bool featurePlayerInvincible			=	false;
@@ -1020,7 +1022,7 @@ void reset_globals()
 
 void main()
 {	
-	reset_globals();
+	//reset_globals();
 
 	set_periodic_feature_call(update_features);
 
@@ -1056,24 +1058,24 @@ void main()
 void ScriptMain()
 {
 	clear_log_file();
+
+	database->open();
+
+	database->load_feature_enabled_pairs(get_feature_enablements());
+
 	srand(GetTickCount());
 	read_config_file();
 	main();
 }
 
-void clear_log_file()
+void ScriptTidyUp()
 {
-	remove("ent-log.txt");
-}
-
-void write_text_to_log_file(const std::string &text)
-{
-	if (!DEBUG_LOG_ENABLED)
+	if (database != NULL)
 	{
-		return;
+		database->store_feature_enabled_pairs( get_feature_enablements() );
+		database->close();
+		database = NULL;
 	}
-	std::ofstream log_file( "ent-log.txt", std::ios_base::out | std::ios_base::app);
-	log_file << text << std::endl;
 }
 
 void turn_off_never_wanted()
@@ -1108,4 +1110,43 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 		PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
 		PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
 	}
+}
+
+void update_feature_enablements(std::vector<FeatureEnabledLocalDefinition> pairs)
+{
+	for (int i = 0; i < pairs.size(); i++)
+	{
+		FeatureEnabledLocalDefinition pair = pairs.at(i);
+	}
+}
+
+std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
+{
+	std::vector<FeatureEnabledLocalDefinition> results;
+
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvincible", &featurePlayerInvincible, });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerNeverWanted", &featurePlayerNeverWanted });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByPolice", &featurePlayerIgnoredByPolice });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerUnlimitedAbility", &featurePlayerUnlimitedAbility });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerNoNoise", &featurePlayerNoNoise });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerRadio", &featurePlayerRadio });
+
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldMoonGravity", &featureWorldMoonGravity });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomCops", &featureWorldRandomCops });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomTrains", &featureWorldRandomTrains });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomBoats", &featureWorldRandomBoats });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldGarbageTrucks", &featureWorldGarbageTrucks });
+
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
+
+	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscLockRadio", &featureMiscLockRadio });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud });
+
+	return results;
 }

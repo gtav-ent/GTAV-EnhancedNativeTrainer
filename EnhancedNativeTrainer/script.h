@@ -16,9 +16,13 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
+#include "database.h"
+
 #include <fstream>
 
 void ScriptMain();
+
+void ScriptTidyUp();
 
 bool process_skinchanger_menu();
 
@@ -28,17 +32,12 @@ void update_features();
 
 void set_all_nearby_peds_to_calm(Ped playerPed, int count);
 
+std::vector<FeatureEnabledLocalDefinition> get_feature_enablements();
+
 /*
 int getFrozenWantedLvl();
 void setFrozenWantedLvl(int level);
 void setFrozenWantedFeature(bool b);
 */
-
-/**Append a line of text to the log file. Does nothing unless the debug
-constant is set.*/
-void write_text_to_log_file(const std::string &text);
-
-/**Wipe the debug log file. Called every time the trainer starts.*/
-void clear_log_file();
 
 void turn_off_never_wanted();

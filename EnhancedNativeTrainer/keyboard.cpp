@@ -6,6 +6,7 @@
 
 #include "keyboard.h"
 #include "script.h"
+#include "debuglog.h"
 
 #include <sstream>
 

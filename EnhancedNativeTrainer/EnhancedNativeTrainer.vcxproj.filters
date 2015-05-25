@@ -14,6 +14,9 @@
     <ClCompile Include="weapons.cpp" />
     <ClCompile Include="vehmodmenu.cpp" />
     <ClCompile Include="paintmenu.cpp" />
+    <ClCompile Include="database.cpp" />
+    <ClCompile Include="inc\sqlite3\sqlite3.c" />
+    <ClCompile Include="debuglog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />
@@ -29,6 +32,10 @@
     <ClInclude Include="config_io.h" />
     <ClInclude Include="airbrake.h" />
     <ClInclude Include="weapons.h" />
+    <ClInclude Include="database.h" />
+    <ClInclude Include="inc\sqlite3\sqlite3.h" />
+    <ClInclude Include="inc\sqlite3\sqlite3ext.h" />
+    <ClInclude Include="debuglog.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />

@@ -24,6 +24,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	case DLL_PROCESS_DETACH:
 		scriptUnregister(ScriptMain);
 		keyboardHandlerUnregister(OnKeyboardMessage);
+		ScriptTidyUp();
 		break;
 	}
 	return TRUE;
