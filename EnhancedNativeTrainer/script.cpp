@@ -43,6 +43,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 const bool DEBUG_LOG_ENABLED = false;
 
+int game_frame_num = 0;
+
 // features
 bool featurePlayerInvincible			=	false;
 bool featurePlayerInvincibleUpdated		=	false;
@@ -74,6 +76,7 @@ bool featureWorldGarbageTrucks			=	true;
 bool featureTimePaused					=	false;
 bool featureTimePausedUpdated			=	false;
 bool featureTimeSynced					=	false;
+bool featureTimeSlow = false;
 
 bool featureWeatherWind					=	false;
 bool featureWeatherFreeze				=	false;
@@ -146,6 +149,12 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
+	game_frame_num++;
+	if (game_frame_num >= 100000)
+	{
+		game_frame_num = 0;
+	}
+
 	update_status_text();
 
 	update_vehicle_guns();
@@ -217,20 +226,26 @@ void update_features()
 		featurePlayerIgnoredByPoliceUpdated = false;
 	}
 
-	// police ignore player
+	// everyone ignores player
 	if (featurePlayerIgnoredByAll)
 	{
 		if (bPlayerExists)
 		{
+			PLAYER::SET_POLICE_IGNORE_PLAYER(player, true);
 			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, true);
 			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, false);
 			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, true);
+			if (game_frame_num % 5 == 0)
+			{
+				set_all_nearby_peds_to_calm(playerPed, 50);
+			}
 		}
 	}
 	else if (featurePlayerIgnoredByAllUpdated)
 	{
 		if (bPlayerExists)
 		{
+			PLAYER::SET_POLICE_IGNORE_PLAYER(player, featurePlayerIgnoredByPolice);
 			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, false);
 			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, true);
 			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, false);
@@ -319,6 +334,15 @@ void update_features()
 		tm t;
 		localtime_s(&t, &now);
 		TIME::SET_CLOCK_TIME(t.tm_hour, t.tm_min, t.tm_sec);
+	}
+
+	if (featureTimeSlow)
+	{
+		GAMEPLAY::SET_TIME_SCALE(0.5f);
+	}
+	else
+	{
+		GAMEPLAY::SET_TIME_SCALE(1.0f);
 	}
 
 	// hide hud
@@ -702,7 +726,7 @@ bool onconfirm_time_menu ( MenuItem<int> choice )
 
 void process_time_menu ()
 {
-	const int lineCount = 4;
+	const int lineCount = 5;
 
 	std::string caption = "Time Options";
 
@@ -710,7 +734,8 @@ void process_time_menu ()
 		{ "Hour Forward", NULL, NULL, true },
 		{ "Hour Backward", NULL, NULL, true },
 		{ "Clock Paused", &featureTimePaused, &featureTimePausedUpdated },
-		{ "Sync With System", &featureTimeSynced, NULL }
+		{ "Sync With System", &featureTimeSynced, NULL },
+		{ "Slow Motion", &featureTimeSlow, NULL }
 	};
 
 	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu );
@@ -987,6 +1012,10 @@ void reset_globals()
 	featureWorldRandomTrains	=
 	featureWorldRandomBoats		=
 	featureWorldGarbageTrucks	=	true;
+
+	featureTimeSlow = false;
+
+	featurePlayerResetOnDeath = true;
 }
 
 void main()
@@ -1052,4 +1081,31 @@ void turn_off_never_wanted()
 	featurePlayerNeverWanted = false;
 	featurePlayerNeverWantedUpdated = false;
 	PLAYER::SET_MAX_WANTED_LEVEL(5);
+}
+
+void set_all_nearby_peds_to_calm(Ped playerPed, int count)
+{
+	const int numElements = count;
+	const int arrSize = numElements * 2 + 2;
+
+	Ped *peds = new Ped[arrSize];
+	peds[0] = numElements;
+	int found = PED::GET_PED_NEARBY_PEDS(playerPed, peds, -1);
+	int y = 0;
+	for (int i = 0; i < found; i++)
+	{
+		int offsettedID = i * 2 + 2;
+
+		if (!ENTITY::DOES_ENTITY_EXIST(peds[offsettedID]))
+		{
+			continue;
+		}
+
+		Ped xped = peds[offsettedID];
+
+		y++;
+		PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
+		PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
+		PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
+	}
 }

@@ -26,6 +26,8 @@ bool process_skinchanger_detail_menu();
 
 void update_features();
 
+void set_all_nearby_peds_to_calm(Ped playerPed, int count);
+
 /*
 int getFrozenWantedLvl();
 void setFrozenWantedLvl(int level);
