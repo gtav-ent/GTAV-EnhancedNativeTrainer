@@ -20,7 +20,7 @@ const std::vector<std::string> MENU_PAINT_WHAT{ "Primary Color", "Secondary Colo
 
 
 //Paint Names
-const std::vector<std::string> MENU_PAINT_TYPE{ "Metallic", "Normal", "Matte", "Metal", "Chrome", "Wheel Colors" };
+const std::vector<std::string> MENU_PAINT_TYPE{ "Metallic", "Normal", "Matte", "Metal", "Chrome" };
 
 const std::vector<std::string> CAPTIONS_NORMAL{ "Black", "Carbon Black", "Graphite Black", "Anthracite Black", "Black Steel", "Dark Steel", "Silver", "Bluish Silver", "Rolled Steel", "Shadow Silver", "Stone Silver", "Midnight Silver", "Cast Iron Silver", "Red", "Torino Red", "Formula Red", "Lava Red", "Blaze Red", "Grace Red", "Garnet Red", "Sunset Red", "Cabernet Red", "Wine Red", "Candy Red", "Hot Pink", "Pfister Pink", "Salmon Pink", "Sunrise Orange", "Orange", "Bright Orange", "Gold", "Bronze", "Yellow", "Race Yellow", "Dew Yellow", "Dark Green", "Racing Green", "Sea Green", "Olive Green", "Bright Green", "Gasoline Green", "Lime Green", "Midnight Blue", "Galaxy Blue", "Dark Blue", "Saxon Blue", "Blue", "Mariner Blue", "Harbor Blue", "Diamond Blue", "Surf Blue", "Nautical Blue", "Racing Blue", "Ultra Blue", "Light Blue", "Chocolate Brown", "Bison Brown", "Creek Brown", "Feltzer Brown", "Maple Brown", "Beechwood Brown", "Sienna Brown", "Saddle Brown", "Moss Brown", "Woodbeech Brown", "Straw Brown", "Sandy Brown", "Bleached Brown", "Schafter Purple", "Spinnaker Purple", "Midnight Purple", "Bright Purple", "Cream", "Ice White", "Frost White" };
 
@@ -49,8 +49,12 @@ const std::vector<std::string> VALUES_CHROME{ "0" };
 const std::vector<std::string> VALUES_WHEELS{ "156", "0", "1", "11", "2", "8", "122", "27", "30", "45", "35", "33", "136", "135", "36", "41", "138", "37", "99", "90", "95", "115", "109", "153", "154", "88", "89", "91", "55", "125", "53", "56", "151", "82", "64", "87", "70", "140", "81", "145", "142" };
 
 
-const std::vector<std::string> VOV_PAINT_CAPTIONS[] = { CAPTIONS_METALLIC, CAPTIONS_NORMAL, CAPTIONS_MATTE, CAPTIONS_METAL, CAPTIONS_CHROME, CAPTIONS_WHEELS };
-const std::vector<std::string> VOV_PAINT_VALUES[] = { VALUES_METALLIC, VALUES_NORMAL, VALUES_MATTE, VALUES_METAL, VALUES_CHROME, VALUES_WHEELS };
+const std::vector<std::string> VOV_PAINT_CAPTIONS[] = { CAPTIONS_METALLIC, CAPTIONS_NORMAL, CAPTIONS_MATTE, CAPTIONS_METAL, CAPTIONS_CHROME };
+const std::vector<std::string> VOV_PAINT_VALUES[] = { VALUES_METALLIC, VALUES_NORMAL, VALUES_MATTE, VALUES_METAL, VALUES_CHROME };
+
+const std::vector<std::string> VOV_SPECIAL_CAPTIONS[] = { CAPTIONS_METALLIC, CAPTIONS_WHEELS };
+const std::vector<std::string> VOV_SPECIAL_VALUES[] = { VALUES_METALLIC, VALUES_WHEELS };
+
 
 void onhighlight_livery(MenuItem<int> choice)
 {
@@ -141,11 +145,11 @@ bool onconfirm_paint_menu(MenuItem<int> choice)
 	::whichpart = choice.value;
 	if (whichpart == 3) //Wheels
 	{
-		process_paint_menu_special(5);
+		process_paint_menu_special(1);
 	}
 	else if (whichpart == 2) //Pearl topcoat
 	{
-		process_paint_menu_special(1);
+		process_paint_menu_special(0);
 	}
 	else if (whichpart == -1)
 	{
@@ -161,11 +165,11 @@ bool process_paint_menu_special(int category)
 {
 
 	std::vector<MenuItem<std::string>*> menuItems;
-	for (int i = 0; i < VOV_PAINT_VALUES[category].size(); i++)
+	for (int i = 0; i < VOV_SPECIAL_VALUES[category].size(); i++)
 	{
 		MenuItem<std::string> *item = new MenuItem<std::string>();
-		item->caption = VOV_PAINT_CAPTIONS[category][i];
-		item->value = VOV_PAINT_VALUES[category][i];
+		item->caption = VOV_SPECIAL_CAPTIONS[category][i];
+		item->value = VOV_SPECIAL_VALUES[category][i];
 		menuItems.push_back(item);
 	}
 	return draw_generic_menu<std::string>(menuItems, 0, "Select Color", onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL);
