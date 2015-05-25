@@ -32,7 +32,7 @@ const std::vector<std::string> CAPTIONS_METAL{ "Brushed Steel", "Brushed Black S
 
 const std::vector<std::string> CAPTIONS_CHROME{ "Chrome" };
 
-const std::vector<std::string> CAPTIONS_WHEELS{ "Alloy", "Black", "Carbon Black", "Anthracite Black", "Black Steel", "Stone Silver", "Frost White", "Red", "Blaze Red", "Garnet Red", "Candy Red", "Sunset Red", "Salmon Pink", "Hot Pink", "Sunrise Orange", "Orange", "Bright Orange", "Gold", "Straw Brown", "Dark Copper", "Dark Ivory", "Dark Brown", "Bronze", "Dark Earth", "Desert Tan", "Yellow", "Race Yellow", "Yellow Bird", "Lime Green", "Pea Green", "Green", "Dark Green", "Olive Green", "Midnight Blue", "Royal Blue", "Baby Blue", "Bright Blue", "Flourescent Blue", "Slate Blue", "Schafter Purple", "Midnight Purple" };
+const std::vector<std::string> CAPTIONS_WHEELS{ "Bright Silver", "Aluminum", "Alloy", "Black", "Carbon Black", "Anthracite Black", "Black Steel", "Stone Silver", "Frost White", "Red", "Blaze Red", "Garnet Red", "Candy Red", "Sunset Red", "Salmon Pink", "Hot Pink", "Sunrise Orange", "Orange", "Bright Orange", "Gold", "Straw Brown", "Dark Copper", "Dark Ivory", "Dark Brown", "Bronze", "Dark Earth", "Desert Tan", "Yellow", "Race Yellow", "Yellow Bird", "Lime Green", "Pea Green", "Green", "Dark Green", "Olive Green", "Midnight Blue", "Royal Blue", "Baby Blue", "Bright Blue", "Flourescent Blue", "Slate Blue", "Schafter Purple", "Midnight Purple" };
 
 
 //Paint Values
@@ -46,7 +46,7 @@ const std::vector<std::string> VALUES_METAL{ "0", "1", "2", "3", "4" };
 
 const std::vector<std::string> VALUES_CHROME{ "0" };
 
-const std::vector<std::string> VALUES_WHEELS{ "156", "0", "1", "11", "2", "8", "122", "27", "30", "45", "35", "33", "136", "135", "36", "41", "138", "37", "99", "90", "95", "115", "109", "153", "154", "88", "89", "91", "55", "125", "53", "56", "151", "82", "64", "87", "70", "140", "81", "145", "142" };
+const std::vector<std::string> VALUES_WHEELS{ "5", "119", "156", "0", "1", "11", "2", "8", "122", "27", "30", "45", "35", "33", "136", "135", "36", "41", "138", "37", "99", "90", "95", "115", "109", "153", "154", "88", "89", "91", "55", "125", "53", "56", "151", "82", "64", "87", "70", "140", "81", "145", "142" };
 
 
 const std::vector<std::string> VOV_PAINT_CAPTIONS[] = { CAPTIONS_METALLIC, CAPTIONS_NORMAL, CAPTIONS_MATTE, CAPTIONS_METAL, CAPTIONS_CHROME };
@@ -157,22 +157,42 @@ bool onconfirm_paint_menu(MenuItem<int> choice)
 	}
 	else
 	{
-		process_paint_menu_type();
+		process_paint_menu_type(); //Primary and Secondary Colors
 	}
 	return false;
 }
 bool process_paint_menu_special(int category)
 {
-
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 	std::vector<MenuItem<std::string>*> menuItems;
-	for (int i = 0; i < VOV_SPECIAL_VALUES[category].size(); i++)
+	Any paint1, paint2, paint3;
+	VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
+	int index = 0;
+
+	if (paint1 == 3 || paint1 == 4 || paint1 == 5)
 	{
-		MenuItem<std::string> *item = new MenuItem<std::string>();
-		item->caption = VOV_SPECIAL_CAPTIONS[category][i];
-		item->value = VOV_SPECIAL_VALUES[category][i];
-		menuItems.push_back(item);
+		set_status_text("Pearl cannot be applied over this paint type");
+		return false;
 	}
-	return draw_generic_menu<std::string>(menuItems, 0, "Select Color", onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL);
+
+	else
+	{
+		for (int i = 0; i < VOV_SPECIAL_VALUES[category].size(); i++)
+		{
+			MenuItem<std::string> *item = new MenuItem<std::string>();
+			item->caption = VOV_SPECIAL_CAPTIONS[category][i];
+			item->value = VOV_SPECIAL_VALUES[category][i];
+			menuItems.push_back(item);
+		}
+
+		if (::whichpart == 2) //index as pearlescent top coat color
+		{
+			index = paint3;
+			if (index > -1){ index = paint3 + 1; }
+		}
+	}
+	return draw_generic_menu<std::string>(menuItems, &index, "Select Color", onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL);
 }
 bool process_paint_menu()
 {
@@ -224,6 +244,9 @@ bool process_paint_menu()
 bool onconfirm_paint_menu_type(MenuItem<int> choice)
 {
 	std::string category = choice.caption;
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+	int index = 0;
 
 	std::vector<MenuItem<std::string>*> menuItems;
 	for (int i = 0; i < VOV_PAINT_VALUES[choice.value].size(); i++)
@@ -233,13 +256,32 @@ bool onconfirm_paint_menu_type(MenuItem<int> choice)
 		item->value = VOV_PAINT_VALUES[choice.value][i];
 		menuItems.push_back(item);
 	}
-	::whichtype = choice.value;
+
+	::whichtype = choice.value; //save paint type for later
 	if (whichtype > 1) { ::whichtype = whichtype + 1; }
-	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL, vehicle_menu_interrupt);
+
+	if (::whichpart == 0) //index as primary color
+	{
+		Any paint1, paint2, paint3;
+		VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
+		index = paint2;
+	}
+	else if (::whichpart == 1) //index as secondary color
+	{
+		Any paint1, paint2;
+		VEHICLE::GET_VEHICLE_MOD_COLOR_2(veh, &paint1, &paint2);
+		index = paint2;
+	}
+
+	return draw_generic_menu<std::string>(menuItems, &index, category, onconfirm_color_menu_selection, onhighlight_color_menu_selection, NULL, vehicle_menu_interrupt);
 }
 
 bool process_paint_menu_type()
 {
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+	int index = 0;
+
 	std::vector<MenuItem<int>*> menuItems;
 	for (int i = 0; i < MENU_PAINT_TYPE.size(); i++)
 	{
@@ -250,7 +292,23 @@ bool process_paint_menu_type()
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, "Choose Paint Type", onconfirm_paint_menu_type, NULL, NULL, vehicle_menu_interrupt);
+	if (::whichpart == 0) //index as primary color type
+	{
+		Any paint1, paint2, paint3;
+		VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
+		index = paint1;
+		if (index == 2) { index = 0; } //if paint type is pearlescent index to paint type metallic
+		else if (index > 2) { index = index - 1; }
+	}
+	else if (::whichpart == 1) //index as secondary color type
+	{
+		Any paint1, paint2;
+		VEHICLE::GET_VEHICLE_MOD_COLOR_2(veh, &paint1, &paint2);
+		index = paint1;
+		if (index > 1) { index = index - 1; }
+	}
+
+	return draw_generic_menu<int>(menuItems, &index, "Choose Paint Type", onconfirm_paint_menu_type, NULL, NULL, vehicle_menu_interrupt);
 }
 
 void onhighlight_color_menu_selection(MenuItem<std::string> choice)
@@ -264,6 +322,7 @@ bool onconfirm_color_menu_selection(MenuItem<std::string> choice)
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
 	if (bPlayerExists)
 	{
 		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -271,25 +330,25 @@ bool onconfirm_color_menu_selection(MenuItem<std::string> choice)
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 			VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
-			if (::whichpart == 0) //Primary Color
+			if (::whichpart == 0) //Apply primary Color
 			{
-				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, ::whichtype, whichpaint, 0);
+				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, ::whichtype, whichpaint, -1);
 			}
-			else if (::whichpart == 1) //Secondary Color
+			else if (::whichpart == 1) //apply secondary Color
 			{
 				VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, ::whichtype, whichpaint);
 			}
-			else if (::whichpart == 2) //Pearl Topcoat
+			else if (::whichpart == 2) //Apply pearl Topcoat
 			{
 				Any paint1, paint2, paint3;
 				VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
-				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, 2, paint2, whichpaint - 1); //change type to pearl and apply topcoat
+				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, 2, paint2, whichpaint - 1); //change paint type to pearl and apply topcoat
 			}
-			else if (::whichpart == 3) //Wheels
+			else if (::whichpart == 3) //Apply wheel color
 			{
-				Any paint1, paint2;
+				Any paint1, paint2;//pearl topcoat, wheel color
 				VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &paint1, &paint2);
-				VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, paint1, whichpaint); //pearl topcoat followed by wheel color
+				VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, paint1, whichpaint); //apply wheel color without changing pearl topcoat
 			}
 
 		}
