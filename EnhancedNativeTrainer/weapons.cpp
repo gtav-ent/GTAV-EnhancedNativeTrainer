@@ -229,18 +229,22 @@ void reset_weapon_globals()
 		featureWeaponVehRockets = false;
 }
 
-void update_weapon_features(BOOL bPlayerExists, Ped player)
+void update_weapon_features(BOOL bPlayerExists, Player player)
 {
 	// weapon
 	if (featureWeaponFireAmmo)
 	{
 		if (bPlayerExists)
+		{
 			GAMEPLAY::SET_FIRE_AMMO_THIS_FRAME(player);
+		}
 	}
 	if (featureWeaponExplosiveAmmo)
 	{
 		if (bPlayerExists)
+		{
 			GAMEPLAY::SET_EXPLOSIVE_AMMO_THIS_FRAME(player);
+		}
 	}
 	if (featureWeaponExplosiveMelee)
 	{

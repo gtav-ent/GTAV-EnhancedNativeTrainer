@@ -24,7 +24,7 @@ bool process_weaponlist_menu();
 
 void reset_weapon_globals();
 
-void update_weapon_features(BOOL playerExists, Ped playerPed);
+void update_weapon_features(BOOL bPlayerExists, Player player);
 
 void update_vehicle_guns();
 

@@ -86,6 +86,8 @@ bool featureMiscHideHud					=	false;
 bool featureWantedLevelFrozen			=	false;
 int  frozenWantedLevel					=	0;
 
+bool featurePlayerResetOnDeath = true;
+
 // player model control, switching on normal ped model when needed	
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
@@ -113,7 +115,7 @@ void check_player_model()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed)) return;
 
-	if (ENTITY::IS_ENTITY_DEAD(playerPed))
+	if (ENTITY::IS_ENTITY_DEAD(playerPed) && featurePlayerResetOnDeath)
 	{
 		bool found = false;
 		Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
@@ -130,15 +132,7 @@ void check_player_model()
 		if (!found)
 		{
 			set_status_text("Resetting player model");
-			model = GAMEPLAY::GET_HASH_KEY("player_zero");
-			STREAMING::REQUEST_MODEL(model);
-			while (!STREAMING::HAS_MODEL_LOADED(model))
-			{
-				WAIT(0);
-			}
-			PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), model);
-			PED::SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID());
-			STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
+			applyChosenSkin("player_zero");
 		}
 
 		// wait until player is ressurected
@@ -307,7 +301,7 @@ void update_features()
 			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(false);
 	}
 
-	update_weapon_features(bPlayerExists, playerPed);
+	update_weapon_features(bPlayerExists, player);
 
 	update_vehicle_features(bPlayerExists, playerPed);
 
@@ -862,14 +856,15 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 
 void process_misc_menu()
 {
-	const int lineCount = 3;
+	const int lineCount = 4;
 
-	std::string caption = "Misc Options";
+	std::string caption = "Miscellaneous Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
 		{"Next Radio Track",	NULL,					NULL, true},
-		{"Hide HUD",			&featureMiscHideHud,	NULL}
+		{"Hide HUD",			&featureMiscHideHud,	NULL},
+		{"Reset Skin On Death", &featurePlayerResetOnDeath, NULL}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexMisc, caption, onconfirm_misc_menu);

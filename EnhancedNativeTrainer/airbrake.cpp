@@ -167,33 +167,20 @@ void moveThroughDoor()
 	// common variables
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		return;
+	}
+
 	Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
 	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+
 	float forwardPush = 0.6;
 
-	int sector = (int) curHeading / 90;
-	float angle = fmod(curHeading, 90);
+	float xVect = forwardPush * sin(degToRad(curHeading)) * -1.0f;
+	float yVect = forwardPush * cos(degToRad(curHeading));
 
-	float xVect = ((forwardPush / sin(degToRad(90)))*sin(degToRad(angle)));
-	float yVect = ((forwardPush / sin(degToRad(90)))*sin(degToRad(180 - (angle + 90))));
-
-	switch (sector)
-	{
-	case 0: //0-90Åã
-		ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z, 0, 0, 1);
-		break;
-	case 1: //90 - 180Åã
-		ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z, 0, 0, 1);
-		break;
-	case 2: //180 - 270Åã
-		ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y - yVect, curLocation.z, 0, 0, 1);
-		break;
-	case 3: //270 - 360Åã
-		ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z, 0, 0, 1);
-		break;
-	default:
-		break;
-	}
+	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z, 1, 1, 1);
 }
 
 bool lshiftWasDown = false;
