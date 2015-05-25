@@ -15,6 +15,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "inc\enums.h"
 
 #include "inc\main.h"
+#include "menu_functions.h"
 
 void process_weapon_menu();
 
@@ -39,3 +40,26 @@ void set_weapon_equipped(bool equipped, std::vector<int> extras);
 void give_weapon_clip(MenuItem<int> choice);
 
 void fill_weapon_ammo(MenuItem<int> choice);
+
+
+//Weapon mod menu
+bool process_weapon_mod_menu();
+
+bool onconfirm_weapon_mod_menu(MenuItem<int> choice);
+
+
+bool process_weapon_mod_menu_tint();
+
+void onhighlight_weapon_mod_menu_tint(MenuItem<std::string> choice);
+
+bool onconfirm_weapon_mod_menu_tint(MenuItem<std::string> choice);
+
+
+bool process_weapon_mod_menu_attachments(int wepindex);
+
+bool onconfirm_weapon_mod_menu_attachments(MenuItem<std::string> choice);
+
+
+int checkweapon_modlist(Weapon wep);
+
+int checkweapon_tintlist(Weapon wep);

@@ -14,6 +14,7 @@
     <ClCompile Include="weapons.cpp" />
     <ClCompile Include="vehmodmenu.cpp" />
     <ClCompile Include="paintmenu.cpp" />
+    <ClCompile Include="weaponmodmenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="script.h" />
