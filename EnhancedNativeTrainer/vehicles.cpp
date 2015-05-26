@@ -559,3 +559,15 @@ bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 	}
 	return false;
 }
+
+
+std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
+{
+	std::vector<FeatureEnabledLocalDefinition> results;
+	results.push_back(FeatureEnabledLocalDefinition{ "featureNoVehFallOff", &featureNoVehFallOff, &featureNoVehFallOffUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehicleDoorInstant", &featureVehicleDoorInstant });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvincible", &featureVehInvincible, &featureVehInvincibleUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
+	return results;
+}

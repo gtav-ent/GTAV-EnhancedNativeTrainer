@@ -17,6 +17,12 @@ struct FeatureEnabledDBRow
 	bool enabled;
 };
 
+struct StringPairSettingDBRow
+{
+	char* name;
+	char* value;
+};
+
 class FeatureEnabledLocalDefinition
 {
 public:

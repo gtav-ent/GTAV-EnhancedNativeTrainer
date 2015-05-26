@@ -17,6 +17,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "inc\main.h"
 
 #include "menu_functions.h"
+#include "database.h"
 
 #include <string>
 
@@ -83,3 +84,5 @@ void set_extra_enabled(bool applied, std::vector<int> extras);
 int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
 
 bool vehicle_menu_interrupt();
+
+std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles();

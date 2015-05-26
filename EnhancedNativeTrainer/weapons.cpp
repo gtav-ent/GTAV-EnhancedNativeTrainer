@@ -466,3 +466,16 @@ void fill_weapon_ammo(MenuItem<int> choice)
 
 	set_status_text("Ammo Filled");
 }
+
+std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_weapons()
+{
+	std::vector<FeatureEnabledLocalDefinition> results;
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeaponExplosiveAmmo", &featureWeaponExplosiveAmmo });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeaponExplosiveMelee", &featureWeaponExplosiveMelee });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeaponFireAmmo", &featureWeaponFireAmmo });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeaponInfiniteAmmo", &featureWeaponInfiniteAmmo });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeaponInfiniteParachutes", &featureWeaponInfiniteParachutes });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeaponNoReload", &featureWeaponNoReload });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWeaponVehRockets", &featureWeaponVehRockets });
+	return results;
+}

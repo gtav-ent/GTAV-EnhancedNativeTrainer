@@ -16,6 +16,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
+#include "database.h"
+
 void process_weapon_menu();
 
 bool process_give_melee();
@@ -39,3 +41,5 @@ void set_weapon_equipped(bool equipped, std::vector<int> extras);
 void give_weapon_clip(MenuItem<int> choice);
 
 void fill_weapon_ammo(MenuItem<int> choice);
+
+std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_weapons();
