@@ -265,7 +265,8 @@ inline void draw_menu_header_line(std::string caption, float lineWidth, float li
 		UI::SET_TEXT_WRAP(0.0f, lineLeftScaled + lineWidthScaled - leftMarginScaled);
 		UI::_SET_TEXT_ENTRY("STRING");
 
-		UI::_ADD_TEXT_COMPONENT_STRING((char *)ss.str().c_str());
+		auto ssStr = ss.str();
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
 	}
 }
@@ -405,8 +406,8 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		std::stringstream ss;
 		ss.imbue(std::locale(""));
 		ss << std::string("$") << std::fixed << cashItem->GetCash();
-
-		UI::_ADD_TEXT_COMPONENT_STRING((char *)ss.str().c_str());
+		auto ssStr = ss.str();
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
 	}
 	else if (WantedSymbolItem<T>* wantedItem = dynamic_cast<WantedSymbolItem<T>*>(item))
@@ -441,7 +442,8 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		UI::SET_TEXT_WRAP(0, lineLeftScaled + lineWidthScaled - rightMarginScaled - (starWidth*(5-i)));
 		UI::_SET_TEXT_ENTRY("STRING");
 
-		UI::_ADD_TEXT_COMPONENT_STRING((char *) wantedStars.str().c_str());
+		auto wantedStarsStr = wantedStars.str();
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)wantedStarsStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
 
 		text_col[0] = 100;
@@ -466,7 +468,8 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		UI::SET_TEXT_WRAP(0, lineLeftScaled + lineWidthScaled - rightMarginScaled);
 		UI::_SET_TEXT_ENTRY("STRING");
 
-		UI::_ADD_TEXT_COMPONENT_STRING((char *)unwantedStars.str().c_str());
+		auto unwantedStarsStr = unwantedStars.str();
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)unwantedStarsStr.c_str());
 
 		UI::_DRAW_TEXT(0, textY);
 	}

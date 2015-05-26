@@ -157,7 +157,8 @@ void ENTDatabase::open()
 	{
 		ss.str(""); ss.clear();
 		ss << "INSERT OR REPLACE INTO ENT_DB_MANIFEST (MANIFEST_KEY, MANIFEST_VALUE) VALUES('VERSION', '" << DATABASE_VERSION << "')";
-		rc = sqlite3_exec(db, ss.str().c_str(), emptyCallback, NULL, &zErrMsg);
+		auto ssStr = ss.str();
+		rc = sqlite3_exec(db, ssStr.c_str(), emptyCallback, NULL, &zErrMsg);
 		if (rc != SQLITE_OK)
 		{
 			write_text_to_log_file("Couldn't update version");
@@ -190,7 +191,8 @@ void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDef
 		FeatureEnabledLocalDefinition def = values.at(i);
 		std::stringstream ss;
 		ss << "REPLACE INTO ENT_FEATURE_ENABLEMENT VALUES ('" << def.name << "', " << (*def.enabled ? 1 : 0) << ")";
-		int rc = sqlite3_exec(db, ss.str().c_str(), emptyCallback, NULL, &zErrMsg);
+		auto ssStr = ss.str();
+		int rc = sqlite3_exec(db, ssStr.c_str(), emptyCallback, NULL, &zErrMsg);
 		if (rc != SQLITE_OK)
 		{
 			write_text_to_log_file("Failed to insert feature enablement row");
@@ -234,14 +236,14 @@ void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values
 
 		sqlite3_stmt *stmt;
 		const char *pzTest;
-
-		int rc = sqlite3_prepare(db, ss.str().c_str(), strlen(ss.str().c_str()), &stmt, &pzTest);
+		auto ssStr = ss.str();
+		int rc = sqlite3_prepare(db, ssStr.c_str(), ssStr.length(), &stmt, &pzTest);
 
 		if (rc == SQLITE_OK)
 		{
 			// bind the value
-			sqlite3_bind_text(stmt, 1, setting.name.c_str(), strlen(setting.name.c_str()), 0);
-			sqlite3_bind_text(stmt, 2, setting.value.c_str(), strlen(setting.value.c_str()), 0);
+			sqlite3_bind_text(stmt, 1, setting.name.c_str(), setting.name.length(), 0);
+			sqlite3_bind_text(stmt, 2, setting.value.c_str(), setting.value.length(), 0);
 
 			// commit
 			sqlite3_step(stmt);

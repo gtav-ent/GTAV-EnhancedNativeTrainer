@@ -258,7 +258,7 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 	{
 		char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, category, index);
 		bool foundName = false;
-		if (modItemNameChr != NULL && strlen(modItemNameChr)>0)
+		if (modItemNameChr != NULL && strlen(modItemNameChr) > 0)
 		{
 			char* modItemNameTxt = UI::GET_LABEL_TEXT(modItemNameChr);
 			if (modItemNameTxt != NULL)
