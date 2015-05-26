@@ -137,6 +137,7 @@ const int PARACHUTE_ID = 0xFBAB5776;
 
 const int TOTAL_WEAPONS_COUNT = 53;
 const int TOTAL_WEAPONS_SLOTS = 57;
+const int MAX_MOD_SLOTS = 15;
 
 int activeLineIndexWeapon = 0;
 int lastSelectedWeaponCategory = 0;
@@ -156,6 +157,8 @@ DWORD featureWeaponVehShootLastTime = 0;
 int saved_weapon_model[TOTAL_WEAPONS_SLOTS];
 int saved_ammo[TOTAL_WEAPONS_SLOTS];
 int saved_clip_ammo[TOTAL_WEAPONS_SLOTS];
+int saved_weapon_tints[TOTAL_WEAPONS_SLOTS];
+bool saved_weapon_mods[TOTAL_WEAPONS_SLOTS][MAX_MOD_SLOTS];
 bool saved_parachute = false;
 int saved_armour = 0;
 
@@ -525,14 +528,41 @@ void save_player_weapons()
 	{
 		for (int j = 0; j < VOV_WEAPON_VALUES[i].size(); j++)
 		{
-			char *weaponName = (char*)VOV_WEAPON_VALUES[i].at(j).c_str();
+			std::string weaponNameStr = VOV_WEAPON_VALUES[i].at(j);
+			char *weaponName = (char*)weaponNameStr.c_str();
 			if (WEAPON::HAS_PED_GOT_WEAPON(playerPed, GAMEPLAY::GET_HASH_KEY(weaponName), 0))
 			{
 				Weapon w = GAMEPLAY::GET_HASH_KEY(weaponName);
 				saved_weapon_model[index] = w;
 				saved_ammo[index] = WEAPON::GET_AMMO_IN_PED_WEAPON(playerPed, w);
 				WEAPON::GET_AMMO_IN_CLIP(playerPed, w, &saved_clip_ammo[index]);
+
+				for (int k = 0; k < WEAPONTYPES_TINT.size(); k++)
+				{
+					if (weaponNameStr.compare(WEAPONTYPES_TINT.at(k)) == 0)
+					{
+						saved_weapon_tints[index] = WEAPON::GET_PED_WEAPON_TINT_INDEX(playerPed, w);
+						break;
+					}
+				}
+
+				for (int k = 0; k < WEAPONTYPES_MOD.size(); k++)
+				{
+					if (weaponNameStr.compare(WEAPONTYPES_MOD.at(k)) == 0)
+					{
+						for (int m = 0; m < VOV_WEAPONMOD_VALUES[k].size(); m++)
+						{
+							std::string componentName = VOV_WEAPONMOD_VALUES[k].at(m);
+							DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+							bool modEquipped = WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, w, componentHash) ? true : false;
+							saved_weapon_mods[index][m] = modEquipped;
+						}
+						break;
+					}
+				}
 			}
+
 			index++;
 		}
 	}
@@ -550,9 +580,42 @@ void restore_player_weapons()
 		for (int j = 0; j < VOV_WEAPON_VALUES[i].size(); j++)
 		{
 			char *weaponName = (char*)VOV_WEAPON_VALUES[i].at(j).c_str();
+			Weapon w = GAMEPLAY::GET_HASH_KEY(weaponName);
 			WEAPON::GIVE_WEAPON_TO_PED(playerPed, saved_weapon_model[index], 1000, 0, 0);
 			WEAPON::SET_PED_AMMO(playerPed, saved_weapon_model[i], saved_ammo[index]);
 			WEAPON::SET_AMMO_IN_CLIP(playerPed, saved_weapon_model[i], saved_clip_ammo[index]);
+
+			for (int k = 0; k < WEAPONTYPES_TINT.size(); k++)
+			{
+				if (VOV_WEAPON_VALUES[i].at(j).compare(WEAPONTYPES_TINT.at(k)) == 0)
+				{
+					WEAPON::SET_PED_WEAPON_TINT_INDEX(playerPed, w, saved_weapon_tints[index]);
+					break;
+				}
+			}
+
+			for (int k = 0; k < WEAPONTYPES_MOD.size(); k++)
+			{
+				if (VOV_WEAPON_VALUES[i].at(j).compare(WEAPONTYPES_MOD.at(k)) == 0)
+				{
+					for (int m = 0; m < VOV_WEAPONMOD_VALUES[k].size(); m++)
+					{
+						std::string componentName = VOV_WEAPONMOD_VALUES[k].at(m);
+						DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+						if (saved_weapon_mods[index][m])
+						{
+							WEAPON::GIVE_WEAPON_COMPONENT_TO_PED(playerPed, w, componentHash);
+						}
+						else
+						{
+							WEAPON::REMOVE_WEAPON_COMPONENT_FROM_PED(playerPed, w, componentHash);
+						}
+					}
+					break;
+				}
+			}
+
 			index++;
 		}
 	}
@@ -695,7 +758,21 @@ void onconfirm_open_tint_menu(MenuItem<int> choice)
 		menuItems.push_back(item);
 	}
 
-	draw_generic_menu<int>(menuItems, 0, "Select Tint Color", onconfirm_weapon_mod_menu_tint, NULL, NULL);
+	std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(lastSelectedWeapon);
+	char *weaponChar = (char*)weaponValue.c_str();
+	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
+
+	int tintSelection = 0;
+	for (int i = 0; i < WEAPONTYPES_TINT.size(); i++)
+	{
+		if (WEAPON::GET_PED_WEAPON_TINT_INDEX(playerPed, weapHash) == VALUES_TINT[i])
+		{
+			tintSelection = i;
+			break;
+		}
+	}
+
+	draw_generic_menu<int>(menuItems, &tintSelection, "Select Tint Color", onconfirm_weapon_mod_menu_tint, NULL, NULL);
 }
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_weapons()
