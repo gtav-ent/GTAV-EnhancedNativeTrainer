@@ -34,6 +34,105 @@ const std::vector<std::string> VALUES_THROWN{ "WEAPON_GRENADE", "WEAPON_STICKYBO
 const std::vector<std::string> VOV_WEAPON_CAPTIONS[] = { CAPTIONS_MELEE, CAPTIONS_HANDGUN, CAPTIONS_SUBMACHINE, CAPTIONS_ASSAULT, CAPTIONS_SHOTGUN, CAPTIONS_SNIPER, CAPTIONS_HEAVY, CAPTIONS_THROWN };
 const std::vector<std::string> VOV_WEAPON_VALUES[] = { VALUES_MELEE, VALUES_HANDGUN, VALUES_SUBMACHINE, VALUES_ASSAULT, VALUES_SHOTGUN, VALUES_SNIPER, VALUES_HEAVY, VALUES_THROWN };
 
+//Weapon tints
+const std::vector<std::string> CAPTIONS_TINT{ "Normal", "Green", "Gold", "Pink", "Army", "LSPD", "Orange", "Platinum" };
+const std::vector<int> VALUES_TINT{ 0, 1, 2, 3, 4, 5, 6, 7 };
+
+//Pistols
+const std::vector<std::string> CAPTIONS_ATTACH_PISTOL{ "Extended Magazine", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_PISTOL{ "COMPONENT_PISTOL_CLIP_02", "COMPONENT_AT_PI_SUPP_02", "COMPONENT_AT_PI_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_COMBATPISTOL{ "Extended Magazine", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_COMBATPISTOL{ "COMPONENT_COMBATPISTOL_CLIP_02", "COMPONENT_AT_PI_SUPP", "COMPONENT_AT_PI_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_APPISTOL{ "Extended Magazine", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_APPISTOL{ "COMPONENT_APPISTOL_CLIP_02", "COMPONENT_AT_PI_SUPP", "COMPONENT_AT_PI_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_PISTOL50{ "Extended Magazine", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_PISTOL50{ "COMPONENT_PISTOL50_CLIP_02", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_PI_FLSH" };
+
+//SMGs
+const std::vector<std::string> CAPTIONS_ATTACH_MICROSMG{ "Extended Magazine", "Scope", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_MICROSMG{ "COMPONENT_MICROSMG_CLIP_02", "COMPONENT_AT_SCOPE_MACRO", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_PI_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_SMG{ "Extended Magazine", "Scope", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_SMG{ "COMPONENT_SMG_CLIP_02", "COMPONENT_AT_SCOPE_MACRO_02", "COMPONENT_AT_PI_SUPP", "COMPONENT_AT_AR_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_ASSAULTSMG{ "Extended Magazine", "Scope", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_ASSAULTSMG{ "COMPONENT_ASSAULTSMG_CLIP_02", "COMPONENT_AT_SCOPE_MACRO", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_AR_FLSH" };
+
+//Rifles
+const std::vector<std::string> CAPTIONS_ATTACH_ASSAULTRIFLE{ "Extended Magazine", "Scope", "Suppressor", "Grip", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_ASSAULTRIFLE{ "COMPONENT_ASSAULTRIFLE_CLIP_02", "COMPONENT_AT_SCOPE_MACRO", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_AR_AFGRIP", "COMPONENT_AT_AR_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_CARBINERIFLE{ "Extended Magazine", "Scope", "Suppressor", "Grip", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_CARBINERIFLE{ "COMPONENT_CARBINERIFLE_CLIP_02", "COMPONENT_AT_SCOPE_MEDIUM", "COMPONENT_AT_AR_SUPP", "COMPONENT_AT_AR_AFGRIP", "COMPONENT_AT_AR_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_ADVANCEDRIFLE{ "Extended Magazine", "Scope", "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_ADVANCEDRIFLE{ "COMPONENT_ADVANCEDRIFLE_CLIP_02", "COMPONENT_AT_SCOPE_SMALL", "COMPONENT_AT_AR_SUPP", "COMPONENT_AT_AR_FLSH" };
+
+//Machine Guns
+const std::vector<std::string> CAPTIONS_ATTACH_MG{ "Extended Magazine", "Scope" };
+const std::vector<std::string> VALUES_ATTACH_MG{ "COMPONENT_MG_CLIP_02", "COMPONENT_AT_SCOPE_SMALL_02" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_COMBATMG{ "Extended Magazine", "Scope", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_COMBATMG{ "COMPONENT_COMBATMG_CLIP_02", "COMPONENT_AT_SCOPE_MEDIUM", "COMPONENT_AT_AR_AFGRIP" };
+
+//Shotguns
+const std::vector<std::string> CAPTIONS_ATTACH_PUMPSHOTGUN{ "Suppressor", "Flashlight" };
+const std::vector<std::string> VALUES_ATTACH_PUMPSHOTGUN{ "COMPONENT_AT_SR_SUPP", "COMPONENT_AT_AR_FLSH" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_ASSAULTSHOTGUN{ "Extended Magazine", "Suppressor", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_ASSAULTSHOTGUN{ "COMPONENT_ASSAULTSHOTGUN_CLIP_02", "COMPONENT_AT_AR_SUPP", "COMPONENT_AT_AR_AFGRIP" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_BULLPUPSHOTGUN{ "Flashlight", "Suppressor", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_BULLPUPSHOTGUN{ "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_AR_AFGRIP" };
+
+//Sniper Rifles
+const std::vector<std::string> CAPTIONS_ATTACH_SNIPERRIFLE{ "Advanced Scope", "Suppressor" };
+const std::vector<std::string> VALUES_ATTACH_SNIPERRIFLE{ "COMPONENT_AT_SCOPE_MAX", "COMPONENT_AT_AR_SUPP_02" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_HEAVYSNIPER{ "Normal Scope" };
+const std::vector<std::string> VALUES_ATTACH_HEAVYSNIPER{ "COMPONENT_AT_SCOPE_LARGE" };
+
+//Heavy Weapons
+const std::vector<std::string> CAPTIONS_ATTACH_GRENADELAUNCHER{ "Scope", "Flashlight", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_GRENADELAUNCHER{ "COMPONENT_AT_SCOPE_SMALL", "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_AR_AFGRIP" };
+
+//DLC Weapons
+const std::vector<std::string> CAPTIONS_ATTACH_BULLPUPRIFLE{ "Extended Magazine", "Flashlight", "Scope", "Suppressor", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_BULLPUPRIFLE{ "COMPONENT_BULLPUPRIFLE_CLIP_02", "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_SCOPE_SMALL", "COMPONENT_AT_AR_SUPP", "COMPONENT_AT_AR_AFGRIP" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_GUSENBERG{ "Extended Magazine" };
+const std::vector<std::string> VALUES_ATTACH_GUSENBERG{ "COMPONENT_GUSENBERG_CLIP_02" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_HEAVYPISTOL{ "Extended Magazine", "Flashlight", "Suppressor" };
+const std::vector<std::string> VALUES_ATTACH_HEAVYPISTOL{ "COMPONENT_HEAVYPISTOL_CLIP_02", "COMPONENT_AT_PI_FLSH", "COMPONENT_AT_PI_SUPP" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_HEAVYSHOTGUN{ "Extended Magazine", "Flashlight", "Suppressor", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_HEAVYSHOTGUN{ "COMPONENT_HEAVYSHOTGUN_CLIP_02", "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_AR_AFGRIP" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_MARKSMANRIFLE{ "Extended Magazine", "Flashlight", "Suppressor", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_MARKSMANRIFLE{ "COMPONENT_MARKSMANRIFLE_CLIP_02", "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_AR_SUPP", "COMPONENT_AT_AR_AFGRIP" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_SNSPISTOL{ "Extended Magazine" };
+const std::vector<std::string> VALUES_ATTACH_SNSPISTOL{ "COMPONENT_SNSPISTOL_CLIP_02" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_SPECIALCARBINE{ "Extended Magazine", "Flashlight", "Scope", "Suppressor", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_SPECIALCARBINE{ "COMPONENT_SPECIALCARBINE_CLIP_02", "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_SCOPE_MEDIUM", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_AR_AFGRIP" };
+
+const std::vector<std::string> CAPTIONS_ATTACH_VINTAGEPISTOL{ "Extended Magazine", "Suppressor" };
+const std::vector<std::string> VALUES_ATTACH_VINTAGEPISTOL{ "COMPONENT_VINTAGEPISTOL_CLIP_02", "COMPONENT_AT_PI_SUPP" };
+
+//Tintable weapons list
+const std::vector<std::string> WEAPONTYPES_TINT{ "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_SNSPISTOL", "WEAPON_HEAVYPISTOL", "WEAPON_VINTAGEPISTOL", "WEAPON_STUNGUN", "WEAPON_FLAREGUN", "WEAPON_MICROSMG", "WEAPON_SMG", "WEAPON_ASSAULTSMG", "WEAPON_MG", "WEAPON_COMBATMG", "WEAPON_GUSENBERG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_SPECIALCARBINE", "WEAPON_BULLPUPRIFLE", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_BULLPUPSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_MUSKET", "WEAPON_HEAVYSHOTGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_MARKSMANRIFLE", "WEAPON_GRENADELAUNCHER", "WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_FIREWORK", "WEAPON_RAILGUN", "WEAPON_HOMINGLAUNCHER" };
+
+//moddable weapons list
+const std::vector<std::string> WEAPONTYPES_MOD{ "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_MICROSMG", "WEAPON_SMG", "WEAPON_ASSAULTSMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_MG", "WEAPON_COMBATMG", "WEAPON_PUMPSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_BULLPUPSHOTGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_GRENADELAUNCHER", "WEAPON_BULLPUPRIFLE", "WEAPON_GUSENBERG", "WEAPON_HEAVYPISTOL", "WEAPON_HEAVYSHOTGUN", "WEAPON_MARKSMANRIFLE", "WEAPON_SNSPISTOL", "WEAPON_SPECIALCARBINE", "WEAPON_VINTAGEPISTOL" };
+
+const std::vector<std::string> VOV_WEAPONMOD_CAPTIONS[] = { CAPTIONS_ATTACH_PISTOL, CAPTIONS_ATTACH_COMBATPISTOL, CAPTIONS_ATTACH_APPISTOL, CAPTIONS_ATTACH_PISTOL50, CAPTIONS_ATTACH_MICROSMG, CAPTIONS_ATTACH_SMG, CAPTIONS_ATTACH_ASSAULTSMG, CAPTIONS_ATTACH_ASSAULTRIFLE, CAPTIONS_ATTACH_CARBINERIFLE, CAPTIONS_ATTACH_ADVANCEDRIFLE, CAPTIONS_ATTACH_MG, CAPTIONS_ATTACH_COMBATMG, CAPTIONS_ATTACH_PUMPSHOTGUN, CAPTIONS_ATTACH_ASSAULTSHOTGUN, CAPTIONS_ATTACH_BULLPUPSHOTGUN, CAPTIONS_ATTACH_SNIPERRIFLE, CAPTIONS_ATTACH_HEAVYSNIPER, CAPTIONS_ATTACH_GRENADELAUNCHER, CAPTIONS_ATTACH_BULLPUPRIFLE, CAPTIONS_ATTACH_GUSENBERG, CAPTIONS_ATTACH_HEAVYPISTOL, CAPTIONS_ATTACH_HEAVYSHOTGUN, CAPTIONS_ATTACH_MARKSMANRIFLE, CAPTIONS_ATTACH_SNSPISTOL, CAPTIONS_ATTACH_SPECIALCARBINE, CAPTIONS_ATTACH_VINTAGEPISTOL };
+const std::vector<std::string> VOV_WEAPONMOD_VALUES[] = { VALUES_ATTACH_PISTOL, VALUES_ATTACH_COMBATPISTOL, VALUES_ATTACH_APPISTOL, VALUES_ATTACH_PISTOL50, VALUES_ATTACH_MICROSMG, VALUES_ATTACH_SMG, VALUES_ATTACH_ASSAULTSMG, VALUES_ATTACH_ASSAULTRIFLE, VALUES_ATTACH_CARBINERIFLE, VALUES_ATTACH_ADVANCEDRIFLE, VALUES_ATTACH_MG, VALUES_ATTACH_COMBATMG, VALUES_ATTACH_PUMPSHOTGUN, VALUES_ATTACH_ASSAULTSHOTGUN, VALUES_ATTACH_BULLPUPSHOTGUN, VALUES_ATTACH_SNIPERRIFLE, VALUES_ATTACH_HEAVYSNIPER, VALUES_ATTACH_GRENADELAUNCHER, VALUES_ATTACH_BULLPUPRIFLE, VALUES_ATTACH_GUSENBERG, VALUES_ATTACH_HEAVYPISTOL, VALUES_ATTACH_HEAVYSHOTGUN, VALUES_ATTACH_MARKSMANRIFLE, VALUES_ATTACH_SNSPISTOL, VALUES_ATTACH_SPECIALCARBINE, VALUES_ATTACH_VINTAGEPISTOL };
+
 const int PARACHUTE_ID = 0xFBAB5776;
 
 const int TOTAL_WEAPONS_COUNT = 53;
@@ -60,6 +159,8 @@ int saved_clip_ammo[TOTAL_WEAPONS_SLOTS];
 bool saved_parachute = false;
 int saved_armour = 0;
 
+bool redrawWeaponMenuAfterEquipChange = false;
+
 bool process_individual_weapon_menu(int weaponIndex)
 {
 	lastSelectedWeapon = weaponIndex;
@@ -67,6 +168,11 @@ bool process_individual_weapon_menu(int weaponIndex)
 	std::string caption = VOV_WEAPON_CAPTIONS[lastSelectedWeaponCategory].at(weaponIndex);
 	std::string value = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(weaponIndex);
 	std::vector<MenuItem<int>*> menuItems;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(weaponIndex);
+	char *weaponChar = (char*)weaponValue.c_str();
+	bool isEquipped = (WEAPON::HAS_PED_GOT_WEAPON(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar), 0) ? true : false);
 
 	FunctionDrivenToggleMenuItem<int> *equipItem = new FunctionDrivenToggleMenuItem<int>();
 	std::stringstream ss;
@@ -79,37 +185,99 @@ bool process_individual_weapon_menu(int weaponIndex)
 	equipItem->extra_arguments.push_back(weaponIndex);
 	menuItems.push_back(equipItem);
 
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(lastSelectedWeapon);
-	char *weaponChar = (char*)weaponValue.c_str();
-	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
-	int maxClipAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, weapHash, false);
-
-	if (maxClipAmmo > 0)
+	if (isEquipped)
 	{
-		MenuItem<int> *giveClipItem = new MenuItem<int>();
-		giveClipItem->caption = "Give Clip";
-		giveClipItem->value = 2;
-		giveClipItem->isLeaf = true;
-		giveClipItem->onConfirmFunction = give_weapon_clip;
-		menuItems.push_back(giveClipItem);
 
-		MenuItem<int> *fillAmmoItem = new MenuItem<int>();
-		fillAmmoItem->caption = "Fill Ammo";
-		fillAmmoItem->value = 3;
-		fillAmmoItem->isLeaf = true;
-		fillAmmoItem->onConfirmFunction = fill_weapon_ammo;
-		menuItems.push_back(fillAmmoItem);
+		Ped playerPed = PLAYER::PLAYER_PED_ID();
+		std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(lastSelectedWeapon);
+		char *weaponChar = (char*)weaponValue.c_str();
+		int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
+		int maxClipAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, weapHash, false);
+
+		if (maxClipAmmo > 0)
+		{
+			MenuItem<int> *giveClipItem = new MenuItem<int>();
+			giveClipItem->caption = "Give Clip";
+			giveClipItem->value = 2;
+			giveClipItem->isLeaf = true;
+			giveClipItem->onConfirmFunction = give_weapon_clip;
+			menuItems.push_back(giveClipItem);
+
+			MenuItem<int> *fillAmmoItem = new MenuItem<int>();
+			fillAmmoItem->caption = "Fill Ammo";
+			fillAmmoItem->value = 3;
+			fillAmmoItem->isLeaf = true;
+			fillAmmoItem->onConfirmFunction = fill_weapon_ammo;
+			menuItems.push_back(fillAmmoItem);
+		}
+
+		int moddableIndex = -1;
+		for (int i = 0; i < WEAPONTYPES_MOD.size(); i++)
+		{
+			if (weaponValue.compare(WEAPONTYPES_MOD.at(i)) == 0)
+			{
+				moddableIndex = i;
+				break;
+			}
+		}
+
+		if (moddableIndex != -1)
+		{
+			std::vector<std::string> modCaptions = VOV_WEAPONMOD_CAPTIONS[moddableIndex];
+			for (int i = 0; i < modCaptions.size(); i++)
+			{
+				FunctionDrivenToggleMenuItem<int> *item = new FunctionDrivenToggleMenuItem<int>();
+				item->caption = modCaptions.at(i);
+				item->getter_call = is_weaponmod_equipped;
+				item->setter_call = set_weaponmod_equipped;
+				item->extra_arguments.push_back(lastSelectedWeaponCategory);
+				item->extra_arguments.push_back(weaponIndex);
+				item->extra_arguments.push_back(moddableIndex);
+				item->extra_arguments.push_back(i);
+				menuItems.push_back(item);
+			}
+		}
+
+		int tintableIndex = -1;
+		for (int i = 0; i < WEAPONTYPES_TINT.size(); i++)
+		{
+			if (weaponValue.compare(WEAPONTYPES_TINT.at(i)) == 0)
+			{
+				tintableIndex = i;
+				break;
+			}
+		}
+
+		if (tintableIndex != -1)
+		{
+			MenuItem<int> *tintItem = new MenuItem<int>();
+			tintItem->caption = "Weapon Tints";
+			tintItem->value = 4;
+			tintItem->isLeaf = false;
+			tintItem->onConfirmFunction = onconfirm_open_tint_menu;
+			menuItems.push_back(tintItem);
+		}
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, caption, NULL, NULL, NULL);
+	draw_generic_menu<int>(menuItems, 0, caption, NULL, NULL, NULL, weapon_reequip_interrupt);
 
 	return false;
 }
 
+bool weapon_reequip_interrupt()
+{
+	return redrawWeaponMenuAfterEquipChange;
+}
+
 bool onconfirm_weapon_in_category(MenuItem<int> choice)
 {
-	process_individual_weapon_menu(choice.value);
+	do
+	{
+		redrawWeaponMenuAfterEquipChange = false;
+		process_individual_weapon_menu(choice.value);
+	}
+	while (redrawWeaponMenuAfterEquipChange);
+
 	return false;
 }
 
@@ -126,7 +294,7 @@ bool process_weapons_in_category_menu(int category)
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, "Melee Weapons", onconfirm_weapon_in_category, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, 0, MENU_WEAPON_CATEGORIES[category], onconfirm_weapon_in_category, NULL, NULL);
 }
 
 bool onconfirm_weaponlist_menu(MenuItem<int> choice)
@@ -424,6 +592,42 @@ void set_weapon_equipped(bool equipped, std::vector<int> extras)
 	{
 		WEAPON::REMOVE_WEAPON_FROM_PED(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar));
 	}
+
+	redrawWeaponMenuAfterEquipChange = true;
+}
+
+bool is_weaponmod_equipped(std::vector<int> extras)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[extras.at(0)].at(extras.at(1));
+
+	char *weaponChar = (char*)weaponValue.c_str();
+	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
+
+	std::string componentName = VOV_WEAPONMOD_VALUES[extras.at(2)].at(extras.at(3));
+	DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+	return WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, weapHash, componentHash) ? true : false;
+}
+
+void set_weaponmod_equipped(bool equipped, std::vector<int> extras)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponValue = VOV_WEAPON_VALUES[extras.at(0)].at(extras.at(1));
+	char *weaponChar = (char*)weaponValue.c_str();
+	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
+
+	std::string componentName = VOV_WEAPONMOD_VALUES[extras.at(2)].at(extras.at(3));
+	DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+	if (WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, weapHash, componentHash))
+	{
+		WEAPON::REMOVE_WEAPON_COMPONENT_FROM_PED(playerPed, weapHash, componentHash);
+	}
+	else
+	{
+		WEAPON::GIVE_WEAPON_COMPONENT_TO_PED(playerPed, weapHash, componentHash);
+	}
 }
 
 void give_weapon_clip(MenuItem<int> choice)
@@ -465,6 +669,33 @@ void fill_weapon_ammo(MenuItem<int> choice)
 	WEAPON::SET_PED_AMMO(playerPed, weapHash, maxAmmo);
 
 	set_status_text("Ammo Filled");
+}
+
+bool onconfirm_weapon_mod_menu_tint(MenuItem<int> choice)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	std::string weaponName = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(lastSelectedWeapon);
+	int weapHash = GAMEPLAY::GET_HASH_KEY((char*)weaponName.c_str());
+	
+	WEAPON::SET_PED_WEAPON_TINT_INDEX(playerPed, weapHash, choice.value);
+	
+	return true;
+}
+
+void onconfirm_open_tint_menu(MenuItem<int> choice)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	std::vector<MenuItem<int>*> menuItems;
+	for (int i = 0; i < VALUES_TINT.size(); i++)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = CAPTIONS_TINT[i];
+		item->value = VALUES_TINT[i];
+		menuItems.push_back(item);
+	}
+
+	draw_generic_menu<int>(menuItems, 0, "Select Tint Color", onconfirm_weapon_mod_menu_tint, NULL, NULL);
 }
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_weapons()

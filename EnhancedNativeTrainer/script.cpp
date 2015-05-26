@@ -1179,11 +1179,11 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	for (int i = 0; i < settings.size(); i++)
 	{
 		StringPairSettingDBRow setting = settings.at(i);
-		if (setting.name.compare("lastWeather"))
+		if (setting.name.compare("lastWeather") == 0)
 		{
 			lastWeather = setting.value;
 		}
-		else if (setting.name.compare("lastWeatherName"))
+		else if (setting.name.compare("lastWeatherName") == 0)
 		{
 			lastWeatherName = setting.value;
 		}
