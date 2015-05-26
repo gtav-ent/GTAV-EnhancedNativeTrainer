@@ -30,6 +30,8 @@ bool process_skinchanger_detail_menu();
 
 void update_features();
 
+void reset_globals();
+
 void set_all_nearby_peds_to_calm(Ped playerPed, int count);
 
 //DB persistent stuff

@@ -79,6 +79,7 @@ bool featureTimePaused					=	false;
 bool featureTimePausedUpdated			=	false;
 bool featureTimeSynced					=	false;
 bool featureTimeSlow = false;
+bool featureTimeSlowUpdated = false;
 
 bool featureWeatherWind					=	false;
 bool featureWeatherFreeze				=	false;
@@ -157,14 +158,13 @@ void update_features()
 		game_frame_num = 0;
 	}
 
+	PED::SET_CREATE_RANDOM_COPS(featureWorldRandomCops);
+
 	update_status_text();
 
 	update_vehicle_guns();
 
 	check_player_model();
-
-	// read default feature values from the game
-	featureWorldRandomCops = PED::CAN_CREATE_RANDOM_COPS() == TRUE;
 
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
@@ -342,8 +342,9 @@ void update_features()
 	{
 		GAMEPLAY::SET_TIME_SCALE(0.5f);
 	}
-	else
+	else if (featureTimeSlowUpdated)
 	{
+		featureTimeSlowUpdated = false;
 		GAMEPLAY::SET_TIME_SCALE(1.0f);
 	}
 
@@ -737,7 +738,7 @@ void process_time_menu ()
 		{ "Hour Backward", NULL, NULL, true },
 		{ "Clock Paused", &featureTimePaused, &featureTimePausedUpdated },
 		{ "Sync With System", &featureTimeSynced, NULL },
-		{ "Slow Motion", &featureTimeSlow, NULL }
+		{ "Slow Motion", &featureTimeSlow, &featureTimeSlowUpdated }
 	};
 
 	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu );
@@ -756,7 +757,6 @@ bool onconfirm_world_menu ( MenuItem<int> choice )
 		break;
 	case 2:
 		// featureWorldRandomCops being set in update_features
-		PED::SET_CREATE_RANDOM_COPS ( !featureWorldRandomCops );
 		break;
 	case 3:
 		VEHICLE::SET_RANDOM_TRAINS ( featureWorldRandomTrains );
@@ -776,6 +776,9 @@ void process_world_menu ()
 	const int lineCount = 6;
 
 	std::string caption = "World Options";
+
+	// read default feature values from the game
+	featureWorldRandomCops = (PED::CAN_CREATE_RANDOM_COPS() == TRUE);
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Time", NULL, NULL },
@@ -928,6 +931,9 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 	case 6:
 		process_misc_menu();
 		break;
+	case 7:
+		reset_globals();
+		break;
 	}
 	return false;
 }
@@ -943,7 +949,8 @@ void process_main_menu()
 		"Vehicles",
 		"World/Time",
 		"Weather",
-		"Miscellaneous"
+		"Miscellaneous",
+		"Reset All Settings"
 	};
 
 	std::vector<MenuItem<int>*> menuItems;
@@ -952,7 +959,7 @@ void process_main_menu()
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = TOP_OPTIONS[i];
 		item->value = i;
-		item->isLeaf = false;
+		item->isLeaf = (i==7);
 		item->currentMenuIndex = i;
 		menuItems.push_back(item);
 	}
@@ -981,28 +988,20 @@ void reset_globals()
 	lastWeatherName.clear();
 
 	featurePlayerInvincible			=
-	featurePlayerInvincibleUpdated	=
 	featurePlayerNeverWanted		=
-	featurePlayerNeverWantedUpdated =
 	featurePlayerIgnoredByPolice			=
-	featurePlayerIgnoredByPoliceUpdated		=
 	featurePlayerIgnoredByAll =
-	featurePlayerIgnoredByAllUpdated =
 	featurePlayerUnlimitedAbility	=
 	featurePlayerNoNoise			=
-	featurePlayerNoNoiseUpdated		=
 	featurePlayerFastSwim			=
-	featurePlayerFastSwimUpdated	=
 	featurePlayerFastRun			=
-	featurePlayerFastRunUpdated		=
 	featurePlayerSuperJump			=
 	featurePlayerInvisible			=
-	featurePlayerInvisibleUpdated	=
+
 	featurePlayerRadio				=
-	featurePlayerRadioUpdated		=
+
 	featureWorldMoonGravity			=
 	featureTimePaused				=
-	featureTimePausedUpdated		=
 	featureTimeSynced				=
 	featureWeatherWind				=
 	featureWeatherFreeze			=
@@ -1018,6 +1017,21 @@ void reset_globals()
 	featureTimeSlow = false;
 
 	featurePlayerResetOnDeath = true;
+
+	featurePlayerInvincibleUpdated =
+	featurePlayerNeverWantedUpdated =
+	featurePlayerIgnoredByPoliceUpdated =
+	featurePlayerIgnoredByAllUpdated =
+	featurePlayerNoNoiseUpdated =
+	featurePlayerFastSwimUpdated =
+	featurePlayerFastRunUpdated =
+	featurePlayerRadioUpdated =
+	featurePlayerInvisibleUpdated =
+	featureTimeSlowUpdated =
+	featureTimePausedUpdated = true;
+
+	database->store_setting_pairs(get_generic_settings());
+	database->store_feature_enabled_pairs(get_feature_enablements());
 }
 
 void main()
@@ -1147,7 +1161,7 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimePaused", &featureTimePaused, &featureTimePausedUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSynced", &featureTimeSynced });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSlow", &featureTimeSlow });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSlow", &featureTimeSlow, &featureTimeSlowUpdated });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
