@@ -166,16 +166,27 @@ bool redrawWeaponMenuAfterEquipChange = false;
 
 bool process_individual_weapon_menu(int weaponIndex)
 {
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	int originalWeapon = WEAPON::GET_SELECTED_PED_WEAPON(playerPed);
+
 	lastSelectedWeapon = weaponIndex;
 
 	std::string caption = VOV_WEAPON_CAPTIONS[lastSelectedWeaponCategory].at(weaponIndex);
+	if (caption.compare("Pistol .50") == 0)
+	{
+		caption = "Pistol"; //menu title can't handle symbols
+	}
+
 	std::string value = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(weaponIndex);
 	std::vector<MenuItem<int>*> menuItems;
 
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	std::string weaponValue = VOV_WEAPON_VALUES[lastSelectedWeaponCategory].at(weaponIndex);
 	char *weaponChar = (char*)weaponValue.c_str();
+	int thisWeaponHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
 	bool isEquipped = (WEAPON::HAS_PED_GOT_WEAPON(playerPed, GAMEPLAY::GET_HASH_KEY(weaponChar), 0) ? true : false);
+
+	WEAPON::SET_CURRENT_PED_WEAPON(playerPed, thisWeaponHash, true);
 
 	FunctionDrivenToggleMenuItem<int> *equipItem = new FunctionDrivenToggleMenuItem<int>();
 	std::stringstream ss;
@@ -211,7 +222,7 @@ bool process_individual_weapon_menu(int weaponIndex)
 			fillAmmoItem->value = 3;
 			fillAmmoItem->isLeaf = true;
 			fillAmmoItem->onConfirmFunction = fill_weapon_ammo;
-			menuItems.push_back(fillAmmoItem);
+menuItems.push_back(fillAmmoItem);
 		}
 
 		int moddableIndex = -1;
@@ -264,6 +275,19 @@ bool process_individual_weapon_menu(int weaponIndex)
 
 	draw_generic_menu<int>(menuItems, 0, caption, NULL, NULL, NULL, weapon_reequip_interrupt);
 
+	int unarmed = GAMEPLAY::GET_HASH_KEY("WEAPON_UNARMED");
+	if (WEAPON::HAS_PED_GOT_WEAPON(playerPed, originalWeapon, 0))
+	{
+		if (originalWeapon != unarmed)
+		{
+			WEAPON::SET_CURRENT_PED_WEAPON(playerPed, originalWeapon, true);
+		}
+	}
+	else
+	{
+		WEAPON::SET_CURRENT_PED_WEAPON(playerPed, unarmed, true);
+	}
+
 	return false;
 }
 
@@ -278,8 +302,7 @@ bool onconfirm_weapon_in_category(MenuItem<int> choice)
 	{
 		redrawWeaponMenuAfterEquipChange = false;
 		process_individual_weapon_menu(choice.value);
-	}
-	while (redrawWeaponMenuAfterEquipChange);
+	} while (redrawWeaponMenuAfterEquipChange);
 
 	return false;
 }
@@ -288,16 +311,28 @@ bool process_weapons_in_category_menu(int category)
 {
 	lastSelectedWeaponCategory = category;
 	std::vector<MenuItem<int>*> menuItems;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	int weaponSelectionIndex = 0;
+	int current = WEAPON::GET_SELECTED_PED_WEAPON(playerPed);
+
 	for (int i = 0; i < VOV_WEAPON_CAPTIONS[category].size(); i++)
 	{
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = VOV_WEAPON_CAPTIONS[category].at(i);
+
+		const char* value = VOV_WEAPON_VALUES[category].at(i).c_str();
+		if (weaponSelectionIndex == 0 && GAMEPLAY::GET_HASH_KEY((char*)value) == current)
+		{
+			weaponSelectionIndex = i;
+		}
+
 		item->value = i;
 		item->isLeaf = false;
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, MENU_WEAPON_CATEGORIES[category], onconfirm_weapon_in_category, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, &weaponSelectionIndex, MENU_WEAPON_CATEGORIES[category], onconfirm_weapon_in_category, NULL, NULL);
 }
 
 bool onconfirm_weaponlist_menu(MenuItem<int> choice)
@@ -309,6 +344,11 @@ bool onconfirm_weaponlist_menu(MenuItem<int> choice)
 bool process_weaponlist_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	int weaponSelectionIndex = 0;
+	int current = WEAPON::GET_SELECTED_PED_WEAPON(playerPed);
+
 	for (int i = 0; i < MENU_WEAPON_CATEGORIES.size(); i++)
 	{
 		MenuItem<int> *item = new MenuItem<int>();
@@ -316,9 +356,22 @@ bool process_weaponlist_menu()
 		item->value = i;
 		item->isLeaf = false;
 		menuItems.push_back(item);
+
+		if (weaponSelectionIndex == 0)
+		{
+			for (int j = 0; j < VOV_WEAPON_VALUES[i].size(); j++)
+			{
+				const char* value = VOV_WEAPON_VALUES[i].at(j).c_str();
+				if (GAMEPLAY::GET_HASH_KEY((char*)value) == current)
+				{
+					weaponSelectionIndex = i;
+					break;
+				}
+			}
+		}
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, "Weapon Categories", onconfirm_weaponlist_menu, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, &weaponSelectionIndex, "Weapon Categories", onconfirm_weaponlist_menu, NULL, NULL);
 }
 
 bool do_give_weapon(std::string modelName)
@@ -736,6 +789,11 @@ void fill_weapon_ammo(MenuItem<int> choice)
 	set_status_text("Ammo Filled");
 }
 
+void onhighlight_weapon_mod_menu_tint(MenuItem<int> choice)
+{
+	onconfirm_weapon_mod_menu_tint(choice);
+}
+
 bool onconfirm_weapon_mod_menu_tint(MenuItem<int> choice)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
@@ -774,7 +832,7 @@ void onconfirm_open_tint_menu(MenuItem<int> choice)
 		}
 	}
 
-	draw_generic_menu<int>(menuItems, &tintSelection, "Select Tint Color", onconfirm_weapon_mod_menu_tint, NULL, NULL);
+	draw_generic_menu<int>(menuItems, &tintSelection, "Select Tint Color", onconfirm_weapon_mod_menu_tint, onhighlight_weapon_mod_menu_tint, NULL);
 }
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_weapons()
