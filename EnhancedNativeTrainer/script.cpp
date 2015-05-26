@@ -49,7 +49,7 @@ int game_frame_num = 0;
 
 bool everInitialised = false;
 
-std::mutex db_mutex;
+//std::mutex db_mutex;
 
 // features
 bool featurePlayerInvincible			=	false;
@@ -1231,11 +1231,13 @@ void save_settings()
 
 	write_text_to_log_file("Saving settings, start");
 
+	/*
 	if (!db_mutex.try_lock())
 	{
 		write_text_to_log_file("Couldn't get lock, aborting");
 		return;
 	}
+	*/
 
 	write_text_to_log_file("Locked");
 
@@ -1251,17 +1253,17 @@ void save_settings()
 	write_text_to_log_file("Closed");
 
 	write_text_to_log_file("Unlocking");
-	db_mutex.unlock();
+	//db_mutex.unlock();
 	write_text_to_log_file("Unlocked");
 }
 
 void load_settings()
 {
-	if (!db_mutex.try_lock())
+	/*if (!db_mutex.try_lock())
 	{
 		write_text_to_log_file("Couldn't get lock, aborting");
 		return;
-	}
+	}*/
 
 	ENTDatabase database;
 	database.open();
@@ -1272,5 +1274,5 @@ void load_settings()
 	database.close();
 	write_text_to_log_file("Closed");
 
-	db_mutex.unlock();
+	//db_mutex.unlock();
 }
