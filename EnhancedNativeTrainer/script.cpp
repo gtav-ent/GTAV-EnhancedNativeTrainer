@@ -158,6 +158,13 @@ void update_features()
 		game_frame_num = 0;
 	}
 
+	if (game_frame_num % 500 == 0)
+	{
+		database->store_setting_pairs(get_generic_settings());
+		database->store_feature_enabled_pairs(get_feature_enablements());
+		//set_status_text("Saved settings");
+	}
+
 	PED::SET_CREATE_RANDOM_COPS(featureWorldRandomCops);
 
 	update_status_text();
