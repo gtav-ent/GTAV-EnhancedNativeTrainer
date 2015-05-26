@@ -31,7 +31,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 #include <sstream> 
-#include <fstream> 
+#include <fstream>
+#include <mutex>
+#include <thread>
 
 #include <ctime>
 #include <cctype>
@@ -45,7 +47,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 int game_frame_num = 0;
 
-ENTDatabase *database = new ENTDatabase();
+bool everInitialised = false;
+
+std::mutex db_mutex;
 
 // features
 bool featurePlayerInvincible			=	false;
@@ -152,17 +156,18 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
+	everInitialised = true;
 	game_frame_num++;
 	if (game_frame_num >= 100000)
 	{
 		game_frame_num = 0;
 	}
 
-	if (game_frame_num % 500 == 0)
+	if (game_frame_num % 1000 == 0)
 	{
-		database->store_setting_pairs(get_generic_settings());
-		database->store_feature_enabled_pairs(get_feature_enablements());
-		//set_status_text("Saved settings");
+		DWORD myThreadID;
+		HANDLE myHandle = CreateThread(0, 0, save_settings_thread, 0, 0, &myThreadID);
+		CloseHandle(myHandle);
 	}
 
 	PED::SET_CREATE_RANDOM_COPS(featureWorldRandomCops);
@@ -1037,8 +1042,7 @@ void reset_globals()
 	featureTimeSlowUpdated =
 	featureTimePausedUpdated = true;
 
-	database->store_setting_pairs(get_generic_settings());
-	database->store_feature_enabled_pairs(get_feature_enablements());
+	save_settings();
 }
 
 void main()
@@ -1046,6 +1050,8 @@ void main()
 	//reset_globals();
 
 	set_periodic_feature_call(update_features);
+
+	load_settings();
 
 	// this creates a new locale based on the current application default
 	// (which is either the one given on startup, but can be overriden with
@@ -1078,27 +1084,24 @@ void main()
 
 void ScriptMain()
 {
+	write_text_to_log_file("ScriptMain called");
 	clear_log_file();
-
-	database->open();
-
-	handle_generic_settings(database->load_setting_pairs());
-	database->load_feature_enabled_pairs(get_feature_enablements());
+	//exiting = false;
 
 	srand(GetTickCount());
 	read_config_file();
 	main();
+
+	write_text_to_log_file("ScriptMain ended");
 }
 
 void ScriptTidyUp()
 {
-	if (database != NULL)
-	{
-		database->store_setting_pairs(get_generic_settings());
-		database->store_feature_enabled_pairs( get_feature_enablements() );
-		database->close();
-		delete database;
-	}
+	write_text_to_log_file("ScriptTidyUp called");
+
+	save_settings();
+
+	write_text_to_log_file("ScriptTidyUp done");
 }
 
 void turn_off_never_wanted()
@@ -1211,4 +1214,63 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	}
 
 	//pass to anyone else, vehicles, weapons etc
+}
+
+DWORD WINAPI save_settings_thread(LPVOID lpParameter)
+{
+	save_settings();
+	return 0;
+}
+
+void save_settings()
+{
+	if (!everInitialised)
+	{
+		return;
+	}
+
+	write_text_to_log_file("Saving settings, start");
+
+	if (!db_mutex.try_lock())
+	{
+		write_text_to_log_file("Couldn't get lock, aborting");
+		return;
+	}
+
+	write_text_to_log_file("Locked");
+
+	ENTDatabase database;
+	database.open();
+
+	write_text_to_log_file("Actually saving");
+	database.store_setting_pairs(get_generic_settings());
+	database.store_feature_enabled_pairs(get_feature_enablements());
+	write_text_to_log_file("Save flag released");
+
+	database.close();
+	write_text_to_log_file("Closed");
+
+	write_text_to_log_file("Unlocking");
+	db_mutex.unlock();
+	write_text_to_log_file("Unlocked");
+}
+
+void load_settings()
+{
+	if (!db_mutex.try_lock())
+	{
+		write_text_to_log_file("Couldn't get lock, aborting");
+		return;
+	}
+
+	ENTDatabase database;
+	database.open();
+
+	handle_generic_settings(database.load_setting_pairs());
+	database.load_feature_enabled_pairs(get_feature_enablements());
+
+	database.close();
+	write_text_to_log_file("Closed");
+
+	db_mutex.unlock();
 }

@@ -402,6 +402,8 @@ void reset_weapon_globals()
 
 void update_weapon_features(BOOL bPlayerExists, Player player)
 {
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
 	// weapon
 	if (featureWeaponFireAmmo)
 	{
@@ -449,11 +451,11 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 	// infinite parachutes
 	if (bPlayerExists && featureWeaponInfiniteParachutes)
 	{
-		int pState = PED::GET_PED_PARACHUTE_STATE(PLAYER::PLAYER_PED_ID());
+		int pState = PED::GET_PED_PARACHUTE_STATE(playerPed);
 		//unarmed or falling - don't try and give p/chute to player already using one, crashes game
 		if (pState == -1 || pState == 3)
 		{
-			WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
+			WEAPON::GIVE_DELAYED_WEAPON_TO_PED(playerPed, 0xFBAB5776, 1, 0);
 		}
 	}
 
@@ -461,18 +463,18 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 	if (bPlayerExists && featureWeaponNoReload)
 	{
 		Hash cur;
-		if (WEAPON::GET_CURRENT_PED_WEAPON(player, &cur, 1))
+		if (WEAPON::GET_CURRENT_PED_WEAPON(playerPed, &cur, 1))
 		{
 			if (WEAPON::IS_WEAPON_VALID(cur))
 			{
 				int maxAmmo;
-				if (WEAPON::GET_MAX_AMMO(player, cur, &maxAmmo))
+				if (WEAPON::GET_MAX_AMMO(playerPed, cur, &maxAmmo))
 				{
-					WEAPON::SET_PED_AMMO(player, cur, maxAmmo);
+					WEAPON::SET_PED_AMMO(playerPed, cur, maxAmmo);
 
-					maxAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(player, cur, 1);
+					maxAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, cur, 1);
 					if (maxAmmo > 0)
-						WEAPON::SET_AMMO_IN_CLIP(player, cur, maxAmmo);
+						WEAPON::SET_AMMO_IN_CLIP(playerPed, cur, maxAmmo);
 				}
 			}
 		}

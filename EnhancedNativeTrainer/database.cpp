@@ -38,14 +38,10 @@ static int featureEnablementFetchCallback(void *data, int count, char **rows, ch
 
 	for (int i = 0; i < defs.size(); i++)
 	{
-		std::stringstream ss;
 		FeatureEnabledLocalDefinition def = defs.at(i);
-		ss << "Looking to match " << def.name << " with " << name << " to set val " << enabledInt ? 1 : 0;
-		write_text_to_log_file(ss.str());
 
 		if (strcmp(def.name, name) == 0)
 		{
-			write_text_to_log_file("Matched");
 			*def.enabled = enabledInt ? 1 : 0;
 			if (def.updateFlag != NULL)
 			{
@@ -180,7 +176,7 @@ void ENTDatabase::close()
 {
 	if (db != NULL)
 	{
-		sqlite3_close(db);
+		sqlite3_close_v2(db);
 		db = NULL;
 	}
 	sqlite3_shutdown();

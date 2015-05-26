@@ -16,6 +16,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "inc\main.h"
 
+#include "script.h"
 #include "io.h"
 #include "airbrake.h"
 

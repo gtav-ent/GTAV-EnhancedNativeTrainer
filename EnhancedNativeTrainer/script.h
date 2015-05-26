@@ -49,3 +49,9 @@ void setFrozenWantedFeature(bool b);
 */
 
 void turn_off_never_wanted();
+
+void load_settings();
+
+void save_settings();
+
+DWORD WINAPI save_settings_thread(LPVOID lpParameter);
