@@ -32,7 +32,13 @@ void update_features();
 
 void set_all_nearby_peds_to_calm(Ped playerPed, int count);
 
+//DB persistent stuff
+
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements();
+
+std::vector<StringPairSettingDBRow> get_generic_settings();
+
+void handle_generic_settings(std::vector<StringPairSettingDBRow> settings);
 
 /*
 int getFrozenWantedLvl();

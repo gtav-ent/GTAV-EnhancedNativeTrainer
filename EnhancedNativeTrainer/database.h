@@ -19,8 +19,8 @@ struct FeatureEnabledDBRow
 
 struct StringPairSettingDBRow
 {
-	char* name;
-	char* value;
+	std::string name;
+	std::string value;
 };
 
 class FeatureEnabledLocalDefinition
@@ -52,9 +52,13 @@ public:
 
 	void load_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefinition> values);
 
+	void store_setting_pairs(std::vector<StringPairSettingDBRow> values);
+
+	std::vector<StringPairSettingDBRow> load_setting_pairs();
+
 private:
 
-	void ENTDatabase::handle_version(int version);
+	void ENTDatabase::handle_version(int oldVersion);
 
 	sqlite3 *db;
 

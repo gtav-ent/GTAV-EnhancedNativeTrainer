@@ -13,7 +13,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/
-const int DATABASE_VERSION = 1;
+const int DATABASE_VERSION = 2;
 
 static int singleIntResultCallback(void *data, int count, char **rows, char **azColName)
 {
@@ -58,6 +58,16 @@ static int featureEnablementFetchCallback(void *data, int count, char **rows, ch
 	return 0;
 }
 
+static int genericSettingPairsFetchCallback(void *data, int count, char **rows, char **azColName)
+{
+	std::vector<StringPairSettingDBRow> *results = static_cast<std::vector<StringPairSettingDBRow>*>(data);
+	std::string k = std::string(rows[0]);
+	std::string v = std::string(rows[1]);
+	StringPairSettingDBRow setting{k,v};
+	results->push_back(setting);
+	return 0;
+}
+
 void ENTDatabase::handle_version(int oldVersion)
 {
 	if (oldVersion == -1)
@@ -73,6 +83,22 @@ void ENTDatabase::handle_version(int oldVersion)
 		else
 		{
 			write_text_to_log_file("Enablement table created");
+		}
+	}
+
+	if (oldVersion < 2)
+	{
+		write_text_to_log_file("Generic setting pairs table not found, so creating it");
+		char* CREATE_VERSION_TABLE_QUERY = "create table ENT_SETTING_PAIRS (SETTING_NAME TEXT PRIMARY KEY NOT NULL, SETTING_VALUE TEXT NOT NULL)";
+		int rc = sqlite3_exec(db, CREATE_VERSION_TABLE_QUERY, NULL, 0, &zErrMsg);
+		if (rc != SQLITE_OK)
+		{
+			write_text_to_log_file("Generic setting pairs table creation problem");
+			sqlite3_free(zErrMsg);
+		}
+		else
+		{
+			write_text_to_log_file("Generic setting pairs table created");
 		}
 	}
 }
@@ -200,4 +226,52 @@ void ENTDatabase::load_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefi
 	{
 		return;
 	}
+}
+
+void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values)
+{
+	for (int i = 0; i < values.size(); i++)
+	{
+		StringPairSettingDBRow setting = values.at(i);
+		std::stringstream ss;
+		ss << "REPLACE INTO ENT_SETTING_PAIRS VALUES (?, ?);";
+
+		sqlite3_stmt *stmt;
+		const char *pzTest;
+
+		int rc = sqlite3_prepare(db, ss.str().c_str(), strlen(ss.str().c_str()), &stmt, &pzTest);
+
+		if (rc == SQLITE_OK)
+		{
+			// bind the value
+			sqlite3_bind_text(stmt, 1, setting.name.c_str(), strlen(setting.name.c_str()), 0);
+			sqlite3_bind_text(stmt, 2, setting.value.c_str(), strlen(setting.value.c_str()), 0);
+
+			// commit
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
+		else
+		{
+			write_text_to_log_file("Failed to prepare setting row");
+			write_text_to_log_file(ss.str());
+			write_text_to_log_file(zErrMsg);
+			sqlite3_free(zErrMsg);
+			break;
+		}
+	}
+}
+
+std::vector<StringPairSettingDBRow> ENTDatabase::load_setting_pairs()
+{
+	std::vector<StringPairSettingDBRow> dbPairs;
+	char* QUERY = "select SETTING_NAME, SETTING_VALUE from ENT_SETTING_PAIRS";
+	int rc = sqlite3_exec(db, QUERY, genericSettingPairsFetchCallback, &dbPairs, &zErrMsg);
+	if (rc != SQLITE_OK)
+	{
+		write_text_to_log_file("Pairs not loaded");
+		write_text_to_log_file(zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	return dbPairs;
 }

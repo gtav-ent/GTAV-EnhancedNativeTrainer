@@ -1061,6 +1061,7 @@ void ScriptMain()
 
 	database->open();
 
+	handle_generic_settings(database->load_setting_pairs());
 	database->load_feature_enabled_pairs(get_feature_enablements());
 
 	srand(GetTickCount());
@@ -1072,9 +1073,10 @@ void ScriptTidyUp()
 {
 	if (database != NULL)
 	{
+		database->store_setting_pairs(get_generic_settings());
 		database->store_feature_enabled_pairs( get_feature_enablements() );
 		database->close();
-		database = NULL;
+		delete database;
 	}
 }
 
@@ -1110,6 +1112,7 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 		PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
 		PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
 	}
+	delete peds;
 }
 
 void update_feature_enablements(std::vector<FeatureEnabledLocalDefinition> pairs)
@@ -1161,4 +1164,30 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.insert(results.end(), weapResults.begin(), weapResults.end());
 
 	return results;
+}
+
+std::vector<StringPairSettingDBRow> get_generic_settings()
+{
+	std::vector<StringPairSettingDBRow> settings;
+	settings.push_back(StringPairSettingDBRow{ "lastWeather", lastWeather });
+	settings.push_back(StringPairSettingDBRow{ "lastWeatherName", lastWeatherName });
+	return settings;
+}
+
+void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
+{
+	for (int i = 0; i < settings.size(); i++)
+	{
+		StringPairSettingDBRow setting = settings.at(i);
+		if (setting.name.compare("lastWeather"))
+		{
+			lastWeather = setting.value;
+		}
+		else if (setting.name.compare("lastWeatherName"))
+		{
+			lastWeatherName = setting.value;
+		}
+	}
+
+	//pass to anyone else, vehicles, weapons etc
 }
