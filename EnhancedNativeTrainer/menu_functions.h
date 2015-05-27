@@ -403,9 +403,16 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		UI::SET_TEXT_WRAP(0.0f, lineLeftScaled + lineWidthScaled - leftMarginScaled);
 		UI::_SET_TEXT_ENTRY("STRING");
 
+		std::string commaCash = std::to_string(cashItem->GetCash());
+		int insertPosition = commaCash.length() - 3;
+		while (insertPosition > 0)
+		{
+			commaCash.insert(insertPosition, ",");
+			insertPosition -= 3;
+		}
+
 		std::stringstream ss;
-		ss.imbue(std::locale(""));
-		ss << std::string("$") << std::fixed << cashItem->GetCash();
+		ss << std::string("$") << commaCash;
 		auto ssStr = ss.str();
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);

@@ -102,21 +102,6 @@ bool featurePlayerResetOnDeath = true;
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
 
-//Ensures numbers are formatted with commas, not the locale option
-class comma_numpunct : public std::numpunct<char>
-{
-protected:
-	virtual char do_thousands_sep() const
-	{
-		return ',';
-	}
-
-	virtual std::string do_grouping() const
-	{
-		return "\03";
-	}
-};
-
 void check_player_model()
 {
 	// common variables

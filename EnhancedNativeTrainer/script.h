@@ -20,6 +20,21 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <fstream>
 
+//Ensures numbers are formatted with commas, not the locale option
+class comma_numpunct : public std::numpunct<char>
+{
+protected:
+	virtual char do_thousands_sep() const
+	{
+		return ',';
+	}
+
+	virtual std::string do_grouping() const
+	{
+		return "\03";
+	}
+};
+
 void ScriptMain();
 
 void ScriptTidyUp();

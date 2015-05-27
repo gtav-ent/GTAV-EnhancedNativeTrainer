@@ -10,6 +10,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "teleportation.h"
 #include "menu_functions.h"
+#include "debuglog.h"
 
 struct tele_location {
 	std::string text;
@@ -17,10 +18,9 @@ struct tele_location {
 	float y;
 	float z;
 	std::vector<const char*> scenery_required;
+	std::vector<const char*> scenery_toremove;
 	bool isLoaded;
 };
-
-std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Interiors", "Requires Scenery", "Currently Broken"};
 
 int mainMenuIndex = 0;
 
@@ -122,7 +122,7 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	{ "Ammunation Office", 12.494f, -1110.130f, 29.797f },
 	//{ "Bahama Mamas West", -1387.08f, -588.4f, 30.3195f },
 	{ "Blaine County Savings Bank", -109.299f, 6464.035f, 31.627f },
-	//{ "Clucking Bell Farms Warehouse", -70.0624f, 6263.53f, 31.0909f },
+	{ "Clucking Bell Farms Warehouse", -70.0624f, 6263.53f, 31.0909f, { "CS1_02_cf_onmission1", "CS1_02_cf_onmission2", "CS1_02_cf_onmission3", "CS1_02_cf_onmission4" }, { "CS1_02_cf_offmission" }, false },
 	//{ "Control Office", 1080.97f, -1976.0f, 31.4721f },
 	//{ "Devin's Garage", 482.027f, -1317.96f, 29.2021f },
 	{ "Eclipse Apartment 5", -762.762f, 322.634f, 175.401f },
@@ -132,20 +132,21 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	{ "FIB Building Burnt", 159.553f, -738.851f, 246.152f },
 	{ "FIB Building Floor 47", 134.573f, -766.486f, 234.152f },
 	{ "FIB Building Floor 49", 134.635f, -765.831f, 242.152f },
+	{ "FIB Building Lobby", 110.4f, -744.2f, 45.7f, { "FIBlobby" }, { "FIBlobbyfake" } },
 	{ "FIB Building Top Floor", 135.733f, -749.216f, 258.152f },
 	//{ "Garment Factory", 717.397f, -965.572f, 30.3955f },
-	//{ "Hospital", 302.651f, -586.293f, 43.3129f },
+	{ "Hospital (Destroyed)", 302.651f, -586.293f, 43.3129f, { "RC12B_Destroyed", "RC12B_HospitalInterior" }, { "RC12B_Default", "RC12B_Fixed" }, false },
 	{ "Humane Labs Lower Level", 3525.495f, 3705.301f, 20.992f },
 	{ "Humane Labs Upper Level", 3618.52f, 3755.76f, 28.6901f },
 	{ "IAA Office", 117.220f, -620.938f, 206.047f },
 	//{ "Ice Planet Jewelery", 243.516f, 364.099f, 105.738f },
 	{ "Janitor's Apartment", -110.721f, -8.22095f, 70.5197f },
-	//{ "Jewel Store", -630.07f, -236.332f, 38.0571f },
+	{ "Jewel Store", -630.07f, -236.332f, 38.0571f, { "post_hiest_unload" }, { "jewel2fake", "bh1_16_refurb" }, false },
 	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
-	//{ "Life Invader Office", -1049.13f, -231.779f, 39.0144f },
+	{ "Life Invader Office", -1049.13f, -231.779f, 39.0144f, { "facelobby" }, { "facelobbyfake" }, false },
 	//{ "Maze Bank Arena", -254.918f, -2019.75f, 30.1456f },
-	//{ "Morgue", 275.446f, -1361.11f, 24.5378f },
-	//{ "O'Neil Farm", 2454.78f, 4971.92f, 46.8103f },
+	{ "Morgue", 275.446f, -1361.11f, 24.5378f, { "Coroner_Int_on" }, {}, false },
+	{ "O'Neil Farm", 2454.78f, 4971.92f, 46.8103f, { "farm", "farm_props", "farmint" }, { "farm_burnt", "farm_burnt_props", "farmint_cap" }, false },
 	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
 	//{ "Paleto Bay Sheriff", -446.135f, 6012.91f, 31.7164f },
 	//{ "Raven Slaughterhouse", 967.357f, -2184.71f, 30.0613f },
@@ -156,6 +157,18 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
 	{ "Torture Warehouse", 136.514f, -2203.15f, 7.30914f },
 
+};
+
+std::vector<const char*> IPLS_CARRIER = {
+	"hei_carrier",
+	"hei_carrier_DistantLights",
+	"hei_Carrier_int1",
+	"hei_Carrier_int2",
+	"hei_Carrier_int3",
+	"hei_Carrier_int4",
+	"hei_Carrier_int5",
+	"hei_Carrier_int6",
+	"hei_carrier_LODLights"
 };
 
 std::vector<const char*> IPLS_NORTH_YANKTON = {
@@ -232,18 +245,26 @@ std::vector<const char*> IPLS_NORTH_YANKTON = {
 
 
 std::vector<tele_location> LOCATIONS_REQSCEN = {
-	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, {"ufo", "ufo_lod", "ufo_eye"}, false },
-	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, IPLS_NORTH_YANKTON, false },
-	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, IPLS_NORTH_YANKTON, false },
-	{ "Yacht", -2023.661f, -1038.038f, 5.577f, {"smboat", "smboat_lod"}, false },
+	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, { "ufo", "ufo_lod", "ufo_eye" }, {}, false },
+	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, IPLS_NORTH_YANKTON, {}, false },
+	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, IPLS_NORTH_YANKTON, {}, false },
+	{ "SS Bulker (Intact)", -163.749f, -2377.94f, 9.3192f, { "cargoship" }, { "sunkcargoship" }, false },
+	{ "SS Bulker (Sunk)", -162.8918f, -2365.769f, 0.0f, { "sunkcargoship" }, { "cargoship" }, false },
+	{ "Train Crash Bridge", -532.1309f, 4526.187f, 88.7955f, { "canyonriver01_traincrash", "railing_end" }, { "railing_start", "canyonriver01" }, false },
+	{ "Yacht", -2023.661f, -1038.038f, 5.577f, { "smboat", "smboat_lod" }, {}, false },
 };
 
+/*
 std::vector<tele_location> LOCATIONS_BROKEN = {
-	{ "Carrier", 3069.330f, -4704.220f, 15.043f },
+	{ "Carrier", 3069.330f, -4704.220f, 15.043f, IPLS_CARRIER, {}, false },
 	{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
 };
+*/
 
-std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN, LOCATIONS_BROKEN };
+
+std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Interiors", "Extra Exterior Scenery" };
+
+std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN };
 
 void teleport_to_coords(Entity e, Vector3 coords)
 {
@@ -357,15 +378,25 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 
 	Vector3 coords;
 
-	if (value->scenery_required.size() > 0 && !value->isLoaded)
+	if ((value->scenery_required.size() > 0 || value->scenery_toremove.size() > 0) && !value->isLoaded)
 	{
 		set_status_text("Loading new scenery...");
 		
 		if ( ENTITY::DOES_ENTITY_EXIST ( PLAYER::PLAYER_PED_ID () ) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 0)
 		{
+			for each (const char* scenery in value->scenery_toremove)
+			{
+				if (STREAMING::IS_IPL_ACTIVE(scenery))
+				{
+					STREAMING::REMOVE_IPL(scenery);
+				}
+			}
 			for each ( const char* scenery in value->scenery_required )
 			{
-				STREAMING::REQUEST_IPL ( scenery );
+				if (!STREAMING::IS_IPL_ACTIVE(scenery))
+				{
+					STREAMING::REQUEST_IPL(scenery);
+				}
 			}
 		}
 
@@ -409,7 +440,7 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 			tele_location* loc = &VOV_LOCATIONS[x][y];
 
 			//don't unload something using same loader
-			if (loc->scenery_required == value->scenery_required)
+			if (loc->scenery_required == value->scenery_required && loc->scenery_toremove == value->scenery_toremove)
 			{
 				continue;
 			}
@@ -427,12 +458,21 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 					}
 				}
 
-				
 				if ( ENTITY::DOES_ENTITY_EXIST ( PLAYER::PLAYER_PED_ID () ) )// && STREAMING::IS_IPL_ACTIVE("plg_01") == 1)
 				{
 					for each ( const char* scenery in loc->scenery_required )
 					{
-						STREAMING::REMOVE_IPL ( scenery );
+						if (STREAMING::IS_IPL_ACTIVE(scenery))
+						{
+							STREAMING::REMOVE_IPL(scenery);
+						}
+					}
+					for each (const char* scenery in loc->scenery_toremove)
+					{
+						if (!STREAMING::IS_IPL_ACTIVE(scenery))
+						{
+							STREAMING::REQUEST_IPL(scenery);
+						}
 					}
 				}
 

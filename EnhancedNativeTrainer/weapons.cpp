@@ -488,13 +488,13 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 				char *weaponName = (char*)VOV_WEAPON_VALUES[i].at(j).c_str();
 				Hash weapon = GAMEPLAY::GET_HASH_KEY(weaponName);
 
-				if (WEAPON::IS_WEAPON_VALID(weapon) && WEAPON::HAS_PED_GOT_WEAPON(player, weapon, 0))
+				if (WEAPON::IS_WEAPON_VALID(weapon) && WEAPON::HAS_PED_GOT_WEAPON(playerPed, weapon, 0))
 				{
 					int ammo;
 
-					if (WEAPON::GET_MAX_AMMO(player, weapon, &ammo))
+					if (WEAPON::GET_MAX_AMMO(playerPed, weapon, &ammo))
 					{
-						WEAPON::SET_PED_AMMO(player, weapon, ammo);
+						WEAPON::SET_PED_AMMO(playerPed, weapon, ammo);
 					}
 				}
 			}
