@@ -1027,7 +1027,12 @@ void reset_globals()
 	featureTimeSlowUpdated =
 	featureTimePausedUpdated = true;
 
-	save_settings();
+	set_status_text("Reset All Settings");
+
+	DWORD myThreadID;
+	HANDLE myHandle = CreateThread(0, 0, save_settings_thread, 0, 0, &myThreadID);
+	CloseHandle(myHandle);
+
 }
 
 void main()
