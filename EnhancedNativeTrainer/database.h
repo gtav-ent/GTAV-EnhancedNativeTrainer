@@ -44,7 +44,7 @@ public:
 
 	virtual ~ENTDatabase() {};
 
-	void open();
+	bool open();
 
 	void close();
 

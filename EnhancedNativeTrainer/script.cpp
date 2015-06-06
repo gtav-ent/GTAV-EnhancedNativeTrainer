@@ -28,6 +28,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "teleportation.h"
 #include "airbrake.h"
 #include "weapons.h"
+//#include "crash_handler.h"
+
+#include <DbgHelp.h>
 
 #include <string>
 #include <sstream> 
@@ -72,6 +75,8 @@ bool featurePlayerInvisible				=	false;
 bool featurePlayerInvisibleUpdated		=	false;
 bool featurePlayerRadio					=	false;
 bool featurePlayerRadioUpdated			=	false;
+
+bool featureRestrictedZones = true;
 
 bool featureWorldMoonGravity			=	false;
 bool featureWorldRandomCops				=	true;
@@ -343,6 +348,16 @@ void update_features()
 	{
 		featureTimeSlowUpdated = false;
 		GAMEPLAY::SET_TIME_SCALE(1.0f);
+	}
+
+	if (!featureRestrictedZones)
+	{
+		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("am_armybase");
+		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("restrictedareas");
+		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_armybase");
+		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_lossantosintl");
+		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_prison");
+		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_prisonvanbreak");
 	}
 
 	// hide hud
@@ -770,7 +785,7 @@ bool onconfirm_world_menu ( MenuItem<int> choice )
 
 void process_world_menu ()
 {
-	const int lineCount = 6;
+	const int lineCount = 7;
 
 	std::string caption = "World Options";
 
@@ -783,7 +798,8 @@ void process_world_menu ()
 		{ "Random Cops", &featureWorldRandomCops, NULL },
 		{ "Random Trains", &featureWorldRandomTrains, NULL },
 		{ "Random Boats", &featureWorldRandomBoats, NULL },
-		{ "Garbage Trucks", &featureWorldGarbageTrucks, NULL }
+		{ "Garbage Trucks", &featureWorldGarbageTrucks, NULL },
+		{ "Restricted Zones", &featureRestrictedZones, NULL }
 	};
 
 	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexWorld, caption, onconfirm_world_menu );
@@ -1039,9 +1055,15 @@ void main()
 {	
 	//reset_globals();
 
+	write_text_to_log_file("Setting up calls");
+
 	set_periodic_feature_call(update_features);
 
+	write_text_to_log_file("Loading settings");
+
 	load_settings();
+
+	write_text_to_log_file("Loaded settings OK");
 
 	// this creates a new locale based on the current application default
 	// (which is either the one given on startup, but can be overriden with
@@ -1072,17 +1094,83 @@ void main()
 	}
 }
 
+void make_minidump(EXCEPTION_POINTERS* e)
+{
+	write_text_to_log_file("Dump requested");
+
+	auto hDbgHelp = LoadLibraryA("dbghelp");
+	if (hDbgHelp == nullptr)
+		return;
+	auto pMiniDumpWriteDump = (decltype(&MiniDumpWriteDump))GetProcAddress(hDbgHelp, "MiniDumpWriteDump");
+	if (pMiniDumpWriteDump == nullptr)
+		return;
+
+	auto hFile = CreateFileA("ENT-minidump.dmp", GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return;
+
+	MINIDUMP_EXCEPTION_INFORMATION exceptionInfo;
+	exceptionInfo.ThreadId = GetCurrentThreadId();
+	exceptionInfo.ExceptionPointers = e;
+	exceptionInfo.ClientPointers = FALSE;
+
+	auto dumped = pMiniDumpWriteDump(
+		GetCurrentProcess(),
+		GetCurrentProcessId(),
+		hFile,
+		MINIDUMP_TYPE(MiniDumpWithIndirectlyReferencedMemory | MiniDumpScanMemory),
+		e ? &exceptionInfo : nullptr,
+		nullptr,
+		nullptr);
+
+	CloseHandle(hFile);
+
+	write_text_to_log_file("Dump complete");
+
+	return;
+}
+
+LONG CALLBACK unhandled_handler(EXCEPTION_POINTERS* e)
+{
+	write_text_to_log_file("Exception occured");
+	make_minidump(e);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
+int filterException(int code, PEXCEPTION_POINTERS ex)
+{
+	write_text_to_log_file("ScriptMain exception");
+	make_minidump(ex);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+
 void ScriptMain()
 {
-	write_text_to_log_file("ScriptMain called");
-	clear_log_file();
-	//exiting = false;
+	__try
+	{
+		//clear_log_file();
 
-	srand(GetTickCount());
-	read_config_file();
-	main();
+		/*
+		CCrashHandler ch;
+		ch.SetProcessExceptionHandlers();
+		ch.SetThreadExceptionHandlers();
+		*/
 
-	write_text_to_log_file("ScriptMain ended");
+		write_text_to_log_file("ScriptMain called - handler set");
+		//exiting = false;
+
+		srand(GetTickCount());
+		write_text_to_log_file("Reading config...");
+		read_config_file();
+		write_text_to_log_file("Config read complete");
+		main();
+
+		write_text_to_log_file("ScriptMain ended");
+	}
+	__except (filterException(GetExceptionCode(), GetExceptionInformation()))
+	{
+
+	}
 }
 
 void ScriptTidyUp()
@@ -1162,6 +1250,7 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimePaused", &featureTimePaused, &featureTimePausedUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSynced", &featureTimeSynced });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSlow", &featureTimeSlow, &featureTimeSlowUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureRestrictedZones", &featureRestrictedZones });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
@@ -1232,7 +1321,10 @@ void save_settings()
 	write_text_to_log_file("Locked");
 
 	ENTDatabase database;
-	database.open();
+	if (!database.open())
+	{
+		return;
+	}
 
 	write_text_to_log_file("Actually saving");
 	database.store_setting_pairs(get_generic_settings());
@@ -1249,20 +1341,31 @@ void save_settings()
 
 void load_settings()
 {
-	/*if (!db_mutex.try_lock())
-	{
-		write_text_to_log_file("Couldn't get lock, aborting");
-		return;
-	}*/
+	write_text_to_log_file("Creating database object");
 
 	ENTDatabase database;
-	database.open();
+
+	write_text_to_log_file("Created database object");
+
+	if (!database.open())
+	{
+		write_text_to_log_file("Opening DB failed, aborting");
+		return;
+	}
+
+	write_text_to_log_file("Database opened, asking for pairs");
 
 	handle_generic_settings(database.load_setting_pairs());
+
+	write_text_to_log_file("Got generic pairs");
+
 	database.load_feature_enabled_pairs(get_feature_enablements());
 
+	write_text_to_log_file("Got feature pairs");
+
 	database.close();
-	write_text_to_log_file("Closed");
+
+	write_text_to_log_file("Database closed");
 
 	//db_mutex.unlock();
 }

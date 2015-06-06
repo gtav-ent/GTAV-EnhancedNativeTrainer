@@ -4,7 +4,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
-const bool DEBUG_LOG_ENABLED = false;
+const bool DEBUG_LOG_ENABLED = true;
 
 /**Append a line of text to the log file. Does nothing unless the debug
 constant is set.*/

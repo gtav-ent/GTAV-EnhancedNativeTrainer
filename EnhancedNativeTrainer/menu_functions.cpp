@@ -246,6 +246,30 @@ void draw_menu_from_struct_def(StringStandardOrToggleMenuDef defs[], int lineCou
 	draw_generic_menu<std::string>(menuItems, selectionRef, caption, onConfirmation, NULL, NULL);
 }
 
+std::string show_keyboard(char* title_id, char* prepopulated_text)
+{
+	GAMEPLAY::DISPLAY_ONSCREEN_KEYBOARD(true,
+		(title_id == NULL ? "0x2D2E663D" : title_id),
+		(prepopulated_text == NULL ? "" : prepopulated_text),
+		"", "", "", "", 64);
+
+	while (GAMEPLAY::UPDATE_ONSCREEN_KEYBOARD() == 0)
+	{
+		update_status_text();
+		WAIT(0);
+	}
+
+	std::stringstream ss;
+	if (!GAMEPLAY::GET_ONSCREEN_KEYBOARD_RESULT())
+	{
+		return std::string("");
+	}
+	else
+	{
+		return std::string(GAMEPLAY::GET_ONSCREEN_KEYBOARD_RESULT());
+	}
+}
+
 
 template<class T>
 void MenuItem<T>::onConfirm()

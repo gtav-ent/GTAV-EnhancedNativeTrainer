@@ -99,17 +99,29 @@ void ENTDatabase::handle_version(int oldVersion)
 	}
 }
 
-void ENTDatabase::open()
+bool ENTDatabase::open()
 {
 	std::stringstream ss;
 
-	write_text_to_log_file("Opening database");
+	write_text_to_log_file("Initialising DB engine");
 
 	sqlite3_initialize();
+
+	write_text_to_log_file("Opening DB file");
+
 	int rc = sqlite3_open_v2("ent.db", &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-	if (rc)
+	if (rc == SQLITE_OK)
 	{
 		write_text_to_log_file("DB opened");
+	}
+	else
+	{
+		write_text_to_log_file("DB couldn't be opened or created");
+		ss.str(""); ss.clear();
+		ss << "DB error code was: " << rc;
+		write_text_to_log_file(ss.str());
+		close();
+		return false;
 	}
 
 	int count = 0;
@@ -130,6 +142,7 @@ void ENTDatabase::open()
 		{
 			write_text_to_log_file("Manifest table creation problem");
 			sqlite3_free(zErrMsg);
+			return false;
 		}
 		else
 		{
@@ -171,21 +184,26 @@ void ENTDatabase::open()
 			write_text_to_log_file("Updated version");
 		}
 	}
+
+	return true;
 }
 
 void ENTDatabase::close()
 {
+	write_text_to_log_file("DB closing");
 	if (db != NULL)
 	{
 		sqlite3_close_v2(db);
 		db = NULL;
 	}
+	write_text_to_log_file("DB closed");
 	sqlite3_shutdown();
+	write_text_to_log_file("DB shutdown");
 }
 
 void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefinition> values)
 {
-	write_text_to_log_file("Asked to store pairs");
+	write_text_to_log_file("Asked to store feature pairs");
 	for (int i = 0; i < values.size(); i++)
 	{
 		FeatureEnabledLocalDefinition def = values.at(i);
@@ -201,6 +219,10 @@ void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDef
 			sqlite3_free(zErrMsg);
 			break;
 		}
+		else
+		{
+			write_text_to_log_file("Done storing feature pairs");
+		}
 	}
 }
 
@@ -208,7 +230,7 @@ void ENTDatabase::load_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefi
 {
 	{
 		std::stringstream ss;
-		ss << "Asked to load " << values.size() << " pairs";
+		ss << "Asked to load " << values.size() << " feature pairs";
 		write_text_to_log_file(ss.str());
 	}
 	std::vector<FeatureEnabledDBRow> dbPairs;
@@ -222,12 +244,14 @@ void ENTDatabase::load_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefi
 	}
 	else
 	{
+		write_text_to_log_file("Done loading feature pairs");
 		return;
 	}
 }
 
 void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values)
 {
+	write_text_to_log_file("Asked to store generic pairs");
 	for (int i = 0; i < values.size(); i++)
 	{
 		StringPairSettingDBRow setting = values.at(i);
@@ -258,10 +282,12 @@ void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values
 			break;
 		}
 	}
+	write_text_to_log_file("Done storing generic pairs");
 }
 
 std::vector<StringPairSettingDBRow> ENTDatabase::load_setting_pairs()
 {
+	write_text_to_log_file("Asked to load generic pairs");
 	std::vector<StringPairSettingDBRow> dbPairs;
 	char* QUERY = "select SETTING_NAME, SETTING_VALUE from ENT_SETTING_PAIRS";
 	int rc = sqlite3_exec(db, QUERY, genericSettingPairsFetchCallback, &dbPairs, &zErrMsg);
@@ -271,5 +297,6 @@ std::vector<StringPairSettingDBRow> ENTDatabase::load_setting_pairs()
 		write_text_to_log_file(zErrMsg);
 		sqlite3_free(zErrMsg);
 	}
+	write_text_to_log_file("Done loading generic pairs");
 	return dbPairs;
 }

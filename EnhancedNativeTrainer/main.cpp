@@ -21,6 +21,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	switch (reason)
 	{
 	case DLL_PROCESS_ATTACH:
+		clear_log_file();
 		write_text_to_log_file("Attach");
 		scriptRegister(hInstance, ScriptMain);
 		keyboardHandlerRegister(OnKeyboardMessage);
