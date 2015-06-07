@@ -17,6 +17,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 	NUM+ 				use vehicle rockets when active
 */
 
+#pragma comment(lib, "Shlwapi.lib")
+
 #include "io.h"
 #include "config_io.h"
 #include "menu_functions.h"
@@ -31,6 +33,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 //#include "crash_handler.h"
 
 #include <DbgHelp.h>
+#include <ShlObj.h>
+#include <windows.h>
+#include <Shlwapi.h>
 
 #include <string>
 #include <sstream> 
@@ -1146,18 +1151,16 @@ int filterException(int code, PEXCEPTION_POINTERS ex)
 
 void ScriptMain()
 {
+	#ifdef _DEBUG
 	__try
 	{
-		//clear_log_file();
+#endif
 
-		/*
-		CCrashHandler ch;
-		ch.SetProcessExceptionHandlers();
-		ch.SetThreadExceptionHandlers();
-		*/
+		clear_log_file();
+
+		init_storage();
 
 		write_text_to_log_file("ScriptMain called - handler set");
-		//exiting = false;
 
 		srand(GetTickCount());
 		write_text_to_log_file("Reading config...");
@@ -1166,11 +1169,14 @@ void ScriptMain()
 		main();
 
 		write_text_to_log_file("ScriptMain ended");
+
+#ifdef _DEBUG
 	}
 	__except (filterException(GetExceptionCode(), GetExceptionInformation()))
 	{
 
 	}
+#endif
 }
 
 void ScriptTidyUp()
@@ -1368,4 +1374,49 @@ void load_settings()
 	write_text_to_log_file("Database closed");
 
 	//db_mutex.unlock();
+}
+
+void init_storage()
+{
+	char* folder = get_storage_dir_path();
+	write_text_to_log_file("Trying to create storage folder");
+	write_text_to_log_file(std::string(folder));
+	if (CreateDirectory(folder, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+	{
+		write_text_to_log_file("Storage dir created or exists");
+	}
+	else
+	{
+		write_text_to_log_file("Couldn't create storage dir");
+	}
+	delete folder;
+}
+
+char* get_storage_dir_path()
+{
+	PWSTR localAppData;
+	SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &localAppData);
+
+	WCHAR combined[MAX_PATH];
+	PathCombineW(combined, localAppData, L"GTAV Enhanced Native Trainer");
+
+	char *result = new char[MAX_PATH];
+
+	wcstombs(result, combined, MAX_PATH);
+
+	CoTaskMemFree(localAppData);
+
+	return result;
+}
+
+char* get_storage_dir_path(char* file)
+{
+	char *output = new char[MAX_PATH];
+
+	char* folder = get_storage_dir_path();
+	PathCombine(output, folder, file);
+
+	delete folder;
+
+	return output;
 }

@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "vehicles.h"
 #include "menu_functions.h"
 #include "config_io.h"
+#include "debuglog.h"
 
 bool lastSeenInVehicle = false;
 
@@ -220,7 +221,43 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 0:
 		if (process_carspawn_menu()) return false;
 		break;
-	case 1: //fix
+	case 1:
+	{
+		if (bPlayerExists)
+		{
+			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+			{
+				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+				std::string result = show_keyboard(NULL, "Save Slot 1");
+				if (!result.empty())
+				{
+					ENTDatabase database;
+					if (!database.open())
+					{
+						set_status_text("Save Error");
+						break;
+					}
+					if (database.save_vehicle(veh, result, -1))
+					{
+						set_status_text("Saved");
+					}
+					else
+					{
+						set_status_text("Save Error");
+					}
+					database.close();
+				}
+			}
+			else
+			{
+				set_status_text("Player isn't in a vehicle");
+			}
+		}
+
+		break;
+	}
+		break;
+	case 2: //fix
 		if (bPlayerExists)
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 			{
@@ -241,14 +278,14 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 			else
 				set_status_text("Player isn't in a vehicle");
 		break;
-	case 2: //clean
+	case 3: //clean
 		if (bPlayerExists)
 			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 				VEHICLE::SET_VEHICLE_DIRT_LEVEL(PED::GET_VEHICLE_PED_IS_USING(playerPed), 0);
 			else
 				set_status_text("Player isn't in a vehicle");
 		break;
-	case 3: //Replaced random paint with paint menu, not sure if random would still be a desired feature
+	case 4: //Replaced random paint with paint menu, not sure if random would still be a desired feature
 		if (process_paint_menu()) return false;
 		//if (bPlayerExists)
 		//{
@@ -266,10 +303,10 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		//}
 		break;
 
-	case 8:
+	case 9:
 		if (process_vehmod_menu()) return false;
 		break;
-	case 9:
+	case 10:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
@@ -281,12 +318,13 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	const int lineCount = 10;
+	const int lineCount = 11;
 
 	std::string caption = "Vehicle Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Vehicle Spawner", NULL, NULL, false },
+		{ "Save Vehicle", NULL, NULL, false },
 		{ "Fix", NULL, NULL, true },
 		{ "Clean", NULL, NULL, true },
 		{ "Paint Menu", NULL, NULL, false },
@@ -406,8 +444,11 @@ void reset_vehicle_globals()
 
 bool onconfirm_carspawn_menu(MenuItem<int> choice)
 {
-	switch (choice.currentMenuIndex)
+	switch (choice.value)
 	{
+	case -1:
+		process_spawn_menu_savedvehs();
+		break;
 	case 0:
 		process_spawn_menu_cars();
 		break;
@@ -431,6 +472,12 @@ bool process_carspawn_menu()
 		item->isLeaf = false;
 		menuItems.push_back(item);
 	}
+
+	MenuItem<int> *item = new MenuItem<int>();
+	item->caption = "Saved Vehicles";
+	item->value = -1;
+	item->isLeaf = false;
+	menuItems.push_back(item);
 
 	return draw_generic_menu<int>(menuItems, 0, "Vehicle Categories", onconfirm_carspawn_menu, NULL, NULL);
 }
@@ -525,6 +572,16 @@ bool process_spawn_menu_generic(int topMenuSelection)
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 {
 	DWORD model = GAMEPLAY::GET_HASH_KEY((char *)modelName.c_str());
+	Vehicle veh = do_spawn_vehicle(model, modelTitle, true);
+	if (veh != -1)
+	{
+		return true;
+	}
+	return false;
+}
+
+Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
+{
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_A_VEHICLE(model))
 	{
 		STREAMING::REQUEST_MODEL(model);
@@ -550,15 +607,18 @@ bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
 
 		WAIT(0);
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
-		ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
+		if (cleanup)
+		{
+			ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
+		}
 
 		std::ostringstream ss;
 		ss << modelTitle << " spawned";
 		set_status_text(ss.str());
 
-		return true;
+		return veh;
 	}
-	return false;
+	return -1;
 }
 
 
@@ -571,4 +631,120 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
 	return results;
+}
+
+bool onconfirm_carspawn_saved_entry(MenuItem<int> choice)
+{
+	ENTDatabase database;
+	if (!database.open())
+	{
+		set_status_text("Couldn't Load Saved Vehicles");
+		return false;
+	}
+
+	std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles(choice.value);
+
+	SavedVehicleDBRow* savedVeh = savedVehs.at(0);
+	database.populate_saved_vehicle(savedVeh);
+
+	database.close();
+
+	Vehicle veh = do_spawn_vehicle(savedVeh->model, choice.caption, false);
+	if (veh == -1)
+	{
+		set_status_text("Spawn failed");
+	}
+	else
+	{
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+
+		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, (savedVeh->burstableTyres == 1) ? TRUE : FALSE);
+		
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, savedVeh->plateType);
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, (char*) savedVeh->plateText.c_str());
+
+		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, savedVeh->windowTint);
+
+		VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, savedVeh->wheelType);
+
+		for each (SavedVehicleExtraDBRow *extra in savedVeh->extras)
+		{
+			VEHICLE::SET_VEHICLE_EXTRA(veh, extra->extraID, (extra->extraState == 1) ? 0 : -1);
+		}
+
+		for each (SavedVehicleModDBRow *mod in savedVeh->mods)
+		{
+			if (mod->isToggle)
+			{
+				VEHICLE::TOGGLE_VEHICLE_MOD(veh, mod->modID, mod->modState);
+			}
+			else
+			{
+				VEHICLE::SET_VEHICLE_MOD(veh, mod->modID, mod->modState, 0);
+			}
+		}
+
+		if (savedVeh->livery != -1)
+		{
+			VEHICLE::SET_VEHICLE_LIVERY(veh, savedVeh->livery);
+		}
+
+		VEHICLE::SET_VEHICLE_COLOURS(veh, savedVeh->colourPrimary, savedVeh->colourSecondary);
+		VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, savedVeh->colourExtraPearl, savedVeh->colourExtraWheel);
+		VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, savedVeh->colourMod1Type, savedVeh->colourMod1Colour, savedVeh->colourMod1P3);
+		VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, savedVeh->colourMod2Type, savedVeh->colourMod2Colour);
+
+		ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
+	}
+
+	for (std::vector<SavedVehicleDBRow*>::iterator it = savedVehs.begin(); it != savedVehs.end(); ++it)
+	{
+		delete (*it);
+	}
+	savedVehs.clear();
+
+	return false;
+}
+
+bool process_spawn_menu_savedvehs()
+{
+	write_text_to_log_file("Asked to provide menu of saved vehicles");
+
+	ENTDatabase database;
+	if (!database.open())
+	{
+		set_status_text("Couldn't Load Saved Vehicles");
+		return false;
+	}
+
+	std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles();
+
+	database.close();
+
+	if (savedVehs.size() == 0)
+	{
+		set_status_text("No Saved Vehicles");
+		return false;
+	}
+
+	std::vector<MenuItem<int>*> menuItems;
+	for (int i = 0; i < savedVehs.size(); i++)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		SavedVehicleDBRow *veh = savedVehs.at(i);
+		item->isLeaf = true;
+		item->value = veh->rowID;
+		item->caption = veh->saveName;
+		menuItems.push_back(item);
+	}
+
+	draw_generic_menu<int>(menuItems, 0, "Saved Vehicles", onconfirm_carspawn_saved_entry, NULL, NULL);
+
+	for (std::vector<SavedVehicleDBRow*>::iterator it = savedVehs.begin(); it != savedVehs.end(); ++it)
+	{
+		delete (*it);
+	}
+	savedVehs.clear();
+
+	return false;
 }

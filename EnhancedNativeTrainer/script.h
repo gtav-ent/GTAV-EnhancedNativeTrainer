@@ -70,3 +70,9 @@ void load_settings();
 void save_settings();
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter);
+
+void init_storage();
+
+char* get_storage_dir_path();
+
+char* get_storage_dir_path(char* file);

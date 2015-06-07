@@ -21,20 +21,13 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	switch (reason)
 	{
 	case DLL_PROCESS_ATTACH:
-		clear_log_file();
-		write_text_to_log_file("Attach");
 		scriptRegister(hInstance, ScriptMain);
 		keyboardHandlerRegister(OnKeyboardMessage);
-		write_text_to_log_file("Done attaching");
 		break;
 	case DLL_PROCESS_DETACH:
-		write_text_to_log_file("Detach");
 		scriptUnregister(ScriptMain);
-		write_text_to_log_file("Unregistered");
 		keyboardHandlerUnregister(OnKeyboardMessage);
-		write_text_to_log_file("Unregistered KB");
 		ScriptTidyUp();
-		write_text_to_log_file("Tidied up");
 		break;
 	}
 	return TRUE;

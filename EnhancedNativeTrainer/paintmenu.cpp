@@ -166,7 +166,7 @@ bool process_paint_menu_special(int category)
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 	std::vector<MenuItem<std::string>*> menuItems;
-	Any paint1, paint2, paint3;
+	int paint1, paint2, paint3;
 	VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
 	int index = 0;
 
@@ -262,13 +262,13 @@ bool onconfirm_paint_menu_type(MenuItem<int> choice)
 
 	if (::whichpart == 0) //index as primary color
 	{
-		Any paint1, paint2, paint3;
+		int paint1, paint2, paint3;
 		VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
 		index = paint2;
 	}
 	else if (::whichpart == 1) //index as secondary color
 	{
-		Any paint1, paint2;
+		int paint1, paint2;
 		VEHICLE::GET_VEHICLE_MOD_COLOR_2(veh, &paint1, &paint2);
 		index = paint2;
 	}
@@ -294,7 +294,7 @@ bool process_paint_menu_type()
 
 	if (::whichpart == 0) //index as primary color type
 	{
-		Any paint1, paint2, paint3;
+		int paint1, paint2, paint3;
 		VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
 		index = paint1;
 		if (index == 2) { index = 0; } //if paint type is pearlescent index to paint type metallic
@@ -302,7 +302,7 @@ bool process_paint_menu_type()
 	}
 	else if (::whichpart == 1) //index as secondary color type
 	{
-		Any paint1, paint2;
+		int paint1, paint2;
 		VEHICLE::GET_VEHICLE_MOD_COLOR_2(veh, &paint1, &paint2);
 		index = paint1;
 		if (index > 1) { index = index - 1; }
@@ -340,13 +340,13 @@ bool onconfirm_color_menu_selection(MenuItem<std::string> choice)
 			}
 			else if (::whichpart == 2) //Apply pearl Topcoat
 			{
-				Any paint1, paint2, paint3;
+				int paint1, paint2, paint3;
 				VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
 				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, 2, paint2, whichpaint - 1); //change paint type to pearl and apply topcoat
 			}
 			else if (::whichpart == 3) //Apply wheel color
 			{
-				Any paint1, paint2;//pearl topcoat, wheel color
+				int paint1, paint2;//pearl topcoat, wheel color
 				VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &paint1, &paint2);
 				VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, paint1, whichpaint); //apply wheel color without changing pearl topcoat
 			}

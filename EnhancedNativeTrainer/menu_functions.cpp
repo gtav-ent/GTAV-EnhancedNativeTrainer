@@ -248,10 +248,26 @@ void draw_menu_from_struct_def(StringStandardOrToggleMenuDef defs[], int lineCou
 
 std::string show_keyboard(char* title_id, char* prepopulated_text)
 {
-	GAMEPLAY::DISPLAY_ONSCREEN_KEYBOARD(true,
-		(title_id == NULL ? "0x2D2E663D" : title_id),
+	DWORD time = GetTickCount() + 400;
+	while (GetTickCount() < time)
+	{
+		make_periodic_feature_call();
+		WAIT(0);
+	}
+
+	/*
+	Any x;
+	GAMEPLAY::START_SAVE_DATA(&x, 1, 1);
+	GAMEPLAY::REGISTER_TEXT_LABEL_TO_SAVE(&x, "XYZ123");
+	GAMEPLAY::STOP_SAVE_DATA();
+	*/
+
+	GAMEPLAY::DISPLAY_ONSCREEN_KEYBOARD(
+		true,
+		(title_id == NULL ? "HUD_TITLE" : title_id),
+		"",
 		(prepopulated_text == NULL ? "" : prepopulated_text),
-		"", "", "", "", 64);
+		"", "", "", 64);
 
 	while (GAMEPLAY::UPDATE_ONSCREEN_KEYBOARD() == 0)
 	{

@@ -42,6 +42,8 @@ const static int SPECIAL_ID_FOR_LICENSE_PLATES = 94;
 
 const static int SPECIAL_ID_FOR_TOGGLE_VARIATIONS = 95;
 
+const static int SPECIAL_ID_FOR_PLATE_TEXT = 96;
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -838,6 +840,16 @@ bool process_vehmod_menu()
 		ss.str(""); ss.clear();
 	}
 
+	if (!isWeird && !isAircraft)
+	{
+		MenuItem<int>* item = new MenuItem<int>();
+		item->caption = "Change Plate Text";
+		item->isLeaf = false;
+		item->onConfirmFunction = set_plate_text;
+		item->value = SPECIAL_ID_FOR_PLATE_TEXT;
+		menuItems.push_back(item);
+	}
+
 	if (menuItems.size() == 0)
 	{
 		set_status_text("No relevant mods for this vehicle");
@@ -846,6 +858,17 @@ bool process_vehmod_menu()
 
 	draw_generic_menu<int>(menuItems, 0, "Vehicle Mods", onconfirm_vehmod_menu, NULL, NULL, vehicle_menu_interrupt);
 	return false;
+}
+
+void set_plate_text(MenuItem<int> choice)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	char* existingText = VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT(veh);
+	std::string result = show_keyboard("CMOD_MOD_18_D", existingText);
+	if (!result.empty())
+	{
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, (char*) result.c_str());
+	}
 }
 
 bool is_custom_tyres(std::vector<int> extras)

@@ -31,6 +31,8 @@ bool process_vehmod_menu();
 
 bool process_carspawn_menu();
 
+bool process_spawn_menu_savedvehs();
+
 void update_vehicle_features(BOOL playerExists, Ped playerPed);
 
 void reset_vehicle_globals();
@@ -44,6 +46,8 @@ bool process_spawn_menu_generic(int topMenuSelection);
 bool onconfirm_spawn_menu_vehicle_selection(MenuItem<std::string> choice);
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle);
+
+Vehicle do_spawn_vehicle(DWORD modelHash, std::string modelTitle, bool cleanup);
 
 //Paint menus
 
@@ -80,6 +84,8 @@ void set_xenon_headlights(bool applied, std::vector<int> extras);
 bool is_extra_enabled(std::vector<int> extras);
 
 void set_extra_enabled(bool applied, std::vector<int> extras);
+
+void set_plate_text(MenuItem<int> choice);
 
 int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
 
