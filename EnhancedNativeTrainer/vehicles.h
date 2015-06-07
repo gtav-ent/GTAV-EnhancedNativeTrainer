@@ -27,11 +27,13 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 void process_veh_menu();
 
+bool process_savedveh_menu();
+
+bool process_savedveh_slot_menu(int slot);
+
 bool process_vehmod_menu();
 
 bool process_carspawn_menu();
-
-bool process_spawn_menu_savedvehs();
 
 void update_vehicle_features(BOOL playerExists, Ped playerPed);
 
@@ -42,6 +44,10 @@ bool process_spawn_menu_cars();
 bool process_spawn_menu_indus();
 
 bool process_spawn_menu_generic(int topMenuSelection);
+
+bool spawn_saved_car(int slot, std::string caption);
+
+void save_current_vehicle(int slot);
 
 bool onconfirm_spawn_menu_vehicle_selection(MenuItem<std::string> choice);
 
@@ -90,5 +96,9 @@ void set_plate_text(MenuItem<int> choice);
 int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
 
 bool vehicle_menu_interrupt();
+
+bool vehicle_save_menu_interrupt();
+
+bool vehicle_save_slot_menu_interrupt();
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles();

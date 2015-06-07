@@ -1110,7 +1110,7 @@ void make_minidump(EXCEPTION_POINTERS* e)
 	if (pMiniDumpWriteDump == nullptr)
 		return;
 
-	auto hFile = CreateFileA("ENT-minidump.dmp", GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	auto hFile = CreateFileA(get_storage_dir_path("ENT-minidump.dmp"), GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return;
 

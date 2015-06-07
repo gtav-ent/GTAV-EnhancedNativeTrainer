@@ -126,13 +126,15 @@ public:
 
 	std::vector<StringPairSettingDBRow> load_setting_pairs();
 
-	bool save_vehicle(Vehicle veh, std::string saveName, int slot);
+	bool save_vehicle(Vehicle veh, std::string saveName, int slot=-1);
 
 	std::vector<SavedVehicleDBRow*> get_saved_vehicles(int index=-1);
 
 	void populate_saved_vehicle(SavedVehicleDBRow *entry);
 
 	void delete_saved_vehicle(int slot);
+
+	void rename_saved_vehicle(std::string name, int slot);
 
 private:
 

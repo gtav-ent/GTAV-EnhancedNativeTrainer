@@ -24,6 +24,13 @@ bool featureVehSpawnInto = false;
 bool featureVehicleDoorInstant = false;
 
 int activeLineIndexVeh = 0;
+int activeSavedVehicleIndex = -1;
+std::string activeSavedVehicleSlotName;
+int lastKnownSavedVehicleCount = 0;
+bool vehSaveMenuInterrupt = false;
+bool vehSaveSlotMenuInterrupt = false;
+bool requireRefreshOfSaveSlots = false;
+bool requireRefreshOfSlotMenu = false;
 
 //Door Options list + struct
 struct struct_door_options {
@@ -223,37 +230,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		break;
 	case 1:
 	{
-		if (bPlayerExists)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-				std::string result = show_keyboard(NULL, "Save Slot 1");
-				if (!result.empty())
-				{
-					ENTDatabase database;
-					if (!database.open())
-					{
-						set_status_text("Save Error");
-						break;
-					}
-					if (database.save_vehicle(veh, result, -1))
-					{
-						set_status_text("Saved");
-					}
-					else
-					{
-						set_status_text("Save Error");
-					}
-					database.close();
-				}
-			}
-			else
-			{
-				set_status_text("Player isn't in a vehicle");
-			}
-		}
-
+		if (process_savedveh_menu()) return false;
 		break;
 	}
 		break;
@@ -324,7 +301,7 @@ void process_veh_menu()
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Vehicle Spawner", NULL, NULL, false },
-		{ "Save Vehicle", NULL, NULL, false },
+		{ "Saved Vehicles", NULL, NULL, false },
 		{ "Fix", NULL, NULL, true },
 		{ "Clean", NULL, NULL, true },
 		{ "Paint Menu", NULL, NULL, false },
@@ -446,9 +423,6 @@ bool onconfirm_carspawn_menu(MenuItem<int> choice)
 {
 	switch (choice.value)
 	{
-	case -1:
-		process_spawn_menu_savedvehs();
-		break;
 	case 0:
 		process_spawn_menu_cars();
 		break;
@@ -473,11 +447,13 @@ bool process_carspawn_menu()
 		menuItems.push_back(item);
 	}
 
+	/*
 	MenuItem<int> *item = new MenuItem<int>();
 	item->caption = "Saved Vehicles";
 	item->value = -1;
 	item->isLeaf = false;
 	menuItems.push_back(item);
+	*/
 
 	return draw_generic_menu<int>(menuItems, 0, "Vehicle Categories", onconfirm_carspawn_menu, NULL, NULL);
 }
@@ -633,7 +609,7 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
 	return results;
 }
 
-bool onconfirm_carspawn_saved_entry(MenuItem<int> choice)
+bool spawn_saved_car(int slot, std::string caption)
 {
 	ENTDatabase database;
 	if (!database.open())
@@ -642,14 +618,16 @@ bool onconfirm_carspawn_saved_entry(MenuItem<int> choice)
 		return false;
 	}
 
-	std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles(choice.value);
+	std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles(slot);
+
+	lastKnownSavedVehicleCount = savedVehs.size();
 
 	SavedVehicleDBRow* savedVeh = savedVehs.at(0);
 	database.populate_saved_vehicle(savedVeh);
 
 	database.close();
 
-	Vehicle veh = do_spawn_vehicle(savedVeh->model, choice.caption, false);
+	Vehicle veh = do_spawn_vehicle(savedVeh->model, caption, false);
 	if (veh == -1)
 	{
 		set_status_text("Spawn failed");
@@ -706,45 +684,231 @@ bool onconfirm_carspawn_saved_entry(MenuItem<int> choice)
 	return false;
 }
 
-bool process_spawn_menu_savedvehs()
+bool onconfirm_savedveh_slot_menu(MenuItem<int> choice)
 {
-	write_text_to_log_file("Asked to provide menu of saved vehicles");
-
-	ENTDatabase database;
-	if (!database.open())
+	switch (choice.value)
 	{
-		set_status_text("Couldn't Load Saved Vehicles");
-		return false;
+	case 1: //spawn
+		spawn_saved_car(activeSavedVehicleIndex, activeSavedVehicleSlotName);
+		break;
+	case 2: //overwrite
+		{
+			save_current_vehicle(activeSavedVehicleIndex);
+			requireRefreshOfSaveSlots = true;
+			requireRefreshOfSlotMenu = true;
+			vehSaveSlotMenuInterrupt = true;
+			vehSaveMenuInterrupt = true;
+		}
+		break;
+	case 3: //rename
+		{
+			std::string result = show_keyboard(NULL, (char*)activeSavedVehicleSlotName.c_str());
+			if (!result.empty())
+			{
+				ENTDatabase database;
+				if (!database.open())
+				{
+					set_status_text("Couldn't Access Saved Vehicle");
+					return false;
+				}
+				database.rename_saved_vehicle(result, activeSavedVehicleIndex);
+				database.close();
+				activeSavedVehicleSlotName = result;
+			}
+			requireRefreshOfSaveSlots = true;
+			requireRefreshOfSlotMenu = true;
+			vehSaveSlotMenuInterrupt = true;
+			vehSaveMenuInterrupt = true;
+		}
+		break;
+	case 4: //delete
+		{
+			ENTDatabase database;
+			if (!database.open())
+			{
+				set_status_text("Couldn't Delete Saved Vehicle");
+				return false;
+			}
+			database.delete_saved_vehicle(activeSavedVehicleIndex);
+			database.close();
+			requireRefreshOfSlotMenu = false;
+			requireRefreshOfSaveSlots = true;
+			vehSaveSlotMenuInterrupt = true;
+			vehSaveMenuInterrupt = true;
+		}
+		break;
 	}
+	return false;
+}
 
-	std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles();
-
-	database.close();
-
-	if (savedVehs.size() == 0)
+bool process_savedveh_slot_menu(int slot)
+{
+	do
 	{
-		set_status_text("No Saved Vehicles");
-		return false;
-	}
+		vehSaveSlotMenuInterrupt = false;
+		requireRefreshOfSlotMenu = false;
 
-	std::vector<MenuItem<int>*> menuItems;
-	for (int i = 0; i < savedVehs.size(); i++)
-	{
+		std::vector<MenuItem<int>*> menuItems;
+
 		MenuItem<int> *item = new MenuItem<int>();
-		SavedVehicleDBRow *veh = savedVehs.at(i);
-		item->isLeaf = true;
-		item->value = veh->rowID;
-		item->caption = veh->saveName;
+		item->isLeaf = false;
+		item->value = 1;
+		item->caption = "Spawn";
 		menuItems.push_back(item);
-	}
 
-	draw_generic_menu<int>(menuItems, 0, "Saved Vehicles", onconfirm_carspawn_saved_entry, NULL, NULL);
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 2;
+		item->caption = "Overwrite With Current";
+		menuItems.push_back(item);
 
-	for (std::vector<SavedVehicleDBRow*>::iterator it = savedVehs.begin(); it != savedVehs.end(); ++it)
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 3;
+		item->caption = "Rename";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 4;
+		item->caption = "Delete";
+		menuItems.push_back(item);
+
+		draw_generic_menu<int>(menuItems, 0, activeSavedVehicleSlotName, onconfirm_savedveh_slot_menu, NULL, NULL, vehicle_save_slot_menu_interrupt);
+	} while (requireRefreshOfSlotMenu);
+	return false;
+}
+
+void save_current_vehicle(int slot)
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (bPlayerExists)
 	{
-		delete (*it);
-	}
-	savedVehs.clear();
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
+			std::ostringstream ss;
+			if (slot != -1)
+			{
+				ss << activeSavedVehicleSlotName;
+			}
+			else
+			{
+				ss << "Saved Vehicle "<< (lastKnownSavedVehicleCount+1);
+			}
+
+			auto existingText = ss.str();
+			std::string result = show_keyboard(NULL, (char*)existingText.c_str());
+			if (!result.empty())
+			{
+				ENTDatabase database;
+				if (!database.open())
+				{
+					set_status_text("Save Error");
+					return;
+				}
+				if (database.save_vehicle(veh, result, -1))
+				{
+					set_status_text("Saved");
+				}
+				else
+				{
+					set_status_text("Save Error");
+				}
+				database.close();
+			}
+		}
+		else
+		{
+			set_status_text("Player isn't in a vehicle");
+		}
+	}
+}
+
+bool onconfirm_savedveh_menu(MenuItem<int> choice)
+{
+	if ( choice.value == -1 )
+	{
+		save_current_vehicle(-1);
+		requireRefreshOfSaveSlots = true;
+		vehSaveMenuInterrupt = true;
+		return false;
+	}
+
+	activeSavedVehicleIndex = choice.value;
+	activeSavedVehicleSlotName = choice.caption;
+	return process_savedveh_slot_menu(choice.value);
+}
+
+bool process_savedveh_menu()
+{
+	do
+	{
+		vehSaveMenuInterrupt = false;
+		requireRefreshOfSlotMenu = false;
+		requireRefreshOfSaveSlots = false;
+
+		ENTDatabase database;
+		if (!database.open())
+		{
+			set_status_text("Couldn't Load Saved Vehicles");
+			return false;
+		}
+		std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles();
+		database.close();
+
+		lastKnownSavedVehicleCount = savedVehs.size();
+
+		std::vector<MenuItem<int>*> menuItems;
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = -1;
+		item->caption = "Create New Vehicle Save";
+		menuItems.push_back(item);
+
+		for each (SavedVehicleDBRow *sv in savedVehs)
+		{
+			MenuItem<int> *item = new MenuItem<int>();
+			item->isLeaf = false;
+			item->value = sv->rowID;
+			item->caption = sv->saveName;
+			menuItems.push_back(item);
+		}
+
+		draw_generic_menu<int>(menuItems, 0, "Saved Vehicles", onconfirm_savedveh_menu, NULL, NULL, vehicle_save_menu_interrupt);
+
+		for (std::vector<SavedVehicleDBRow*>::iterator it = savedVehs.begin(); it != savedVehs.end(); ++it)
+		{
+			delete (*it);
+		}
+		savedVehs.clear();
+	}
+	while (requireRefreshOfSaveSlots);
+
+	return false;
+}
+
+bool vehicle_save_menu_interrupt()
+{
+	if (vehSaveMenuInterrupt)
+	{
+		vehSaveMenuInterrupt = false;
+		return true;
+	}
+	return false;
+}
+
+bool vehicle_save_slot_menu_interrupt()
+{
+	if (vehSaveSlotMenuInterrupt)
+	{
+		vehSaveSlotMenuInterrupt = false;
+		return true;
+	}
 	return false;
 }

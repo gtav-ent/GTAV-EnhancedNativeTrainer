@@ -282,7 +282,11 @@ void ENTDatabase::close()
 	write_text_to_log_file("DB closing");
 	if (db != NULL)
 	{
-		sqlite3_close_v2(db);
+		int rc = sqlite3_close_v2(db);
+		if (rc != SQLITE_OK)
+		{
+			write_text_to_log_file("DB not closed properly!");
+		}
 		db = NULL;
 	}
 	write_text_to_log_file("DB closed");
@@ -396,7 +400,7 @@ void ENTDatabase::save_vehicle_extras(Vehicle veh, int rowID)
 		}
 
 		std::stringstream ss;
-		ss << "INSERT INTO ENT_VEHICLE_EXTRAS VALUES (?, ?, ?, ?)";
+		ss << "INSERT OR REPLACE INTO ENT_VEHICLE_EXTRAS VALUES (?, ?, ?, ?)";
 
 		sqlite3_stmt *stmt;
 		const char *pzTest;
@@ -428,7 +432,7 @@ void ENTDatabase::save_vehicle_mods(Vehicle veh, int rowID)
 	for (int i = 0; i < 25; i++)
 	{
 		std::stringstream ss;
-		ss << "INSERT INTO ENT_VEHICLE_MODS VALUES (?, ?, ?, ?, ?)";
+		ss << "INSERT OR REPLACE INTO ENT_VEHICLE_MODS VALUES (?, ?, ?, ?, ?)";
 
 		sqlite3_stmt *stmt;
 		const char *pzTest;
@@ -467,7 +471,7 @@ void ENTDatabase::save_vehicle_mods(Vehicle veh, int rowID)
 bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, int slot)
 {
 	std::stringstream ss;
-	ss << "INSERT INTO ENT_SAVED_VEHICLES VALUES (?, ?, ?, ?, ?, \
+	ss << "INSERT OR REPLACE INTO ENT_SAVED_VEHICLES VALUES (?, ?, ?, ?, ?, \
 			?, ?, ?, ?, ?, \
 		  	?, ?, ?, ?, ?, \
 			?, ?, ?, ?, ?, \
@@ -507,7 +511,14 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, int slot)
 	}
 
 	int index = 1;
-	sqlite3_bind_null(stmt, index++);
+	if (slot == -1)
+	{
+		sqlite3_bind_null(stmt, index++);
+	}
+	else
+	{
+		sqlite3_bind_int(stmt, index++, slot);
+	}
 	sqlite3_bind_text(stmt, index++, saveName.c_str(), saveName.length(), 0); //save name
 	sqlite3_bind_int(stmt, index++, ENTITY::GET_ENTITY_MODEL(veh)); //model
 
@@ -638,10 +649,12 @@ std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 
 			r = sqlite3_step(stmt);
 		}
+		sqlite3_finalize(stmt);
 	}
 	else
 	{
-
+		write_text_to_log_file("Failed to fetch saved vehicles");
+		write_text_to_log_file(sqlite3_errmsg(db));
 	}
 
 	return results;
@@ -695,9 +708,9 @@ void ENTDatabase::populate_saved_vehicle(SavedVehicleDBRow *entry)
 		{
 			SavedVehicleModDBRow *mod = new SavedVehicleModDBRow();
 			//0 and 1 are IDs
-			mod->modID = sqlite3_column_int(stmt, 2);
-			mod->modState = sqlite3_column_int(stmt, 3);
-			mod->isToggle = (sqlite3_column_int(stmt, 4) == 1) ? true : false;
+			mod->modID = sqlite3_column_int(stmt2, 2);
+			mod->modState = sqlite3_column_int(stmt2, 3);
+			mod->isToggle = (sqlite3_column_int(stmt2, 4) == 1) ? true : false;
 			entry->mods.push_back(mod);
 			r = sqlite3_step(stmt2);
 		}
@@ -725,6 +738,30 @@ void ENTDatabase::delete_saved_vehicle(int slot)
 	{
 		// bind the value
 		sqlite3_bind_int(stmt, 1, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved vehicle");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+}
+
+void ENTDatabase::rename_saved_vehicle(std::string name, int slot)
+{
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "UPDATE ENT_SAVED_VEHICLES SET saveName=? WHERE id=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_text(stmt, 1, name.c_str(), name.length(), 0);
+		sqlite3_bind_int(stmt, 2, slot);
 
 		// commit
 		sqlite3_step(stmt);
