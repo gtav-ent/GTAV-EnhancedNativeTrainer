@@ -8,6 +8,6 @@ However, before doing anything, please familiarise yourself with [our wiki](http
 
 **Current coordination status**:
 
-Update 18 was released on May 27.
+Update 20 was released on June 8.
 
-Due to holiday, there will be no releases or pull request processing etc between May 29 and June 6, and likely not so much done leading up to this period either.
+Pull request processing etc is now back to normal after a holiday.
