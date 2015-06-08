@@ -944,7 +944,7 @@ void ENTDatabase::populate_saved_skin(SavedSkinDBRow *entry)
 
 	sqlite3_stmt *stmt2;
 	const char *pzTest2;
-	auto qStr2 = "select * from ENT_VEHICLE_MODS WHERE parentId=?";
+	auto qStr2 = "select * from ENT_SKIN_PROPS WHERE parentId=?";
 	int rc2 = sqlite3_prepare_v2(db, qStr2, strlen(qStr2), &stmt2, &pzTest2);
 
 	if (rc2 == SQLITE_OK)
