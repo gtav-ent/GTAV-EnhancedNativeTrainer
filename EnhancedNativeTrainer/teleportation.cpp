@@ -171,6 +171,17 @@ std::vector<const char*> IPLS_CARRIER = {
 	"hei_carrier_LODLights"
 };
 
+std::vector<const char*> IPLS_HEISTYACHT = {
+	"hei_yacht_heist",
+	"hei_yacht_heist_Bar",
+	"hei_yacht_heist_Bedrm",
+	"hei_yacht_heist_Bridge",
+	"hei_yacht_heist_DistantLights",
+	"hei_yacht_heist_enginrm",
+	"hei_yacht_heist_LODLights",
+	"hei_yacht_heist_Lounge"
+};
+
 std::vector<const char*> IPLS_NORTH_YANKTON = {
 	"plg_01",
 	"prologue01",
@@ -245,7 +256,9 @@ std::vector<const char*> IPLS_NORTH_YANKTON = {
 
 
 std::vector<tele_location> LOCATIONS_REQSCEN = {
+	//{ "Carrier", 3069.330f, -4632.4f, 15.043f, IPLS_CARRIER, {}, false },
 	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, { "ufo", "ufo_lod", "ufo_eye" }, {}, false },
+	//{ "Heist Yacht", -2043.974f, -1031.582f, 11.981f, IPLS_HEISTYACHT, {}, false },
 	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, IPLS_NORTH_YANKTON, {}, false },
 	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, IPLS_NORTH_YANKTON, {}, false },
 	{ "SS Bulker (Intact)", -163.749f, -2377.94f, 9.3192f, { "cargoship" }, { "sunkcargoship" }, false },
