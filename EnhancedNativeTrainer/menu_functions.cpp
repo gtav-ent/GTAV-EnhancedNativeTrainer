@@ -11,10 +11,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "menu_functions.h"
 #include "script.h"
 
-std::string statusText;
-DWORD statusTextDrawTicksMax;
-bool statusTextGxtEntry;
-
 bool menu_showing = false;
 
 void(*periodic_feature_call)(void) = NULL;
@@ -134,40 +130,16 @@ void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int
 	GRAPHICS::DRAW_RECT((A_0 + (A_2 * 0.5f)), (A_1 + (A_3 * 0.5f)), A_2, A_3, A_4, A_5, A_6, A_7);
 }
 
-void set_status_text(std::string str, DWORD time, bool isGxtEntry)
+void set_status_text(std::string str, bool isGxtEntry)
 {
-	statusText = str;
-	statusTextDrawTicksMax = GetTickCount() + time;
-	statusTextGxtEntry = isGxtEntry;
+	UI::_0x202709F4C58A0424 ( (Any*) (isGxtEntry ? &str[0u] : "STRING") );
+	UI::_ADD_TEXT_COMPONENT_STRING ( &str[0u] );
+	UI::_0x2ED7843F8F801023 ( FALSE, FALSE ); // _DRAW_NOTIFICATION(BOOL blink, BOOL p1)
 }
 
 void menu_beep()
 {
 	AUDIO::PLAY_SOUND_FRONTEND(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0);
-}
-
-void update_status_text()
-{
-	if (GetTickCount() < statusTextDrawTicksMax)
-	{
-		UI::SET_TEXT_FONT(0);
-		UI::SET_TEXT_SCALE(0.55, 0.55);
-		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
-		UI::SET_TEXT_WRAP(0.0, 1.0);
-		UI::SET_TEXT_CENTRE(1);
-		UI::SET_TEXT_DROPSHADOW(0, 0, 0, 0, 0);
-		UI::SET_TEXT_EDGE(1, 0, 0, 0, 205);
-		if (statusTextGxtEntry)
-		{
-			UI::_SET_TEXT_ENTRY((char *)statusText.c_str());
-		}
-		else
-		{
-			UI::_SET_TEXT_ENTRY("STRING");
-			UI::_ADD_TEXT_COMPONENT_STRING((char *)statusText.c_str());
-		}
-		UI::_DRAW_TEXT(0.5, 0.5);
-	}
 }
 
 void draw_menu_from_struct_def(StandardOrToggleMenuDef defs[], int lineCount, int* selectionRef, std::string caption, bool(*onConfirmation)(MenuItem<int> value))
