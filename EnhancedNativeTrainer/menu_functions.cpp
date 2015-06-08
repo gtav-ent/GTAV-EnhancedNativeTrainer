@@ -136,9 +136,9 @@ void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int
 
 void set_status_text(std::string str, bool isGxtEntry)
 {
-	UI::_0x202709F4C58A0424 ( (Any*) (isGxtEntry ? &str[0u] : "STRING") );
+	UI::_SET_NOTIFICATION_TEXT_ENTRY((isGxtEntry ? &str[0u] : "STRING") );
 	UI::_ADD_TEXT_COMPONENT_STRING ( &str[0u] );
-	UI::_0x2ED7843F8F801023 ( FALSE, FALSE ); // _DRAW_NOTIFICATION(BOOL blink, BOOL p1)
+	UI::_DRAW_NOTIFICATION( FALSE, FALSE ); // _DRAW_NOTIFICATION(BOOL blink, BOOL p1)
 }
 
 void set_status_text_centre_screen(std::string str, DWORD time, bool isGxtEntry)

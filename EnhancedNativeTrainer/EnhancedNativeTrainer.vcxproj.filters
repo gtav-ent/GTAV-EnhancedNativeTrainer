@@ -45,4 +45,7 @@
     <None Include="Documents\GTA V Peds Master.xlsm" />
     <None Include="Documents\GTA V Vehicles Master.xlsm" />
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="lib\ScriptHookV.lib" />
+  </ItemGroup>
 </Project>
