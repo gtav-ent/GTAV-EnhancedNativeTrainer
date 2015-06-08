@@ -412,12 +412,6 @@ bool process_skinchanger_detail_menu()
 
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 	}
-	/*
-	else
-	{
-		set_status_text("Please apply a custom skin in order to access this");
-		return false;
-	}*/
 
 	return draw_generic_menu<int>(menuItems, &skinDetailMenuIndex, "Skin Details", onconfirm_skinchanger_detail_menu, onhighlight_skinchanger_detail_menu, NULL);
 }

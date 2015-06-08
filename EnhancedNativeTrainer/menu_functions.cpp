@@ -11,6 +11,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "menu_functions.h"
 #include "script.h"
 
+std::string centreScreenStatusText;
+DWORD centreScreenStatusTextDrawTicksMax;
+bool centreScreenStatusTextGxtEntry;
+
 bool menu_showing = false;
 
 void(*periodic_feature_call)(void) = NULL;
@@ -137,6 +141,37 @@ void set_status_text(std::string str, bool isGxtEntry)
 	UI::_0x2ED7843F8F801023 ( FALSE, FALSE ); // _DRAW_NOTIFICATION(BOOL blink, BOOL p1)
 }
 
+void set_status_text_centre_screen(std::string str, DWORD time, bool isGxtEntry)
+{
+	centreScreenStatusText = str;
+	centreScreenStatusTextDrawTicksMax = GetTickCount() + time;
+	centreScreenStatusTextGxtEntry = isGxtEntry;
+}
+
+void update_centre_screen_status_text()
+{
+	if (GetTickCount() < centreScreenStatusTextDrawTicksMax)
+	{
+		UI::SET_TEXT_FONT(0);
+		UI::SET_TEXT_SCALE(0.55, 0.55);
+		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
+		UI::SET_TEXT_WRAP(0.0, 1.0);
+		UI::SET_TEXT_CENTRE(1);
+		UI::SET_TEXT_DROPSHADOW(0, 0, 0, 0, 0);
+		UI::SET_TEXT_EDGE(1, 0, 0, 0, 205);
+		if (centreScreenStatusTextGxtEntry)
+		{
+			UI::_SET_TEXT_ENTRY((char *)centreScreenStatusText.c_str());
+		}
+		else
+		{
+			UI::_SET_TEXT_ENTRY("STRING");
+			UI::_ADD_TEXT_COMPONENT_STRING((char *)centreScreenStatusText.c_str());
+		}
+		UI::_DRAW_TEXT(0.5, 0.5);
+	}
+}
+
 void menu_beep()
 {
 	AUDIO::PLAY_SOUND_FRONTEND(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0);
@@ -243,7 +278,7 @@ std::string show_keyboard(char* title_id, char* prepopulated_text)
 
 	while (GAMEPLAY::UPDATE_ONSCREEN_KEYBOARD() == 0)
 	{
-		update_status_text();
+		//update_status_text();
 		WAIT(0);
 	}
 

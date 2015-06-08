@@ -167,6 +167,8 @@ void update_features()
 
 	PED::SET_CREATE_RANDOM_COPS(featureWorldRandomCops);
 
+	update_centre_screen_status_text();
+
 	update_vehicle_guns();
 
 	check_player_model();

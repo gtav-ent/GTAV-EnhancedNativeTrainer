@@ -291,7 +291,7 @@ void output_current_location(Entity e)
 	Vector3 coords = ENTITY::GET_ENTITY_COORDS(e, 0);
 	std::ostringstream ss;
 	ss << "X: " << coords.x << "\nY: " << coords.y << "\nZ: " << coords.z;
-	set_status_text(ss.str(), 4000UL);
+	set_status_text_centre_screen(ss.str(), 4000UL);
 }
 
 void teleport_to_marker(Entity e)
