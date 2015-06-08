@@ -30,6 +30,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "teleportation.h"
 #include "airbrake.h"
 #include "weapons.h"
+#include "anims.h";
 //#include "crash_handler.h"
 
 #include <DbgHelp.h>
@@ -672,11 +673,8 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		set_status_text("Player Healed");
 	}
 	break;
-	// add cash
-	case 2:
-		break;
-		// wanted up or down, handled by item
-	case 3:
+	case 14:
+		process_anims_menu_top();
 		break;
 	default:
 		break;
@@ -686,7 +684,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 14;
+	const int lineCount = 15;
 	
 	std::string caption = "Player Options";
 
@@ -704,7 +702,8 @@ void process_player_menu()
 		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
 		{"Super Jump", &featurePlayerSuperJump, NULL, true},
-		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true}
+		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
+		{ "Anims", NULL, NULL, false }
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
@@ -731,7 +730,7 @@ bool onconfirm_time_menu ( MenuItem<int> choice )
 		int m = TIME::GET_CLOCK_MINUTES ();
 		TIME::SET_CLOCK_TIME ( h, m, 0 );
 		char text[32];
-		sprintf_s ( text, "time %02d:%02d", h, m );
+		sprintf_s ( text, "Time is now %02d:%02d", h, m );
 		set_status_text ( text );
 	}
 	break;
@@ -1159,6 +1158,8 @@ void ScriptMain()
 		clear_log_file();
 
 		init_storage();
+
+		build_anim_tree();
 
 		write_text_to_log_file("ScriptMain called - handler set");
 

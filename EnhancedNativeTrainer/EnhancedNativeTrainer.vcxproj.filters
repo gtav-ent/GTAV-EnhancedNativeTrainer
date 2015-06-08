@@ -17,6 +17,7 @@
     <ClCompile Include="vehicles.cpp" />
     <ClCompile Include="vehmodmenu.cpp" />
     <ClCompile Include="weapons.cpp" />
+    <ClCompile Include="anims.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="airbrake.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="teleportation.h" />
     <ClInclude Include="vehicles.h" />
     <ClInclude Include="weapons.h" />
+    <ClInclude Include="anims.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />

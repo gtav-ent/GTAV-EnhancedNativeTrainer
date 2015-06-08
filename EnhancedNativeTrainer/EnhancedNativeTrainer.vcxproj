@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="airbrake.cpp" />
+    <ClCompile Include="anims.cpp" />
     <ClCompile Include="config_io.cpp" />
     <ClCompile Include="database.cpp" />
     <ClCompile Include="debuglog.cpp" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="airbrake.h" />
+    <ClInclude Include="anims.h" />
     <ClInclude Include="config_io.h" />
     <ClInclude Include="database.h" />
     <ClInclude Include="debuglog.h" />

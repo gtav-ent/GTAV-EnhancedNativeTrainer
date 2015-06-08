@@ -70,7 +70,7 @@ void reset_skin_globals()
 bool applyChosenSkin(std::string skinName)
 {
 	DWORD model = GAMEPLAY::GET_HASH_KEY((char *)skinName.c_str());
-	applyChosenSkin(model);
+	return applyChosenSkin(model);
 }
 
 bool applyChosenSkin(DWORD model)
