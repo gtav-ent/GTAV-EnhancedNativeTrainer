@@ -23,13 +23,21 @@ bool DEBUG_MODE_SKINS = false;
 int skinDetailMenuIndex = 0;
 int skinDetailMenuValue = 0;
 
-const std::vector<std::string> MENU_SKINS_TYPES_CAPTIONS{ "Players", "Animals", "NPCs", "Modify Current Skin", "Reset Current Skin", "Modify Props", "Clear Props" };
+const std::vector<std::string> MENU_SKINS_TYPES_CAPTIONS{ "Saved Configs", "Players", "Animals", "NPCs", "Modify Current Skin", "Reset Current Skin", "Modify Props", "Clear Props" };
 
 int skinMainMenuPosition = 0;
 
 int skinPropsMenuPosition = 0;
 int skinPropsCategoryValue = 0;
 int skinPropsDrawablePosition[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+int activeSavedSkinIndex = -1;
+std::string activeSavedSkinSlotName;
+int lastKnownSavedSkinCount = 0;
+bool skinSaveMenuInterrupt = false;
+bool skinSaveSlotMenuInterrupt = false;
+bool requireRefreshOfSkinSaveSlots = false;
+bool requireRefreshOfSkinSlotMenu = false;
 
 int skinTypesMenuPositionMemory[4] = { 0, 0, 0, 0 }; //player, animals, general, test
 
@@ -59,38 +67,14 @@ void reset_skin_globals()
 * =================
 */
 
-int findFirstValidPedTexture(int drawable)
-{
-	return 0;/*
-	for (int j = 0; j < 100; j++)
-	{
-		if (PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, drawable, j))
-		{
-			return j;
-		}
-	}
-	return -1;*/
-}
-
-int findFirstValidPedDrawable(int component)
-{
-	return 0;/*
-	for (int i = 0; i < 100; i++)
-	{
-		for (int j = 0; j < 100; j++)
-		{
-			if (PED::IS_PED_COMPONENT_VARIATION_VALID(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, i, j))
-			{
-				return i;
-			}
-		}
-	}
-	return -1;*/
-}
-
 bool applyChosenSkin(std::string skinName)
 {
 	DWORD model = GAMEPLAY::GET_HASH_KEY((char *)skinName.c_str());
+	applyChosenSkin(model);
+}
+
+bool applyChosenSkin(DWORD model)
+{
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
 	{
 		STREAMING::REQUEST_MODEL(model);
@@ -538,26 +522,29 @@ bool onconfirm_skinchanger_menu(MenuItem<int> choice)
 
 	switch (choice.value)
 	{
-	case 0: //Players
+	case 0:
+		process_savedskin_menu();
+		break;
+	case 1: //Players
 		process_skinchanger_choices_players();
 		break;
-	case 1: //Animals
+	case 2: //Animals
 		process_skinchanger_choices_animals();
 		break;
-	case 2: //Misc
+	case 3: //Misc
 		process_skinchanger_choices_misc();
 		break;
-	case 3: //Detail
+	case 4: //Detail
 		process_skinchanger_detail_menu();
 		break;
-	case 4: //Reset
+	case 5: //Reset
 		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(playerPed);
 		set_status_text("Using default model skin");
 		break;
-	case 5:
+	case 6:
 		process_prop_menu();
 		break;
-	case 6:
+	case 7:
 		PED::CLEAR_ALL_PED_PROPS(playerPed);
 		break;
 	/*case 7:
@@ -570,12 +557,13 @@ bool onconfirm_skinchanger_menu(MenuItem<int> choice)
 bool process_skinchanger_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
+
 	for (int i = 0; i < MENU_SKINS_TYPES_CAPTIONS.size(); i++)
 	{
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = MENU_SKINS_TYPES_CAPTIONS[i];
 		item->value = i;
-		item->isLeaf = ( i >= 4 ); //only Reset is a leaf
+		item->isLeaf = ( i == 5 || i == 7 );
 		menuItems.push_back(item);
 	}
 
@@ -749,4 +737,263 @@ bool process_prop_menu()
 	}
 
 	return draw_generic_menu<int>(menuItems, &skinPropsMenuPosition, "Prop Categories", onconfirm_props_menu, NULL, NULL);
+}
+
+bool skin_save_menu_interrupt()
+{
+	if (skinSaveMenuInterrupt)
+	{
+		skinSaveMenuInterrupt = false;
+		return true;
+	}
+	return false;
+}
+
+bool skin_save_slot_menu_interrupt()
+{
+	if (skinSaveSlotMenuInterrupt)
+	{
+		skinSaveSlotMenuInterrupt = false;
+		return true;
+	}
+	return false;
+}
+
+bool onconfirm_savedskin_menu(MenuItem<int> choice)
+{
+	if (choice.value == -1)
+	{
+		save_current_skin(-1);
+		requireRefreshOfSkinSaveSlots = true;
+		skinSaveMenuInterrupt = true;
+		return false;
+	}
+
+	activeSavedSkinIndex = choice.value;
+	activeSavedSkinSlotName = choice.caption;
+	return process_savedskin_slot_menu(choice.value);
+}
+
+bool onconfirm_savedskin_slot_menu(MenuItem<int> choice)
+{
+	switch (choice.value)
+	{
+	case 1: //spawn
+		spawn_saved_skin(activeSavedSkinIndex, activeSavedSkinSlotName);
+		break;
+	case 2: //overwrite
+	{
+		save_current_skin(activeSavedSkinIndex);
+		requireRefreshOfSkinSaveSlots = true;
+		requireRefreshOfSkinSlotMenu = true;
+		skinSaveSlotMenuInterrupt = true;
+		skinSaveMenuInterrupt = true;
+	}
+	break;
+	case 3: //rename
+	{
+		std::string result = show_keyboard(NULL, (char*)activeSavedSkinSlotName.c_str());
+		if (!result.empty())
+		{
+			ENTDatabase database;
+			if (!database.open())
+			{
+				set_status_text("Couldn't Access Saved Skin");
+				return false;
+			}
+			database.rename_saved_skin(result, activeSavedSkinIndex);
+			database.close();
+			activeSavedSkinSlotName = result;
+		}
+		requireRefreshOfSkinSaveSlots = true;
+		requireRefreshOfSkinSlotMenu = true;
+		skinSaveSlotMenuInterrupt = true;
+		skinSaveMenuInterrupt = true;
+	}
+	break;
+	case 4: //delete
+	{
+		ENTDatabase database;
+		if (!database.open())
+		{
+			set_status_text("Couldn't Delete Saved Skin");
+			return false;
+		}
+		database.delete_saved_skin(activeSavedSkinIndex);
+		database.close();
+		requireRefreshOfSkinSlotMenu = false;
+		requireRefreshOfSkinSaveSlots = true;
+		skinSaveSlotMenuInterrupt = true;
+		skinSaveMenuInterrupt = true;
+	}
+	break;
+	}
+	return false;
+}
+
+bool process_savedskin_menu()
+{
+	do
+	{
+		skinSaveMenuInterrupt = false;
+		requireRefreshOfSkinSlotMenu = false;
+		requireRefreshOfSkinSaveSlots = false;
+
+		ENTDatabase database;
+		if (!database.open())
+		{
+			set_status_text("Couldn't Load Saved Skins");
+			return false;
+		}
+		std::vector<SavedSkinDBRow*> savedSkins = database.get_saved_skins();
+		database.close();
+
+		lastKnownSavedSkinCount = savedSkins.size();
+
+		std::vector<MenuItem<int>*> menuItems;
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = -1;
+		item->caption = "Create New Skin Save";
+		menuItems.push_back(item);
+
+		for each (SavedSkinDBRow *sv in savedSkins)
+		{
+			MenuItem<int> *item = new MenuItem<int>();
+			item->isLeaf = false;
+			item->value = sv->rowID;
+			item->caption = sv->saveName;
+			menuItems.push_back(item);
+		}
+
+		draw_generic_menu<int>(menuItems, 0, "Saved Skins", onconfirm_savedskin_menu, NULL, NULL, skin_save_menu_interrupt);
+
+		for (std::vector<SavedSkinDBRow*>::iterator it = savedSkins.begin(); it != savedSkins.end(); ++it)
+		{
+			delete (*it);
+		}
+		savedSkins.clear();
+	} while (requireRefreshOfSkinSaveSlots);
+
+	return false;
+}
+
+bool process_savedskin_slot_menu(int slot)
+{
+	do
+	{
+		skinSaveSlotMenuInterrupt = false;
+		requireRefreshOfSkinSlotMenu = false;
+
+		std::vector<MenuItem<int>*> menuItems;
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 1;
+		item->caption = "Apply To Player";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 2;
+		item->caption = "Overwrite With Current";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 3;
+		item->caption = "Rename";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 4;
+		item->caption = "Delete";
+		menuItems.push_back(item);
+
+		draw_generic_menu<int>(menuItems, 0, activeSavedSkinSlotName, onconfirm_savedskin_slot_menu, NULL, NULL, skin_save_slot_menu_interrupt);
+	} while (requireRefreshOfSkinSlotMenu);
+	return false;
+}
+
+bool spawn_saved_skin(int slot, std::string caption)
+{
+	ENTDatabase database;
+	if (!database.open())
+	{
+		set_status_text("Couldn't Load Saved Skins");
+		return false;
+	}
+
+	std::vector<SavedSkinDBRow*> savedSkins = database.get_saved_skins(slot);
+
+	SavedSkinDBRow* savedSkin = savedSkins.at(0);
+	database.populate_saved_skin(savedSkin);
+
+	database.close();
+
+	applyChosenSkin(savedSkin->model);
+
+	Ped ped = PLAYER::PLAYER_PED_ID();
+
+	for each (SavedSkinComponentDBRow *comp in savedSkin->components)
+	{
+		PED::SET_PED_COMPONENT_VARIATION( ped, comp->slotID, comp->drawable, comp->texture, 0);
+	}
+
+	PED::CLEAR_ALL_PED_PROPS(ped);
+	for each (SavedSkinPropDBRow *prop in savedSkin->props)
+	{
+		PED::SET_PED_PROP_INDEX(ped, prop->propID, prop->drawable, prop->texture, 0);
+	}
+
+	for (std::vector<SavedSkinDBRow*>::iterator it = savedSkins.begin(); it != savedSkins.end(); ++it)
+	{
+		delete (*it);
+	}
+	savedSkins.clear();
+
+	return false;
+}
+
+void save_current_skin(int slot)
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (bPlayerExists)
+	{
+		std::ostringstream ss;
+		if (slot != -1)
+		{
+			ss << activeSavedSkinSlotName;
+		}
+		else
+		{
+			ss << "Saved Skin " << (lastKnownSavedSkinCount + 1);
+		}
+
+		auto existingText = ss.str();
+		std::string result = show_keyboard(NULL, (char*)existingText.c_str());
+		if (!result.empty())
+		{
+			ENTDatabase database;
+			if (!database.open())
+			{
+				set_status_text("Save Error");
+				return;
+			}
+			if (database.save_skin(playerPed, result, slot))
+			{
+				set_status_text("Saved Skin");
+			}
+			else
+			{
+				set_status_text("Save Error");
+			}
+			database.close();
+		}
+	}
 }

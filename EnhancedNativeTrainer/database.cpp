@@ -14,7 +14,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/
-const int DATABASE_VERSION = 3;
+const int DATABASE_VERSION = 4;
 
 static int singleIntResultCallback(void *data, int count, char **rows, char **azColName)
 {
@@ -148,7 +148,7 @@ void ENTDatabase::handle_version(int oldVersion)
 			UNIQUE(parentId, extraId), \
 			FOREIGN KEY (parentId) REFERENCES ENT_SAVED_VEHICLES(id) ON DELETE CASCADE \
 			)";
-		int rcVeh2 = sqlite3_exec(db, CREATE_VEHEXTRAS_TABLE_QUERY, NULL, 0, &zErrMsg);																																																																													int rc = sqlite3_exec(db, CREATE_VEHEXTRAS_TABLE_QUERY, NULL, 0, &zErrMsg);
+		int rcVeh2 = sqlite3_exec(db, CREATE_VEHEXTRAS_TABLE_QUERY, NULL, 0, &zErrMsg);
 		if (rcVeh2 != SQLITE_OK)
 		{
 			write_text_to_log_file("Vehicle extras table creation problem");
@@ -181,6 +181,72 @@ void ENTDatabase::handle_version(int oldVersion)
 			write_text_to_log_file("Vehicle mods table created");
 		}
 	}
+
+	if (oldVersion < 4)
+	{
+		write_text_to_log_file("Main skin table not found, so creating it");
+
+		char* CREATE_SKIN_TABLE_QUERY = "CREATE TABLE ENT_SAVED_SKINS ( \
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+			saveName TEXT NOT NULL, \
+			model INTEGER NOT NULL \
+			)";
+
+		int rcSkin1 = sqlite3_exec(db, CREATE_SKIN_TABLE_QUERY, NULL, 0, &zErrMsg);
+		if (rcSkin1 != SQLITE_OK)
+		{
+			write_text_to_log_file("Main skin table creation problem");
+			sqlite3_free(zErrMsg);
+		}
+		else
+		{
+			write_text_to_log_file("Main skin table created");
+		}
+
+		write_text_to_log_file("Skin components table not found, so creating it");
+		char* CREATE_SKIN_COMPS_TABLE_QUERY = "CREATE TABLE ENT_SKIN_COMPONENTS ( \
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+			parentId INTEGER NOT NULL, \
+			slotId INTEGER NOT NULL, \
+			drawable INTEGER NOT NULL, \
+			texture INTEGER NOT NULL, \
+			UNIQUE(parentId, slotId), \
+			FOREIGN KEY (parentId) REFERENCES ENT_SAVED_SKINS(id) ON DELETE CASCADE \
+			)";
+
+		int rcSkin2 = sqlite3_exec(db, CREATE_SKIN_COMPS_TABLE_QUERY, NULL, 0, &zErrMsg);
+		if (rcSkin2 != SQLITE_OK)
+		{
+			write_text_to_log_file("Skin components table creation problem");
+			sqlite3_free(zErrMsg);
+		}
+		else
+		{
+			write_text_to_log_file("Skin components table created");
+		}
+
+		write_text_to_log_file("Skin props table not found, so creating it");
+		char* CREATE_SKIN_PROPS_TABLE_QUERY = "CREATE TABLE ENT_SKIN_PROPS ( \
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+			parentId INTEGER NOT NULL, \
+			propId INTEGER NOT NULL, \
+			drawable INTEGER NOT NULL, \
+			texture INTEGER NOT NULL, \
+			UNIQUE(parentId, propId), \
+			FOREIGN KEY (parentId) REFERENCES ENT_SAVED_SKINS(id) ON DELETE CASCADE \
+			)";
+
+		int rcSkin3 = sqlite3_exec(db, CREATE_SKIN_PROPS_TABLE_QUERY, NULL, 0, &zErrMsg);
+		if (rcSkin3 != SQLITE_OK)
+		{
+			write_text_to_log_file("Skin props table creation problem");
+			sqlite3_free(zErrMsg);
+		}
+		else
+		{
+			write_text_to_log_file("Skin props table created");
+		}
+	}
 }
 
 bool ENTDatabase::open()
@@ -211,6 +277,14 @@ bool ENTDatabase::open()
 		write_text_to_log_file(ss.str());
 		close();
 		return false;
+	}
+
+	char* PRAGMA_FKEY_QUERY = "PRAGMA foreign_keys = ON";
+	int rcPragma = sqlite3_exec(db, PRAGMA_FKEY_QUERY, NULL, 0, &zErrMsg);
+	if (rcPragma != SQLITE_OK)
+	{
+		write_text_to_log_file("Couldn't exec pragma statement");
+		sqlite3_free(zErrMsg);
 	}
 
 	int count = 0;
@@ -468,6 +542,121 @@ void ENTDatabase::save_vehicle_mods(Vehicle veh, int rowID)
 	}
 }
 
+void ENTDatabase::save_skin_components(Ped ped, int rowID)
+{
+	for (int i = 0; i < 12; i++)
+	{
+		std::stringstream ss;
+		ss << "INSERT OR REPLACE INTO ENT_SKIN_COMPONENTS VALUES (?, ?, ?, ?, ?)";
+
+		int drawable = PED::GET_PED_DRAWABLE_VARIATION(ped, i);
+		int texture = PED::GET_PED_TEXTURE_VARIATION(ped, i);
+
+		sqlite3_stmt *stmt;
+		const char *pzTest;
+		auto ssStr = ss.str();
+		int rc = sqlite3_prepare_v2(db, ssStr.c_str(), ssStr.length(), &stmt, &pzTest);
+
+		if (rc != SQLITE_OK)
+		{
+			write_text_to_log_file("Skin components save failed");
+			write_text_to_log_file(sqlite3_errmsg(db));
+			return;
+		}
+
+		int index = 1;
+		sqlite3_bind_null(stmt, index++);
+		sqlite3_bind_int(stmt, index++, rowID);
+		sqlite3_bind_int(stmt, index++, i); //slot id
+		sqlite3_bind_int(stmt, index++, drawable); //drawable id
+		sqlite3_bind_int(stmt, index++, texture); //texture id
+
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+}
+
+void ENTDatabase::save_skin_props(Ped ped, int rowID)
+{
+	for (int i = 0; i < 10; i++)
+	{
+		std::stringstream ss;
+		ss << "INSERT OR REPLACE INTO ENT_SKIN_PROPS VALUES (?, ?, ?, ?, ?)";
+
+		int drawable = PED::GET_PED_PROP_INDEX(ped, i);
+		int texture = PED::GET_PED_PROP_TEXTURE_INDEX(ped, i);
+
+		sqlite3_stmt *stmt;
+		const char *pzTest;
+		auto ssStr = ss.str();
+		int rc = sqlite3_prepare_v2(db, ssStr.c_str(), ssStr.length(), &stmt, &pzTest);
+
+		if (rc != SQLITE_OK)
+		{
+			write_text_to_log_file("Skin props save failed");
+			write_text_to_log_file(sqlite3_errmsg(db));
+			return;
+		}
+
+		int index = 1;
+		sqlite3_bind_null(stmt, index++);
+		sqlite3_bind_int(stmt, index++, rowID);
+		sqlite3_bind_int(stmt, index++, i); //slot id
+		sqlite3_bind_int(stmt, index++, drawable); //drawable id
+		sqlite3_bind_int(stmt, index++, texture); //texture id
+
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+}
+
+bool ENTDatabase::save_skin(Ped ped, std::string saveName, int slot)
+{
+	std::stringstream ss;
+	ss << "INSERT OR REPLACE INTO ENT_SAVED_SKINS VALUES (?, ?, ?);";
+
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto ssStr = ss.str();
+	int rc = sqlite3_prepare_v2(db, ssStr.c_str(), ssStr.length(), &stmt, &pzTest);
+
+	if (rc != SQLITE_OK)
+	{
+		write_text_to_log_file("Vehicle save failed");
+		write_text_to_log_file(sqlite3_errmsg(db));
+		return false;
+	}
+
+	int index = 1;
+	if (slot == -1)
+	{
+		sqlite3_bind_null(stmt, index++);
+	}
+	else
+	{
+		sqlite3_bind_int(stmt, index++, slot);
+	}
+	sqlite3_bind_text(stmt, index++, saveName.c_str(), saveName.length(), 0); //save name
+	sqlite3_bind_int(stmt, index++, ENTITY::GET_ENTITY_MODEL(ped)); //model
+
+	// commit
+	sqlite3_step(stmt);
+	sqlite3_finalize(stmt);
+
+	int newRowID = sqlite3_last_insert_rowid(db);
+
+	//if we're updating, delete any pre-existing children
+	if (slot != -1)
+	{
+		delete_saved_skin_children(newRowID);
+	}
+
+	save_skin_components(ped, newRowID);
+	save_skin_props(ped, newRowID);
+
+	return true;
+}
+
 bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, int slot)
 {
 	std::stringstream ss;
@@ -579,10 +768,70 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, int slot)
 	sqlite3_finalize(stmt);
 
 	int newRowID = sqlite3_last_insert_rowid(db);
+
+	//if we're updating, delete any pre-existing children
+	if (slot != -1)
+	{
+		delete_saved_vehicle_children(newRowID);
+	}
+
 	save_vehicle_extras(veh, newRowID);
 	save_vehicle_mods(veh, newRowID);
 
 	return true;
+}
+
+std::vector<SavedSkinDBRow*> ENTDatabase::get_saved_skins(int index)
+{
+	write_text_to_log_file("Asked to load saved skins");
+
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+
+	std::stringstream ss;
+	ss << "select * from ENT_SAVED_SKINS";
+	if (index != -1)
+	{
+		ss << " WHERE id = ?";
+	}
+	auto qStr = ss.str();
+	int rc = sqlite3_prepare_v2(db, qStr.c_str(), qStr.length(), &stmt, &pzTest);
+
+	std::vector<SavedSkinDBRow*> results;
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		if (index != -1)
+		{
+			sqlite3_bind_int(stmt, 1, index);
+		}
+
+		int r = sqlite3_step(stmt);
+		while (r == SQLITE_ROW)
+		{
+			write_text_to_log_file("Skin row found");
+
+			SavedSkinDBRow *skin = new SavedSkinDBRow();
+
+			int index = 0;
+			skin->rowID = sqlite3_column_int(stmt, index++);
+			skin->saveName = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, index++)));
+			skin->model = sqlite3_column_int(stmt, index++);
+			
+			results.push_back(skin);
+
+			r = sqlite3_step(stmt);
+		}
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to fetch saved skins");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	return results;
 }
 
 std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
@@ -658,6 +907,74 @@ std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 	}
 
 	return results;
+}
+
+void ENTDatabase::populate_saved_skin(SavedSkinDBRow *entry)
+{
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "select * from ENT_SKIN_COMPONENTS WHERE parentId=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int(stmt, 1, entry->rowID);
+
+		// commit
+		int r = sqlite3_step(stmt);
+		while (r == SQLITE_ROW)
+		{
+			SavedSkinComponentDBRow *comp = new SavedSkinComponentDBRow();
+			//0 and 1 are IDs
+			comp->slotID = sqlite3_column_int(stmt, 2);
+			comp->drawable = sqlite3_column_int(stmt, 3);
+			comp->texture = sqlite3_column_int(stmt, 4);
+			entry->components.push_back(comp);
+			r = sqlite3_step(stmt);
+		}
+
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to fetch saved skin components");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	sqlite3_stmt *stmt2;
+	const char *pzTest2;
+	auto qStr2 = "select * from ENT_VEHICLE_MODS WHERE parentId=?";
+	int rc2 = sqlite3_prepare_v2(db, qStr2, strlen(qStr2), &stmt2, &pzTest2);
+
+	if (rc2 == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int(stmt2, 1, entry->rowID);
+
+		// commit
+		int r = sqlite3_step(stmt2);
+		while (r == SQLITE_ROW)
+		{
+			SavedSkinPropDBRow *prop = new SavedSkinPropDBRow();
+			//0 and 1 are IDs
+			prop->propID = sqlite3_column_int(stmt2, 2);
+			prop->drawable = sqlite3_column_int(stmt2, 3);
+			prop->texture = sqlite3_column_int(stmt2, 4);
+			entry->props.push_back(prop);
+			r = sqlite3_step(stmt2);
+		}
+
+		sqlite3_finalize(stmt2);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to fetch saved skin props");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	write_text_to_log_file("Done loading saved skins");
+	return;
 }
 
 void ENTDatabase::populate_saved_vehicle(SavedVehicleDBRow *entry)
@@ -750,6 +1067,29 @@ void ENTDatabase::delete_saved_vehicle(int slot)
 	}
 }
 
+void ENTDatabase::delete_saved_skin(int slot)
+{
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "DELETE FROM ENT_SAVED_SKINS WHERE id=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int(stmt, 1, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved skin");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+}
+
 void ENTDatabase::rename_saved_vehicle(std::string name, int slot)
 {
 	sqlite3_stmt *stmt;
@@ -769,7 +1109,117 @@ void ENTDatabase::rename_saved_vehicle(std::string name, int slot)
 	}
 	else
 	{
-		write_text_to_log_file("Failed to delete saved vehicle");
+		write_text_to_log_file("Failed to rename saved vehicle");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+}
+
+void ENTDatabase::rename_saved_skin(std::string name, int slot)
+{
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "UPDATE ENT_SAVED_SKINS SET saveName=? WHERE id=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_text(stmt, 1, name.c_str(), name.length(), 0);
+		sqlite3_bind_int(stmt, 2, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to rename saved skin");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+}
+
+void ENTDatabase::delete_saved_vehicle_children(int slot)
+{
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "DELETE FROM ENT_VEHICLE_EXTRAS WHERE id=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int(stmt, 1, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved vehicle extras");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	sqlite3_stmt *stmt2;
+	const char *pzTest2;
+	auto qStr2 = "DELETE FROM ENT_VEHICLE_MODS WHERE id=?";
+	int rc2 = sqlite3_prepare_v2(db, qStr2, strlen(qStr2), &stmt2, &pzTest2);
+
+	if (rc2 == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int(stmt2, 1, slot);
+
+		// commit
+		sqlite3_step(stmt2);
+		sqlite3_finalize(stmt2);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved vehicle mods");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+}
+
+void ENTDatabase::delete_saved_skin_children(int slot)
+{
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "DELETE FROM ENT_SKIN_COMPONENTS WHERE id=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int(stmt, 1, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved skin components");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	sqlite3_stmt *stmt2;
+	const char *pzTest2;
+	auto qStr2 = "DELETE FROM ENT_SKIN_PROPS WHERE id=?";
+	int rc2 = sqlite3_prepare_v2(db, qStr2, strlen(qStr2), &stmt2, &pzTest2);
+
+	if (rc2 == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int(stmt2, 1, slot);
+
+		// commit
+		sqlite3_step(stmt2);
+		sqlite3_finalize(stmt2);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved skin props");
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
 }

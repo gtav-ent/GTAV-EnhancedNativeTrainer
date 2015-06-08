@@ -23,11 +23,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 * METHODS
 */
 
-int findFirstValidPedTexture(int drawable);
-
-int findFirstValidPedDrawable(int component);
-
 bool applyChosenSkin(std::string skinName);
+
+bool applyChosenSkin(DWORD model);
 
 void reset_skin_globals();
 
@@ -38,3 +36,17 @@ bool process_prop_menu();
 bool onconfirm_props_texture_menu(MenuItem<int> choice);
 
 void onhighlight_props_texture_menu(MenuItem<int> choice);
+
+//Save related stuff
+
+bool skin_save_menu_interrupt();
+
+bool skin_save_slot_menu_interrupt();
+
+bool process_savedskin_menu();
+
+bool process_savedskin_slot_menu(int slot);
+
+bool spawn_saved_skin(int slot, std::string caption);
+
+void save_current_skin(int slot);

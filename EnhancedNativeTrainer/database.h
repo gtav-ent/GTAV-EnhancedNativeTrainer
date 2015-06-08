@@ -93,6 +93,56 @@ public:
 	}
 };
 
+class SavedSkinComponentDBRow
+{
+public:
+	int rowID;
+	int parentID;
+	int slotID;
+	int drawable;
+	int texture;
+};
+
+class SavedSkinPropDBRow
+{
+public:
+	int rowID;
+	int parentID;
+	int propID;
+	int drawable;
+	int texture;
+};
+
+class SavedSkinDBRow
+{
+public:
+
+	int rowID;
+	std::string saveName;
+	DWORD model;
+
+	std::vector<SavedSkinComponentDBRow*> components;
+	std::vector<SavedSkinPropDBRow*> props;
+
+	inline ~SavedSkinDBRow()
+	{
+		for (std::vector<SavedSkinComponentDBRow*>::iterator it = components.begin(); it != components.end(); ++it)
+		{
+			delete (*it);
+		}
+
+		for (std::vector<SavedSkinPropDBRow*>::iterator it = props.begin(); it != props.end(); ++it)
+		{
+			delete (*it);
+		}
+	}
+
+	inline SavedSkinDBRow()
+	{
+
+	}
+};
+
 class FeatureEnabledLocalDefinition
 {
 public:
@@ -128,19 +178,37 @@ public:
 
 	bool save_vehicle(Vehicle veh, std::string saveName, int slot=-1);
 
+	bool save_skin(Ped ped, std::string saveName, int slot = -1);
+
 	std::vector<SavedVehicleDBRow*> get_saved_vehicles(int index=-1);
+
+	std::vector<SavedSkinDBRow*> get_saved_skins(int index = -1);
 
 	void populate_saved_vehicle(SavedVehicleDBRow *entry);
 
+	void populate_saved_skin(SavedSkinDBRow *entry);
+
 	void delete_saved_vehicle(int slot);
 
+	void delete_saved_vehicle_children(int slot);
+
+	void delete_saved_skin(int slot);
+
+	void delete_saved_skin_children(int slot);
+
 	void rename_saved_vehicle(std::string name, int slot);
+
+	void rename_saved_skin(std::string name, int slot);
 
 private:
 
 	void save_vehicle_extras(Vehicle veh, int rowID);
 
 	void save_vehicle_mods(Vehicle veh, int rowID);
+
+	void save_skin_components(Ped ped, int rowID);
+
+	void save_skin_props(Ped ped, int rowID);
 
 	void ENTDatabase::handle_version(int oldVersion);
 

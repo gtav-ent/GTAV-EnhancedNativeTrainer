@@ -813,7 +813,7 @@ void save_current_vehicle(int slot)
 				}
 				if (database.save_vehicle(veh, result, slot))
 				{
-					set_status_text("Saved");
+					set_status_text("Saved Vehicle");
 				}
 				else
 				{
