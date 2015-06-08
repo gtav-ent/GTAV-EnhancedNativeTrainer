@@ -22,7 +22,8 @@ bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehSpawnInto = false;
 bool featureVehicleDoorInstant = false;
-
+bool featureTagUpdate = false;
+bool oskUp = false;
 int activeLineIndexVeh = 0;
 int activeSavedVehicleIndex = -1;
 std::string activeSavedVehicleSlotName;
@@ -295,7 +296,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	const int lineCount = 11;
+	const int lineCount = 12;
 
 	std::string caption = "Vehicle Options";
 
@@ -310,13 +311,38 @@ void process_veh_menu()
 		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
 		{ "Modifications", NULL, NULL, false },
-		{ "Door Control", NULL, NULL, false }
+		{ "Door Control", NULL, NULL, false },
+		{ "Custom Tag", &featureTagUpdate, NULL, false },
 	};
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
 }
 
 void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 {
+		if (featureTagUpdate){
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)){
+			if (!oskUp){
+				GAMEPLAY::DISPLAY_ONSCREEN_KEYBOARD(0, "", "", "", "", "", "", 8);
+				oskUp = true;
+			}
+			if (GAMEPLAY::UPDATE_ONSCREEN_KEYBOARD() == 1){
+				char *oiOSK = GAMEPLAY::GET_ONSCREEN_KEYBOARD_RESULT();
+				int litLen = UI::GET_LENGTH_OF_LITERAL_STRING(oiOSK);
+				oiOSK = UI::_GET_TEXT_SUBSTRING(oiOSK, 0, litLen);
+				oskUp = false;
+				VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(PED::GET_VEHICLE_PED_IS_USING(playerPed), oiOSK);
+				featureTagUpdate = false;
+			}
+			else if (GAMEPLAY::UPDATE_ONSCREEN_KEYBOARD() == 2){
+				oskUp = false;
+				featureTagUpdate = false;
+			}
+		}
+		else
+		{
+			set_status_text("Player isn't in a vehicle");
+		}
+	}
 	// player's vehicle invincible
 	if (featureVehInvincibleUpdated)
 	{
