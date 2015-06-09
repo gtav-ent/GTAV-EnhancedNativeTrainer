@@ -21964,7 +21964,9 @@ TreeNode* build_anim_tree(std::vector<std::string> input)
 		logss.str(""); logss.clear();
 		*/
 
-		std::stringstream ss(get_dict_from_string(anim));
+		std::string dict = get_dict_from_string(anim);
+
+		std::stringstream ss(dict);
 
 		std::string token;
 
@@ -21988,6 +21990,12 @@ TreeNode* build_anim_tree(std::vector<std::string> input)
 			{
 				currentNode = child;
 			}
+		}
+
+		//if the last node ends in @, add it
+		if (StringEndsWith(dict, "@"))
+		{
+			currentNode->value = currentNode->value.append("@");
 		}
 
 		currentNode->addChild(get_anim_from_string(anim));
@@ -22112,8 +22120,11 @@ bool process_anims_menu()
 		break;
 	}
 
+	std::stringstream caption_ss;
+	caption_ss << caption << " Level " << (currentAnimMenuDepth + 1);
+	auto caption_str = caption_ss.str();
 
-	bool result = draw_generic_menu<int>(menuItems, 0, caption, onconfirm_anim_menu, NULL, NULL, NULL);
+	bool result = draw_generic_menu<int>(menuItems, 0, caption_str, onconfirm_anim_menu, NULL, NULL, NULL);
 
 	return result;
 }
