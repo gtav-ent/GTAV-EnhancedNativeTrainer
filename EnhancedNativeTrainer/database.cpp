@@ -257,11 +257,15 @@ bool ENTDatabase::open()
 
 	sqlite3_initialize();
 
+	db_mutex = sqlite3_mutex_alloc(SQLITE_MUTEX_RECURSIVE);
+
 	write_text_to_log_file("Opening DB file");
 
 	char* db_path = get_storage_dir_path("ent.db");
 
 	write_text_to_log_file(std::string(db_path));
+
+	mutex_lock();
 
 	int rc = sqlite3_open_v2(db_path, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
 	delete db_path;
@@ -276,6 +280,7 @@ bool ENTDatabase::open()
 		ss << "DB error code was: " << rc;
 		write_text_to_log_file(ss.str());
 		close();
+		mutex_unlock();
 		return false;
 	}
 
@@ -305,6 +310,7 @@ bool ENTDatabase::open()
 		{
 			write_text_to_log_file("Manifest table creation problem");
 			sqlite3_free(zErrMsg);
+			mutex_unlock();
 			return false;
 		}
 		else
@@ -348,6 +354,7 @@ bool ENTDatabase::open()
 		}
 	}
 
+	mutex_unlock();
 	return true;
 }
 
@@ -363,6 +370,9 @@ void ENTDatabase::close()
 		}
 		db = NULL;
 	}
+
+	sqlite3_mutex_free(db_mutex);
+
 	write_text_to_log_file("DB closed");
 	sqlite3_shutdown();
 	write_text_to_log_file("DB shutdown");
@@ -370,6 +380,9 @@ void ENTDatabase::close()
 
 void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefinition> values)
 {
+	mutex_lock();
+	begin_transaction();
+
 	write_text_to_log_file("Asked to store feature pairs");
 	for (int i = 0; i < values.size(); i++)
 	{
@@ -384,14 +397,20 @@ void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDef
 			write_text_to_log_file(ss.str());
 			write_text_to_log_file(zErrMsg);
 			sqlite3_free(zErrMsg);
-			return;
+			break;
 		}
 	}
+
+	end_transaction();
+	mutex_unlock();
+
 	write_text_to_log_file("Done storing feature pairs");
 }
 
 void ENTDatabase::load_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefinition> values)
 {
+	mutex_lock();
+
 	{
 		std::stringstream ss;
 		ss << "Asked to load " << values.size() << " feature pairs";
@@ -409,12 +428,16 @@ void ENTDatabase::load_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefi
 	else
 	{
 		write_text_to_log_file("Done loading feature pairs");
-		return;
 	}
+
+	mutex_unlock();
 }
 
 void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values)
 {
+	mutex_lock();
+	begin_transaction();
+
 	write_text_to_log_file("Asked to store generic pairs");
 	for (int i = 0; i < values.size(); i++)
 	{
@@ -445,11 +468,17 @@ void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values
 			break;
 		}
 	}
+
+	end_transaction();
+	mutex_unlock();
+
 	write_text_to_log_file("Done storing generic pairs");
 }
 
 std::vector<StringPairSettingDBRow> ENTDatabase::load_setting_pairs()
 {
+	mutex_lock();
+
 	write_text_to_log_file("Asked to load generic pairs");
 	std::vector<StringPairSettingDBRow> dbPairs;
 	char* QUERY = "select SETTING_NAME, SETTING_VALUE from ENT_SETTING_PAIRS";
@@ -460,12 +489,19 @@ std::vector<StringPairSettingDBRow> ENTDatabase::load_setting_pairs()
 		write_text_to_log_file(zErrMsg);
 		sqlite3_free(zErrMsg);
 	}
+
+	mutex_unlock();
+
 	write_text_to_log_file("Done loading generic pairs");
 	return dbPairs;
 }
 
-void ENTDatabase::save_vehicle_extras(Vehicle veh, int rowID)
+void ENTDatabase::save_vehicle_extras(Vehicle veh, sqlite3_int64 rowID)
 {
+	mutex_lock();
+
+	begin_transaction();
+
 	for (int i = 1; i < 10; i++)
 	{
 		if (!VEHICLE::DOES_EXTRA_EXIST(veh, i))
@@ -485,24 +521,31 @@ void ENTDatabase::save_vehicle_extras(Vehicle veh, int rowID)
 		{
 			write_text_to_log_file("Vehicle extras save failed");
 			write_text_to_log_file(sqlite3_errmsg(db));
-			return;
 		}
+		else
+		{
+			int index = 1;
+			sqlite3_bind_null(stmt, index++);
+			sqlite3_bind_int(stmt, index++, rowID);
+			sqlite3_bind_int(stmt, index++, i);
+			sqlite3_bind_int(stmt, index++, VEHICLE::IS_VEHICLE_EXTRA_TURNED_ON(veh, i) ? 1 : 0);
 
-		int index = 1;
-		sqlite3_bind_null(stmt, index++);
-		sqlite3_bind_int(stmt, index++, rowID);
-		sqlite3_bind_int(stmt, index++, i);
-		sqlite3_bind_int(stmt, index++, VEHICLE::IS_VEHICLE_EXTRA_TURNED_ON(veh, i) ? 1 : 0 );
-
-		// commit
-		sqlite3_step(stmt);
-		sqlite3_finalize(stmt);
+			// commit
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
 	}
-	
+	end_transaction();
+
+	mutex_unlock();
 }
 
-void ENTDatabase::save_vehicle_mods(Vehicle veh, int rowID)
+void ENTDatabase::save_vehicle_mods(Vehicle veh, sqlite3_int64 rowID)
 {
+	mutex_lock();
+
+	begin_transaction();
+
 	for (int i = 0; i < 25; i++)
 	{
 		std::stringstream ss;
@@ -517,33 +560,42 @@ void ENTDatabase::save_vehicle_mods(Vehicle veh, int rowID)
 		{
 			write_text_to_log_file("Vehicle mods save failed");
 			write_text_to_log_file(sqlite3_errmsg(db));
-			return;
-		}
-
-		bool isToggleable = (i >= 17 && i <= 22);
-
-		int index = 1;
-		sqlite3_bind_null(stmt, index++);
-		sqlite3_bind_int(stmt, index++, rowID);
-		sqlite3_bind_int(stmt, index++, i);
-
-		if (isToggleable)
-		{
-			sqlite3_bind_int(stmt, index++, VEHICLE::IS_TOGGLE_MOD_ON(veh, i) ? 1 : 0);
 		}
 		else
 		{
-			sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_MOD(veh, i));
+			bool isToggleable = (i >= 17 && i <= 22);
+
+			int index = 1;
+			sqlite3_bind_null(stmt, index++);
+			sqlite3_bind_int64(stmt, index++, rowID);
+			sqlite3_bind_int(stmt, index++, i);
+
+			if (isToggleable)
+			{
+				sqlite3_bind_int(stmt, index++, VEHICLE::IS_TOGGLE_MOD_ON(veh, i) ? 1 : 0);
+			}
+			else
+			{
+				sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_MOD(veh, i));
+			}
+			sqlite3_bind_int(stmt, index++, isToggleable ? 1 : 0);
+			// commit
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
 		}
-		sqlite3_bind_int(stmt, index++, isToggleable ? 1 : 0);
-		// commit
-		sqlite3_step(stmt);
-		sqlite3_finalize(stmt);
 	}
+
+	end_transaction();
+
+	mutex_unlock();
 }
 
-void ENTDatabase::save_skin_components(Ped ped, int rowID)
+void ENTDatabase::save_skin_components(Ped ped, sqlite3_int64 rowID)
 {
+	mutex_lock();
+
+	begin_transaction();
+
 	for (int i = 0; i < 12; i++)
 	{
 		std::stringstream ss;
@@ -561,23 +613,32 @@ void ENTDatabase::save_skin_components(Ped ped, int rowID)
 		{
 			write_text_to_log_file("Skin components save failed");
 			write_text_to_log_file(sqlite3_errmsg(db));
-			return;
 		}
+		else
+		{
+			int index = 1;
+			sqlite3_bind_null(stmt, index++);
+			sqlite3_bind_int64(stmt, index++, rowID);
+			sqlite3_bind_int(stmt, index++, i); //slot id
+			sqlite3_bind_int(stmt, index++, drawable); //drawable id
+			sqlite3_bind_int(stmt, index++, texture); //texture id
 
-		int index = 1;
-		sqlite3_bind_null(stmt, index++);
-		sqlite3_bind_int(stmt, index++, rowID);
-		sqlite3_bind_int(stmt, index++, i); //slot id
-		sqlite3_bind_int(stmt, index++, drawable); //drawable id
-		sqlite3_bind_int(stmt, index++, texture); //texture id
-
-		sqlite3_step(stmt);
-		sqlite3_finalize(stmt);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
 	}
+
+	end_transaction();
+
+	mutex_unlock();
 }
 
-void ENTDatabase::save_skin_props(Ped ped, int rowID)
+void ENTDatabase::save_skin_props(Ped ped, sqlite3_int64 rowID)
 {
+	mutex_lock();
+
+	begin_transaction();
+
 	for (int i = 0; i < 10; i++)
 	{
 		std::stringstream ss;
@@ -595,23 +656,30 @@ void ENTDatabase::save_skin_props(Ped ped, int rowID)
 		{
 			write_text_to_log_file("Skin props save failed");
 			write_text_to_log_file(sqlite3_errmsg(db));
-			return;
 		}
+		else
+		{
+			int index = 1;
+			sqlite3_bind_null(stmt, index++);
+			sqlite3_bind_int64(stmt, index++, rowID);
+			sqlite3_bind_int(stmt, index++, i); //slot id
+			sqlite3_bind_int(stmt, index++, drawable); //drawable id
+			sqlite3_bind_int(stmt, index++, texture); //texture id
 
-		int index = 1;
-		sqlite3_bind_null(stmt, index++);
-		sqlite3_bind_int(stmt, index++, rowID);
-		sqlite3_bind_int(stmt, index++, i); //slot id
-		sqlite3_bind_int(stmt, index++, drawable); //drawable id
-		sqlite3_bind_int(stmt, index++, texture); //texture id
-
-		sqlite3_step(stmt);
-		sqlite3_finalize(stmt);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
+		}
 	}
+
+	end_transaction();
+
+	mutex_unlock();
 }
 
-bool ENTDatabase::save_skin(Ped ped, std::string saveName, int slot)
+bool ENTDatabase::save_skin(Ped ped, std::string saveName, sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	std::stringstream ss;
 	ss << "INSERT OR REPLACE INTO ENT_SAVED_SKINS VALUES (?, ?, ?);";
 
@@ -619,12 +687,13 @@ bool ENTDatabase::save_skin(Ped ped, std::string saveName, int slot)
 	const char *pzTest;
 	auto ssStr = ss.str();
 	int rc = sqlite3_prepare_v2(db, ssStr.c_str(), ssStr.length(), &stmt, &pzTest);
+	bool result = true;
 
 	if (rc != SQLITE_OK)
 	{
 		write_text_to_log_file("Vehicle save failed");
 		write_text_to_log_file(sqlite3_errmsg(db));
-		return false;
+		result = false;
 	}
 
 	int index = 1;
@@ -634,7 +703,7 @@ bool ENTDatabase::save_skin(Ped ped, std::string saveName, int slot)
 	}
 	else
 	{
-		sqlite3_bind_int(stmt, index++, slot);
+		sqlite3_bind_int64(stmt, index++, slot);
 	}
 	sqlite3_bind_text(stmt, index++, saveName.c_str(), saveName.length(), 0); //save name
 	sqlite3_bind_int(stmt, index++, ENTITY::GET_ENTITY_MODEL(ped)); //model
@@ -643,7 +712,7 @@ bool ENTDatabase::save_skin(Ped ped, std::string saveName, int slot)
 	sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
 
-	int newRowID = sqlite3_last_insert_rowid(db);
+	sqlite3_int64 newRowID = sqlite3_last_insert_rowid(db);
 
 	//if we're updating, delete any pre-existing children
 	if (slot != -1)
@@ -654,11 +723,15 @@ bool ENTDatabase::save_skin(Ped ped, std::string saveName, int slot)
 	save_skin_components(ped, newRowID);
 	save_skin_props(ped, newRowID);
 
-	return true;
+	mutex_unlock();
+
+	return result;
 }
 
-bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, int slot)
+bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	std::stringstream ss;
 	ss << "INSERT OR REPLACE INTO ENT_SAVED_VEHICLES VALUES (?, ?, ?, ?, ?, \
 			?, ?, ?, ?, ?, \
@@ -691,61 +764,63 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, int slot)
 	const char *pzTest;
 	auto ssStr = ss.str();
 	int rc = sqlite3_prepare_v2(db, ssStr.c_str(), ssStr.length(), &stmt, &pzTest);
+	bool result = true;
 
 	if (rc != SQLITE_OK)
 	{
 		write_text_to_log_file("Vehicle save failed");
 		write_text_to_log_file(sqlite3_errmsg(db));
-		return false;
-	}
-
-	int index = 1;
-	if (slot == -1)
-	{
-		sqlite3_bind_null(stmt, index++);
+		result = false;
 	}
 	else
 	{
-		sqlite3_bind_int(stmt, index++, slot);
-	}
-	sqlite3_bind_text(stmt, index++, saveName.c_str(), saveName.length(), 0); //save name
-	sqlite3_bind_int(stmt, index++, ENTITY::GET_ENTITY_MODEL(veh)); //model
+		int index = 1;
+		if (slot == -1)
+		{
+			sqlite3_bind_null(stmt, index++);
+		}
+		else
+		{
+			sqlite3_bind_int64(stmt, index++, slot);
+		}
+		sqlite3_bind_text(stmt, index++, saveName.c_str(), saveName.length(), 0); //save name
+		sqlite3_bind_int(stmt, index++, ENTITY::GET_ENTITY_MODEL(veh)); //model
 
-	int primaryCol, secondaryCol;
-	VEHICLE::GET_VEHICLE_COLOURS(veh, &primaryCol, &secondaryCol);
-	sqlite3_bind_int(stmt, index++, primaryCol);
-	sqlite3_bind_int(stmt, index++, secondaryCol);
+		int primaryCol, secondaryCol;
+		VEHICLE::GET_VEHICLE_COLOURS(veh, &primaryCol, &secondaryCol);
+		sqlite3_bind_int(stmt, index++, primaryCol);
+		sqlite3_bind_int(stmt, index++, secondaryCol);
 
-	int pearlCol, wheelCol;
-	VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &pearlCol, &wheelCol);
-	sqlite3_bind_int(stmt, index++, pearlCol);
-	sqlite3_bind_int(stmt, index++, wheelCol);
+		int pearlCol, wheelCol;
+		VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &pearlCol, &wheelCol);
+		sqlite3_bind_int(stmt, index++, pearlCol);
+		sqlite3_bind_int(stmt, index++, wheelCol);
 
-	int mod1a, mod1b, mod1c;
-	VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &mod1a, &mod1b, &mod1c);
-	sqlite3_bind_int(stmt, index++, mod1a);
-	sqlite3_bind_int(stmt, index++, mod1b);
-	sqlite3_bind_int(stmt, index++, mod1c);
+		int mod1a, mod1b, mod1c;
+		VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &mod1a, &mod1b, &mod1c);
+		sqlite3_bind_int(stmt, index++, mod1a);
+		sqlite3_bind_int(stmt, index++, mod1b);
+		sqlite3_bind_int(stmt, index++, mod1c);
 
-	int mod2a, mod2b;
-	VEHICLE::GET_VEHICLE_MOD_COLOR_2(veh, &mod2a, &mod2b);
-	sqlite3_bind_int(stmt, index++, mod2a);
-	sqlite3_bind_int(stmt, index++, mod2b);
+		int mod2a, mod2b;
+		VEHICLE::GET_VEHICLE_MOD_COLOR_2(veh, &mod2a, &mod2b);
+		sqlite3_bind_int(stmt, index++, mod2a);
+		sqlite3_bind_int(stmt, index++, mod2b);
 
-	int custR1, custG1, custB1;
-	VEHICLE::GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, &custR1, &custG1, &custB1 );
-	sqlite3_bind_int(stmt, index++, custR1);
-	sqlite3_bind_int(stmt, index++, custG1);
-	sqlite3_bind_int(stmt, index++, custB1);
+		int custR1, custG1, custB1;
+		VEHICLE::GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, &custR1, &custG1, &custB1);
+		sqlite3_bind_int(stmt, index++, custR1);
+		sqlite3_bind_int(stmt, index++, custG1);
+		sqlite3_bind_int(stmt, index++, custB1);
 
-	int custR2, custG2, custB2;
-	VEHICLE::GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, &custR2, &custG2, &custB2);
-	sqlite3_bind_int(stmt, index++, custR2);
-	sqlite3_bind_int(stmt, index++, custG2);
-	sqlite3_bind_int(stmt, index++, custB2);
+		int custR2, custG2, custB2;
+		VEHICLE::GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, &custR2, &custG2, &custB2);
+		sqlite3_bind_int(stmt, index++, custR2);
+		sqlite3_bind_int(stmt, index++, custG2);
+		sqlite3_bind_int(stmt, index++, custB2);
 
-	/*
-	livery INTEGER, \ 20
+		/*
+		livery INTEGER, \ 20
 		plateText TEXT, \ 21
 		plateType INTEGER, \ 22
 		wheelType INTEGER, \ 23
@@ -753,37 +828,42 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, int slot)
 		burstableTyres INTEGER \ 25
 		*/
 
-	sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_LIVERY(veh));
-	
-	char* plateText = VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT(veh);
-	sqlite3_bind_text(stmt, index++, plateText, strlen(plateText), 0);
+		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_LIVERY(veh));
 
-	sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh));
-	sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh));
-	sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_WINDOW_TINT(veh));
-	sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_TYRES_CAN_BURST(veh) ? 1 : 0);
+		char* plateText = VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT(veh);
+		sqlite3_bind_text(stmt, index++, plateText, strlen(plateText), 0);
 
-	// commit
-	sqlite3_step(stmt);
-	sqlite3_finalize(stmt);
+		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh));
+		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh));
+		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_WINDOW_TINT(veh));
+		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_TYRES_CAN_BURST(veh) ? 1 : 0);
 
-	int newRowID = sqlite3_last_insert_rowid(db);
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
 
-	//if we're updating, delete any pre-existing children
-	if (slot != -1)
-	{
-		delete_saved_vehicle_children(newRowID);
+		sqlite3_int64 newRowID = sqlite3_last_insert_rowid(db);
+
+		//if we're updating, delete any pre-existing children
+		if (slot != -1)
+		{
+			delete_saved_vehicle_children(newRowID);
+		}
+
+		save_vehicle_extras(veh, newRowID);
+		save_vehicle_mods(veh, newRowID);
 	}
 
-	save_vehicle_extras(veh, newRowID);
-	save_vehicle_mods(veh, newRowID);
+	mutex_unlock();
 
-	return true;
+	return result;
 }
 
 std::vector<SavedSkinDBRow*> ENTDatabase::get_saved_skins(int index)
 {
 	write_text_to_log_file("Asked to load saved skins");
+
+	mutex_lock();
 
 	sqlite3_stmt *stmt;
 	const char *pzTest;
@@ -831,12 +911,16 @@ std::vector<SavedSkinDBRow*> ENTDatabase::get_saved_skins(int index)
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
 
+	mutex_unlock();
+
 	return results;
 }
 
 std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 {
 	write_text_to_log_file("Asked to load saved vehicles");
+
+	mutex_lock();
 
 	sqlite3_stmt *stmt;
 	const char *pzTest;
@@ -906,11 +990,15 @@ std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
 
+	mutex_unlock();
+
 	return results;
 }
 
 void ENTDatabase::populate_saved_skin(SavedSkinDBRow *entry)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "select * from ENT_SKIN_COMPONENTS WHERE parentId=?";
@@ -973,12 +1061,16 @@ void ENTDatabase::populate_saved_skin(SavedSkinDBRow *entry)
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
 
+	mutex_unlock();
+
 	write_text_to_log_file("Done loading saved skins");
 	return;
 }
 
 void ENTDatabase::populate_saved_vehicle(SavedVehicleDBRow *entry)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "select * from ENT_VEHICLE_EXTRAS WHERE parentId=?";
@@ -1040,12 +1132,16 @@ void ENTDatabase::populate_saved_vehicle(SavedVehicleDBRow *entry)
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
 
+	mutex_unlock();
+
 	write_text_to_log_file("Done loading saved vehicles");
 	return;
 }
 
-void ENTDatabase::delete_saved_vehicle(int slot)
+void ENTDatabase::delete_saved_vehicle(sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "DELETE FROM ENT_SAVED_VEHICLES WHERE id=?";
@@ -1054,7 +1150,7 @@ void ENTDatabase::delete_saved_vehicle(int slot)
 	if (rc == SQLITE_OK)
 	{
 		// bind the value
-		sqlite3_bind_int(stmt, 1, slot);
+		sqlite3_bind_int64(stmt, 1, slot);
 
 		// commit
 		sqlite3_step(stmt);
@@ -1065,10 +1161,14 @@ void ENTDatabase::delete_saved_vehicle(int slot)
 		write_text_to_log_file("Failed to delete saved vehicle");
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
+
+	mutex_unlock();
 }
 
-void ENTDatabase::delete_saved_skin(int slot)
+void ENTDatabase::delete_saved_skin(sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "DELETE FROM ENT_SAVED_SKINS WHERE id=?";
@@ -1077,7 +1177,7 @@ void ENTDatabase::delete_saved_skin(int slot)
 	if (rc == SQLITE_OK)
 	{
 		// bind the value
-		sqlite3_bind_int(stmt, 1, slot);
+		sqlite3_bind_int64(stmt, 1, slot);
 
 		// commit
 		sqlite3_step(stmt);
@@ -1088,10 +1188,14 @@ void ENTDatabase::delete_saved_skin(int slot)
 		write_text_to_log_file("Failed to delete saved skin");
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
+
+	mutex_unlock();
 }
 
-void ENTDatabase::rename_saved_vehicle(std::string name, int slot)
+void ENTDatabase::rename_saved_vehicle(std::string name, sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "UPDATE ENT_SAVED_VEHICLES SET saveName=? WHERE id=?";
@@ -1101,7 +1205,7 @@ void ENTDatabase::rename_saved_vehicle(std::string name, int slot)
 	{
 		// bind the value
 		sqlite3_bind_text(stmt, 1, name.c_str(), name.length(), 0);
-		sqlite3_bind_int(stmt, 2, slot);
+		sqlite3_bind_int64(stmt, 2, slot);
 
 		// commit
 		sqlite3_step(stmt);
@@ -1112,10 +1216,14 @@ void ENTDatabase::rename_saved_vehicle(std::string name, int slot)
 		write_text_to_log_file("Failed to rename saved vehicle");
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
+
+	mutex_unlock();
 }
 
-void ENTDatabase::rename_saved_skin(std::string name, int slot)
+void ENTDatabase::rename_saved_skin(std::string name, sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "UPDATE ENT_SAVED_SKINS SET saveName=? WHERE id=?";
@@ -1125,7 +1233,7 @@ void ENTDatabase::rename_saved_skin(std::string name, int slot)
 	{
 		// bind the value
 		sqlite3_bind_text(stmt, 1, name.c_str(), name.length(), 0);
-		sqlite3_bind_int(stmt, 2, slot);
+		sqlite3_bind_int64(stmt, 2, slot);
 
 		// commit
 		sqlite3_step(stmt);
@@ -1136,10 +1244,14 @@ void ENTDatabase::rename_saved_skin(std::string name, int slot)
 		write_text_to_log_file("Failed to rename saved skin");
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
+
+	mutex_unlock();
 }
 
-void ENTDatabase::delete_saved_vehicle_children(int slot)
+void ENTDatabase::delete_saved_vehicle_children(sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "DELETE FROM ENT_VEHICLE_EXTRAS WHERE id=?";
@@ -1148,7 +1260,7 @@ void ENTDatabase::delete_saved_vehicle_children(int slot)
 	if (rc == SQLITE_OK)
 	{
 		// bind the value
-		sqlite3_bind_int(stmt, 1, slot);
+		sqlite3_bind_int64(stmt, 1, slot);
 
 		// commit
 		sqlite3_step(stmt);
@@ -1168,7 +1280,7 @@ void ENTDatabase::delete_saved_vehicle_children(int slot)
 	if (rc2 == SQLITE_OK)
 	{
 		// bind the value
-		sqlite3_bind_int(stmt2, 1, slot);
+		sqlite3_bind_int64(stmt2, 1, slot);
 
 		// commit
 		sqlite3_step(stmt2);
@@ -1179,10 +1291,14 @@ void ENTDatabase::delete_saved_vehicle_children(int slot)
 		write_text_to_log_file("Failed to delete saved vehicle mods");
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
+
+	mutex_unlock();
 }
 
-void ENTDatabase::delete_saved_skin_children(int slot)
+void ENTDatabase::delete_saved_skin_children(sqlite3_int64 slot)
 {
+	mutex_lock();
+
 	sqlite3_stmt *stmt;
 	const char *pzTest;
 	auto qStr = "DELETE FROM ENT_SKIN_COMPONENTS WHERE id=?";
@@ -1191,7 +1307,7 @@ void ENTDatabase::delete_saved_skin_children(int slot)
 	if (rc == SQLITE_OK)
 	{
 		// bind the value
-		sqlite3_bind_int(stmt, 1, slot);
+		sqlite3_bind_int64(stmt, 1, slot);
 
 		// commit
 		sqlite3_step(stmt);
@@ -1211,7 +1327,7 @@ void ENTDatabase::delete_saved_skin_children(int slot)
 	if (rc2 == SQLITE_OK)
 	{
 		// bind the value
-		sqlite3_bind_int(stmt2, 1, slot);
+		sqlite3_bind_int64(stmt2, 1, slot);
 
 		// commit
 		sqlite3_step(stmt2);
@@ -1222,4 +1338,33 @@ void ENTDatabase::delete_saved_skin_children(int slot)
 		write_text_to_log_file("Failed to delete saved skin props");
 		write_text_to_log_file(sqlite3_errmsg(db));
 	}
+
+	mutex_unlock();
+}
+
+void ENTDatabase::begin_transaction()
+{
+	if (has_transaction_begun == false)
+	{
+		has_transaction_begun = true;
+		sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+	}
+}
+void ENTDatabase::end_transaction()
+{
+	if (has_transaction_begun == true)
+	{
+		has_transaction_begun = false;
+		sqlite3_exec(db, "END TRANSACTION;", NULL, NULL, NULL);
+	}
+}
+
+void ENTDatabase::mutex_lock()
+{
+	sqlite3_mutex_enter(db_mutex);
+}
+
+void ENTDatabase::mutex_unlock()
+{
+	sqlite3_mutex_leave(db_mutex);
 }

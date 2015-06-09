@@ -795,14 +795,8 @@ bool onconfirm_savedskin_slot_menu(MenuItem<int> choice)
 		std::string result = show_keyboard(NULL, (char*)activeSavedSkinSlotName.c_str());
 		if (!result.empty())
 		{
-			ENTDatabase database;
-			if (!database.open())
-			{
-				set_status_text("Couldn't Access Saved Skin");
-				return false;
-			}
-			database.rename_saved_skin(result, activeSavedSkinIndex);
-			database.close();
+			ENTDatabase* database = get_database();
+			database->rename_saved_skin(result, activeSavedSkinIndex);
 			activeSavedSkinSlotName = result;
 		}
 		requireRefreshOfSkinSaveSlots = true;
@@ -813,14 +807,8 @@ bool onconfirm_savedskin_slot_menu(MenuItem<int> choice)
 	break;
 	case 4: //delete
 	{
-		ENTDatabase database;
-		if (!database.open())
-		{
-			set_status_text("Couldn't Delete Saved Skin");
-			return false;
-		}
-		database.delete_saved_skin(activeSavedSkinIndex);
-		database.close();
+		ENTDatabase* database = get_database();
+		database->delete_saved_skin(activeSavedSkinIndex);
 		requireRefreshOfSkinSlotMenu = false;
 		requireRefreshOfSkinSaveSlots = true;
 		skinSaveSlotMenuInterrupt = true;
@@ -839,14 +827,8 @@ bool process_savedskin_menu()
 		requireRefreshOfSkinSlotMenu = false;
 		requireRefreshOfSkinSaveSlots = false;
 
-		ENTDatabase database;
-		if (!database.open())
-		{
-			set_status_text("Couldn't Load Saved Skins");
-			return false;
-		}
-		std::vector<SavedSkinDBRow*> savedSkins = database.get_saved_skins();
-		database.close();
+		ENTDatabase* database = get_database();
+		std::vector<SavedSkinDBRow*> savedSkins = database->get_saved_skins();
 
 		lastKnownSavedSkinCount = savedSkins.size();
 
@@ -919,19 +901,12 @@ bool process_savedskin_slot_menu(int slot)
 
 bool spawn_saved_skin(int slot, std::string caption)
 {
-	ENTDatabase database;
-	if (!database.open())
-	{
-		set_status_text("Couldn't Load Saved Skins");
-		return false;
-	}
+	ENTDatabase* database = get_database();
 
-	std::vector<SavedSkinDBRow*> savedSkins = database.get_saved_skins(slot);
+	std::vector<SavedSkinDBRow*> savedSkins = database->get_saved_skins(slot);
 
 	SavedSkinDBRow* savedSkin = savedSkins.at(0);
-	database.populate_saved_skin(savedSkin);
-
-	database.close();
+	database->populate_saved_skin(savedSkin);
 
 	applyChosenSkin(savedSkin->model);
 
@@ -979,13 +954,9 @@ void save_current_skin(int slot)
 		std::string result = show_keyboard(NULL, (char*)existingText.c_str());
 		if (!result.empty())
 		{
-			ENTDatabase database;
-			if (!database.open())
-			{
-				set_status_text("Save Error");
-				return;
-			}
-			if (database.save_skin(playerPed, result, slot))
+			ENTDatabase* database = get_database();
+			
+			if (database->save_skin(playerPed, result, slot))
 			{
 				activeSavedSkinSlotName = result;
 				set_status_text("Saved Skin");
@@ -994,7 +965,6 @@ void save_current_skin(int slot)
 			{
 				set_status_text("Save Error");
 			}
-			database.close();
 		}
 	}
 }

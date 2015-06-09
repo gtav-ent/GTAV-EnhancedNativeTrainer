@@ -176,9 +176,9 @@ public:
 
 	std::vector<StringPairSettingDBRow> load_setting_pairs();
 
-	bool save_vehicle(Vehicle veh, std::string saveName, int slot=-1);
+	bool save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 slot = -1);
 
-	bool save_skin(Ped ped, std::string saveName, int slot = -1);
+	bool save_skin(Ped ped, std::string saveName, sqlite3_int64 slot = -1);
 
 	std::vector<SavedVehicleDBRow*> get_saved_vehicles(int index=-1);
 
@@ -188,33 +188,45 @@ public:
 
 	void populate_saved_skin(SavedSkinDBRow *entry);
 
-	void delete_saved_vehicle(int slot);
+	void delete_saved_vehicle(sqlite3_int64 slot);
 
-	void delete_saved_vehicle_children(int slot);
+	void delete_saved_vehicle_children(sqlite3_int64 slot);
 
-	void delete_saved_skin(int slot);
+	void delete_saved_skin(sqlite3_int64 slot);
 
-	void delete_saved_skin_children(int slot);
+	void delete_saved_skin_children(sqlite3_int64 slot);
 
-	void rename_saved_vehicle(std::string name, int slot);
+	void rename_saved_vehicle(std::string name, sqlite3_int64 slot);
 
-	void rename_saved_skin(std::string name, int slot);
+	void rename_saved_skin(std::string name, sqlite3_int64 slot);
 
 private:
 
-	void save_vehicle_extras(Vehicle veh, int rowID);
+	void save_vehicle_extras(Vehicle veh, sqlite3_int64 rowID);
 
-	void save_vehicle_mods(Vehicle veh, int rowID);
+	void save_vehicle_mods(Vehicle veh, sqlite3_int64 rowID);
 
-	void save_skin_components(Ped ped, int rowID);
+	void save_skin_components(Ped ped, sqlite3_int64 rowID);
 
-	void save_skin_props(Ped ped, int rowID);
+	void save_skin_props(Ped ped, sqlite3_int64 rowID);
 
-	void ENTDatabase::handle_version(int oldVersion);
+	void handle_version(int oldVersion);
+
+	void begin_transaction();
+	
+	void end_transaction();
+
+	void mutex_lock();
+
+	void mutex_unlock();
 
 	sqlite3 *db;
 
 	char *zErrMsg = 0;
 
 	int manifest_version = 0;
+
+	bool has_transaction_begun = false;
+
+	sqlite3_mutex *db_mutex;
 };

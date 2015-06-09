@@ -611,21 +611,14 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
 
 bool spawn_saved_car(int slot, std::string caption)
 {
-	ENTDatabase database;
-	if (!database.open())
-	{
-		set_status_text("Couldn't Load Saved Vehicles");
-		return false;
-	}
+	ENTDatabase* database = get_database();
 
-	std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles(slot);
+	std::vector<SavedVehicleDBRow*> savedVehs = database->get_saved_vehicles(slot);
 
 	lastKnownSavedVehicleCount = savedVehs.size();
 
 	SavedVehicleDBRow* savedVeh = savedVehs.at(0);
-	database.populate_saved_vehicle(savedVeh);
-
-	database.close();
+	database->populate_saved_vehicle(savedVeh);
 
 	Vehicle veh = do_spawn_vehicle(savedVeh->model, caption, false);
 	if (veh == -1)
@@ -705,14 +698,9 @@ bool onconfirm_savedveh_slot_menu(MenuItem<int> choice)
 			std::string result = show_keyboard(NULL, (char*)activeSavedVehicleSlotName.c_str());
 			if (!result.empty())
 			{
-				ENTDatabase database;
-				if (!database.open())
-				{
-					set_status_text("Couldn't Access Saved Vehicle");
-					return false;
-				}
-				database.rename_saved_vehicle(result, activeSavedVehicleIndex);
-				database.close();
+				ENTDatabase* database = get_database();
+				database->rename_saved_vehicle(result, activeSavedVehicleIndex);
+
 				activeSavedVehicleSlotName = result;
 			}
 			requireRefreshOfSaveSlots = true;
@@ -723,14 +711,9 @@ bool onconfirm_savedveh_slot_menu(MenuItem<int> choice)
 		break;
 	case 4: //delete
 		{
-			ENTDatabase database;
-			if (!database.open())
-			{
-				set_status_text("Couldn't Delete Saved Vehicle");
-				return false;
-			}
-			database.delete_saved_vehicle(activeSavedVehicleIndex);
-			database.close();
+			ENTDatabase* database = get_database();
+			database->delete_saved_vehicle(activeSavedVehicleIndex);
+
 			requireRefreshOfSlotMenu = false;
 			requireRefreshOfSaveSlots = true;
 			vehSaveSlotMenuInterrupt = true;
@@ -805,13 +788,8 @@ void save_current_vehicle(int slot)
 			std::string result = show_keyboard(NULL, (char*)existingText.c_str());
 			if (!result.empty())
 			{
-				ENTDatabase database;
-				if (!database.open())
-				{
-					set_status_text("Save Error");
-					return;
-				}
-				if (database.save_vehicle(veh, result, slot))
+				ENTDatabase* database = get_database();
+				if (database->save_vehicle(veh, result, slot))
 				{
 					set_status_text("Saved Vehicle");
 					activeSavedVehicleSlotName = result;
@@ -820,7 +798,6 @@ void save_current_vehicle(int slot)
 				{
 					set_status_text("Save Error");
 				}
-				database.close();
 			}
 		}
 		else
@@ -853,14 +830,8 @@ bool process_savedveh_menu()
 		requireRefreshOfSlotMenu = false;
 		requireRefreshOfSaveSlots = false;
 
-		ENTDatabase database;
-		if (!database.open())
-		{
-			set_status_text("Couldn't Load Saved Vehicles");
-			return false;
-		}
-		std::vector<SavedVehicleDBRow*> savedVehs = database.get_saved_vehicles();
-		database.close();
+		ENTDatabase* database = get_database();
+		std::vector<SavedVehicleDBRow*> savedVehs = database->get_saved_vehicles();
 
 		lastKnownSavedVehicleCount = savedVehs.size();
 

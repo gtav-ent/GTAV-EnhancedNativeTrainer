@@ -76,3 +76,5 @@ void init_storage();
 char* get_storage_dir_path();
 
 char* get_storage_dir_path(char* file);
+
+ENTDatabase* get_database();

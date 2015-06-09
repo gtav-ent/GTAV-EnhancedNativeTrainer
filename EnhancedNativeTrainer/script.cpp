@@ -58,6 +58,8 @@ int game_frame_num = 0;
 
 bool everInitialised = false;
 
+ENTDatabase* database = NULL;
+
 //std::mutex db_mutex;
 
 // features
@@ -1159,6 +1161,12 @@ void ScriptMain()
 
 		init_storage();
 
+		database = new ENTDatabase();
+		if (!database->open() )
+		{
+			write_text_to_log_file("Failed to open database");
+		}
+
 		build_anim_tree();
 
 		write_text_to_log_file("ScriptMain called - handler set");
@@ -1185,6 +1193,12 @@ void ScriptTidyUp()
 	write_text_to_log_file("ScriptTidyUp called");
 
 	save_settings();
+
+	if (database != NULL)
+	{
+		database->close();
+		delete database;
+	}
 
 	write_text_to_log_file("ScriptTidyUp done");
 }
@@ -1327,19 +1341,10 @@ void save_settings()
 
 	write_text_to_log_file("Locked");
 
-	ENTDatabase database;
-	if (!database.open())
-	{
-		return;
-	}
-
 	write_text_to_log_file("Actually saving");
-	database.store_setting_pairs(get_generic_settings());
-	database.store_feature_enabled_pairs(get_feature_enablements());
+	database->store_setting_pairs(get_generic_settings());
+	database->store_feature_enabled_pairs(get_feature_enablements());
 	write_text_to_log_file("Save flag released");
-
-	database.close();
-	write_text_to_log_file("Closed");
 
 	write_text_to_log_file("Unlocking");
 	//db_mutex.unlock();
@@ -1348,31 +1353,13 @@ void save_settings()
 
 void load_settings()
 {
-	write_text_to_log_file("Creating database object");
-
-	ENTDatabase database;
-
-	write_text_to_log_file("Created database object");
-
-	if (!database.open())
-	{
-		write_text_to_log_file("Opening DB failed, aborting");
-		return;
-	}
-
-	write_text_to_log_file("Database opened, asking for pairs");
-
-	handle_generic_settings(database.load_setting_pairs());
+	handle_generic_settings(database->load_setting_pairs());
 
 	write_text_to_log_file("Got generic pairs");
 
-	database.load_feature_enabled_pairs(get_feature_enablements());
+	database->load_feature_enabled_pairs(get_feature_enablements());
 
 	write_text_to_log_file("Got feature pairs");
-
-	database.close();
-
-	write_text_to_log_file("Database closed");
 
 	//db_mutex.unlock();
 }
@@ -1420,4 +1407,9 @@ char* get_storage_dir_path(char* file)
 	delete folder;
 
 	return output;
+}
+
+ENTDatabase* get_database()
+{
+	return database;
 }
