@@ -30,9 +30,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "teleportation.h"
 #include "airbrake.h"
 #include "weapons.h"
-#include "anims.h";
+#include "anims.h"
 //#include "crash_handler.h"
-
+#include "vehiclecannon.h";
 #include <DbgHelp.h>
 #include <ShlObj.h>
 #include <windows.h>
@@ -171,6 +171,8 @@ void update_features()
 	update_centre_screen_status_text();
 
 	update_vehicle_guns();
+
+	update_cannon();
 
 	check_player_model();
 
@@ -949,6 +951,9 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_misc_menu();
 		break;
 	case 7:
+		process_can_menu();
+		break;
+	case 8:
 		reset_globals();
 		break;
 	}
@@ -967,6 +972,7 @@ void process_main_menu()
 		"World/Time",
 		"Weather",
 		"Miscellaneous",
+		"Entity Cannon",
 		"Reset All Settings"
 	};
 
@@ -976,7 +982,7 @@ void process_main_menu()
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = TOP_OPTIONS[i];
 		item->value = i;
-		item->isLeaf = (i==7);
+		item->isLeaf = (i==8);
 		item->currentMenuIndex = i;
 		menuItems.push_back(item);
 	}
@@ -993,6 +999,8 @@ void reset_globals()
 	reset_teleporter_globals();
 
 	reset_weapon_globals();
+	
+	reset_cannon_globals();
 
 	activeLineIndexMain			=
 	activeLineIndexPlayer		=
