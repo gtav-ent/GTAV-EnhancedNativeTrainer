@@ -1281,6 +1281,9 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	std::vector<FeatureEnabledLocalDefinition> weapResults = get_feature_enablements_weapons();
 	results.insert(results.end(), weapResults.begin(), weapResults.end());
 
+	std::vector<FeatureEnabledLocalDefinition> cannResults = get_feature_state_cannon();
+	results.insert(results.end(), cannResults.begin(), cannResults.end());
+
 	return results;
 }
 
