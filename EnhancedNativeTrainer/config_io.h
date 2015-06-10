@@ -43,6 +43,8 @@ public:
 	//int key_hotkey_wanted = VK_SHIFT;
 	int key_hotkey_throughdoor = VK_DIVIDE;
 
+	int key_veh_cannon = VK_KEY_N;
+
 	/**Change the key binding using a function string and key string.*/
 	void set_key(char* function, char* keyName);
 };

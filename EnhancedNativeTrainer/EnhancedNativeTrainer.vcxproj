@@ -25,6 +25,7 @@
     <ClCompile Include="script.cpp" />
     <ClCompile Include="skins.cpp" />
     <ClCompile Include="teleportation.cpp" />
+    <ClCompile Include="vehiclecannon.cpp" />
     <ClCompile Include="vehicles.cpp" />
     <ClCompile Include="vehmodmenu.cpp" />
     <ClCompile Include="weapons.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="script.h" />
     <ClInclude Include="skins.h" />
     <ClInclude Include="teleportation.h" />
+    <ClInclude Include="vehiclecannon.h" />
     <ClInclude Include="vehicles.h" />
     <ClInclude Include="weapons.h" />
   </ItemGroup>
