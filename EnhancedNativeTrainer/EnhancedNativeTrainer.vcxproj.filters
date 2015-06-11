@@ -38,6 +38,7 @@
     <ClInclude Include="vehicles.h" />
     <ClInclude Include="weapons.h" />
     <ClInclude Include="anims.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />
@@ -49,5 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\ScriptHookV.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
 </Project>

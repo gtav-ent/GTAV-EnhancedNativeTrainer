@@ -4,12 +4,11 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
-#include "anims.h";
-#include "menu_functions.h";
-#include "debuglog.h";
+#include "anims.h"
+#include "menu_functions.h"
+#include "debuglog.h"
 
 #include <sstream>
-
 #include <vector>
 
 TreeNode *rootNode;
@@ -21954,7 +21953,7 @@ void build_anim_tree()
 TreeNode* build_anim_tree(std::vector<std::string> input)
 {
 	TreeNode* resultRoot = new TreeNode();
-	
+
 	for each (std::string anim in input)
 	{
 		/*
@@ -21972,14 +21971,23 @@ TreeNode* build_anim_tree(std::vector<std::string> input)
 
 		TreeNode* currentNode = resultRoot;
 
+		std::vector<std::string> tokens;
 		while (std::getline(ss, token, '@'))
 		{
-			/*
-			std::stringstream logss;
-			logss << "Parsed token " << token;
-			write_text_to_log_file(logss.str());
-			logss.str(""); logss.clear();
-			*/
+			tokens.push_back(token);
+		}
+
+		for (int i = 0; i < tokens.size(); i++)
+		{
+			std::string token = tokens.at(i);
+			if (i == tokens.size() - 1)
+			{
+				//if the last node ends in @, add it
+				if (StringEndsWith(dict, "@"))
+				{
+					token = token.append("@");
+				}
+			}
 
 			TreeNode* child = currentNode->findChildWithValue(token);
 			if (child == NULL)
@@ -21990,12 +21998,6 @@ TreeNode* build_anim_tree(std::vector<std::string> input)
 			{
 				currentNode = child;
 			}
-		}
-
-		//if the last node ends in @, add it
-		if (StringEndsWith(dict, "@"))
-		{
-			currentNode->value = currentNode->value.append("@");
 		}
 
 		currentNode->addChild(get_anim_from_string(anim));

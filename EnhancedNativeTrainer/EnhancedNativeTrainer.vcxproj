@@ -43,6 +43,7 @@
     <ClInclude Include="io.h" />
     <ClInclude Include="keyboard.h" />
     <ClInclude Include="menu_functions.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="skins.h" />
     <ClInclude Include="teleportation.h" />
@@ -61,6 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\ScriptHookV.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8D82F34A-1D64-465B-84B1-37F89AD3D20B}</ProjectGuid>
