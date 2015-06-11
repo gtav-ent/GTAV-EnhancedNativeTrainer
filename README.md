@@ -8,8 +8,9 @@ However, before doing anything, please familiarise yourself with [our wiki](http
 
 **Current coordination status**:
 
-We are currently blocked, waiting for a Script Hook update to match the new game version after the 'Ill Gotten Gains' DLC update broke compatibility.
+We are back to normal after a Script Hook update was released to match the new game version, after the 'Ill Gotten Gains' DLC update broke compatibility.
 
 Update 21 was released on June 8.
+Update 22 is released to testers.
 
 Pull request processing etc is now back to normal after a holiday.
