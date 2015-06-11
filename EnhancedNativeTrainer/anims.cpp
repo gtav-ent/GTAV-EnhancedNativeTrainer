@@ -21,6 +21,10 @@ int currentAnimMenuMode = -1;
 
 const std::vector<std::string> ALL_ANIMS =
 {
+#ifdef _DEBUG
+	"amb@bagels@male@walking@ static"
+#endif
+#ifndef _DEBUG
 	"amb@bagels@male@walking@ static",
 	"amb@code_human_cower@female@base base",
 	"amb@code_human_cower@female@enter enter",
@@ -21902,6 +21906,7 @@ const std::vector<std::string> ALL_ANIMS =
 	"weapons@unarmed walk_additive_forward",
 	"weapons@unarmed walk_additive_left",
 	"weapons@unarmed walk_additive_right"
+#endif
 };
 
 static bool StringEndsWith(const std::string& a, const std::string& b)

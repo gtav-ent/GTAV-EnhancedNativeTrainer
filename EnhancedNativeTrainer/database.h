@@ -70,6 +70,7 @@ public:
 	int wheelType;
 	int windowTint;
 	bool burstableTyres;
+	bool customTyres;
 
 	std::vector<SavedVehicleExtraDBRow*> extras;
 	std::vector<SavedVehicleModDBRow*> mods;

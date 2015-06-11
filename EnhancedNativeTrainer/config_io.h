@@ -39,6 +39,7 @@ public:
 	int key_airbrake_rotate_left = VK_KEY_A;
 	int key_airbrake_rotate_right = VK_KEY_D;
 	int key_airbrake_speed = VK_SHIFT;
+	int key_airbrake_freeze_time = VK_KEY_T;
 
 	//int key_hotkey_wanted = VK_SHIFT;
 	int key_hotkey_throughdoor = VK_DIVIDE;

@@ -170,6 +170,16 @@ bool process_paint_menu_special(int category)
 	VEHICLE::GET_VEHICLE_MOD_COLOR_1(veh, &paint1, &paint2, &paint3);
 	int index = 0;
 
+	if (category == 1)
+	{
+		int curWheel = VEHICLE::GET_VEHICLE_MOD(veh, 23);
+		if (curWheel == -1)
+		{
+			set_status_text("You can't repaint the car's default wheels");
+			return false;
+		}
+	}
+
 	if (paint1 == 3 || paint1 == 4 || paint1 == 5)
 	{
 		set_status_text("Pearl cannot be applied over this paint type");

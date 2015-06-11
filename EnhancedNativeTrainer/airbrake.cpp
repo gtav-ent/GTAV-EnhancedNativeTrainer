@@ -17,13 +17,17 @@ char* AIRBRAKE_ANIM_B = "base";
 
 int travelSpeed = 0;
 
+bool in_airbrake_mode = false;
+
+bool frozen_time = false;
+
 //Converts Radians to Degrees
 float degToRad(float degs)
 {
 	return degs*3.141592653589793 / 180;
 }
 
-std::string airbrakeStatusLines[6];
+std::string airbrakeStatusLines[7];
 
 DWORD airbrakeStatusTextDrawTicksMax;
 bool airbrakeStatusTextGxtEntry;
@@ -51,6 +55,7 @@ void process_airbrake_menu()
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	bool inVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0) ? true : false;
 
+	frozen_time = false;
 	if (!inVehicle)
 	{
 		STREAMING::REQUEST_ANIM_DICT(AIRBRAKE_ANIM_A);
@@ -63,6 +68,8 @@ void process_airbrake_menu()
 
 	while (true && !exitFlag)
 	{
+		in_airbrake_mode = true;
+
 		// timed menu draw, used for pause after active line switch
 		DWORD maxTickCount = GetTickCount() + waitTime;
 		do
@@ -94,6 +101,7 @@ void process_airbrake_menu()
 	}
 
 	exitFlag = false;
+	in_airbrake_mode = false;
 }
 
 void update_airbrake_text()
@@ -124,7 +132,21 @@ void update_airbrake_text()
 			UI::_DRAW_TEXT(0.01, textY);
 
 			textY += 0.025f;
-		}	
+		}
+
+		int screen_w, screen_h;
+		GRAPHICS::GET_SCREEN_RESOLUTION(&screen_w, &screen_h);
+		float rectWidthScaled = 350 / (float)screen_w;
+		float rectHeightScaled = (20 + (numLines*18)) / (float)screen_h;
+		float rectXScaled = 0 / (float)screen_h;
+		float rectYScaled = 65 / (float)screen_h;
+
+		int rect_col[4] = { 128, 128, 128, 75.0f };
+
+		// rect
+		draw_rect(rectXScaled, rectYScaled,
+			rectWidthScaled, rectHeightScaled,
+			rect_col[0], rect_col[1], rect_col[2], rect_col[3]);
 	}
 }
 
@@ -157,7 +179,8 @@ void create_airbrake_help_text()
 	airbrakeStatusLines[2] = "A/D - Rotate Left/Right";
 	airbrakeStatusLines[3] = "W/S - Move Forward/Back";
 	airbrakeStatusLines[4] = "Shift - Toggle Move Speed";
-	airbrakeStatusLines[5] = ss.str();
+	airbrakeStatusLines[5] = "T - Toggle Frozen Time";
+	airbrakeStatusLines[6] = ss.str();
 
 	airbrakeStatusTextDrawTicksMax = GetTickCount() + 2500;
 	airbrakeStatusTextGxtEntry = false;
@@ -254,6 +277,11 @@ void airbrake(bool inVehicle)
 		}
 	}
 
+	if (IsKeyJustUp(keyConfig->key_airbrake_freeze_time))
+	{
+		frozen_time = !frozen_time;
+	}
+
 	create_airbrake_help_text();
 	update_airbrake_text();
 
@@ -286,4 +314,14 @@ void airbrake(bool inVehicle)
 		else if (moveDownKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z - forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
 		else{ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z, xBoolParam, yBoolParam, zBoolParam); }
 	}
+}
+
+bool is_in_airbrake_mode()
+{
+	return in_airbrake_mode;
+}
+
+bool is_airbrake_frozen_time()
+{
+	return frozen_time;
 }

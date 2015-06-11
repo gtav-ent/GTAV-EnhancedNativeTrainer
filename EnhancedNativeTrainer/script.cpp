@@ -111,9 +111,16 @@ int  frozenWantedLevel					=	0;
 
 bool featurePlayerResetOnDeath = true;
 
+int timeSpeedIndex = -1;
+float timeSpeed = 1.0f;
+
 // player model control, switching on normal ped model when needed	
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
+
+const std::vector<std::string> TIME_SPEED_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
+
+const std::vector<float> TIME_SPEED_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f};
 
 void check_player_model()
 {
@@ -348,11 +355,16 @@ void update_features()
 		TIME::SET_CLOCK_TIME(t.tm_hour, t.tm_min, t.tm_sec);
 	}
 
-	if (featureTimeSlow)
+	if (is_in_airbrake_mode() && is_airbrake_frozen_time())
 	{
-		GAMEPLAY::SET_TIME_SCALE(0.5f);
+		GAMEPLAY::SET_TIME_SCALE(0.0f);
 	}
-	else if (featureTimeSlowUpdated)
+	else
+	{
+		GAMEPLAY::SET_TIME_SCALE(timeSpeed);
+	}
+
+	if (featureTimeSlowUpdated)
 	{
 		featureTimeSlowUpdated = false;
 		GAMEPLAY::SET_TIME_SCALE(1.0f);
@@ -745,21 +757,64 @@ bool onconfirm_time_menu ( MenuItem<int> choice )
 	return false;
 }
 
+void onchange_game_speed_callback(int value)
+{
+	timeSpeed = TIME_SPEED_VALUES.at(value);
+	std::stringstream ss;
+	ss << "Game Speed Now " << TIME_SPEED_CAPTIONS.at(value);
+	set_status_text(ss.str());
+}
+
 void process_time_menu ()
 {
 	const int lineCount = 5;
 
 	std::string caption = "Time Options";
 
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Hour Forward", NULL, NULL, true },
-		{ "Hour Backward", NULL, NULL, true },
-		{ "Clock Paused", &featureTimePaused, &featureTimePausedUpdated },
-		{ "Sync With System", &featureTimeSynced, NULL },
-		{ "Slow Motion", &featureTimeSlow, &featureTimeSlowUpdated }
-	};
+	std::vector<MenuItem<int>*> menuItems;
 
-	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexTime, caption, onconfirm_time_menu );
+	int index = 0;
+
+	MenuItem<int> *item = new MenuItem<int>();
+	item->caption = "1 Hour Forward";
+	item->value = index++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "1 Hour Backward";
+	item->value = index++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	ToggleMenuItem<int> *togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Clock Paused";
+	togItem->value = index++;
+	togItem->toggleValue = &featureTimePaused;
+	togItem->toggleValueUpdated = &featureTimePausedUpdated;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Sync With System";
+	togItem->value = index++;
+	togItem->toggleValue = &featureTimeSynced;
+	togItem->toggleValueUpdated = NULL;
+	menuItems.push_back(togItem);
+
+	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(TIME_SPEED_CAPTIONS, onchange_game_speed_callback);
+	listItem->wrap = false;
+	listItem->caption = "Game Speed";
+	if (timeSpeedIndex == -1)
+	{
+		listItem->value = TIME_SPEED_VALUES.size() - 1;
+	}
+	else
+	{
+		listItem->value = timeSpeedIndex;
+	}
+	menuItems.push_back(listItem);
+
+	draw_generic_menu<int>(menuItems, &activeLineIndexTime, caption, onconfirm_time_menu, NULL, NULL);
 }
 
 

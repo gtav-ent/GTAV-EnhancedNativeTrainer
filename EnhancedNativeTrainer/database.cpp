@@ -14,7 +14,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/
-const int DATABASE_VERSION = 4;
+const int DATABASE_VERSION = 5;
 
 static int singleIntResultCallback(void *data, int count, char **rows, char **azColName)
 {
@@ -126,7 +126,8 @@ void ENTDatabase::handle_version(int oldVersion)
 			plateType INTEGER, \
 			wheelType INTEGER, \
 			windowTint INTEGER, \
-			burstableTyres INTEGER \
+			burstableTyres INTEGER, \
+			customTyres INTEGER \
 			)";
 		int rcVeh1 = sqlite3_exec(db, CREATE_VEHICLE_TABLE_QUERY, NULL, 0, &zErrMsg);
 		if (rcVeh1 != SQLITE_OK)
@@ -245,6 +246,18 @@ void ENTDatabase::handle_version(int oldVersion)
 		else
 		{
 			write_text_to_log_file("Skin props table created");
+		}
+	}
+
+	if (oldVersion >= 3 && oldVersion < 5)
+	{
+		char* ADD_TYRES_COL = "ALTER TABLE ENT_SAVED_VEHICLES ADD customTyres INTEGER DEFAULT 0";
+		
+		int custTyresAddition = sqlite3_exec(db, ADD_TYRES_COL, NULL, 0, &zErrMsg);
+		if (custTyresAddition != SQLITE_OK)
+		{
+			write_text_to_log_file("Couldn't add custom tyres column");
+			sqlite3_free(zErrMsg);
 		}
 	}
 }
@@ -737,7 +750,7 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 			?, ?, ?, ?, ?, \
 		  	?, ?, ?, ?, ?, \
 			?, ?, ?, ?, ?, \
-			?, ?, ?, ? );";
+			?, ?, ?, ?, ? );";
 
 	/*
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \ 1
@@ -837,6 +850,7 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh));
 		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_WINDOW_TINT(veh));
 		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_TYRES_CAN_BURST(veh) ? 1 : 0);
+		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_MOD_VARIATION(veh,23) ? 1 : 0);
 
 		// commit
 		sqlite3_step(stmt);
@@ -977,6 +991,7 @@ std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 			veh->wheelType = sqlite3_column_int(stmt, index++);
 			veh->windowTint = sqlite3_column_int(stmt, index++);
 			veh->burstableTyres = sqlite3_column_int(stmt, index++) == 1 ? true : false;
+			veh->customTyres = sqlite3_column_int(stmt, index++) == 1 ? true : false;
 
 			results.push_back(veh);
 

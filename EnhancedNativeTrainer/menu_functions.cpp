@@ -422,3 +422,44 @@ void WantedSymbolItem<T>::handleRightPress()
 		set_status_text(ss.str());
 	}
 }
+
+void SelectFromListMenuItem::handleLeftPress()
+{
+	this->value--;
+	if (this->value < 0)
+	{
+		if (!wrap)
+		{
+			this->value = 0;
+			return;
+		}
+		this->value = this->itemCaptions.size() - 1;
+	}
+	if (onValueChangeCallback != NULL)
+	{
+		this->onValueChangeCallback(value);
+	}
+}
+
+void SelectFromListMenuItem::handleRightPress()
+{
+	this->value++;
+	if (this->value >= this->itemCaptions.size())
+	{
+		if (!wrap)
+		{
+			this->value = this->itemCaptions.size()-1;
+			return;
+		}
+		this->value = 0;
+	}
+	if (onValueChangeCallback != NULL)
+	{
+		this->onValueChangeCallback(value);
+	}
+}
+
+std::string SelectFromListMenuItem::getCurrentCaption()
+{
+	return this->itemCaptions.at(this->value);
+}

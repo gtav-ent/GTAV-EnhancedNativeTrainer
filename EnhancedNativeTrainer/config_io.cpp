@@ -180,6 +180,10 @@ void KeyInputConfig::set_key(char* function, char* keyName)
 	{
 		key_airbrake_speed = vkID;
 	}
+	else if (strcmp(function, "airbrake_freeze_time") == 0)
+	{
+		key_airbrake_freeze_time = vkID;
+	}
 	else if (strcmp(function, "hotkey_throughdoor") == 0)
 	{
 		key_hotkey_throughdoor = vkID;

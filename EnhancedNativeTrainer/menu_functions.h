@@ -114,6 +114,35 @@ public:
 	virtual void handleRightPress();
 };
 
+class SelectFromListMenuItem : public MenuItem <int>
+{
+public:
+
+	inline SelectFromListMenuItem(std::vector<std::string> captions, void(*onValueChangeCallback)(int))
+	{
+		this->itemCaptions = captions;
+		this->onValueChangeCallback = onValueChangeCallback;
+	}
+
+	virtual ~SelectFromListMenuItem() {}
+
+	virtual void onConfirm() { };
+
+	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
+
+	virtual void handleLeftPress();
+
+	virtual void handleRightPress();
+
+	virtual std::string getCurrentCaption();
+
+	std::vector<std::string> itemCaptions;
+
+	void(*onValueChangeCallback)(int index);
+
+	bool wrap = true;
+};
+
 template<class T>
 class CashItem : public MenuItem <T>
 {
@@ -416,6 +445,55 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		auto ssStr = ss.str();
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
+	}
+	else if (SelectFromListMenuItem* selectFromListItem = dynamic_cast<SelectFromListMenuItem*>(item))
+	{
+		UI::SET_TEXT_FONT(font);
+		UI::SET_TEXT_SCALE(0.0, text_scale);
+		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
+		UI::SET_TEXT_RIGHT_JUSTIFY(1);
+
+		UI::SET_TEXT_OUTLINE();
+
+		if (dropShadow)
+		{
+			UI::SET_TEXT_DROPSHADOW(5, 0, 78, 255, 255);
+		}
+
+		UI::SET_TEXT_EDGE(0, 0, 0, 0, 0);
+		UI::SET_TEXT_WRAP(0, lineLeftScaled + lineWidthScaled - leftMarginScaled);
+		UI::_SET_TEXT_ENTRY("STRING");
+
+		std::string caption = selectFromListItem->getCurrentCaption();
+
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)caption.c_str());
+		UI::_DRAW_TEXT(0, textY);
+
+		UI::SET_TEXT_EDGE(1, 255, 215, 0, 255);
+
+		textY = lineTopScaled + (0.5f * (lineHeightScaled - (TEXT_HEIGHT_NONLEAF / (float)screen_h)));
+
+		/*
+		UI::SET_TEXT_FONT(font);
+		UI::SET_TEXT_SCALE(0.0, 0.4f);
+		UI::SET_TEXT_CENTRE(0);
+		UI::SET_TEXT_COLOUR(text_col[0], text_col[1], text_col[2], text_col[3]);
+		UI::SET_TEXT_RIGHT_JUSTIFY(0);
+		UI::_SET_TEXT_ENTRY("STRING");
+		UI::_ADD_TEXT_COMPONENT_STRING("<<");
+
+		UI::_DRAW_TEXT(lineLeftScaled + lineWidthScaled + 0.01f, textY);
+
+		UI::SET_TEXT_FONT(font);
+		UI::SET_TEXT_SCALE(0.0, 0.4f);
+		UI::SET_TEXT_CENTRE(0);
+		UI::SET_TEXT_COLOUR(text_col[0], text_col[1], text_col[2], text_col[3]);
+		UI::SET_TEXT_RIGHT_JUSTIFY(1);
+		UI::SET_TEXT_WRAP(0.0f, lineLeftScaled + lineWidthScaled - leftMarginScaled);
+		UI::_SET_TEXT_ENTRY("STRING");
+		UI::_ADD_TEXT_COMPONENT_STRING("");
+		UI::_DRAW_TEXT(0, textY);
+		*/
 	}
 	else if (WantedSymbolItem<T>* wantedItem = dynamic_cast<WantedSymbolItem<T>*>(item))
 	{

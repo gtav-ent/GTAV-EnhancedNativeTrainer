@@ -1170,6 +1170,10 @@ namespace VEHICLE
 	static void SET_VEHICLE_ENGINE_HEALTH(Vehicle vehicle, float health) { invoke<Void>(0x45F6D8EEF34ABEF1, vehicle, health); } // 0x45F6D8EEF34ABEF1 0x1B760FB5
 	static float GET_VEHICLE_PETROL_TANK_HEALTH(Vehicle vehicle) { return invoke<float>(0x7D5DABE888D2D074, vehicle); } // 0x7D5DABE888D2D074 0xE41595CE
 	static void SET_VEHICLE_PETROL_TANK_HEALTH(Vehicle vehicle, float health) { invoke<Void>(0x70DB57649FA8D0D8, vehicle, health); } // 0x70DB57649FA8D0D8 0x660A3692
+
+	static float GET_VEHICLE_BODY_HEALTH(Vehicle vehicle) { return invoke<float>(0xF271147EB7B40F12, vehicle); } // F271147EB7B40F12 2B2FCC28
+	static void SET_VEHICLE_BODY_HEALTH(Vehicle vehicle, float health) { invoke<Void>(0xB77D05AC8C78AADB, vehicle, health); } // B77D05AC8C78AADB 920C2517
+
 	static BOOL IS_VEHICLE_STUCK_TIMER_UP(Any p0, Any p1, Any p2) { return invoke<BOOL>(0x679BE1DAF71DA874, p0, p1, p2); } // 0x679BE1DAF71DA874 0x2FCF58C1
 	static void RESET_VEHICLE_STUCK_TIMER(Any p0, Any p1) { invoke<Void>(0xD7591B0065AFAA7A, p0, p1); } // 0xD7591B0065AFAA7A 0xEF2A6016
 	static BOOL IS_VEHICLE_DRIVEABLE(Any p0, BOOL p1) { return invoke<BOOL>(0x4C241E39B23DF959, p0, p1); } // 0x4C241E39B23DF959 0x41A7267A

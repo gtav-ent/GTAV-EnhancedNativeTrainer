@@ -137,7 +137,7 @@ const std::vector<std::string> CAPTIONS_EMERGENCY{ "Albany Police Roadcruiser (S
 
 const std::vector<std::string> CAPTIONS_MOTORCYCLES{ "Dinka Akuma", "Dinka Double-T", "Dinka Enduro", "Dinka Thrust", "LCC Hexer", "LCC Innovation", "Maibatsu Sanchez", "Maibatsu Sanchez (Graphics)", "Nagasaki Carbon RS", "Pegassi Bati", "Pegassi Bati (Race)", "Pegassi Ruffian", "Principe Faggio", "Principe Lectro", "Principe Nemesis", "Shitzu Hakuchou", "Shitzu PCJ 600", "Shitzu Vader", "Western Bagger", "Western Daemon", "Western Sovereign" };
 
-const std::vector<std::string> CAPTIONS_PLANES{ "Buckingham Cargo Plane (An-225)", "Buckingham Jet (B747)", "Buckingham Luxor", "Buckingham Miljet", "Buckingham Shamal", "Buckingham Vestra", "Jobuilt Mammatus", "Jobuilt P-996 Lazer", "Jobuilt Velum (4 Seater)", "Jobuilt Velum (5 Seater)", "Mammoth Dodo", "Mammoth Hydra", "Mammoth Titan", "Western Besra", "Western Cuban 800", "Western Duster", "Western Mallard Stunt Plane" };
+const std::vector<std::string> CAPTIONS_PLANES{ "Buckingham Cargo Plane (An-225)", "Buckingham Jet (B747)", "Buckingham Luxor", "Buckingham Luxor Deluxe", "Buckingham Miljet", "Buckingham Shamal", "Buckingham Vestra", "Jobuilt Mammatus", "Jobuilt P-996 Lazer", "Jobuilt Velum (4 Seater)", "Jobuilt Velum (5 Seater)", "Mammoth Dodo", "Mammoth Hydra", "Mammoth Titan", "Western Besra", "Western Cuban 800", "Western Duster", "Western Mallard Stunt Plane" };
 
 const std::vector<std::string> CAPTIONS_HELOS{ "Blimp (Atomic)", "Blimp (Xero Gas)", "Buckingham Savage", "Buckingham Swift", "Buckingham Swift Deluxe", "Buckingham Valkyrie", "HVY Skylift", "Maibatsu Frogger", "Maibatsu Frogger (TPE/FIB)", "Nagasaki Buzzard (Unarmed)", "Nagasaki Buzzard Attack Chopper", "Western Annihilator", "Western Cargobob (Desert Camo)", "Western Cargobob (Jetsam)", "Western Cargobob (TPE)", "Western Maverick", "Western Maverick (Police)" };
 
@@ -149,7 +149,7 @@ const std::vector<std::string> VALUES_EMERGENCY{ "POLICEOLD2", "AMBULANCE", "BAR
 
 const std::vector<std::string> VALUES_MOTORCYCLES{ "AKUMA", "DOUBLE", "ENDURO", "THRUST", "HEXER", "INNOVATION", "SANCHEZ2", "SANCHEZ", "CARBONRS", "BATI", "BATI2", "RUFFIAN", "FAGGIO2", "LECTRO", "NEMESIS", "HAKUCHOU", "PCJ", "VADER", "BAGGER", "DAEMON", "SOVEREIGN" };
 
-const std::vector<std::string> VALUES_PLANES{ "CARGOPLANE", "JET", "LUXOR", "MILJET", "SHAMAL", "VESTRA", "MAMMATUS", "LAZER", "VELUM", "VELUM2", "DODO", "HYDRA", "TITAN", "BESRA", "CUBAN800", "DUSTER", "STUNT" };
+const std::vector<std::string> VALUES_PLANES{ "CARGOPLANE", "JET", "LUXOR", "LUXOR2", "MILJET", "SHAMAL", "VESTRA", "MAMMATUS", "LAZER", "VELUM", "VELUM2", "DODO", "HYDRA", "TITAN", "BESRA", "CUBAN800", "DUSTER", "STUNT" };
 
 const std::vector<std::string> VALUES_HELOS{ "BLIMP", "BLIMP2", "SAVAGE", "SWIFT", "SWIFT2", "VALKYRIE", "SKYLIFT", "FROGGER", "FROGGER2", "BUZZARD2", "BUZZARD", "ANNIHILATOR", "CARGOBOB", "CARGOBOB2", "CARGOBOB3", "MAVERICK", "POLMAV" };
 
@@ -241,9 +241,12 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
 				VEHICLE::SET_VEHICLE_FIXED(veh);
+				VEHICLE::SET_VEHICLE_DEFORMATION_FIXED(veh);
+				VEHICLE::SET_VEHICLE_NEEDS_TO_BE_HOTWIRED(veh, false);
 
 				VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 1000.0f);
 				VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 1000.0f);
+				VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 1000.f);
 
 				VEHICLE::SET_VEHICLE_UNDRIVEABLE(veh, false);
 				VEHICLE::SET_VEHICLE_ENGINE_CAN_DEGRADE(veh, false);
@@ -341,10 +344,12 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 			ENTITY::SET_ENTITY_INVINCIBLE(veh, TRUE);
+			VEHICLE::SET_VEHICLE_FIXED(veh);
 			ENTITY::SET_ENTITY_PROOFS(veh, 1, 1, 1, 1, 1, 1, 1, 1);
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 0);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 0);
+			VEHICLE::SET_VEHICLE_CAN_BREAK(veh, false);
 			for (int i = 0; i < 6; i++){
 				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, FALSE); //(Vehicle, doorIndex, isBreakable)
 			}
@@ -630,7 +635,7 @@ bool spawn_saved_car(int slot, std::string caption)
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
 		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, (savedVeh->burstableTyres == 1) ? TRUE : FALSE);
-		
+
 		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, savedVeh->plateType);
 		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, (char*) savedVeh->plateText.c_str());
 
@@ -654,6 +659,10 @@ bool spawn_saved_car(int slot, std::string caption)
 				VEHICLE::SET_VEHICLE_MOD(veh, mod->modID, mod->modState, 0);
 			}
 		}
+
+		int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 23);
+		VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, savedVeh->customTyres);
+		VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, savedVeh->customTyres);
 
 		if (savedVeh->livery != -1)
 		{

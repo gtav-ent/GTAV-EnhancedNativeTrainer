@@ -27,3 +27,7 @@ void create_airbrake_help_text();
 void update_airbrake_text();
 
 void airbrake_flip_angle();
+
+bool is_in_airbrake_mode();
+
+bool is_airbrake_frozen_time();
