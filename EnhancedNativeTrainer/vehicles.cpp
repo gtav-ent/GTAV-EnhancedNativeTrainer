@@ -344,13 +344,47 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 			ENTITY::SET_ENTITY_INVINCIBLE(veh, TRUE);
-			VEHICLE::SET_VEHICLE_FIXED(veh);
 			ENTITY::SET_ENTITY_PROOFS(veh, 1, 1, 1, 1, 1, 1, 1, 1);
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 0);
 			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 0);
+			ENTITY::SET_ENTITY_ONLY_DAMAGED_BY_PLAYER(veh, 0);
+			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(veh, 0);
+
+			/*
+			* This API seems to be a damage check - don't just continually repair the
+			* vehicle as it causes glitches.
+			*/
+			if (VEHICLE::_0xBCDC5017D3CE1E9E(veh))
+			{
+				VEHICLE::SET_VEHICLE_FIXED(veh);
+			}
+
+			/*
+			if (!VEHICLE::_0x11D862A3E977A9EF(veh))
+			{
+				set_status_text("Check B");
+			}
+
+			if (VEHICLE::_0x5EF77C9ADD3B11A3(veh))
+			{
+				set_status_text("Check C");
+			}
+
+			if (VEHICLE::_0xA7ECB73355EB2F20(veh))
+			{
+				set_status_text("Check D");
+			}
+			*/
+
+			ENTITY::SET_ENTITY_HEALTH(veh, 2000.0f);
+			VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 2000.0);
+			VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 2000.0);
+			VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 2000.0f);
+
 			VEHICLE::SET_VEHICLE_CAN_BREAK(veh, false);
-			for (int i = 0; i < 6; i++){
+			for (int i = 0; i < 6; i++)
+			{
 				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, FALSE); //(Vehicle, doorIndex, isBreakable)
 			}
 		}
