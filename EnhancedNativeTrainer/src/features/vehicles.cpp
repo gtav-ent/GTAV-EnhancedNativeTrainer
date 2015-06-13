@@ -23,6 +23,8 @@ bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehSpawnInto = false;
 bool featureVehicleDoorInstant = false;
+bool featureWearHelmetOff = false;
+bool featureWearHelmetOffUpdated = false;
 
 int activeLineIndexVeh = 0;
 int activeSavedVehicleIndex = -1;
@@ -284,10 +286,10 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		//}
 		break;
 
-	case 9:
+	case 10:
 		if (process_vehmod_menu()) return false;
 		break;
-	case 10:
+	case 11:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
@@ -299,7 +301,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	const int lineCount = 11;
+	const int lineCount = 12;
 
 	std::string caption = "Vehicle Options";
 
@@ -311,6 +313,7 @@ void process_veh_menu()
 		{ "Paint Menu", NULL, NULL, false },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off/Out", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
+		{ "Don't Wear Helmet", &featureWearHelmetOff, &featureWearHelmetOffUpdated, true },
 		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
 		{ "Modifications", NULL, NULL, false },
@@ -444,6 +447,15 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 				if (ENTITY::IS_ENTITY_IN_AIR(veh) || speed > 5.0)
 					VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
 		}
+	}
+
+	//Prevents player from wearing a helmet
+	if (bPlayerExists && featureWearHelmetOffUpdated)
+	{
+		PED::SET_PED_HELMET(playerPed, !featureWearHelmetOff);
+		std::string wearState = featureWearHelmetOff ? "On" : "Off";
+		set_status_text("Don't Wear Helmet: "+wearState);
+		featureWearHelmetOffUpdated = false;
 	}
 }
 
