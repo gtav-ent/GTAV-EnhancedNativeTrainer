@@ -4,6 +4,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
+#include <string>
+
+#pragma once
+
 #ifdef _DEBUG
 	const bool DEBUG_LOG_ENABLED = true;
 #endif

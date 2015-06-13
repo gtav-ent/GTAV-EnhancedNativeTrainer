@@ -8,8 +8,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
+#include "script.h"
 #include "skins.h"
-#include "menu_functions.h"
+#include "..\ui_support\menu_functions.h"
 #include "weapons.h"
 
 /***

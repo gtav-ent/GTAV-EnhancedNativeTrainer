@@ -1,44 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="airbrake.cpp" />
-    <ClCompile Include="config_io.cpp" />
-    <ClCompile Include="database.cpp" />
-    <ClCompile Include="debuglog.cpp" />
     <ClCompile Include="inc\sqlite3\sqlite3.c" />
-    <ClCompile Include="io.cpp" />
-    <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="menu_functions.cpp" />
-    <ClCompile Include="paintmenu.cpp" />
-    <ClCompile Include="script.cpp" />
-    <ClCompile Include="skins.cpp" />
-    <ClCompile Include="teleportation.cpp" />
-    <ClCompile Include="vehicles.cpp" />
-    <ClCompile Include="vehmodmenu.cpp" />
-    <ClCompile Include="weapons.cpp" />
-    <ClCompile Include="anims.cpp" />
+    <ClCompile Include="src\features\airbrake.cpp" />
+    <ClCompile Include="src\features\anims.cpp" />
+    <ClCompile Include="src\ui_support\menu_functions.cpp" />
+    <ClCompile Include="src\features\skins.cpp" />
+    <ClCompile Include="src\features\teleportation.cpp" />
+    <ClCompile Include="src\features\vehicles.cpp" />
+    <ClCompile Include="src\features\weapons.cpp" />
+    <ClCompile Include="src\features\vehmodmenu.cpp" />
+    <ClCompile Include="src\features\world.cpp" />
+    <ClCompile Include="src\debug\debuglog.cpp" />
+    <ClCompile Include="src\storage\database.cpp" />
+    <ClCompile Include="src\features\paintmenu.cpp" />
+    <ClCompile Include="src\io\io.cpp" />
+    <ClCompile Include="src\io\keyboard.cpp" />
+    <ClCompile Include="src\io\config_io.cpp" />
+    <ClCompile Include="src\features\script.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="airbrake.h" />
-    <ClInclude Include="config_io.h" />
-    <ClInclude Include="database.h" />
-    <ClInclude Include="debuglog.h" />
     <ClInclude Include="inc\main.h" />
     <ClInclude Include="inc\nativeCaller.h" />
     <ClInclude Include="inc\sqlite3\sqlite3.h" />
     <ClInclude Include="inc\sqlite3\sqlite3ext.h" />
     <ClInclude Include="inc\types.h" />
-    <ClInclude Include="io.h" />
-    <ClInclude Include="keyboard.h" />
-    <ClInclude Include="menu_functions.h" />
-    <ClInclude Include="script.h" />
-    <ClInclude Include="skins.h" />
-    <ClInclude Include="teleportation.h" />
-    <ClInclude Include="vehicles.h" />
-    <ClInclude Include="weapons.h" />
-    <ClInclude Include="anims.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="src\features\airbrake.h" />
+    <ClInclude Include="src\features\anims.h" />
+    <ClInclude Include="src\ui_support\menu_functions.h" />
+    <ClInclude Include="src\features\skins.h" />
+    <ClInclude Include="src\features\teleportation.h" />
+    <ClInclude Include="src\features\vehicles.h" />
+    <ClInclude Include="src\features\weapons.h" />
+    <ClInclude Include="src\features\world.h" />
+    <ClInclude Include="src\debug\debuglog.h" />
+    <ClInclude Include="src\storage\database.h" />
+    <ClInclude Include="src\io\io.h" />
+    <ClInclude Include="src\io\keyboard.h" />
+    <ClInclude Include="src\io\config_io.h" />
+    <ClInclude Include="src\features\script.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />

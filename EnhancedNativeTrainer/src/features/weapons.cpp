@@ -8,9 +8,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Sondai Smith and fellow contributors 2015
 */
 
-#include "menu_functions.h"
+#include "..\ui_support\menu_functions.h"
 #include "weapons.h"
-#include "config_io.h"
+#include "..\io\config_io.h"
 
 const std::vector<std::string> MENU_WEAPON_CATEGORIES{ "Melee", "Handguns", "Submachine Guns", "Assault Rifles", "Shotguns", "Sniper Rifles", "Heavy Weapons", "Thrown Weapons" };
 

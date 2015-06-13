@@ -19,38 +19,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #pragma comment(lib, "Shlwapi.lib")
 
-#include "io.h"
-#include "config_io.h"
-#include "menu_functions.h"
-#include "skins.h"
 #include "script.h"
-#include "database.h"
-#include "debuglog.h"
-#include "vehicles.h"
-#include "teleportation.h"
-#include "airbrake.h"
-#include "weapons.h"
-#include "anims.h";
-//#include "crash_handler.h"
-
-#include <DbgHelp.h>
-#include <ShlObj.h>
-#include <windows.h>
-#include <Shlwapi.h>
-
-#include <string>
-#include <sstream> 
-#include <fstream>
-#include <mutex>
-#include <thread>
-
-#include <ctime>
-#include <cctype>
-#include <vector>
-
-#include <locale>
-#include <iostream>
-#include <iomanip>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
@@ -84,23 +53,9 @@ bool featurePlayerInvisibleUpdated		=	false;
 bool featurePlayerRadio					=	false;
 bool featurePlayerRadioUpdated			=	false;
 
-bool featureRestrictedZones = true;
-
-bool featureWorldMoonGravity			=	false;
-bool featureWorldMoonGravityUpdated = false;
-bool featureWorldRandomCops				=	true;
-bool featureWorldRandomTrains			=	true;
-bool featureWorldRandomBoats			=	true;
-bool featureWorldGarbageTrucks			=	true;
-
 bool featureTimePaused					=	false;
 bool featureTimePausedUpdated			=	false;
 bool featureTimeSynced					=	false;
-
-bool featureWeatherWind					=	false;
-bool featureWeatherFreeze				=	false;
-std::string lastWeather;
-std::string lastWeatherName;
 
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
@@ -110,7 +65,7 @@ int  frozenWantedLevel					=	0;
 
 const std::vector<std::string> TIME_SPEED_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
 const std::vector<float> TIME_SPEED_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f };
-const int DEFAULT_TIME_SPEED = TIME_SPEED_VALUES.at(TIME_SPEED_VALUES.size() - 1);
+const int DEFAULT_TIME_SPEED = 4;
 
 int timeSpeedIndexWhileAiming = DEFAULT_TIME_SPEED;
 int timeSpeedIndex = DEFAULT_TIME_SPEED;
@@ -177,11 +132,11 @@ void update_features()
 		CloseHandle(myHandle);
 	}
 
-	PED::SET_CREATE_RANDOM_COPS(featureWorldRandomCops);
-
 	update_centre_screen_status_text();
 
 	update_vehicle_guns();
+
+	update_world_features();
 
 	check_player_model();
 
@@ -272,15 +227,6 @@ void update_features()
 			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, false);
 		}
 		featurePlayerIgnoredByAllUpdated = false;
-	}
-
-	if (featureWorldMoonGravity)
-	{
-		GAMEPLAY::SET_GRAVITY_LEVEL(1);
-	}
-	else if (featureWorldMoonGravityUpdated)
-	{
-		GAMEPLAY::SET_GRAVITY_LEVEL(0);
 	}
 
 	// player special ability
@@ -376,16 +322,6 @@ void update_features()
 	else
 	{
 		GAMEPLAY::SET_TIME_SCALE(TIME_SPEED_VALUES.at(timeSpeedIndex));
-	}
-
-	if (!featureRestrictedZones)
-	{
-		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("am_armybase");
-		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("restrictedareas");
-		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_armybase");
-		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_lossantosintl");
-		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_prison");
-		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_prisonvanbreak");
 	}
 
 	// hide hud
@@ -736,7 +672,6 @@ void process_player_menu()
 // WORLD MENU
 //==================
 
-int activeLineIndexWorld = 0;
 int activeLineIndexTime = 0;
 
 bool onconfirm_time_menu ( MenuItem<int> choice )
@@ -874,182 +809,6 @@ void process_time_menu ()
 	draw_generic_menu<int>(menuItems, &activeLineIndexTime, caption, onconfirm_time_menu, NULL, NULL);
 }
 
-
-bool onconfirm_world_menu ( MenuItem<int> choice )
-{
-	switch ( activeLineIndexWorld )
-	{
-	case 0:
-		process_time_menu ();
-		break;
-	case 2:
-		// featureWorldRandomCops being set in update_features
-		break;
-	case 3:
-		VEHICLE::SET_RANDOM_TRAINS ( featureWorldRandomTrains );
-		break;
-	case 4:
-		VEHICLE::SET_RANDOM_BOATS ( featureWorldRandomBoats );
-		break;
-	case 5:
-		VEHICLE::SET_GARBAGE_TRUCKS ( featureWorldGarbageTrucks );
-		break;
-	}
-	return false;
-}
-
-void process_world_menu ()
-{
-	const int lineCount = 7;
-
-	std::string caption = "World Options";
-
-	// read default feature values from the game
-	featureWorldRandomCops = (PED::CAN_CREATE_RANDOM_COPS() == TRUE);
-
-	std::vector<MenuItem<int>*> menuItems;
-
-	MenuItem<int> *item = new MenuItem<int>();
-	item->isLeaf = false;
-	item->caption = "Time";
-	item->value = 1;
-	menuItems.push_back(item);
-
-	ToggleMenuItem<int> *togItem = new ToggleMenuItem<int>();
-	togItem->caption = "Moon Gravity";
-	togItem->value = 1;
-	togItem->toggleValue = &featureWorldMoonGravity;
-	togItem->toggleValueUpdated = &featureWorldMoonGravityUpdated;
-	menuItems.push_back(togItem);
-
-	togItem = new ToggleMenuItem<int>();
-	togItem->caption = "Random Cops";
-	togItem->value = 2;
-	togItem->toggleValue = &featureWorldRandomCops;
-	menuItems.push_back(togItem);
-
-	togItem = new ToggleMenuItem<int>();
-	togItem->caption = "Random Trains";
-	togItem->value = 3;
-	togItem->toggleValue = &featureWorldRandomTrains;
-	menuItems.push_back(togItem);
-
-	togItem = new ToggleMenuItem<int>();
-	togItem->caption = "Random Boats";
-	togItem->value = 4;
-	togItem->toggleValue = &featureWorldRandomBoats;
-	menuItems.push_back(togItem);
-
-	togItem = new ToggleMenuItem<int>();
-	togItem->caption = "Garbage Trucks";
-	togItem->value = 5;
-	togItem->toggleValue = &featureWorldGarbageTrucks;
-	menuItems.push_back(togItem);
-
-	togItem = new ToggleMenuItem<int>();
-	togItem->caption = "Restricted Zones";
-	togItem->value = 6;
-	togItem->toggleValue = &featureRestrictedZones;
-	menuItems.push_back(togItem);
-
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Time", NULL, NULL },
-		{ "Moon Gravity", &featureWorldMoonGravity, NULL },
-		{ "Random Cops", &featureWorldRandomCops, NULL },
-		{ "Random Trains", &featureWorldRandomTrains, NULL },
-		{ "Random Boats", &featureWorldRandomBoats, NULL },
-		{ "Garbage Trucks", &featureWorldGarbageTrucks, NULL },
-		{ "Restricted Zones", &featureRestrictedZones, NULL }
-	};
-
-	draw_generic_menu<int>(menuItems, &activeLineIndexWorld, caption, onconfirm_world_menu, NULL, NULL);
-}
-
-
-//==================
-// WEATHER MENU
-//==================
-
-int activeLineIndexWeather = 0;
-
-bool onconfirm_weather_menu(MenuItem<std::string> choice)
-{
-	std::stringstream ss; ss << "Weather Frozen at: " << lastWeatherName;
-	switch (choice.currentMenuIndex)
-	{
-		// wind
-	case 0:
-		if (featureWeatherWind)
-		{
-			GAMEPLAY::SET_WIND(1.0);
-			GAMEPLAY::SET_WIND_SPEED(11.99);
-			GAMEPLAY::SET_WIND_DIRECTION(ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
-		}
-		else
-		{
-			GAMEPLAY::SET_WIND(0.0);
-			GAMEPLAY::SET_WIND_SPEED(0.0);
-		}
-		break;
-		// set weather
-	case 1:
-		if (featureWeatherFreeze && !lastWeather.empty())
-		{
-			GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *) lastWeather.c_str());
-			set_status_text(ss.str());
-		}
-		else if (!featureWeatherFreeze)
-		{
-			GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
-			set_status_text("Weather Freeze Disabled");
-		}
-		else
-		{
-			set_status_text("Weather Frozen");
-		}
-		break;
-	default:
-		lastWeather = choice.value.c_str();
-		lastWeatherName = choice.caption;
-		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lastWeather.c_str());
-		if (!featureWeatherFreeze)
-		{
-			GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
-		}
-		set_status_text(choice.caption);
-	}
-
-	return false;
-}
-
-void process_weather_menu()
-{
-	const int lineCount = 16;
-
-	std::string caption = "Weather Options";
-
-	StringStandardOrToggleMenuDef lines[lineCount] = {
-		{"Wind", "WIND",		&featureWeatherWind,	NULL},
-		{"Freeze Weather", "FREEZEWEATHER", &featureWeatherFreeze ,NULL },
-		{"Extra Sunny", "EXTRASUNNY",	NULL,					NULL},
-		{"Clear", "CLEAR",		NULL,					NULL},
-		{"Cloudy", "CLOUDS",		NULL,					NULL},
-		{"Smog", "SMOG",		NULL,					NULL},
-		{"Foggy", "FOGGY",		NULL,					NULL},
-		{"Overcast", "OVERCAST",	NULL,					NULL},
-		{"Rain", "RAIN",		NULL,					NULL},
-		{"Stormy", "THUNDER",		NULL,					NULL},
-		{"Clearing", "CLEARING",	NULL,					NULL},
-		{"Neutral", "NEUTRAL",		NULL,					NULL},
-		{"Snow", "SNOW",		NULL,					NULL},
-		{"Blizzard", "BLIZZARD",	NULL,					NULL},
-		{"Light Snow", "SNOWLIGHT",	NULL,					NULL},
-		{"Christmas", "XMAS",		NULL,					NULL}
-	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTime, caption, onconfirm_weather_menu);
-}
-
 //==================
 // MISC MENU
 //==================
@@ -1113,7 +872,7 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_world_menu();
 		break;
 	case 5:
-		process_weather_menu();
+		process_time_menu();
 		break;
 	case 6:
 		process_misc_menu();
@@ -1134,8 +893,8 @@ void process_main_menu()
 		"Teleport",
 		"Weapons",
 		"Vehicles",
-		"World/Time",
-		"Weather",
+		"World",
+		"Time",
 		"Miscellaneous",
 		"Reset All Settings"
 	};
@@ -1164,15 +923,12 @@ void reset_globals()
 
 	reset_weapon_globals();
 
+	reset_world_globals();
+
 	activeLineIndexMain			=
 	activeLineIndexPlayer		=
-	activeLineIndexWorld		=
-	activeLineIndexWeather		=
 	activeLineIndexWantedFreeze	=
 	frozenWantedLevel			=	0;
-
-	lastWeather.clear();
-	lastWeatherName.clear();
 
 	featurePlayerInvincible			=
 	featurePlayerNeverWanted		=
@@ -1187,19 +943,11 @@ void reset_globals()
 
 	featurePlayerRadio				=
 
-	featureWorldMoonGravity			=
 	featureTimePaused				=
 	featureTimeSynced				=
-	featureWeatherWind				=
-	featureWeatherFreeze			=
 	featureMiscLockRadio			=
 	featureMiscHideHud				=	
 	featureWantedLevelFrozen		=	false;
-
-	featureWorldRandomCops		=
-	featureWorldRandomTrains	=
-	featureWorldRandomBoats		=
-	featureWorldGarbageTrucks	=	true;
 
 	featurePlayerResetOnDeath = true;
 
@@ -1427,23 +1175,15 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerRadio", &featurePlayerRadio, &featurePlayerRadioUpdated });
 
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldMoonGravity", &featureWorldMoonGravity, &featureWorldMoonGravityUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomCops", &featureWorldRandomCops });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomTrains", &featureWorldRandomTrains });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomBoats", &featureWorldRandomBoats });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldGarbageTrucks", &featureWorldGarbageTrucks });
-
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimePaused", &featureTimePaused, &featureTimePausedUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSynced", &featureTimeSynced });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureRestrictedZones", &featureRestrictedZones });
-
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscLockRadio", &featureMiscLockRadio });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerResetOnDeath", &featurePlayerResetOnDeath });
+
+	add_world_feature_enablements(results);
 
 	std::vector<FeatureEnabledLocalDefinition> vehResults = get_feature_enablements_vehicles();
 	results.insert(results.end(), vehResults.begin(), vehResults.end());
@@ -1457,9 +1197,8 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 std::vector<StringPairSettingDBRow> get_generic_settings()
 {
 	std::vector<StringPairSettingDBRow> settings;
-	settings.push_back(StringPairSettingDBRow{ "lastWeather", lastWeather });
-	settings.push_back(StringPairSettingDBRow{ "lastWeatherName", lastWeatherName });
 	settings.push_back(StringPairSettingDBRow{ "timeSpeedIndexWhileAiming", std::to_string(timeSpeedIndexWhileAiming) });
+	add_world_generic_settings(settings);
 	return settings;
 }
 
@@ -1468,21 +1207,14 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	for (int i = 0; i < settings.size(); i++)
 	{
 		StringPairSettingDBRow setting = settings.at(i);
-		if (setting.name.compare("lastWeather") == 0)
-		{
-			lastWeather = setting.value;
-		}
-		else if (setting.name.compare("lastWeatherName") == 0)
-		{
-			lastWeatherName = setting.value;
-		}
-		else if (setting.name.compare("timeSpeedIndexWhileAiming") == 0)
+		if (setting.name.compare("timeSpeedIndexWhileAiming") == 0)
 		{
 			timeSpeedIndexWhileAiming = stoi(setting.value);
 		}
 	}
 
 	//pass to anyone else, vehicles, weapons etc
+	handle_generic_settings_world(settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)

@@ -9,8 +9,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "vehicles.h"
-#include "menu_functions.h"
-#include "config_io.h"
+#include "..\ui_support\menu_functions.h"
+#include "..\io\config_io.h"
 
 extern int whichpart = 0;
 extern int whichtype = 0;

@@ -4,9 +4,9 @@
 				(C) Alexander Blade 2015
 */
 
-#include "keyboard.h"
-#include "script.h"
-#include "debuglog.h"
+#include "..\io\keyboard.h"
+//#include "..\features\script.h"
+#include "..\debug\debuglog.h"
 
 #include <sstream>
 

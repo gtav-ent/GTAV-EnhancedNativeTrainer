@@ -6,8 +6,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "config_io.h"
 #include "keyboard.h"
-#include "script.h"
-#include "debuglog.h"
+//#include "script.h"
+#include "..\debug\debuglog.h"
 #include <sstream>
 
 // A global Windows "basic string". Actual memory is allocated by the

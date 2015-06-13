@@ -9,7 +9,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "menu_functions.h"
-#include "script.h"
+#include "..\features\script.h"
 
 std::string centreScreenStatusText;
 DWORD centreScreenStatusTextDrawTicksMax;

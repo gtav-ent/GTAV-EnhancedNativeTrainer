@@ -5,8 +5,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "anims.h"
-#include "menu_functions.h"
-#include "debuglog.h"
+#include "..\ui_support\menu_functions.h"
+#include "..\debug\debuglog.h"
 
 #include <sstream>
 #include <vector>

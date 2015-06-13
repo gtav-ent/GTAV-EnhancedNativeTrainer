@@ -4,10 +4,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Sondai Smith and fellow contributors 2015
 */
 
-#include "menu_functions.h"
+#include "..\ui_support\menu_functions.h"
 #include "airbrake.h"
-#include "keyboard.h"
-#include "config_io.h"
+#include "..\io\keyboard.h"
+#include "..\io\config_io.h"
 #include "script.h"
 
 bool exitFlag = false;

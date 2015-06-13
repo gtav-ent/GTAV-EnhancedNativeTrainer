@@ -9,10 +9,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "inc\main.h"
-#include "script.h"
-#include "keyboard.h"
-#include "config_io.h"
-#include "debuglog.h"
+#include "src\features\script.h"
+#include "src\io\keyboard.h"
+#include "src\io\config_io.h"
+#include "src\debug\debuglog.h"
 
 #include <thread>
 

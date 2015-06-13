@@ -5,8 +5,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "database.h"
-#include "debuglog.h"
-#include "script.h"
+#include "..\debug\debuglog.h"
+#include "..\features\script.h"
 
 #include <string>
 #include <sstream>

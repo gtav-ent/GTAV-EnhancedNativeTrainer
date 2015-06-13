@@ -12,6 +12,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "keyboard.h"
 
+#pragma once
+
 /**A class to hold the current key bindings.*/
 class KeyInputConfig
 {

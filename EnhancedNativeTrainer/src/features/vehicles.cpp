@@ -9,9 +9,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "vehicles.h"
-#include "menu_functions.h"
-#include "config_io.h"
-#include "debuglog.h"
+#include "script.h"
+#include "..\ui_support\menu_functions.h"
+#include "..\io\config_io.h"
+#include "..\debug\debuglog.h"
 
 bool lastSeenInVehicle = false;
 
@@ -720,6 +721,8 @@ bool spawn_saved_car(int slot, std::string caption)
 		VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, savedVeh->colourExtraPearl, savedVeh->colourExtraWheel);
 		VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, savedVeh->colourMod1Type, savedVeh->colourMod1Colour, savedVeh->colourMod1P3);
 		VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, savedVeh->colourMod2Type, savedVeh->colourMod2Colour);
+
+		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0);
 
 		ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
 	}

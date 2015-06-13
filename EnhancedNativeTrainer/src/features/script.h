@@ -10,13 +10,46 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #pragma once
 
-#include "inc\natives.h"
-#include "inc\types.h"
-#include "inc\enums.h"
+#include "..\..\inc\natives.h"
+#include "..\..\inc\types.h"
+#include "..\..\inc\enums.h"
 
-#include "inc\main.h"
+#include "..\..\inc\main.h"
 
-#include "database.h"
+#include "..\io\io.h"
+#include "..\io\config_io.h"
+#include "..\ui_support\menu_functions.h"
+#include "..\storage\database.h"
+#include "..\debug\debuglog.h"
+
+#include "skins.h"
+#include "script.h"
+#include "vehicles.h"
+#include "teleportation.h"
+#include "airbrake.h"
+#include "weapons.h"
+#include "anims.h";
+#include "world.h";
+//#include "crash_handler.h"
+
+#include <DbgHelp.h>
+#include <ShlObj.h>
+#include <windows.h>
+#include <Shlwapi.h>
+
+#include <string>
+#include <sstream> 
+#include <fstream>
+#include <mutex>
+#include <thread>
+
+#include <ctime>
+#include <cctype>
+#include <vector>
+
+#include <locale>
+#include <iostream>
+#include <iomanip>
 
 #include <fstream>
 

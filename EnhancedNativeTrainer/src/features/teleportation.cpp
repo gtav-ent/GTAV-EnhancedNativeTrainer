@@ -9,8 +9,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "teleportation.h"
-#include "menu_functions.h"
-#include "debuglog.h"
+#include "..\ui_support\menu_functions.h"
+#include "..\debug\debuglog.h"
 
 struct tele_location {
 	std::string text;

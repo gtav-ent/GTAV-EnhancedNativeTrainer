@@ -10,15 +10,15 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #pragma once
 
-#include "inc\natives.h"
-#include "inc\types.h"
-#include "inc\enums.h"
+#include "..\..\inc\natives.h"
+#include "..\..\inc\types.h"
+#include "..\..\inc\enums.h"
 
-#include "inc\main.h"
+#include "..\..\inc\main.h"
 
-#include "script.h"
-#include "io.h"
-#include "airbrake.h"
+//#include "script.h"
+#include "..\io\io.h"
+#include "..\features\airbrake.h"
 
 #include <string>
 #include <sstream> 
