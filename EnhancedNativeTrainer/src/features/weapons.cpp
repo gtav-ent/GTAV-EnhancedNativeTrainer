@@ -548,7 +548,7 @@ void update_vehicle_guns()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed) || !featureWeaponVehRockets) return;
 
-	bool bSelect = IsKeyDown(get_config()->get_key_config()->key_veh_rockets);
+	bool bSelect = IsKeyDown(KeyConfig::KEY_VEH_ROCKETS);
 	if (bSelect && featureWeaponVehShootLastTime + 150 < GetTickCount() &&
 		PLAYER::IS_PLAYER_CONTROL_ON(player) && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{

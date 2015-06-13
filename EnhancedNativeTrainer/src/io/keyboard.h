@@ -7,6 +7,7 @@
 #pragma once
 
 #include <windows.h>
+#include "..\io\config_io.h"
 
 #define VK_KEY_0	0x30                //('0')	0
 #define VK_KEY_1	0x31                //('1')	1
@@ -50,6 +51,9 @@ void OnKeyboardMessage(DWORD key, WORD repeats, BYTE scanCode, BOOL isExtended, 
 
 bool IsKeyDown(DWORD key);
 bool IsKeyJustUp(DWORD key, bool exclusive = true);
+bool IsKeyDown(std::string keyName);
+bool IsKeyJustUp(std::string keyName, bool exclusive = true);
+
 void ResetKeyState(DWORD key);
 
 struct VirtualKeysWithNames

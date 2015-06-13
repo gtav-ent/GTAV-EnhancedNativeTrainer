@@ -241,12 +241,12 @@ void airbrake(bool inVehicle)
 
 	KeyInputConfig* keyConfig = get_config()->get_key_config();
 
-	bool moveUpKey =	get_key_pressed(keyConfig->key_airbrake_up);
-	bool moveDownKey = get_key_pressed(keyConfig->key_airbrake_down);
-	bool moveForwardKey = get_key_pressed(keyConfig->key_airbrake_forward);
-	bool moveBackKey = get_key_pressed(keyConfig->key_airbrake_back);
-	bool rotateLeftKey = get_key_pressed(keyConfig->key_airbrake_rotate_left);
-	bool rotateRightKey = get_key_pressed(keyConfig->key_airbrake_rotate_right);
+	bool moveUpKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_UP);
+	bool moveDownKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_DOWN);
+	bool moveForwardKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_FORWARD);
+	bool moveBackKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_BACK);
+	bool rotateLeftKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT);
+	bool rotateRightKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT);
 
 	//Airbrake controls vehicle if occupied
 	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -268,7 +268,7 @@ void airbrake(bool inVehicle)
 		AI::TASK_PLAY_ANIM(PLAYER::PLAYER_PED_ID(), AIRBRAKE_ANIM_A, AIRBRAKE_ANIM_B, 8.0f, 0.0f, -1, 9, 0, 0, 0, 0);
 	}
 
-	if (IsKeyJustUp(keyConfig->key_airbrake_speed))
+	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_SPEED))
 	{
 		travelSpeed++;
 		if (travelSpeed > 2)
@@ -277,7 +277,7 @@ void airbrake(bool inVehicle)
 		}
 	}
 
-	if (IsKeyJustUp(keyConfig->key_airbrake_freeze_time))
+	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME))
 	{
 		frozen_time = !frozen_time;
 	}
