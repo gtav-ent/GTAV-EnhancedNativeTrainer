@@ -531,7 +531,20 @@ bool process_spawn_menu_cars()
 bool onconfirm_spawn_menu_indus(MenuItem<int> choice)
 {
 	int selection = choice.value;
-	std::string category = choice.caption;
+
+	std::string category;
+	if (choice.value == 3)
+	{
+		category = "Service And Utility";
+	}
+	else if (choice.value == 5)
+	{
+		category = "Trains";
+	}
+	else
+	{
+		category = choice.caption;
+	}
 
 	std::vector<MenuItem<std::string>*> menuItems;
 	for (int i = 0; i < VOV_INDUS_CAPTIONS[selection].size(); i++)

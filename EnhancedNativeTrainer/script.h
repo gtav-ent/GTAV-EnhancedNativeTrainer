@@ -78,3 +78,17 @@ char* get_storage_dir_path();
 char* get_storage_dir_path(char* file);
 
 ENTDatabase* get_database();
+
+void movetime_day_forward();
+
+void movetime_day_backward();
+
+void movetime_hour_forward();
+
+void movetime_hour_backward();
+
+void movetime_fivemin_forward();
+
+void movetime_fivemin_backward();
+
+std::string get_day_of_game_week();

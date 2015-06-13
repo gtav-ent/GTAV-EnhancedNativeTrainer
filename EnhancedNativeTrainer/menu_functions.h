@@ -25,6 +25,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <ctime>
 #include <vector>
+#include <algorithm>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
@@ -210,6 +211,13 @@ void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int
 
 inline void draw_menu_header_line(std::string caption, float lineWidth, float lineHeight, float lineTop, float lineLeft, float textLeft, bool active, bool rescaleText = true, int curPage=1, int pageCount=1)
 {
+	std::replace(caption.begin(), caption.end(), '-', ' ');
+	std::replace(caption.begin(), caption.end(), '_', ' ');
+	caption.erase(remove_if(caption.begin(), caption.end(), [](char c)
+	{
+		return !isalnum(c) && c != ' ';
+	}), caption.end());
+
 	// default values
 	int text_col[4] = { 255, 255, 255, 255.0f },
 		rect_col[4] = { 0, 0, 0, 200.0f };

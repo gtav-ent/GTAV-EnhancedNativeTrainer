@@ -87,6 +87,7 @@ bool featurePlayerRadioUpdated			=	false;
 bool featureRestrictedZones = true;
 
 bool featureWorldMoonGravity			=	false;
+bool featureWorldMoonGravityUpdated = false;
 bool featureWorldRandomCops				=	true;
 bool featureWorldRandomTrains			=	true;
 bool featureWorldRandomBoats			=	true;
@@ -95,8 +96,6 @@ bool featureWorldGarbageTrucks			=	true;
 bool featureTimePaused					=	false;
 bool featureTimePausedUpdated			=	false;
 bool featureTimeSynced					=	false;
-bool featureTimeSlow = false;
-bool featureTimeSlowUpdated = false;
 
 bool featureWeatherWind					=	false;
 bool featureWeatherFreeze				=	false;
@@ -109,18 +108,21 @@ bool featureMiscHideHud					=	false;
 bool featureWantedLevelFrozen			=	false;
 int  frozenWantedLevel					=	0;
 
-bool featurePlayerResetOnDeath = true;
+const std::vector<std::string> TIME_SPEED_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
+const std::vector<float> TIME_SPEED_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f };
+const int DEFAULT_TIME_SPEED = TIME_SPEED_VALUES.at(TIME_SPEED_VALUES.size() - 1);
 
-int timeSpeedIndex = -1;
-float timeSpeed = 1.0f;
+int timeSpeedIndexWhileAiming = DEFAULT_TIME_SPEED;
+int timeSpeedIndex = DEFAULT_TIME_SPEED;
+
+bool featurePlayerResetOnDeath = true;
 
 // player model control, switching on normal ped model when needed	
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
 
-const std::vector<std::string> TIME_SPEED_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
-
-const std::vector<float> TIME_SPEED_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f};
+const std::vector<std::string> GRAVITY_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
+const std::vector<float> GRAVITY_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f };
 
 void check_player_model()
 {
@@ -272,6 +274,14 @@ void update_features()
 		featurePlayerIgnoredByAllUpdated = false;
 	}
 
+	if (featureWorldMoonGravity)
+	{
+		GAMEPLAY::SET_GRAVITY_LEVEL(1);
+	}
+	else if (featureWorldMoonGravityUpdated)
+	{
+		GAMEPLAY::SET_GRAVITY_LEVEL(0);
+	}
 
 	// player special ability
 	if (featurePlayerUnlimitedAbility)
@@ -359,15 +369,13 @@ void update_features()
 	{
 		GAMEPLAY::SET_TIME_SCALE(0.0f);
 	}
+	else if (PLAYER::IS_PLAYER_FREE_AIMING(player))
+	{
+		GAMEPLAY::SET_TIME_SCALE(TIME_SPEED_VALUES.at(timeSpeedIndexWhileAiming));
+	}
 	else
 	{
-		GAMEPLAY::SET_TIME_SCALE(timeSpeed);
-	}
-
-	if (featureTimeSlowUpdated)
-	{
-		featureTimeSlowUpdated = false;
-		GAMEPLAY::SET_TIME_SCALE(1.0f);
+		GAMEPLAY::SET_TIME_SCALE(TIME_SPEED_VALUES.at(timeSpeedIndex));
 	}
 
 	if (!featureRestrictedZones)
@@ -737,18 +745,29 @@ bool onconfirm_time_menu ( MenuItem<int> choice )
 	{
 		// hour forward/backward
 	case 0:
+		movetime_hour_forward();
+		break;
 	case 1:
-	{
-		int h = TIME::GET_CLOCK_HOURS ();
-		if ( activeLineIndexTime == 0 ) h = ( h == 23 ) ? 0 : h + 1; else h = ( h == 0 ) ? 23 : h - 1;
-		int m = TIME::GET_CLOCK_MINUTES ();
-		TIME::SET_CLOCK_TIME ( h, m, 0 );
-		char text[32];
-		sprintf_s ( text, "Time is now %02d:%02d", h, m );
-		set_status_text ( text );
-	}
-	break;
+		movetime_hour_backward();
+		break;
+	case 2:
+		movetime_fivemin_forward();
+		break;
 	case 3:
+		movetime_fivemin_backward();
+		break;
+	case 4:
+		movetime_day_forward();
+		break;
+	case 5:
+		movetime_day_backward();
+		break;
+	case -1:
+		if (featureTimePaused)
+		{
+			set_status_text("Time now paused");
+		}
+	case -2:
 		if ( featureTimeSynced )
 		{
 			set_status_text ( "Time synced with system" );
@@ -759,9 +778,17 @@ bool onconfirm_time_menu ( MenuItem<int> choice )
 
 void onchange_game_speed_callback(int value)
 {
-	timeSpeed = TIME_SPEED_VALUES.at(value);
+	timeSpeedIndex = value;
 	std::stringstream ss;
 	ss << "Game Speed Now " << TIME_SPEED_CAPTIONS.at(value);
+	set_status_text(ss.str());
+}
+
+void onchange_aiming_speed_callback(int value)
+{
+	timeSpeedIndexWhileAiming = value;
+	std::stringstream ss;
+	ss << "Aiming Speed Now " << TIME_SPEED_CAPTIONS.at(value);
 	set_status_text(ss.str());
 }
 
@@ -787,16 +814,40 @@ void process_time_menu ()
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
+	item = new MenuItem<int>();
+	item->caption = "5 Mins Forward";
+	item->value = index++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "5 Mins Backward";
+	item->value = index++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Day Forward";
+	item->value = index++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Day Backward";
+	item->value = index++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
 	ToggleMenuItem<int> *togItem = new ToggleMenuItem<int>();
 	togItem->caption = "Clock Paused";
-	togItem->value = index++;
+	togItem->value = -1;
 	togItem->toggleValue = &featureTimePaused;
 	togItem->toggleValueUpdated = &featureTimePausedUpdated;
 	menuItems.push_back(togItem);
 
 	togItem = new ToggleMenuItem<int>();
 	togItem->caption = "Sync With System";
-	togItem->value = index++;
+	togItem->value = -2;
 	togItem->toggleValue = &featureTimeSynced;
 	togItem->toggleValueUpdated = NULL;
 	menuItems.push_back(togItem);
@@ -814,6 +865,12 @@ void process_time_menu ()
 	}
 	menuItems.push_back(listItem);
 
+	listItem = new SelectFromListMenuItem(TIME_SPEED_CAPTIONS, onchange_aiming_speed_callback);
+	listItem->wrap = false;
+	listItem->caption = "Game Speed While Aiming";
+	listItem->value = timeSpeedIndexWhileAiming;
+	menuItems.push_back(listItem);
+
 	draw_generic_menu<int>(menuItems, &activeLineIndexTime, caption, onconfirm_time_menu, NULL, NULL);
 }
 
@@ -824,9 +881,6 @@ bool onconfirm_world_menu ( MenuItem<int> choice )
 	{
 	case 0:
 		process_time_menu ();
-		break;
-	case 1:
-		GAMEPLAY::SET_GRAVITY_LEVEL ( featureWorldMoonGravity );
 		break;
 	case 2:
 		// featureWorldRandomCops being set in update_features
@@ -853,6 +907,51 @@ void process_world_menu ()
 	// read default feature values from the game
 	featureWorldRandomCops = (PED::CAN_CREATE_RANDOM_COPS() == TRUE);
 
+	std::vector<MenuItem<int>*> menuItems;
+
+	MenuItem<int> *item = new MenuItem<int>();
+	item->isLeaf = false;
+	item->caption = "Time";
+	item->value = 1;
+	menuItems.push_back(item);
+
+	ToggleMenuItem<int> *togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Moon Gravity";
+	togItem->value = 1;
+	togItem->toggleValue = &featureWorldMoonGravity;
+	togItem->toggleValueUpdated = &featureWorldMoonGravityUpdated;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Random Cops";
+	togItem->value = 2;
+	togItem->toggleValue = &featureWorldRandomCops;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Random Trains";
+	togItem->value = 3;
+	togItem->toggleValue = &featureWorldRandomTrains;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Random Boats";
+	togItem->value = 4;
+	togItem->toggleValue = &featureWorldRandomBoats;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Garbage Trucks";
+	togItem->value = 5;
+	togItem->toggleValue = &featureWorldGarbageTrucks;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Restricted Zones";
+	togItem->value = 6;
+	togItem->toggleValue = &featureRestrictedZones;
+	menuItems.push_back(togItem);
+
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Time", NULL, NULL },
 		{ "Moon Gravity", &featureWorldMoonGravity, NULL },
@@ -863,7 +962,7 @@ void process_world_menu ()
 		{ "Restricted Zones", &featureRestrictedZones, NULL }
 	};
 
-	draw_menu_from_struct_def ( lines, lineCount, &activeLineIndexWorld, caption, onconfirm_world_menu );
+	draw_generic_menu<int>(menuItems, &activeLineIndexWorld, caption, onconfirm_world_menu, NULL, NULL);
 }
 
 
@@ -894,15 +993,29 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		break;
 		// set weather
 	case 1:
-		if (featureWeatherFreeze && !lastWeather.empty()){ GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *) lastWeather.c_str()); set_status_text(ss.str()); }
-		else if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); set_status_text("Weather Freeze Disabled"); }
-		else{ set_status_text("Weather Frozen"); }
+		if (featureWeatherFreeze && !lastWeather.empty())
+		{
+			GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *) lastWeather.c_str());
+			set_status_text(ss.str());
+		}
+		else if (!featureWeatherFreeze)
+		{
+			GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+			set_status_text("Weather Freeze Disabled");
+		}
+		else
+		{
+			set_status_text("Weather Frozen");
+		}
 		break;
 	default:
 		lastWeather = choice.value.c_str();
 		lastWeatherName = choice.caption;
 		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lastWeather.c_str());
-		if (!featureWeatherFreeze){ GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST(); }
+		if (!featureWeatherFreeze)
+		{
+			GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+		}
 		set_status_text(choice.caption);
 	}
 
@@ -1088,8 +1201,6 @@ void reset_globals()
 	featureWorldRandomBoats		=
 	featureWorldGarbageTrucks	=	true;
 
-	featureTimeSlow = false;
-
 	featurePlayerResetOnDeath = true;
 
 	featurePlayerInvincibleUpdated =
@@ -1101,7 +1212,6 @@ void reset_globals()
 	featurePlayerFastRunUpdated =
 	featurePlayerRadioUpdated =
 	featurePlayerInvisibleUpdated =
-	featureTimeSlowUpdated =
 	featureTimePausedUpdated = true;
 
 	set_status_text("Reset All Settings");
@@ -1317,7 +1427,7 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerRadio", &featurePlayerRadio, &featurePlayerRadioUpdated });
 
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldMoonGravity", &featureWorldMoonGravity });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldMoonGravity", &featureWorldMoonGravity, &featureWorldMoonGravityUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomCops", &featureWorldRandomCops });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomTrains", &featureWorldRandomTrains });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomBoats", &featureWorldRandomBoats });
@@ -1325,7 +1435,6 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimePaused", &featureTimePaused, &featureTimePausedUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSynced", &featureTimeSynced });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSlow", &featureTimeSlow, &featureTimeSlowUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureRestrictedZones", &featureRestrictedZones });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
@@ -1350,6 +1459,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	std::vector<StringPairSettingDBRow> settings;
 	settings.push_back(StringPairSettingDBRow{ "lastWeather", lastWeather });
 	settings.push_back(StringPairSettingDBRow{ "lastWeatherName", lastWeatherName });
+	settings.push_back(StringPairSettingDBRow{ "timeSpeedIndexWhileAiming", std::to_string(timeSpeedIndexWhileAiming) });
 	return settings;
 }
 
@@ -1365,6 +1475,10 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 		else if (setting.name.compare("lastWeatherName") == 0)
 		{
 			lastWeatherName = setting.value;
+		}
+		else if (setting.name.compare("timeSpeedIndexWhileAiming") == 0)
+		{
+			timeSpeedIndexWhileAiming = stoi(setting.value);
 		}
 	}
 
@@ -1467,4 +1581,241 @@ char* get_storage_dir_path(char* file)
 ENTDatabase* get_database()
 {
 	return database;
+}
+
+void movetime_day_forward()
+{
+	/*
+	bool timeWasPaused = featureTimePaused;
+	TIME::PAUSE_CLOCK(true);
+	*/
+
+	int calDay = TIME::GET_CLOCK_DAY_OF_MONTH();
+	int calMon = TIME::GET_CLOCK_MONTH();
+	int calYear = TIME::GET_CLOCK_YEAR();
+
+	int gameHour = TIME::GET_CLOCK_HOURS();
+	int gameMins = TIME::GET_CLOCK_MINUTES();
+
+	bool leapYear = false;
+	if (calYear % 4 == 0)
+	{
+		leapYear = true;
+	}
+
+	/*
+	std::ostringstream ss2;
+	ss2 << "Date is: ";
+	ss2 << std::setfill('0') << std::setw(2) << calDay;
+	ss2 << ".";
+	ss2 << std::setfill('0') << std::setw(2) << calMon;
+	ss2 << ".";
+	ss2 << calYear;
+	set_status_text(ss2.str());
+	*/
+
+	if ((calDay == 27 && calMon == 2 && !leapYear) ||
+		(calDay == 28 && calMon == 2 && leapYear) ||
+		(calDay == 30 && (calMon == 4 || calMon == 6 || calMon == 9 || calMon == 11)) ||
+		(calDay == 31))
+	{
+		calDay = 1;
+		if (calMon == 12)
+		{
+			calMon = 1;
+			calYear++;
+		}
+		else
+		{
+			calMon++;
+		}
+	}
+	else
+	{
+		calDay++;
+	}
+
+	TIME::SET_CLOCK_DATE(calDay, calMon, calYear);
+	TIME::SET_CLOCK_TIME(gameHour, gameMins, 0);
+
+	std::ostringstream ss;
+	ss << "Date is now: " << get_day_of_game_week() << " ";
+	ss << std::setfill('0') << std::setw(2) << TIME::GET_CLOCK_DAY_OF_MONTH();
+	ss << ".";
+	ss << std::setfill('0') << std::setw(2) << TIME::GET_CLOCK_MONTH();
+	ss << ".";
+	ss << TIME::GET_CLOCK_YEAR();
+	set_status_text(ss.str());
+
+	//TIME::PAUSE_CLOCK(timeWasPaused);
+}
+
+void movetime_day_backward()
+{
+	int calDay = TIME::GET_CLOCK_DAY_OF_MONTH();
+	int calMon = TIME::GET_CLOCK_MONTH();
+	int calYear = TIME::GET_CLOCK_YEAR();
+
+	int gameHour = TIME::GET_CLOCK_HOURS();
+	int gameMins = TIME::GET_CLOCK_MINUTES();
+
+	bool leapYear = false;
+	if (calYear % 4 == 0)
+	{
+		leapYear = true;
+	}
+
+	if (calDay != 1)
+	{
+		calDay--;
+	}
+	else if (calMon == 1)
+	{
+		calDay = 31;
+		calMon = 12;
+		calYear--;
+	}
+	else
+	{
+		if (calMon == 5 || calMon == 7 || calMon == 10 || calMon == 12)
+		{
+			calDay = 30;
+		}
+		if (calMon == 3)
+		{
+			if (leapYear)
+			{
+				calDay = 29;
+			}
+			else
+			{
+				calDay = 28;
+			}
+		}
+		else
+		{
+			calDay = 31;
+		}
+		calMon--;
+	}
+
+	TIME::SET_CLOCK_DATE(calDay, calMon, calYear);
+	TIME::SET_CLOCK_TIME(gameHour, gameMins, 0);
+
+	std::ostringstream ss;
+	ss << "Date is now: " << get_day_of_game_week() << " ";
+	ss << std::setfill('0') << std::setw(2) << calDay;
+	ss << ".";
+	ss << std::setfill('0') << std::setw(2) << calMon;
+	ss << ".";
+	ss << calYear;
+	set_status_text(ss.str());
+}
+
+void movetime_hour_forward()
+{
+	int gameHour = TIME::GET_CLOCK_HOURS();
+	int gameMins = TIME::GET_CLOCK_MINUTES();
+	gameHour++;
+	if (gameHour == 24)
+	{
+		movetime_day_forward();
+		gameHour = 00;
+	}
+	TIME::SET_CLOCK_TIME(gameHour, gameMins, 00);
+	char text[32];
+	sprintf_s(text, "Time is now %02d:%02d", gameHour, gameMins);
+	set_status_text(text);
+}
+
+void movetime_hour_backward()
+{
+	int gameHour = TIME::GET_CLOCK_HOURS();
+	int gameMins = TIME::GET_CLOCK_MINUTES();
+	gameHour--;
+	if (gameHour == -1)
+	{
+		movetime_day_backward();
+		gameHour = 23;
+	}
+	TIME::SET_CLOCK_TIME(gameHour, gameMins, 00);
+	char text[32];
+	sprintf_s(text, "Time is now %02d:%02d", gameHour, gameMins);
+	set_status_text(text);
+}
+
+void movetime_fivemin_forward()
+{
+	int gameHour = TIME::GET_CLOCK_HOURS();
+	int gameMins = TIME::GET_CLOCK_MINUTES();
+
+	if (gameHour == 23 && gameMins > 54)
+	{
+		movetime_day_forward();
+		gameHour = 0;
+		gameMins = (gameMins + (-55));
+	}
+	else if (gameMins > 54)
+	{
+		gameHour++;
+		gameMins = gameMins + (-55);
+	}
+	else
+	{
+		gameMins = gameMins + 5;
+	}
+	
+	TIME::SET_CLOCK_TIME(gameHour, gameMins, 00);
+	char text[32];
+	sprintf_s(text, "Time is now %02d:%02d", gameHour, gameMins);
+	set_status_text(text);
+}
+
+void movetime_fivemin_backward()
+{
+	int gameHour = TIME::GET_CLOCK_HOURS();
+	int gameMins = TIME::GET_CLOCK_MINUTES();
+
+	if (gameHour == 0 && gameMins < 5)
+	{
+		movetime_day_backward();
+		gameHour = 23;
+		gameMins = gameMins + 55;
+	}
+	else if (gameMins < 5)
+	{
+		gameHour--;
+		gameMins = gameMins + 55;
+	}
+	else
+	{
+		gameMins = gameMins - 5;
+	}
+	
+	TIME::SET_CLOCK_TIME(gameHour, gameMins, 00);
+	char text[32];
+	sprintf_s(text, "Time is now %02d:%02d", gameHour, gameMins);
+	set_status_text(text);
+}
+
+std::string get_day_of_game_week()
+{
+	int day = TIME::GET_CLOCK_DAY_OF_WEEK();
+	switch (day)
+	{
+	case 0:
+		return "Sun";
+	case 1:
+		return "Mon";
+	case 2:
+		return "Tue";
+	case 3:
+		return "Wed";
+	case 4:
+		return "Thu";
+	case 5:
+		return "Fri";
+	case 6:
+		return "Sat";
+	}
 }
