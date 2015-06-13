@@ -9,9 +9,12 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "inc\main.h"
-#include "script.h"
-#include "keyboard.h"
-#include "config_io.h";
+#include "src\features\script.h"
+#include "src\io\keyboard.h"
+#include "src\io\config_io.h"
+#include "src\debug\debuglog.h"
+
+#include <thread>
 
 BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 {
@@ -24,6 +27,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	case DLL_PROCESS_DETACH:
 		scriptUnregister(ScriptMain);
 		keyboardHandlerUnregister(OnKeyboardMessage);
+		ScriptTidyUp();
 		break;
 	}
 	return TRUE;
