@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="src\features\airbrake.cpp" />
     <ClCompile Include="src\features\anims.cpp" />
+    <ClCompile Include="src\features\time.cpp" />
     <ClCompile Include="src\io\config_io.cpp" />
     <ClCompile Include="src\storage\database.cpp" />
     <ClCompile Include="src\debug\debuglog.cpp" />
@@ -33,6 +34,7 @@
   <ItemGroup>
     <ClInclude Include="src\features\airbrake.h" />
     <ClInclude Include="src\features\anims.h" />
+    <ClInclude Include="src\features\time.h" />
     <ClInclude Include="src\io\config_io.h" />
     <ClInclude Include="src\storage\database.h" />
     <ClInclude Include="src\debug\debuglog.h" />

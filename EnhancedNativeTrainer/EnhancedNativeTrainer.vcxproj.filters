@@ -19,6 +19,7 @@
     <ClCompile Include="src\io\keyboard.cpp" />
     <ClCompile Include="src\io\config_io.cpp" />
     <ClCompile Include="src\features\script.cpp" />
+    <ClCompile Include="src\features\time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\main.h" />
@@ -41,6 +42,7 @@
     <ClInclude Include="src\io\keyboard.h" />
     <ClInclude Include="src\io\config_io.h" />
     <ClInclude Include="src\features\script.h" />
+    <ClInclude Include="src\features\time.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />
