@@ -49,35 +49,36 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		break;
 		// set weather
 	case 1:
+
+		GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
+		GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+		GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
+
 		if (featureWeatherFreeze && !lastWeather.empty())
 		{
-			GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lastWeather.c_str());
+			std::stringstream ss; ss << "Weather Frozen at: " << lastWeatherName;
 			set_status_text(ss.str());
 		}
 		else if (!featureWeatherFreeze)
 		{
-			GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
 			set_status_text("Weather Freeze Disabled");
 		}
 		else
 		{
-			set_status_text("Weather Frozen");
+			set_status_text("Please Set A Weather Value First");
+			featureWeatherFreeze = false;
 		}
 		break;
 	default:
 		lastWeather = choice.value.c_str();
 		lastWeatherName = choice.caption;
 
-		if (featureWeatherFreeze)
-		{
-			GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char *)lastWeather.c_str());
-		}
-		else
-		{
-			GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
-			GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
-			GAMEPLAY::SET_WEATHER_TYPE_NOW((char *)lastWeather.c_str());
-		}
+		GAMEPLAY::CLEAR_OVERRIDE_WEATHER();
+		GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
+		GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
+
+		GAMEPLAY::SET_WEATHER_TYPE_NOW((char *)lastWeather.c_str());
+
 		GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
 
 		std::ostringstream ss2;
@@ -234,6 +235,11 @@ void update_world_features()
 	else if (featureWorldMoonGravityUpdated)
 	{
 		GAMEPLAY::SET_GRAVITY_LEVEL(0);
+	}
+
+	if (featureWeatherFreeze && !lastWeather.empty())
+	{
+		GAMEPLAY::SET_WEATHER_TYPE_NOW((char *)lastWeather.c_str());
 	}
 
 	if (!featureRestrictedZones)

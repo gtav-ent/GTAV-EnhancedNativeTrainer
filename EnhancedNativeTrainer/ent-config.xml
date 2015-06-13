@@ -25,7 +25,7 @@
     <!--The following are for the feature that lets you move around beyond normal limits, e.g. noclip-->
     
     <key function="toggle_airbrake" value="VK_F6"/>
-    <key function="hotkey_throughdoor" value="VK_DIVIDE"/>
+    <key function="hotkey_throughdoor" value="VK_DIVIDE" modCtrl="true" modAlt="false" modShift="false"/>
 
     <key function="airbrake_up" value="VK_KEY_Q"/>
     <key function="airbrake_down" value="VK_KEY_Z"/>
@@ -36,6 +36,10 @@
     <key function="airbrake_speed" value="VK_SHIFT"/>
     <key function="airbrake_freeze_time" value="VK_KEY_T"/>
 
-
+    <!--
+    <controller function="menu_up">
+      <button value="DPAD_UP"/>
+    </controller>
+    -->
   </keys>
 </ent-config>

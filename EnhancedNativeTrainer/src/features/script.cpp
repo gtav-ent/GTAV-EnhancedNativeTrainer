@@ -121,6 +121,15 @@ void update_features()
 		CloseHandle(myHandle);
 	}
 
+	if (is_menu_showing())
+	{
+		CONTROLS::DISABLE_ALL_CONTROL_ACTIONS(2);
+	}
+	else
+	{
+		CONTROLS::ENABLE_ALL_CONTROL_ACTIONS(2);
+	}
+
 	update_centre_screen_status_text();
 
 	update_vehicle_guns();
@@ -304,7 +313,7 @@ void update_features()
 	//Pushes player through solid door objects.
 	if (bPlayerExists)
 	{
-		bool throughDoorPressed = IsKeyJustUp(get_config()->get_key_config()->key_hotkey_throughdoor);
+		bool throughDoorPressed = IsKeyJustUp(KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR);
 		//bool disablePolicePressed = IsKeyJustUp(VK_OEM_6);
 		if (throughDoorPressed)
 		{
@@ -664,6 +673,7 @@ void main()
 			menu_beep();
 			set_menu_showing(true);
 			process_main_menu();
+			set_menu_showing(false);
 		}
 		else if (airbrake_switch_pressed())
 		{

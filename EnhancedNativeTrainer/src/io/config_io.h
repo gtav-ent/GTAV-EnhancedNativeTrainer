@@ -4,50 +4,118 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
+#pragma once
+
 #include <stdio.h>
 #include <tchar.h>
 #include <windows.h>
 
 #import <msxml6.dll> //read the GitHub project readme regarding what you need to make this work
 
+#include <map>
+#include <vector>
 #include "keyboard.h"
 
-#pragma once
+class KeyConfig
+{
+public:
+
+	static const std::string KEY_TOGGLE_MAIN_MENU;
+	static const std::string KEY_TOGGLE_AIRBRAKE;
+
+	static const std::string KEY_MENU_UP;
+	static const std::string KEY_MENU_DOWN;
+	static const std::string KEY_MENU_LEFT;
+	static const std::string KEY_MENU_RIGHT;
+	static const std::string KEY_MENU_SELECT;
+	static const std::string KEY_MENU_BACK;
+
+	static const std::string KEY_VEH_BOOST;
+	static const std::string KEY_VEH_STOP;
+	static const std::string KEY_VEH_ROCKETS;
+
+	static const std::string KEY_AIRBRAKE_UP;
+	static const std::string KEY_AIRBRAKE_DOWN;
+	static const std::string KEY_AIRBRAKE_ROTATE_LEFT;
+	static const std::string KEY_AIRBRAKE_ROTATE_RIGHT;
+	static const std::string KEY_AIRBRAKE_FORWARD;
+	static const std::string KEY_AIRBRAKE_BACK;
+	static const std::string KEY_AIRBRAKE_SPEED;
+	static const std::string KEY_AIRBRAKE_FREEZE_TIME;
+
+	static const std::string KEY_HOT_AIRBRAKE_THROUGH_DOOR;
+
+	inline KeyConfig(int code)
+	{
+		this->keyCode = code;
+	};
+
+	int keyCode;
+	bool modCtrl = false;
+	bool modAlt = false;
+	bool modShift = false;
+};
+
+class ControllerButtonConfig
+{
+public:
+	static const std::string CONTROLLER_BTN_X;
+	static const std::string CONTROLLER_BTN_Y;
+	static const std::string CONTROLLER_BTN_A;
+	static const std::string CONTROLLER_BTN_B;
+	static const std::string CONTROLLER_BTN_DPAD_L;
+	static const std::string CONTROLLER_BTN_DPAD_R;
+	static const std::string CONTROLLER_BTN_DPAD_U;
+	static const std::string CONTROLLER_BTN_DPAD_D;
+	static const std::string CONTROLLER_BTN_SHOULDER_L;
+	static const std::string CONTROLLER_BTN_SHOULDER_R;
+	static const std::string CONTROLLER_BTN_TRIGGER_L;
+	static const std::string CONTROLLER_BTN_TRIGGER_R;
+	static const std::string CONTROLLER_BTN_MENU;
+	static const std::string CONTROLLER_BTN_GUIDE;
+	static const std::string CONTROLLER_LSTICK_L;
+	static const std::string CONTROLLER_LSTICK_R;
+	static const std::string CONTROLLER_LSTICK_U;
+	static const std::string CONTROLLER_LSTICK_D;
+	static const std::string CONTROLLER_RSTICK_L;
+	static const std::string CONTROLLER_RSTICK_R;
+	static const std::string CONTROLLER_RSTICK_U;
+	static const std::string CONTROLLER_RSTICK_D;
+	static const std::string CONTROLLER_LSTICK_CLICK;
+	static const std::string CONTROLLER_RSTICK_CLICK;
+
+	inline ControllerButtonConfig()
+	{
+	};
+
+	void add_button(char* name);
+
+	void add_button(std::string name);
+
+	std::vector<int> buttonCodes;
+};
 
 /**A class to hold the current key bindings.*/
 class KeyInputConfig
 {
 public:
-	//these are the defaults which may be overridden by the XML config
+	KeyInputConfig();
 
-	int key_toggle_main_menu = VK_F4;
-	int key_toggle_airbrake = VK_F6;
+	virtual ~KeyInputConfig();
 
-	int key_menu_up = VK_NUMPAD8;
-	int key_menu_down = VK_NUMPAD2;
-	int key_menu_left = VK_NUMPAD4;
-	int key_menu_right = VK_NUMPAD6;
-	int key_menu_confirm = VK_NUMPAD5;
-	int key_menu_back = VK_NUMPAD0;
+	std::map<std::string, KeyConfig*> keyConfigs;
 
-	int key_veh_boost = VK_NUMPAD9;
-	int key_veh_stop = VK_NUMPAD3;
-	int key_veh_rockets = VK_ADD;
+	std::map<std::string, ControllerButtonConfig*> controllerConfigs;
 
-	int key_airbrake_up = VK_KEY_Q;
-	int key_airbrake_down = VK_KEY_Z;
-	int key_airbrake_forward = VK_KEY_W;
-	int key_airbrake_back = VK_KEY_S;
-	int key_airbrake_rotate_left = VK_KEY_A;
-	int key_airbrake_rotate_right = VK_KEY_D;
-	int key_airbrake_speed = VK_SHIFT;
-	int key_airbrake_freeze_time = VK_KEY_T;
+	KeyConfig* get_key(std::string function);
 
-	//int key_hotkey_wanted = VK_SHIFT;
-	int key_hotkey_throughdoor = VK_DIVIDE;
+	ControllerButtonConfig* get_controller_button(std::string function);
 
 	/**Change the key binding using a function string and key string.*/
-	void set_key(char* function, char* keyName);
+	void set_key(char* function, char* keyName, bool modCtrl = false, bool modAlt = false, bool modShift = false);
+
+	/**Change the key binding using a function string and key string.*/
+	void set_control(char* function, ControllerButtonConfig* config);
 };
 
 /**A class to hold all the user settings.*/

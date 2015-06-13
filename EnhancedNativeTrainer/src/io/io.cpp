@@ -17,19 +17,19 @@ DWORD trainerResetTime = 0;
 
 bool trainer_switch_pressed()
 {
-	return IsKeyJustUp( config->get_key_config()->key_toggle_main_menu );
+	return IsKeyJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU) || IsControllerButtonJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU);
 }
 
 void get_button_state(bool *a, bool *b, bool *up, bool *down, bool *l, bool *r)
 {
 	KeyInputConfig *keyConf = config->get_key_config();
 
-	if (a) *a = IsKeyDown(keyConf->key_menu_confirm);
-	if (b) *b = IsKeyDown(keyConf->key_menu_back);
-	if (up) *up = IsKeyDown(keyConf->key_menu_up);
-	if (down) *down = IsKeyDown(keyConf->key_menu_down);
-	if (r) *r = IsKeyDown(keyConf->key_menu_right);
-	if (l) *l = IsKeyDown(keyConf->key_menu_left);
+	if (a) *a = IsKeyDown(KeyConfig::KEY_MENU_SELECT) || IsControllerButtonDown(KeyConfig::KEY_MENU_SELECT);
+	if (b) *b = IsKeyDown(KeyConfig::KEY_MENU_BACK) || IsControllerButtonDown(KeyConfig::KEY_MENU_BACK);
+	if (up) *up = IsKeyDown(KeyConfig::KEY_MENU_UP) || IsControllerButtonDown(KeyConfig::KEY_MENU_UP);
+	if (down) *down = IsKeyDown(KeyConfig::KEY_MENU_DOWN) || IsControllerButtonDown(KeyConfig::KEY_MENU_DOWN);
+	if (r) *r = IsKeyDown(KeyConfig::KEY_MENU_RIGHT) || IsControllerButtonDown(KeyConfig::KEY_MENU_RIGHT);
+	if (l) *l = IsKeyDown(KeyConfig::KEY_MENU_LEFT) || IsControllerButtonDown(KeyConfig::KEY_MENU_LEFT);
 }
 
 bool get_key_pressed(int nVirtKey)
@@ -40,7 +40,7 @@ bool get_key_pressed(int nVirtKey)
 
 bool airbrake_switch_pressed()
 {
-	return IsKeyJustUp(get_config()->get_key_config()->key_toggle_airbrake);
+	return IsKeyJustUp(KeyConfig::KEY_TOGGLE_AIRBRAKE) || IsControllerButtonJustUp(KeyConfig::KEY_TOGGLE_AIRBRAKE);
 }
 
 void reset_trainer_switch()

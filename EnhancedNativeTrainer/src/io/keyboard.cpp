@@ -32,9 +32,55 @@ void OnKeyboardMessage(DWORD key, WORD repeats, BYTE scanCode, BOOL isExtended, 
 
 const int NOW_PERIOD = 100, MAX_DOWN = 5000; // ms
 
+bool IsKeyDown(std::string keyName)
+{
+	KeyConfig* key = get_config()->get_key_config()->get_key(keyName);
+	if (key == NULL)
+	{
+		return false;
+	}
+	bool result = IsKeyDown(key->keyCode);
+	if (result && key->modAlt)
+	{
+		result = IsKeyDown(VK_MENU);
+	}
+	if (result && key->modShift)
+	{
+		result == IsKeyDown(VK_SHIFT);
+	}
+	if (result && key->modCtrl)
+	{
+		result == IsKeyDown(VK_LCONTROL) || IsKeyDown(VK_RCONTROL);
+	}
+	return result;
+}
+
 bool IsKeyDown(DWORD key)
 {
 	return (key < KEYS_SIZE) ? ((GetTickCount() < keyStates[key].time + MAX_DOWN) && !keyStates[key].isUpNow) : false;
+}
+
+bool IsKeyJustUp(std::string keyName, bool exclusive)
+{
+	KeyConfig* key = get_config()->get_key_config()->get_key(keyName);
+	if (key == NULL)
+	{
+		return false;
+	}
+	bool result = IsKeyJustUp(key->keyCode, exclusive);
+	if (result && key->modAlt)
+	{
+		result = IsKeyDown(VK_MENU);
+	}
+	if (result && key->modShift)
+	{
+		result == IsKeyDown(VK_SHIFT);
+	}
+	if (result && key->modCtrl)
+	{
+		result == IsKeyDown(VK_LCONTROL) || IsKeyDown(VK_RCONTROL);
+	}
+	return result;
 }
 
 bool IsKeyJustUp(DWORD key, bool exclusive)
