@@ -379,10 +379,9 @@ void WantedSymbolItem<T>::handleLeftPress()
 	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
 	if (bPlayerExists && currentLevel > 0)
 	{
-		//setFrozenWantedFeature(true);
 		PLAYER::SET_PLAYER_WANTED_LEVEL(player, --currentLevel, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		//setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
+		setFrozenWantedLvl(currentLevel);
 		std::stringstream ss;
 		if (currentLevel > 0)
 		{
@@ -395,6 +394,7 @@ void WantedSymbolItem<T>::handleLeftPress()
 		else
 		{
 			ss << "Wanted Level Cleared";
+			setFrozenWantedFeature(false);
 		}
 		set_status_text(ss.str());
 	}
@@ -409,10 +409,9 @@ void WantedSymbolItem<T>::handleRightPress()
 	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
 	if (bPlayerExists && currentLevel < 5)
 	{
-		//setFrozenWantedFeature(true);
 		PLAYER::SET_PLAYER_WANTED_LEVEL(player, ++currentLevel, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		//setFrozenWantedLvl(PLAYER::GET_PLAYER_WANTED_LEVEL(player));
+		setFrozenWantedLvl(currentLevel);
 		std::stringstream ss;
 		ss << "Wanted Level: " << currentLevel << " Star";
 		if (currentLevel > 1)

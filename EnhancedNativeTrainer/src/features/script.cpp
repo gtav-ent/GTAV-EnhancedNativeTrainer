@@ -57,6 +57,7 @@ bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
 
 bool featureWantedLevelFrozen			=	false;
+bool featureWantedLevelFrozenUpdated	=	false;
 int  frozenWantedLevel					=	0;
 
 bool featurePlayerResetOnDeath = true;
@@ -158,16 +159,23 @@ void update_features()
 			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
-	/*
-	//Wanted Level Frozen - prevents stars from disappearing
+	
+	//Wanted Level Frozen - prevents stars increasing/decreasing
 	if (featureWantedLevelFrozen)
 	{
-		if (bPlayerExists)
-			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		if (getFrozenWantedLvl() == 0){ featureWantedLevelFrozen = false; }
+		if (featureWantedLevelFrozenUpdated)
+		{
+			frozenWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+			featureWantedLevelFrozenUpdated = false;
+		}
+		if (frozenWantedLevel > 0)
+		{
+			if (bPlayerExists)
+				PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		}
 	}
-	*/
+	
 	
 	// player never wanted
 	if (featurePlayerNeverWanted)
@@ -336,11 +344,11 @@ int activeLineIndexWantedFreeze = 0;
 
 const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF/Clear" };
 
-/*
+
 int getFrozenWantedLvl(){ return frozenWantedLevel; }
 void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
 void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
-*/
+bool getFrozenWantedFeature(){ return featureWantedLevelFrozen; }
 
 bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
 {
@@ -451,7 +459,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		set_status_text("Player Healed");
 	}
 	break;
-	case 14:
+	case 15:
 		process_anims_menu_top();
 		break;
 	default:
@@ -462,7 +470,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 15;
+	const int lineCount = 16;
 	
 	std::string caption = "Player Options";
 
@@ -471,6 +479,7 @@ void process_player_menu()
 		{"Heal Player", NULL, NULL, true},
 		{"Add Cash", NULL, NULL, true, CASH},
 		{"Wanted Level", NULL, NULL, true, WANTED},
+		{ "Freeze Wanted Level", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated, true },
 		{ "Never Wanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated, true },
 		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
 		{"Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
