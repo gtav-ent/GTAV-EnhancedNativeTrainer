@@ -5,7 +5,7 @@
 */
 
 #include "..\io\keyboard.h"
-//#include "..\features\script.h"
+#include "..\features\script.h"
 #include "..\debug\debuglog.h"
 
 #include <sstream>
@@ -42,15 +42,15 @@ bool IsKeyDown(std::string keyName)
 	bool result = IsKeyDown(key->keyCode);
 	if (result && key->modAlt)
 	{
-		result = IsKeyDown(VK_MENU);
+		result = (GetKeyState(VK_MENU) & 0x8000;
 	}
 	if (result && key->modShift)
 	{
-		result == IsKeyDown(VK_SHIFT);
+		result = (GetKeyState(VK_SHIFT) & 0x8000);
 	}
 	if (result && key->modCtrl)
 	{
-		result == IsKeyDown(VK_LCONTROL) || IsKeyDown(VK_RCONTROL);
+		result = (GetKeyState(VK_LCONTROL) & 0x8000 || GetKeyState(VK_RCONTROL) & 0x8000);
 	}
 	return result;
 }
@@ -63,6 +63,7 @@ bool IsKeyDown(DWORD key)
 bool IsKeyJustUp(std::string keyName, bool exclusive)
 {
 	KeyConfig* key = get_config()->get_key_config()->get_key(keyName);
+
 	if (key == NULL)
 	{
 		return false;
@@ -70,15 +71,15 @@ bool IsKeyJustUp(std::string keyName, bool exclusive)
 	bool result = IsKeyJustUp(key->keyCode, exclusive);
 	if (result && key->modAlt)
 	{
-		result = IsKeyDown(VK_MENU);
+		result = (GetKeyState(VK_MENU) & 0x8000;
 	}
 	if (result && key->modShift)
 	{
-		result == IsKeyDown(VK_SHIFT);
+		result = (GetKeyState(VK_SHIFT) & 0x8000);
 	}
 	if (result && key->modCtrl)
 	{
-		result == IsKeyDown(VK_LCONTROL) || IsKeyDown(VK_RCONTROL);
+		result = (GetKeyState(VK_LCONTROL) & 0x8000 || GetKeyState(VK_RCONTROL) & 0x8000);
 	}
 	return result;
 }

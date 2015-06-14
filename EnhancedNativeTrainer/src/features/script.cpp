@@ -123,11 +123,11 @@ void update_features()
 
 	if (is_menu_showing())
 	{
-		CONTROLS::DISABLE_ALL_CONTROL_ACTIONS(2);
+		setAllXInputButtonsToEnabled(false);
 	}
 	else
 	{
-		CONTROLS::ENABLE_ALL_CONTROL_ACTIONS(2);
+		setAllXInputButtonsToEnabled(true);
 	}
 
 	update_centre_screen_status_text();

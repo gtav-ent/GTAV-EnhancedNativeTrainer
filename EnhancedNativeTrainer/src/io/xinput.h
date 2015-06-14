@@ -53,3 +53,5 @@ bool IsControllerButtonDown(std::string function);
 bool IsControllerButtonJustUp(std::string btnName);
 
 int buttonNameToVal(char * input);
+
+void setAllXInputButtonsToEnabled(bool enabled);

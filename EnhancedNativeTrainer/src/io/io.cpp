@@ -24,8 +24,9 @@ void get_button_state(bool *a, bool *b, bool *up, bool *down, bool *l, bool *r)
 {
 	KeyInputConfig *keyConf = config->get_key_config();
 
-	if (a) *a = IsKeyDown(KeyConfig::KEY_MENU_SELECT) || IsControllerButtonDown(KeyConfig::KEY_MENU_SELECT);
-	if (b) *b = IsKeyDown(KeyConfig::KEY_MENU_BACK) || IsControllerButtonDown(KeyConfig::KEY_MENU_BACK);
+	if (a) *a = IsKeyJustUp(KeyConfig::KEY_MENU_SELECT) || IsControllerButtonJustUp(KeyConfig::KEY_MENU_SELECT);
+	if (b) *b = IsKeyJustUp(KeyConfig::KEY_MENU_BACK) || IsControllerButtonJustUp(KeyConfig::KEY_MENU_BACK);
+
 	if (up) *up = IsKeyDown(KeyConfig::KEY_MENU_UP) || IsControllerButtonDown(KeyConfig::KEY_MENU_UP);
 	if (down) *down = IsKeyDown(KeyConfig::KEY_MENU_DOWN) || IsControllerButtonDown(KeyConfig::KEY_MENU_DOWN);
 	if (r) *r = IsKeyDown(KeyConfig::KEY_MENU_RIGHT) || IsControllerButtonDown(KeyConfig::KEY_MENU_RIGHT);

@@ -35,15 +35,17 @@ bool IsControllerButtonJustUp(std::string btnName)
 		return false;
 	}
 	bool anyJustPressed = false;
+
 	for each (int code in buttonConf->buttonCodes)
 	{
 		if (!CONTROLS::IS_CONTROL_PRESSED(2, code) && !CONTROLS::IS_CONTROL_JUST_RELEASED(2, code) 
 			&& !CONTROLS::IS_DISABLED_CONTROL_PRESSED(2, code)
-			&& CONTROLS::IS_DISABLED_CONTROL_JUST_RELEASED(2, code))
+			&& !CONTROLS::IS_DISABLED_CONTROL_JUST_RELEASED(2, code))
 		{
 			return false;
 		}
-		else if (!anyJustPressed)
+		
+		if (!anyJustPressed)
 		{
 			anyJustPressed = CONTROLS::IS_CONTROL_JUST_RELEASED(2, code) || CONTROLS::IS_DISABLED_CONTROL_JUST_RELEASED(2, code);
 		}
@@ -62,4 +64,33 @@ int buttonNameToVal(char * input)
 		}
 	}
 	return -1;
+}
+
+void setAllXInputButtonsToEnabled(bool enabled)
+{
+	for (int i = 0; i < 10; i++)
+	{
+		if (enabled)
+		{
+			CONTROLS::ENABLE_ALL_CONTROL_ACTIONS(i);
+		}
+		else
+		{
+			CONTROLS::DISABLE_ALL_CONTROL_ACTIONS(i);
+		}
+	}
+
+	/*
+	for each (ButtonsWithNames button in ALL_BUTTONS)
+	{
+		if (enabled)
+		{
+			CONTROLS::ENABLE_CONTROL_ACTION(2, button.buttonCode, true);
+		}
+		else
+		{
+			CONTROLS::DISABLE_CONTROL_ACTION(2, button.buttonCode, true);
+		}
+	}
+	*/
 }
