@@ -36,7 +36,13 @@
     <key function="airbrake_speed" value="VK_SHIFT"/>
     <key function="airbrake_freeze_time" value="VK_KEY_T"/>
 
-    <!-- Available controller values:
+    <!--
+    This next bit should be self-explanatory. The function names are the same.
+    Add multiple buttons to a single entry to produce a combo.
+    The setup provided below should be the default.
+    
+    Available controller values you can use:
+    
         BUTTON_X
         BUTTON_Y
         BUTTON_A
@@ -62,10 +68,76 @@
         L_STICK_CLICK
         R_STICK_CLICK
     -->
-    
+
+    <controller function="toggle_main_menu">
+      <button value="R_SHOULDER"/>
+      <button value="BUTTON_Y"/>
+    </controller>
+
     <controller function="menu_up">
       <button value="DPAD_UP"/>
     </controller>
+    <controller function="menu_down">
+      <button value="DPAD_DOWN"/>
+    </controller>
+    <controller function="menu_left">
+      <button value="DPAD_LEFT"/>
+    </controller>
+    <controller function="menu_right">
+      <button value="DPAD_RIGHT"/>
+    </controller>
+    <controller function="menu_select">
+      <button value="BUTTON_X"/>
+    </controller>
+    <controller function="menu_back">
+      <button value="BUTTON_Y"/>
+    </controller>
+
+    <controller function="veh_boost">
+      <button value="L_SHOULDER"/>
+      <button value="L_TRIGGER"/>
+    </controller>
+    <controller function="veh_stop">
+      <button value="R_SHOULDER"/>
+      <button value="R_TRIGGER"/>
+    </controller>
+    <controller function="veh_rockets">
+      <button value="L_SHOULDER"/>
+      <button value="R_SHOULDER"/>
+    </controller>
+
+    <controller function="toggle_airbrake">
+      <button value="R_SHOULDER"/>
+      <button value="BUTTON_A"/>
+    </controller>
+    
+    <controller function="hotkey_throughdoor"></controller> <!--i.e. no controller combo-->
+
+    <controller function="airbrake_up">
+      <button value="L_TRIGGER"/>
+    </controller>
+    <controller function="airbrake_down">
+      <button value="R_TRIGGER"/>
+    </controller>
+    <controller function="airbrake_forward">
+      <button value="L_STICK_UP"/>
+    </controller>
+    <controller function="airbrake_back">
+      <button value="L_STICK_DOWN"/>
+    </controller>
+    <controller function="airbrake_rotate_left">
+      <button value="L_STICK_LEFT"/>
+    </controller>
+    <controller function="airbrake_rotate_right">
+      <button value="L_STICK_RIGHT"/>
+    </controller>
+    <controller function="airbrake_speed">
+      <button value="BUTTON_A"/>
+    </controller>
+    <controller function="airbrake_freeze_time">
+      <button value="BUTTON_B"/>
+    </controller>
+
     -->
   </keys>
 </ent-config>

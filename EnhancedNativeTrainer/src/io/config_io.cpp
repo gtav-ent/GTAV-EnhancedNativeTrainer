@@ -187,6 +187,8 @@ void read_config_file()
 					}
 					attribNode->Release();
 				}
+				child->Release();
+				childAttribs->Release();
 			}
 		}
 
