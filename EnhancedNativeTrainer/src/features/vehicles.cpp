@@ -466,9 +466,11 @@ void reset_vehicle_globals()
 	featureVehInvincible =
 		featureVehSpeedBoost =
 		featureVehicleDoorInstant =
-		featureVehSpawnInto = false;
+		featureVehSpawnInto =
+		featureWearHelmetOff = false;
 
-	featureVehInvincibleUpdated = true;
+	featureVehInvincibleUpdated =
+		featureWearHelmetOffUpdated = true;
 }
 
 bool onconfirm_carspawn_menu(MenuItem<int> choice)
