@@ -297,6 +297,8 @@ KeyInputConfig::KeyInputConfig()
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_SPEED] = new KeyConfig(VK_SHIFT);
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
 
+//Default XInput controls
+
 	this->controllerConfigs[KeyConfig::KEY_TOGGLE_MAIN_MENU] = new ControllerButtonConfig();
 	this->controllerConfigs[KeyConfig::KEY_TOGGLE_MAIN_MENU]->add_button(ControllerButtonConfig::CONTROLLER_BTN_Y);
 	this->controllerConfigs[KeyConfig::KEY_TOGGLE_MAIN_MENU]->add_button(ControllerButtonConfig::CONTROLLER_BTN_SHOULDER_R);
@@ -325,6 +327,30 @@ KeyInputConfig::KeyInputConfig()
 	this->controllerConfigs[KeyConfig::KEY_VEH_ROCKETS] = new ControllerButtonConfig();
 	this->controllerConfigs[KeyConfig::KEY_VEH_ROCKETS]->add_button(ControllerButtonConfig::CONTROLLER_BTN_SHOULDER_L);
 	this->controllerConfigs[KeyConfig::KEY_VEH_ROCKETS]->add_button(ControllerButtonConfig::CONTROLLER_BTN_SHOULDER_R);
+
+	this->controllerConfigs[KeyConfig::KEY_TOGGLE_AIRBRAKE] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_TOGGLE_AIRBRAKE]->add_button(ControllerButtonConfig::CONTROLLER_BTN_A);
+	this->controllerConfigs[KeyConfig::KEY_TOGGLE_AIRBRAKE]->add_button(ControllerButtonConfig::CONTROLLER_BTN_SHOULDER_R);
+
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_UP] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_UP]->add_button(ControllerButtonConfig::CONTROLLER_BTN_TRIGGER_L);
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_DOWN] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_DOWN]->add_button(ControllerButtonConfig::CONTROLLER_BTN_TRIGGER_R);
+
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_FORWARD] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_FORWARD]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_U);
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_BACK] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_BACK]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_D);
+
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_L);
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_R);
+
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_SPEED] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_SPEED]->add_button(ControllerButtonConfig::CONTROLLER_BTN_A);
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME]->add_button(ControllerButtonConfig::CONTROLLER_BTN_B);
 }
 
 KeyInputConfig::~KeyInputConfig()
@@ -358,17 +384,14 @@ ControllerButtonConfig* KeyInputConfig::get_controller_button(std::string functi
 
 void ControllerButtonConfig::add_button(char* name)
 {
-	int code = buttonNameToVal(name);
-	this->buttonCodes.push_back(code);
+	ButtonsWithNames btn = buttonNameToVal(name);
+	this->buttonCodes.push_back(btn);
 }
 
 void ControllerButtonConfig::add_button(std::string name)
 {
-	int code = buttonNameToVal((char*)name.c_str());
-	if (code != -1)
-	{
-		this->buttonCodes.push_back(code);
-	}
+	ButtonsWithNames btn = buttonNameToVal((char*)name.c_str());
+	this->buttonCodes.push_back(btn);
 }
 
 const std::string KeyConfig::KEY_TOGGLE_MAIN_MENU = std::string("toggle_main_menu");
@@ -408,8 +431,8 @@ const std::string ControllerButtonConfig::CONTROLLER_BTN_SHOULDER_L = std::strin
 const std::string ControllerButtonConfig::CONTROLLER_BTN_SHOULDER_R = std::string("R_SHOULDER");
 const std::string ControllerButtonConfig::CONTROLLER_BTN_TRIGGER_L = std::string("L_TRIGGER");
 const std::string ControllerButtonConfig::CONTROLLER_BTN_TRIGGER_R = std::string("R_TRIGGER");
-const std::string ControllerButtonConfig::CONTROLLER_BTN_MENU = std::string("MENU");
-const std::string ControllerButtonConfig::CONTROLLER_BTN_GUIDE = std::string("GUIDE");
+const std::string ControllerButtonConfig::CONTROLLER_BTN_BACK = std::string("BACK");
+const std::string ControllerButtonConfig::CONTROLLER_BTN_START = std::string("START");
 const std::string ControllerButtonConfig::CONTROLLER_LSTICK_L = std::string("L_STICK_LEFT");
 const std::string ControllerButtonConfig::CONTROLLER_LSTICK_R = std::string("L_STICK_RIGHT");
 const std::string ControllerButtonConfig::CONTROLLER_LSTICK_U = std::string("L_STICK_UP");

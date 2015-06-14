@@ -647,6 +647,8 @@ void main()
 {	
 	//reset_globals();
 
+	PLAYER::SET_PLAYER_CONTROL(0, 1, 0);
+
 	write_text_to_log_file("Setting up calls");
 
 	set_periodic_feature_call(update_features);
@@ -746,7 +748,13 @@ void ScriptMain()
 
 		clear_log_file();
 
+		write_text_to_log_file("Trying to init storage");
 		init_storage();
+		write_text_to_log_file("Init storage complete");
+
+		write_text_to_log_file("Trying to init XINPUT");
+		init_xinput();
+		write_text_to_log_file("Init XINPUT complete");
 
 		database = new ENTDatabase();
 		if (!database->open() )
@@ -777,9 +785,13 @@ void ScriptMain()
 
 void ScriptTidyUp()
 {
+	PLAYER::SET_PLAYER_CONTROL(0, 1, 0);
+
 	write_text_to_log_file("ScriptTidyUp called");
 
 	save_settings();
+
+	end_xinput();
 
 	if (database != NULL)
 	{

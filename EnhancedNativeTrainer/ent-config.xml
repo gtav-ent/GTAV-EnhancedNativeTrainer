@@ -36,7 +36,33 @@
     <key function="airbrake_speed" value="VK_SHIFT"/>
     <key function="airbrake_freeze_time" value="VK_KEY_T"/>
 
-    <!--
+    <!-- Available controller values:
+        BUTTON_X
+        BUTTON_Y
+        BUTTON_A
+        BUTTON_B
+        DPAD_LEFT
+        DPAD_RIGHT
+        DPAD_UP
+        DPAD_DOWN
+        L_SHOULDER
+        R_SHOULDER
+        L_TRIGGER
+        R_TRIGGER
+        BACK
+        START
+        L_STICK_LEFT
+        L_STICK_RIGHT
+        L_STICK_UP
+        L_STICK_DOWN
+        R_STICK_LEFT
+        R_STICK_RIGHT
+        R_STICK_UP
+        R_STICK_DOWN
+        L_STICK_CLICK
+        R_STICK_CLICK
+    -->
+    
     <controller function="menu_up">
       <button value="DPAD_UP"/>
     </controller>

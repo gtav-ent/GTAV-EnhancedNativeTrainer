@@ -42,7 +42,7 @@ bool IsKeyDown(std::string keyName)
 	bool result = IsKeyDown(key->keyCode);
 	if (result && key->modAlt)
 	{
-		result = (GetKeyState(VK_MENU) & 0x8000;
+		result = (GetKeyState(VK_MENU) & 0x8000);
 	}
 	if (result && key->modShift)
 	{
@@ -71,7 +71,7 @@ bool IsKeyJustUp(std::string keyName, bool exclusive)
 	bool result = IsKeyJustUp(key->keyCode, exclusive);
 	if (result && key->modAlt)
 	{
-		result = (GetKeyState(VK_MENU) & 0x8000;
+		result = (GetKeyState(VK_MENU) & 0x8000);
 	}
 	if (result && key->modShift)
 	{
@@ -100,18 +100,10 @@ void ResetKeyState(DWORD key)
 
 int keyNameToVal(char * input)
 {
-	std::ostringstream ss;
-	ss << "Searching for " << input;
-	write_text_to_log_file(ss.str());
-
 	for (int i = 0; i < (sizeof ALL_KEYS / sizeof ALL_KEYS[0]); i++)
 	{
 		if (strcmp(input, ALL_KEYS[i].name) == 0)
 		{
-			ss.str(""); ss.clear();
-			ss << "Found match of " << ALL_KEYS[i].name << " with code " << ALL_KEYS[i].keyCode;
-			write_text_to_log_file(ss.str());
-
 			return ALL_KEYS[i].keyCode;
 		}
 	}
