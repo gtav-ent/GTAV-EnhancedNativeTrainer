@@ -672,13 +672,6 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 			menu_beep();
 
 			set_menu_showing(!is_menu_showing());
-
-			//avoid repeat of key press
-			DWORD maxTickCount = GetTickCount() + 200;
-			do
-			{
-				WAIT(0);
-			} while (GetTickCount() < maxTickCount);
 		}
 		else if (airbrake_switch_pressed())
 		{

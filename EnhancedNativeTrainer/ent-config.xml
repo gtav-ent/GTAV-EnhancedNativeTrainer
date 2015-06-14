@@ -90,7 +90,7 @@
       <button value="BUTTON_X"/>
     </controller>
     <controller function="menu_back">
-      <button value="BUTTON_Y"/>
+      <button value="BUTTON_B"/>
     </controller>
 
     <controller function="veh_boost">

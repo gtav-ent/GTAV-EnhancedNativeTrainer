@@ -17,7 +17,18 @@ DWORD trainerResetTime = 0;
 
 bool trainer_switch_pressed()
 {
-	return IsKeyJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU) || IsControllerButtonJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU);
+	bool result = IsKeyJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU) || IsControllerButtonJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU);
+	if (result)
+	{
+		//avoid repeat of key press
+		DWORD maxTickCount = GetTickCount() + 200;
+		do
+		{
+			UpdateXInputControlState();
+			WAIT(0);
+		} while (GetTickCount() < maxTickCount);
+	}
+	return result;
 }
 
 void get_button_state(bool *a, bool *b, bool *up, bool *down, bool *l, bool *r)
@@ -41,7 +52,18 @@ bool get_key_pressed(int nVirtKey)
 
 bool airbrake_switch_pressed()
 {
-	return IsKeyJustUp(KeyConfig::KEY_TOGGLE_AIRBRAKE) || IsControllerButtonJustUp(KeyConfig::KEY_TOGGLE_AIRBRAKE);
+	bool result = IsKeyJustUp(KeyConfig::KEY_TOGGLE_AIRBRAKE) || IsControllerButtonJustUp(KeyConfig::KEY_TOGGLE_AIRBRAKE);
+	if (result)
+	{
+		//avoid repeat of key press
+		DWORD maxTickCount = GetTickCount() + 200;
+		do
+		{
+			UpdateXInputControlState();
+			WAIT(0);
+		} while (GetTickCount() < maxTickCount);
+	}
+	return result;
 }
 
 void reset_trainer_switch()

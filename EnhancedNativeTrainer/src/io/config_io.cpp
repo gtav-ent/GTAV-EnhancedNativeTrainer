@@ -135,7 +135,6 @@ void read_config_file()
 		attribs->get_length(&length_attribs);
 
 		char *attrib_control_func = NULL;
-		char *attrib_control_value = NULL;
 
 		for (long j = 0; j < length_attribs; j++)
 		{
@@ -156,16 +155,18 @@ void read_config_file()
 		ControllerButtonConfig* buttonConfig = new ControllerButtonConfig();
 
 		IXMLDOMNodeListPtr children;
-		if (node->get_childNodes(&children))
+		HRESULT hr = node->get_childNodes(&children);
+		if (hr == S_OK)
 		{
 			long childLength;
 			children->get_length(&childLength);
-			for (int j = 0; j < length; j++)
+
+			for (long j = 0; j < childLength; j++)
 			{
 				IXMLDOMNode *child;
-				nodes->get_item(i, &child);
+				children->get_item(j, &child);
 				IXMLDOMNamedNodeMap *childAttribs;
-				node->get_attributes(&childAttribs);
+				child->get_attributes(&childAttribs);
 
 				long length_attribs;
 				childAttribs->get_length(&length_attribs);
@@ -175,9 +176,9 @@ void read_config_file()
 				for (long k = 0; k < length_attribs; k++)
 				{
 					IXMLDOMNode *attribNode;
-					attribs->get_item(k, &attribNode);
+					childAttribs->get_item(k, &attribNode);
 					attribNode->get_nodeName(&bstr);
-					if (wcscmp(bstr, L"button") == 0)
+					if (wcscmp(bstr, L"value") == 0)
 					{
 						VARIANT var;
 						VariantInit(&var);
@@ -192,13 +193,12 @@ void read_config_file()
 			}
 		}
 
-		if (attrib_control_func != NULL && attrib_control_value != NULL)
+		if (attrib_control_func != NULL)
 		{
 			result->get_key_config()->set_control(attrib_control_func, buttonConfig);
 		}
 
 		delete attrib_control_func;
-		delete attrib_control_value;
 
 		attribs->Release();
 		node->Release();
@@ -247,14 +247,21 @@ void KeyInputConfig::set_key(char* function, char* keyName, bool modCtrl, bool m
 void KeyInputConfig::set_control(char* function, ControllerButtonConfig* config)
 {
 	std::ostringstream ss;
-	ss << "Controller function " << function << " being set";
+	ss << "Controller function " << function << " being set, has " << config->buttonCodes.size() << " buttons within";
 	write_text_to_log_file(ss.str());
+
+	for each (ButtonsWithNames btn in config->buttonCodes)
+	{
+		std::ostringstream ss;
+		ss << "\tIncluded button " << btn.name << " and value " << btn.buttonCode;
+		write_text_to_log_file(ss.str());
+	}
 
 	auto match = controllerConfigs.find(function);
 	if (match != controllerConfigs.end())
 	{
 		ControllerButtonConfig* oldConfig = match->second;
-		match->second = new ControllerButtonConfig();
+		match->second = config;
 		delete oldConfig;
 	}
 	else
