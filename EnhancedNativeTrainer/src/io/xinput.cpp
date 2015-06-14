@@ -12,6 +12,7 @@
 
 CXBOXController* controller;
 
+XINPUT_STATE state;
 XINPUT_STATE prevState;
 
 void init_xinput()
@@ -37,7 +38,6 @@ bool IsControllerButtonDown(std::string btnName)
 		return false;
 	}
 
-	XINPUT_STATE state = controller->GetState();
 	bool result = true;
 	for each (ButtonsWithNames btn in buttonConf->buttonCodes)
 	{
@@ -66,10 +66,6 @@ bool IsControllerButtonDown(std::string btnName)
 		}
 	}
 
-	if (state.dwPacketNumber > prevState.dwPacketNumber)
-	{
-		prevState = state;
-	}
 	return result;
 }
 
@@ -78,9 +74,11 @@ bool IsControllerButtonJustUp(std::string btnName)
 	ControllerButtonConfig* buttonConf = get_config()->get_key_config()->get_controller_button(btnName);
 	if (buttonConf == NULL || buttonConf->buttonCodes.size() == 0)
 	{
+		/*
 		std::ostringstream ss;
 		ss << "Warning: no controller button for function " << btnName;
 		set_status_text_centre_screen(ss.str());
+		*/
 		return false;
 	}
 
@@ -89,7 +87,6 @@ bool IsControllerButtonJustUp(std::string btnName)
 		return false;
 	}
 
-	XINPUT_STATE state = controller->GetState();
 	bool result = true;
 	bool anyJustReleased = false;
 	bool anyPressed = false;
@@ -99,9 +96,11 @@ bool IsControllerButtonJustUp(std::string btnName)
 		WORD code = btn.buttonCode;
 		if (code == 0 )
 		{
+			/*
 			std::ostringstream ss;
 			ss << "Warning: no key for function " << btnName;
 			set_status_text_centre_screen(ss.str());
+			*/
 
 			result = false;
 			break;
@@ -135,6 +134,24 @@ bool IsControllerButtonJustUp(std::string btnName)
 	return result && anyJustReleased && (buttonConf->buttonCodes.size() == 1 || anyPressed);
 }
 
+bool UpdateXInputControlState()
+{
+	if (controller == NULL || !controller->IsConnected())
+	{
+		return false;
+	}
+
+	XINPUT_STATE newState = controller->GetState();
+	if (newState.dwPacketNumber > prevState.dwPacketNumber)
+	{
+		prevState = state;
+		state = newState;
+		return true;
+	}
+
+	return false;
+}
+
 ButtonsWithNames buttonNameToVal(char * input)
 {
 	std::string inputS = std::string(input);
@@ -164,6 +181,12 @@ bool IsAnalogControlPressed(int ourID, XINPUT_STATE state)
 {
 	if (ourID == XINPUT_L_TRIGGER)
 	{
+		/*
+		std::ostringstream ss;
+		ss << "Left trigger: " << state.Gamepad.bLeftTrigger << " vs " << XINPUT_GAMEPAD_TRIGGER_THRESHOLD;
+		set_status_text_centre_screen(ss.str());
+		*/
+
 		return (state.Gamepad.bLeftTrigger && state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 	}
 	else if (ourID == XINPUT_R_TRIGGER)
@@ -172,50 +195,55 @@ bool IsAnalogControlPressed(int ourID, XINPUT_STATE state)
 	}
 	else if (ourID == XINPUT_L_STICK_DOWN)
 	{
-		return (state.Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && 
-			state.Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbLY < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE );
+		/*
+		std::ostringstream ss;
+		ss << "Left stick down: " << state.Gamepad.sThumbLY << " vs " << XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+		set_status_text_centre_screen(ss.str());*/
+
+		return /*(state.Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && 
+			state.Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&*/
+			(state.Gamepad.sThumbLY < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE );
 	}
 	else if (ourID == XINPUT_L_STICK_UP)
 	{
-		return (state.Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbLY > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		return /*(state.Gamepad.sThumbLX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&*/
+			(state.Gamepad.sThumbLY > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
 	}
 	else if (ourID == XINPUT_L_STICK_LEFT)
 	{
-		return (state.Gamepad.sThumbLX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+		return (state.Gamepad.sThumbLX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);/* &&
 			state.Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+			state.Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);*/
 	}
 	else if (ourID == XINPUT_L_STICK_RIGHT)
 	{
-		return (state.Gamepad.sThumbLX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+		return (state.Gamepad.sThumbLX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);/* &&
 			state.Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+			state.Gamepad.sThumbLY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);*/
 	}
 	else if (ourID == XINPUT_R_STICK_DOWN)
 	{
-		return (state.Gamepad.sThumbRX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRY < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		return (state.Gamepad.sThumbRX < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRX > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRY < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 	}
 	else if (ourID == XINPUT_R_STICK_UP)
 	{
-		return (state.Gamepad.sThumbRX < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRY > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		return (state.Gamepad.sThumbRX < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRX > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRY > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 	}
 	else if (ourID == XINPUT_R_STICK_LEFT)
 	{
-		return (state.Gamepad.sThumbRX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		return (state.Gamepad.sThumbRX < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRY < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 	}
 	else if (ourID == XINPUT_R_STICK_RIGHT)
 	{
-		return (state.Gamepad.sThumbRX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			state.Gamepad.sThumbRY < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+		return (state.Gamepad.sThumbRX > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			state.Gamepad.sThumbRY < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 	}
 }

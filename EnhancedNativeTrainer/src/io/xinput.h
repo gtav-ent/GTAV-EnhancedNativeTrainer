@@ -26,7 +26,7 @@ static const WORD XINPUT_R_STICK_RIGHT = 8;
 static const WORD XINPUT_L_TRIGGER = 9;
 static const WORD XINPUT_R_TRIGGER = 10;
 
-#define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  7849 
+#define XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE  11000 
 #define XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE 8689
 #define XINPUT_GAMEPAD_TRIGGER_THRESHOLD    30
 
@@ -70,6 +70,8 @@ bool IsControllerButtonDown(std::string function);
 bool IsControllerButtonJustUp(std::string btnName);
 
 bool IsAnalogControlPressed(int ourID, XINPUT_STATE state);
+
+bool UpdateXInputControlState();
 
 ButtonsWithNames buttonNameToVal(char * input);
 

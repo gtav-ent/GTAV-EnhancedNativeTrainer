@@ -121,6 +121,8 @@ void update_features()
 		CloseHandle(myHandle);
 	}
 
+	UpdateXInputControlState();
+
 	if (is_menu_showing())
 	{
 		setAllXInputButtonsToEnabled(false);
@@ -313,7 +315,7 @@ void update_features()
 	//Pushes player through solid door objects.
 	if (bPlayerExists)
 	{
-		bool throughDoorPressed = IsKeyJustUp(KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR);
+		bool throughDoorPressed = IsKeyJustUp(KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR) || IsControllerButtonJustUp(KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR);
 		//bool disablePolicePressed = IsKeyJustUp(VK_OEM_6);
 		if (throughDoorPressed)
 		{
