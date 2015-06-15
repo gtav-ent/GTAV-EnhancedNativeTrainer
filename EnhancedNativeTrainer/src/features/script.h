@@ -113,3 +113,7 @@ char* get_storage_dir_path();
 char* get_storage_dir_path(char* file);
 
 ENTDatabase* get_database();
+
+bool should_block_input_in_menu();
+
+bool does_veh_invuln_include_cosmetic();

@@ -98,8 +98,8 @@ const std::vector<std::string> VALUES_ATTACH_PUMPSHOTGUN{ "COMPONENT_AT_SR_SUPP"
 const std::vector<std::string> CAPTIONS_ATTACH_ASSAULTSHOTGUN{ "Extended Magazine", "Suppressor", "Grip" };
 const std::vector<std::string> VALUES_ATTACH_ASSAULTSHOTGUN{ "COMPONENT_ASSAULTSHOTGUN_CLIP_02", "COMPONENT_AT_AR_SUPP", "COMPONENT_AT_AR_AFGRIP" };
 
-const std::vector<std::string> CAPTIONS_ATTACH_BULLPUPSHOTGUN{ "Extended Magazine", "Flashlight", "Suppressor", "Grip" };
-const std::vector<std::string> VALUES_ATTACH_BULLPUPSHOTGUN{ "COMPONENT_BULLPUPRIFLE_CLIP_02", "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_AR_AFGRIP" };
+const std::vector<std::string> CAPTIONS_ATTACH_BULLPUPSHOTGUN{  "Flashlight", "Suppressor", "Grip" };
+const std::vector<std::string> VALUES_ATTACH_BULLPUPSHOTGUN{ "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_AR_SUPP_02", "COMPONENT_AT_AR_AFGRIP" };
 
 //Sniper Rifles
 const std::vector<std::string> CAPTIONS_ATTACH_SNIPERRIFLE{ "Advanced Scope", "Suppressor", "Etched Wood Grip Finish" };

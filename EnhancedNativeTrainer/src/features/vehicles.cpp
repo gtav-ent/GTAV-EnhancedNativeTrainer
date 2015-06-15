@@ -356,7 +356,7 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			* This API seems to be a damage check - don't just continually repair the
 			* vehicle as it causes glitches.
 			*/
-			if (VEHICLE::_0xBCDC5017D3CE1E9E(veh))
+			if (VEHICLE::_0xBCDC5017D3CE1E9E(veh) && does_veh_invuln_include_cosmetic())
 			{
 				VEHICLE::SET_VEHICLE_FIXED(veh);
 			}
