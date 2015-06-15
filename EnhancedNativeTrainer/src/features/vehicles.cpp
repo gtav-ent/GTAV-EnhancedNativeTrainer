@@ -23,6 +23,8 @@ bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehSpawnInto = false;
 bool featureVehicleDoorInstant = false;
+bool featureWearHelmetOff = false;
+bool featureWearHelmetOffUpdated = false;
 
 int activeLineIndexVeh = 0;
 int activeSavedVehicleIndex = -1;
@@ -284,10 +286,10 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		//}
 		break;
 
-	case 9:
+	case 10:
 		if (process_vehmod_menu()) return false;
 		break;
-	case 10:
+	case 11:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
@@ -299,7 +301,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	const int lineCount = 11;
+	const int lineCount = 12;
 
 	std::string caption = "Vehicle Options";
 
@@ -311,6 +313,7 @@ void process_veh_menu()
 		{ "Paint Menu", NULL, NULL, false },
 		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
 		{ "No Falling Off/Out", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
+		{ "Don't Wear Helmet", &featureWearHelmetOff, &featureWearHelmetOffUpdated, true },
 		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
 		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
 		{ "Modifications", NULL, NULL, false },
@@ -356,7 +359,7 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			* This API seems to be a damage check - don't just continually repair the
 			* vehicle as it causes glitches.
 			*/
-			if (VEHICLE::_0xBCDC5017D3CE1E9E(veh))
+			if (VEHICLE::_0xBCDC5017D3CE1E9E(veh) && does_veh_invuln_include_cosmetic())
 			{
 				VEHICLE::SET_VEHICLE_FIXED(veh);
 			}
@@ -429,8 +432,8 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 		DWORD model = ENTITY::GET_ENTITY_MODEL(veh);
 
-		bool bUp = IsKeyDown(KeyConfig::KEY_VEH_BOOST);
-		bool bDown = IsKeyDown(KeyConfig::KEY_VEH_STOP);
+		bool bUp = IsKeyDown(KeyConfig::KEY_VEH_BOOST) || IsControllerButtonDown(KeyConfig::KEY_VEH_BOOST);
+		bool bDown = IsKeyDown(KeyConfig::KEY_VEH_STOP) || IsControllerButtonDown(KeyConfig::KEY_VEH_STOP);
 
 		if (bUp || bDown)
 		{
@@ -445,6 +448,17 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 					VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
 		}
 	}
+
+	//Prevents player from wearing a helmet
+	if (bPlayerExists && featureWearHelmetOffUpdated)
+	{
+		PED::SET_PED_HELMET(playerPed, !featureWearHelmetOff);
+		/*
+		std::string wearState = featureWearHelmetOff ? "On" : "Off";
+		set_status_text("Don't Wear Helmet: "+wearState);
+		*/
+		featureWearHelmetOffUpdated = false;
+	}
 }
 
 void reset_vehicle_globals()
@@ -454,9 +468,11 @@ void reset_vehicle_globals()
 	featureVehInvincible =
 		featureVehSpeedBoost =
 		featureVehicleDoorInstant =
-		featureVehSpawnInto = false;
+		featureVehSpawnInto =
+		featureWearHelmetOff = false;
 
-	featureVehInvincibleUpdated = true;
+	featureVehInvincibleUpdated =
+		featureWearHelmetOffUpdated = true;
 }
 
 bool onconfirm_carspawn_menu(MenuItem<int> choice)
@@ -659,6 +675,7 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvincible", &featureVehInvincible, &featureVehInvincibleUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
 	return results;
 }
 

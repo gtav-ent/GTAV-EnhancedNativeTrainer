@@ -21,13 +21,17 @@ bool in_airbrake_mode = false;
 
 bool frozen_time = false;
 
+Vector3 curLocation;
+Vector3 curRotation;
+float curHeading;
+
 //Converts Radians to Degrees
 float degToRad(float degs)
 {
 	return degs*3.141592653589793 / 180;
 }
 
-std::string airbrakeStatusLines[7];
+std::string airbrakeStatusLines[14];
 
 DWORD airbrakeStatusTextDrawTicksMax;
 bool airbrakeStatusTextGxtEntry;
@@ -50,8 +54,6 @@ void process_airbrake_menu()
 
 	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
 
-	DWORD waitTime = 150;
-
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	bool inVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0) ? true : false;
 
@@ -66,33 +68,34 @@ void process_airbrake_menu()
 		loadedAnims = true;
 	}
 
+	curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
+	curRotation = ENTITY::GET_ENTITY_ROTATION(playerPed, 0);
+	curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+
 	while (true && !exitFlag)
 	{
 		in_airbrake_mode = true;
 
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do
+		// draw menu
+		draw_menu_header_line(caption, 350.0f, 50.0f, 15.0f, 0.0f, 15.0f, false);
+		//draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
+
+		make_periodic_feature_call();
+
+		//Disable airbrake on death
+		if (ENTITY::IS_ENTITY_DEAD(playerPed))
 		{
-			// draw menu
-			draw_menu_header_line(caption, 350.0f, 50.0f, 15.0f, 0.0f, 15.0f, false);
-			//draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-
-			make_periodic_feature_call();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		airbrake(inVehicle);
-
-		//// process buttons
-		//bool bSelect, bBack, bUp, bDown;
-		//get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (airbrake_switch_pressed())
+			exitFlag = true;
+		}
+		else if (airbrake_switch_pressed())
 		{
 			menu_beep();
 			break;
 		}
+
+		airbrake(inVehicle);
+
+		WAIT(0);
 	}
 
 	if (!inVehicle)
@@ -116,7 +119,15 @@ void update_airbrake_text()
 		{
 			UI::SET_TEXT_FONT(0);
 			UI::SET_TEXT_SCALE(0.3, 0.3);
-			UI::SET_TEXT_COLOUR(255, 255, 255, 255);
+			if (i == 0 || i == 7 || i==13)
+			{
+				UI::SET_TEXT_OUTLINE();
+				UI::SET_TEXT_COLOUR(255, 180, 0, 255);
+			}
+			else
+			{
+				UI::SET_TEXT_COLOUR(255, 255, 255, 255);
+			}
 			UI::SET_TEXT_WRAP(0.0, 1.0);
 			UI::SET_TEXT_DROPSHADOW(1, 1, 1, 1, 1);
 			UI::SET_TEXT_EDGE(1, 0, 0, 0, 305);
@@ -174,13 +185,21 @@ void create_airbrake_help_text()
 
 	ss << "Current Travel Speed: " << travelSpeedStr;
 
-	airbrakeStatusLines[0] = "Default Airbrake Keys (may be changed in config):";
-	airbrakeStatusLines[1] = "Q/Z - Move Up/Down";
-	airbrakeStatusLines[2] = "A/D - Rotate Left/Right";
-	airbrakeStatusLines[3] = "W/S - Move Forward/Back";
-	airbrakeStatusLines[4] = "Shift - Toggle Move Speed";
-	airbrakeStatusLines[5] = "T - Toggle Frozen Time";
-	airbrakeStatusLines[6] = ss.str();
+	int index = 0;
+	airbrakeStatusLines[index++] = "Default Airbrake Keys (change in XML):";
+	airbrakeStatusLines[index++] = "Q/Z - Move Up/Down";
+	airbrakeStatusLines[index++] = "A/D - Rotate Left/Right";
+	airbrakeStatusLines[index++] = "W/S - Move Forward/Back";
+	airbrakeStatusLines[index++] = "Shift - Toggle Move Speed";
+	airbrakeStatusLines[index++] = "T - Toggle Frozen Time";
+	airbrakeStatusLines[index++] = " ";
+	airbrakeStatusLines[index++] = "Default Controller Input (change in XML):";
+	airbrakeStatusLines[index++] = "Triggers - Move Up/Down";
+	airbrakeStatusLines[index++] = "Left Stick - Rotate, Move Forward/Back";
+	airbrakeStatusLines[index++] = "A - Toggle Move Speed";
+	airbrakeStatusLines[index++] = "B - Toggle Frozen Time";
+	airbrakeStatusLines[index++] = " ";
+	airbrakeStatusLines[index++] = ss.str();
 
 	airbrakeStatusTextDrawTicksMax = GetTickCount() + 2500;
 	airbrakeStatusTextGxtEntry = false;
@@ -196,8 +215,8 @@ void moveThroughDoor()
 		return;
 	}
 
-	Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
-	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+	curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
+	curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
 
 	float forwardPush = 0.6;
 
@@ -215,9 +234,6 @@ void airbrake(bool inVehicle)
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
-	Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
-	Vector3 curRotation = ENTITY::GET_ENTITY_ROTATION(playerPed, 0);
-	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
 	//float tmpHeading = curHeading += ;
 
 	float rotationSpeed = 2.5;
@@ -241,12 +257,12 @@ void airbrake(bool inVehicle)
 
 	KeyInputConfig* keyConfig = get_config()->get_key_config();
 
-	bool moveUpKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_UP);
-	bool moveDownKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_DOWN);
-	bool moveForwardKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_FORWARD);
-	bool moveBackKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_BACK);
-	bool rotateLeftKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT);
-	bool rotateRightKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT);
+	bool moveUpKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_UP) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_UP);
+	bool moveDownKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_DOWN) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_DOWN);
+	bool moveForwardKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_FORWARD) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_FORWARD);
+	bool moveBackKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_BACK) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_BACK);
+	bool rotateLeftKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT);
+	bool rotateRightKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT);
 
 	//Airbrake controls vehicle if occupied
 	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
@@ -258,17 +274,15 @@ void airbrake(bool inVehicle)
 	BOOL yBoolParam = 1;
 	BOOL zBoolParam = 1;
 
-	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0, 0, 0);
+	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0.0f, 0.0f, 0.0f);
 	ENTITY::SET_ENTITY_ROTATION(playerPed, 0, 0, 0, 0, false);
-	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
-	ENTITY::SET_ENTITY_HEADING(playerPed, curHeading);
 
 	if (!inVehicle)
 	{
 		AI::TASK_PLAY_ANIM(PLAYER::PLAYER_PED_ID(), AIRBRAKE_ANIM_A, AIRBRAKE_ANIM_B, 8.0f, 0.0f, -1, 9, 0, 0, 0, 0);
 	}
 
-	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_SPEED))
+	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_SPEED) || IsControllerButtonJustUp(KeyConfig::KEY_AIRBRAKE_SPEED))
 	{
 		travelSpeed++;
 		if (travelSpeed > 2)
@@ -277,7 +291,7 @@ void airbrake(bool inVehicle)
 		}
 	}
 
-	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME))
+	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME) || IsControllerButtonJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME))
 	{
 		frozen_time = !frozen_time;
 	}
@@ -285,35 +299,37 @@ void airbrake(bool inVehicle)
 	create_airbrake_help_text();
 	update_airbrake_text();
 
-	if (moveUpKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z + forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-	if (moveDownKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z - forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-	if (rotateLeftKey)
+	if (moveUpKey)
 	{
-		ENTITY::SET_ENTITY_HEADING(playerPed, curHeading + rotationSpeed);
+		curLocation.z += forwardPush / 2;
 	}
-	else if (rotateRightKey)
+	else if (moveDownKey)
 	{
-		ENTITY::SET_ENTITY_HEADING(playerPed, curHeading - rotationSpeed);
+		curLocation.z -= forwardPush / 2;
 	}
-
-	/*
-	std::stringstream ss2;
-	ss2 << "Angle: " << curHeading << "\nXV: " << xVect << "\nYV: " << yVect << "\nCRZ: " << curRotation.z;
-	set_status_text(ss2.str());
-	*/
 
 	if (moveForwardKey)
 	{
-		if (moveUpKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z + forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else if (moveDownKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z - forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else{ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z, xBoolParam, yBoolParam, zBoolParam); }
+		curLocation.x += xVect;
+		curLocation.y += yVect;
 	}
 	else if (moveBackKey)
 	{
-		if (moveUpKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z + forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else if (moveDownKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z - forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else{ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z, xBoolParam, yBoolParam, zBoolParam); }
+		curLocation.x -= xVect;
+		curLocation.y -= yVect;
 	}
+
+	if (rotateLeftKey)
+	{
+		curHeading += rotationSpeed;
+	}
+	else if (rotateRightKey)
+	{
+		curHeading -= rotationSpeed;
+	}
+
+	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
+	ENTITY::SET_ENTITY_HEADING(playerPed, curHeading - rotationSpeed);
 }
 
 bool is_in_airbrake_mode()

@@ -60,6 +60,8 @@ bool featureWantedLevelFrozen			=	false;
 bool featureWantedLevelFrozenUpdated	=	false;
 int  frozenWantedLevel					=	0;
 
+bool featureBlockInputInMenu = true;
+bool featureVehInvulnIncludesCosmetic = true;
 bool featurePlayerResetOnDeath = true;
 
 // player model control, switching on normal ped model when needed	
@@ -122,13 +124,34 @@ void update_features()
 		CloseHandle(myHandle);
 	}
 
-	if (is_menu_showing())
+	UpdateXInputControlState();
+
+	if (is_menu_showing() || is_in_airbrake_mode())
 	{
-		CONTROLS::DISABLE_ALL_CONTROL_ACTIONS(2);
+		if (should_block_input_in_menu() || is_in_airbrake_mode())
+		{
+			//set_status_text_centre_screen("Key input disabled");
+			setGameInputToEnabled(false);
+		}
+		else
+		{
+			//set_status_text_centre_screen("Key input enabled 1");
+			setGameInputToEnabled(true);
+		}
 	}
 	else
 	{
-		CONTROLS::ENABLE_ALL_CONTROL_ACTIONS(2);
+		//set_status_text_centre_screen("Key input enabled 2");
+		setGameInputToEnabled(true);
+	}
+
+	if (is_in_airbrake_mode())
+	{
+		setAirbrakeRelatedInputToBlocked(true);
+	}
+	else
+	{
+		setAirbrakeRelatedInputToBlocked(false);
 	}
 
 	update_centre_screen_status_text();
@@ -321,7 +344,7 @@ void update_features()
 	//Pushes player through solid door objects.
 	if (bPlayerExists)
 	{
-		bool throughDoorPressed = IsKeyJustUp(KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR);
+		bool throughDoorPressed = IsKeyJustUp(KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR) || IsControllerButtonJustUp(KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR);
 		//bool disablePolicePressed = IsKeyJustUp(VK_OEM_6);
 		if (throughDoorPressed)
 		{
@@ -500,14 +523,34 @@ void process_player_menu()
 // MISC MENU
 //==================
 
+int activeLineIndexTrainerConfig = 0;
+
+void process_misc_trainerconfig_menu()
+{
+	const int lineCount = 3;
+
+	std::string caption = "Trainer Options";
+
+	StandardOrToggleMenuDef lines[lineCount] = {
+		{ "Lock Controls While In Menu", &featureBlockInputInMenu, NULL },
+		{ "Reset Skin On Death", &featurePlayerResetOnDeath, NULL },
+		{ "Vehicle Invinc. Includes Visual Damage", &featureVehInvulnIncludesCosmetic, NULL },
+	};
+
+	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTrainerConfig, caption, NULL);
+}
+
 int activeLineIndexMisc = 0;
 
 bool onconfirm_misc_menu(MenuItem<int> choice)
 {
 	switch (activeLineIndexMisc)
 	{
+	case 0:
+		process_misc_trainerconfig_menu();
+		break;
 		// next radio track
-	case 1:
+	case 2:
 		AUDIO::SKIP_RADIO_FORWARD();
 		break;
 		// switchable features
@@ -524,10 +567,10 @@ void process_misc_menu()
 	std::string caption = "Miscellaneous Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
+		{ "Trainer Options", NULL, NULL, false },
 		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
 		{"Next Radio Track",	NULL,					NULL, true},
 		{"Hide HUD",			&featureMiscHideHud,	NULL},
-		{"Reset Skin On Death", &featurePlayerResetOnDeath, NULL}
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexMisc, caption, onconfirm_misc_menu);
@@ -656,6 +699,9 @@ void main()
 {	
 	//reset_globals();
 
+	setGameInputToEnabled(true, true);
+	setAirbrakeRelatedInputToBlocked(false, true);
+
 	write_text_to_log_file("Setting up calls");
 
 	set_periodic_feature_call(update_features);
@@ -755,7 +801,13 @@ void ScriptMain()
 
 		clear_log_file();
 
+		write_text_to_log_file("Trying to init storage");
 		init_storage();
+		write_text_to_log_file("Init storage complete");
+
+		write_text_to_log_file("Trying to init XINPUT");
+		init_xinput();
+		write_text_to_log_file("Init XINPUT complete");
 
 		database = new ENTDatabase();
 		if (!database->open() )
@@ -786,9 +838,14 @@ void ScriptMain()
 
 void ScriptTidyUp()
 {
+	setGameInputToEnabled(true, true);
+	setAirbrakeRelatedInputToBlocked(false, true);
+
 	write_text_to_log_file("ScriptTidyUp called");
 
 	save_settings();
+
+	end_xinput();
 
 	if (database != NULL)
 	{
@@ -862,6 +919,8 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerResetOnDeath", &featurePlayerResetOnDeath });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureBlockInputInMenu", &featureBlockInputInMenu });
 
 	add_world_feature_enablements(results);
 
@@ -997,4 +1056,14 @@ char* get_storage_dir_path(char* file)
 ENTDatabase* get_database()
 {
 	return database;
+}
+
+bool should_block_input_in_menu()
+{
+	return featureBlockInputInMenu;
+}
+
+bool does_veh_invuln_include_cosmetic()
+{
+	return featureVehInvulnIncludesCosmetic;
 }

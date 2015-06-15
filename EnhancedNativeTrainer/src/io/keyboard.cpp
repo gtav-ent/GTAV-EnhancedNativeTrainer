@@ -5,7 +5,7 @@
 */
 
 #include "..\io\keyboard.h"
-//#include "..\features\script.h"
+#include "..\features\script.h"
 #include "..\debug\debuglog.h"
 
 #include <sstream>
@@ -42,27 +42,29 @@ bool IsKeyDown(std::string keyName)
 	bool result = IsKeyDown(key->keyCode);
 	if (result && key->modAlt)
 	{
-		result = IsKeyDown(VK_MENU);
+		result = (GetKeyState(VK_MENU) & 0x8000);
 	}
 	if (result && key->modShift)
 	{
-		result == IsKeyDown(VK_SHIFT);
+		result = (GetKeyState(VK_SHIFT) & 0x8000);
 	}
 	if (result && key->modCtrl)
 	{
-		result == IsKeyDown(VK_LCONTROL) || IsKeyDown(VK_RCONTROL);
+		result = (GetKeyState(VK_LCONTROL) & 0x8000 || GetKeyState(VK_RCONTROL) & 0x8000);
 	}
 	return result;
 }
 
 bool IsKeyDown(DWORD key)
 {
-	return (key < KEYS_SIZE) ? ((GetTickCount() < keyStates[key].time + MAX_DOWN) && !keyStates[key].isUpNow) : false;
+	return GetKeyState(key) & 0x8000;
+	//return (key < KEYS_SIZE) ? ((GetTickCount() < keyStates[key].time + MAX_DOWN) && !keyStates[key].isUpNow) : false;
 }
 
 bool IsKeyJustUp(std::string keyName, bool exclusive)
 {
 	KeyConfig* key = get_config()->get_key_config()->get_key(keyName);
+
 	if (key == NULL)
 	{
 		return false;
@@ -70,15 +72,15 @@ bool IsKeyJustUp(std::string keyName, bool exclusive)
 	bool result = IsKeyJustUp(key->keyCode, exclusive);
 	if (result && key->modAlt)
 	{
-		result = IsKeyDown(VK_MENU);
+		result = (GetKeyState(VK_MENU) & 0x8000);
 	}
 	if (result && key->modShift)
 	{
-		result == IsKeyDown(VK_SHIFT);
+		result = (GetKeyState(VK_SHIFT) & 0x8000);
 	}
 	if (result && key->modCtrl)
 	{
-		result == IsKeyDown(VK_LCONTROL) || IsKeyDown(VK_RCONTROL);
+		result = (GetKeyState(VK_LCONTROL) & 0x8000 || GetKeyState(VK_RCONTROL) & 0x8000);
 	}
 	return result;
 }
@@ -99,18 +101,10 @@ void ResetKeyState(DWORD key)
 
 int keyNameToVal(char * input)
 {
-	std::ostringstream ss;
-	ss << "Searching for " << input;
-	write_text_to_log_file(ss.str());
-
 	for (int i = 0; i < (sizeof ALL_KEYS / sizeof ALL_KEYS[0]); i++)
 	{
 		if (strcmp(input, ALL_KEYS[i].name) == 0)
 		{
-			ss.str(""); ss.clear();
-			ss << "Found match of " << ALL_KEYS[i].name << " with code " << ALL_KEYS[i].keyCode;
-			write_text_to_log_file(ss.str());
-
 			return ALL_KEYS[i].keyCode;
 		}
 	}

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="inc\xinput\CXBOXController.cpp" />
     <ClCompile Include="src\features\airbrake.cpp" />
     <ClCompile Include="src\features\anims.cpp" />
     <ClCompile Include="src\features\time.cpp" />
@@ -33,6 +34,7 @@
     <ClCompile Include="src\features\world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\xinput\CXBOXController.h" />
     <ClInclude Include="src\features\airbrake.h" />
     <ClInclude Include="src\features\anims.h" />
     <ClInclude Include="src\features\time.h" />

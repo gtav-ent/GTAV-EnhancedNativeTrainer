@@ -18,6 +18,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "..\io\io.h"
 #include "..\io\config_io.h"
+#include "..\io\xinput.h"
 #include "..\ui_support\menu_functions.h"
 #include "..\storage\database.h"
 #include "..\debug\debuglog.h"
@@ -113,3 +114,7 @@ char* get_storage_dir_path();
 char* get_storage_dir_path(char* file);
 
 ENTDatabase* get_database();
+
+bool should_block_input_in_menu();
+
+bool does_veh_invuln_include_cosmetic();

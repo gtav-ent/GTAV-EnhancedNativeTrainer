@@ -28,3 +28,7 @@ bool trainer_switch_pressed();
 void reset_trainer_switch();
 
 bool airbrake_switch_pressed();
+
+void setGameInputToEnabled(bool enabled, bool force = false);
+
+void setAirbrakeRelatedInputToBlocked(bool blocked, bool force = false);

@@ -180,7 +180,7 @@ bool process_paint_menu_special(int category)
 		}
 	}
 
-	if (paint1 == 3 || paint1 == 4 || paint1 == 5)
+	if (category == 0 && (paint1 == 3 || paint1 == 4 || paint1 == 5))
 	{
 		set_status_text("Pearl cannot be applied over this paint type");
 		return false;

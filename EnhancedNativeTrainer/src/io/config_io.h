@@ -56,6 +56,13 @@ public:
 	bool modShift = false;
 };
 
+struct ButtonsWithNames
+{
+	std::string name;
+	WORD buttonCode;
+	bool isAnalog;
+};
+
 class ControllerButtonConfig
 {
 public:
@@ -71,8 +78,8 @@ public:
 	static const std::string CONTROLLER_BTN_SHOULDER_R;
 	static const std::string CONTROLLER_BTN_TRIGGER_L;
 	static const std::string CONTROLLER_BTN_TRIGGER_R;
-	static const std::string CONTROLLER_BTN_MENU;
-	static const std::string CONTROLLER_BTN_GUIDE;
+	static const std::string CONTROLLER_BTN_BACK;
+	static const std::string CONTROLLER_BTN_START;
 	static const std::string CONTROLLER_LSTICK_L;
 	static const std::string CONTROLLER_LSTICK_R;
 	static const std::string CONTROLLER_LSTICK_U;
@@ -92,7 +99,7 @@ public:
 
 	void add_button(std::string name);
 
-	std::vector<int> buttonCodes;
+	std::vector<ButtonsWithNames> buttonCodes;
 };
 
 /**A class to hold the current key bindings.*/
