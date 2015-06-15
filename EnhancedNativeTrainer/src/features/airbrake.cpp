@@ -21,6 +21,10 @@ bool in_airbrake_mode = false;
 
 bool frozen_time = false;
 
+Vector3 curLocation;
+Vector3 curRotation;
+float curHeading;
+
 //Converts Radians to Degrees
 float degToRad(float degs)
 {
@@ -50,8 +54,6 @@ void process_airbrake_menu()
 
 	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
 
-	DWORD waitTime = 150;
-
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	bool inVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0) ? true : false;
 
@@ -66,33 +68,34 @@ void process_airbrake_menu()
 		loadedAnims = true;
 	}
 
+	curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
+	curRotation = ENTITY::GET_ENTITY_ROTATION(playerPed, 0);
+	curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+
 	while (true && !exitFlag)
 	{
 		in_airbrake_mode = true;
 
-		// timed menu draw, used for pause after active line switch
-		DWORD maxTickCount = GetTickCount() + waitTime;
-		do
+		// draw menu
+		draw_menu_header_line(caption, 350.0f, 50.0f, 15.0f, 0.0f, 15.0f, false);
+		//draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
+
+		make_periodic_feature_call();
+
+		//Disable airbrake on death
+		if (ENTITY::IS_ENTITY_DEAD(playerPed))
 		{
-			// draw menu
-			draw_menu_header_line(caption, 350.0f, 50.0f, 15.0f, 0.0f, 15.0f, false);
-			//draw_menu_line(caption, lineWidth, 15.0, 18.0, 0.0, 5.0, false, true);
-
-			make_periodic_feature_call();
-			WAIT(0);
-		} while (GetTickCount() < maxTickCount);
-		waitTime = 0;
-
-		airbrake(inVehicle);
-
-		//// process buttons
-		//bool bSelect, bBack, bUp, bDown;
-		//get_button_state(&bSelect, &bBack, &bUp, &bDown, NULL, NULL);
-		if (airbrake_switch_pressed())
+			exitFlag = true;
+		}
+		else if (airbrake_switch_pressed())
 		{
 			menu_beep();
 			break;
 		}
+
+		airbrake(inVehicle);
+
+		WAIT(0);
 	}
 
 	if (!inVehicle)
@@ -212,8 +215,8 @@ void moveThroughDoor()
 		return;
 	}
 
-	Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
-	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
+	curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
+	curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
 
 	float forwardPush = 0.6;
 
@@ -231,9 +234,6 @@ void airbrake(bool inVehicle)
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
-	Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
-	Vector3 curRotation = ENTITY::GET_ENTITY_ROTATION(playerPed, 0);
-	float curHeading = ENTITY::GET_ENTITY_HEADING(playerPed);
 	//float tmpHeading = curHeading += ;
 
 	float rotationSpeed = 2.5;
@@ -274,10 +274,8 @@ void airbrake(bool inVehicle)
 	BOOL yBoolParam = 1;
 	BOOL zBoolParam = 1;
 
-	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0, 0, 0);
+	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0.0f, 0.0f, 0.0f);
 	ENTITY::SET_ENTITY_ROTATION(playerPed, 0, 0, 0, 0, false);
-	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
-	ENTITY::SET_ENTITY_HEADING(playerPed, curHeading);
 
 	if (!inVehicle)
 	{
@@ -301,35 +299,37 @@ void airbrake(bool inVehicle)
 	create_airbrake_help_text();
 	update_airbrake_text();
 
-	if (moveUpKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z + forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-	if (moveDownKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z - forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-	if (rotateLeftKey)
+	if (moveUpKey)
 	{
-		ENTITY::SET_ENTITY_HEADING(playerPed, curHeading + rotationSpeed);
+		curLocation.z += forwardPush / 2;
 	}
-	else if (rotateRightKey)
+	else if (moveDownKey)
 	{
-		ENTITY::SET_ENTITY_HEADING(playerPed, curHeading - rotationSpeed);
+		curLocation.z -= forwardPush / 2;
 	}
-
-	/*
-	std::stringstream ss2;
-	ss2 << "Angle: " << curHeading << "\nXV: " << xVect << "\nYV: " << yVect << "\nCRZ: " << curRotation.z;
-	set_status_text(ss2.str());
-	*/
 
 	if (moveForwardKey)
 	{
-		if (moveUpKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z + forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else if (moveDownKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z - forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else{ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x + xVect, curLocation.y + yVect, curLocation.z, xBoolParam, yBoolParam, zBoolParam); }
+		curLocation.x += xVect;
+		curLocation.y += yVect;
 	}
 	else if (moveBackKey)
 	{
-		if (moveUpKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z + forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else if (moveDownKey){ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z - forwardPush / 2, xBoolParam, yBoolParam, zBoolParam); }
-		else{ ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x - xVect, curLocation.y - yVect, curLocation.z, xBoolParam, yBoolParam, zBoolParam); }
+		curLocation.x -= xVect;
+		curLocation.y -= yVect;
 	}
+
+	if (rotateLeftKey)
+	{
+		curHeading += rotationSpeed;
+	}
+	else if (rotateRightKey)
+	{
+		curHeading -= rotationSpeed;
+	}
+
+	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
+	ENTITY::SET_ENTITY_HEADING(playerPed, curHeading - rotationSpeed);
 }
 
 bool is_in_airbrake_mode()

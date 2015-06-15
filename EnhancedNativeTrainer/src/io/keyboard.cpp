@@ -57,7 +57,8 @@ bool IsKeyDown(std::string keyName)
 
 bool IsKeyDown(DWORD key)
 {
-	return (key < KEYS_SIZE) ? ((GetTickCount() < keyStates[key].time + MAX_DOWN) && !keyStates[key].isUpNow) : false;
+	return GetKeyState(key) & 0x8000;
+	//return (key < KEYS_SIZE) ? ((GetTickCount() < keyStates[key].time + MAX_DOWN) && !keyStates[key].isUpNow) : false;
 }
 
 bool IsKeyJustUp(std::string keyName, bool exclusive)

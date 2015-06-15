@@ -10,12 +10,14 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "io.h"
 #include "config_io.h"
+#include "..\features\script.h"
 #include <string>
 #include <sstream>
 
 DWORD trainerResetTime = 0;
 
 bool gameInputDisabledByUs = false;
+bool gameInputBlockedByUs = false;
 
 bool trainer_switch_pressed()
 {
@@ -85,5 +87,31 @@ void setGameInputToEnabled(bool enabled, bool force)
 	{
 		PLAYER::SET_PLAYER_CONTROL(0, 0, 256);
 		gameInputDisabledByUs = true;
+	}
+}
+
+void setAirbrakeRelatedInputToBlocked(bool blocked, bool force)
+{
+	if (blocked || force || (!blocked && gameInputBlockedByUs))
+	{
+		void(*function)(Any x, Any y, Any z);
+		if (blocked)
+		{
+			function = CONTROLS::DISABLE_CONTROL_ACTION;
+		}
+		else
+		{
+			function = CONTROLS::ENABLE_CONTROL_ACTION;
+		}
+		
+		function(2, 332, 1); //radio wheel up
+		function(2, 333, 1); //radio wheel down
+
+		for (int i = 81; i <= 85; i++)
+		{
+			function(2, i, 1); //radio stuff
+		}
+
+		gameInputBlockedByUs = blocked;
 	}
 }

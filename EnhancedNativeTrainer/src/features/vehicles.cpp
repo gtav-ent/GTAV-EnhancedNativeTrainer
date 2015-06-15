@@ -453,8 +453,10 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	if (bPlayerExists && featureWearHelmetOffUpdated)
 	{
 		PED::SET_PED_HELMET(playerPed, !featureWearHelmetOff);
+		/*
 		std::string wearState = featureWearHelmetOff ? "On" : "Off";
 		set_status_text("Don't Wear Helmet: "+wearState);
+		*/
 		featureWearHelmetOffUpdated = false;
 	}
 }

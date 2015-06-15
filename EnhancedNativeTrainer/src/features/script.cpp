@@ -127,18 +127,30 @@ void update_features()
 
 	if (is_menu_showing() || is_in_airbrake_mode())
 	{
-		if (should_block_input_in_menu())
+		if (should_block_input_in_menu() || is_in_airbrake_mode())
 		{
+			//set_status_text_centre_screen("Key input disabled");
 			setGameInputToEnabled(false);
 		}
 		else
 		{
+			//set_status_text_centre_screen("Key input enabled 1");
 			setGameInputToEnabled(true);
 		}
 	}
 	else
 	{
+		//set_status_text_centre_screen("Key input enabled 2");
 		setGameInputToEnabled(true);
+	}
+
+	if (is_in_airbrake_mode())
+	{
+		setAirbrakeRelatedInputToBlocked(true);
+	}
+	else
+	{
+		setAirbrakeRelatedInputToBlocked(false);
 	}
 
 	update_centre_screen_status_text();
@@ -511,7 +523,7 @@ void process_misc_trainerconfig_menu()
 	std::string caption = "Trainer Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Lock Controls While In Menu/Airbrake", &featureBlockInputInMenu, NULL },
+		{ "Lock Controls While In Menu", &featureBlockInputInMenu, NULL },
 		{ "Reset Skin On Death", &featurePlayerResetOnDeath, NULL },
 		{ "Vehicle Invinc. Includes Visual Damage", &featureVehInvulnIncludesCosmetic, NULL },
 	};
@@ -679,6 +691,7 @@ void main()
 	//reset_globals();
 
 	setGameInputToEnabled(true, true);
+	setAirbrakeRelatedInputToBlocked(false, true);
 
 	write_text_to_log_file("Setting up calls");
 
@@ -817,6 +830,7 @@ void ScriptMain()
 void ScriptTidyUp()
 {
 	setGameInputToEnabled(true, true);
+	setAirbrakeRelatedInputToBlocked(false, true);
 
 	write_text_to_log_file("ScriptTidyUp called");
 
