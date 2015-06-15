@@ -129,12 +129,16 @@ void update_features()
 	{
 		if (should_block_input_in_menu())
 		{
-			setAllXInputButtonsToEnabled(false);
+			setGameInputToEnabled(false);
+		}
+		else
+		{
+			setGameInputToEnabled(true);
 		}
 	}
 	else
 	{
-		setAllXInputButtonsToEnabled(true);
+		setGameInputToEnabled(true);
 	}
 
 	update_centre_screen_status_text();
@@ -674,7 +678,7 @@ void main()
 {	
 	//reset_globals();
 
-	PLAYER::SET_PLAYER_CONTROL(0, 1, 0);
+	setGameInputToEnabled(true, true);
 
 	write_text_to_log_file("Setting up calls");
 
@@ -812,7 +816,7 @@ void ScriptMain()
 
 void ScriptTidyUp()
 {
-	PLAYER::SET_PLAYER_CONTROL(0, 1, 0);
+	setGameInputToEnabled(true, true);
 
 	write_text_to_log_file("ScriptTidyUp called");
 

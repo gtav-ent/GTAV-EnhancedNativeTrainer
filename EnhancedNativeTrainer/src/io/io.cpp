@@ -15,6 +15,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 DWORD trainerResetTime = 0;
 
+bool gameInputDisabledByUs = false;
+
 bool trainer_switch_pressed()
 {
 	bool result = IsKeyJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU) || IsControllerButtonJustUp(KeyConfig::KEY_TOGGLE_MAIN_MENU);
@@ -69,4 +71,19 @@ bool airbrake_switch_pressed()
 void reset_trainer_switch()
 {
 	trainerResetTime = GetTickCount();
+}
+
+
+void setGameInputToEnabled(bool enabled, bool force=false)
+{
+	if (enabled && (gameInputDisabledByUs || force))
+	{
+		PLAYER::SET_PLAYER_CONTROL(0, 1, 0);
+		gameInputDisabledByUs = false;
+	}
+	else if (!enabled)
+	{
+		PLAYER::SET_PLAYER_CONTROL(0, 0, 256);
+		gameInputDisabledByUs = true;
+	}
 }

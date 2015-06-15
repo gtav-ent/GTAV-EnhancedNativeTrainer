@@ -74,5 +74,3 @@ bool IsAnalogControlPressed(int ourID, XINPUT_STATE state);
 bool UpdateXInputControlState();
 
 ButtonsWithNames buttonNameToVal(char * input);
-
-void setAllXInputButtonsToEnabled(bool enabled);

@@ -165,18 +165,6 @@ ButtonsWithNames buttonNameToVal(char * input)
 	return ButtonsWithNames{ 0, 0, 0 };
 }
 
-void setAllXInputButtonsToEnabled(bool enabled)
-{
-	if (enabled)
-	{
-		PLAYER::SET_PLAYER_CONTROL(0, 1, 0);
-	}
-	else
-	{
-		PLAYER::SET_PLAYER_CONTROL(0, 0, 256);
-	}
-}
-
 bool IsAnalogControlPressed(int ourID, XINPUT_STATE state)
 {
 	if (ourID == XINPUT_L_TRIGGER)
