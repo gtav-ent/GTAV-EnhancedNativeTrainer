@@ -512,8 +512,8 @@ void process_misc_trainerconfig_menu()
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Lock Controls While In Menu/Airbrake", &featureBlockInputInMenu, NULL },
-		{ "Reset Skin On Death", &featureVehInvulnIncludesCosmetic, NULL },
-		{ "Vehicle Invinc. Includes Visual Damage", &featurePlayerResetOnDeath, NULL },
+		{ "Reset Skin On Death", &featurePlayerResetOnDeath, NULL },
+		{ "Vehicle Invinc. Includes Visual Damage", &featureVehInvulnIncludesCosmetic, NULL },
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTrainerConfig, caption, NULL);

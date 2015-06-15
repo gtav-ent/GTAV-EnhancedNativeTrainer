@@ -74,7 +74,7 @@ void reset_trainer_switch()
 }
 
 
-void setGameInputToEnabled(bool enabled, bool force=false)
+void setGameInputToEnabled(bool enabled, bool force)
 {
 	if (enabled && (gameInputDisabledByUs || force))
 	{
