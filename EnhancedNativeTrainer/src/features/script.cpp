@@ -189,7 +189,16 @@ void update_features()
 		if (featureWantedLevelFrozenUpdated)
 		{
 			frozenWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
 			featureWantedLevelFrozenUpdated = false;
+
+			if (frozenWantedLevel > 0)
+			{
+				std::stringstream ss;
+				ss << "Wanted Level Frozen at: " << frozenWantedLevel << " Star";
+				if (frozenWantedLevel > 1){ ss << "s"; }
+				set_status_text(ss.str());
+			}
 		}
 		if (frozenWantedLevel > 0)
 		{
@@ -197,6 +206,20 @@ void update_features()
 				PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
 			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 		}
+		else
+		{
+			featureWantedLevelFrozen = false;
+			set_status_text("You must have a Wanted Level first.");
+		}
+	}
+	if (featureWantedLevelFrozenUpdated)
+	{
+		if (!featureWantedLevelFrozen)
+		{
+			set_status_text("Wanted Level Unfrozen");
+			PLAYER::SET_MAX_WANTED_LEVEL(5);
+		}
+		featureWantedLevelFrozenUpdated = false;
 	}
 	
 	

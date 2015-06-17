@@ -394,7 +394,12 @@ void WantedSymbolItem<T>::handleLeftPress()
 		else
 		{
 			ss << "Wanted Level Cleared";
-			setFrozenWantedFeature(false);
+			PLAYER::SET_MAX_WANTED_LEVEL(5);
+			if (getFrozenWantedFeature())
+			{
+				setFrozenWantedFeature(false);
+				set_status_text("Wanted Level Unfrozen");
+			}
 		}
 		set_status_text(ss.str());
 	}
