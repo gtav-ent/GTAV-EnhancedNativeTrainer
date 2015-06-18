@@ -47,6 +47,7 @@
     <ClInclude Include="src\features\time.h" />
     <ClInclude Include="src\io\xinput.h" />
     <ClInclude Include="inc\xinput\CXBOXController.h" />
+    <ClInclude Include="src\version.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />

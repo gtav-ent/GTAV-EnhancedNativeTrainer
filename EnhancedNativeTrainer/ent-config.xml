@@ -7,7 +7,9 @@
     For now, if you want controller input, you need to map it to a key first using some utility.
     If you cock up this file and enter an invalid key, the default will be used instead.
     If you manage to assign the same key to multiple functions, who knows?
-    Modifiers like Ctrl and Alt (e.g. Ctrl-A) may come along later.
+    
+    Use VK_NOTHING to signify no assignment.
+    
     -->
     <key function="toggle_main_menu" value="VK_F4"/>
 
@@ -35,6 +37,7 @@
     <key function="airbrake_rotate_right" value="VK_KEY_D"/>
     <key function="airbrake_speed" value="VK_SHIFT"/>
     <key function="airbrake_freeze_time" value="VK_KEY_T"/>
+    <key function="airbrake_help" value="VK_KEY_H"/>
 
     <!--
     This next bit should be self-explanatory. The function names are the same.
@@ -67,6 +70,7 @@
         R_STICK_DOWN
         L_STICK_CLICK
         R_STICK_CLICK
+        NOT_BOUND - this can be used to assign no button
     -->
 
     <controller function="toggle_main_menu">

@@ -21,3 +21,5 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 bool process_teleport_menu(int categoryIndex);
 
 void reset_teleporter_globals();
+
+void process_toggles_menu();

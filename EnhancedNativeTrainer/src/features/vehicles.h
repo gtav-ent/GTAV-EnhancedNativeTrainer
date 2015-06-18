@@ -102,3 +102,7 @@ bool vehicle_save_menu_interrupt();
 bool vehicle_save_slot_menu_interrupt();
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles();
+
+void add_vehicle_generic_settings(std::vector<StringPairSettingDBRow>* results);
+
+void handle_generic_settings_vehicle(std::vector<StringPairSettingDBRow>* settings);

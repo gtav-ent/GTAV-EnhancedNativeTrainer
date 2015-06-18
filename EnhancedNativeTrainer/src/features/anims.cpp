@@ -15,9 +15,18 @@ TreeNode *rootNode;
 
 TreeNode *facialsNode;
 
+TreeNode *movementNode;
+
 TreeNode *currentMenuNode;
 int currentAnimMenuDepth = 0;
 int currentAnimMenuMode = -1;
+
+const int CATEGORY_FACIAL_IDLE = 90;
+const int CATEGORY_MOVE_IDLE = 91;
+const int CATEGORY_MOVE_WALK = 92;
+const int CATEGORY_MOVE_RUN = 93;
+const int CATEGORY_FACIAL_NOW = 94;
+const int CATEGORY_GENERAL_NOW = 95;
 
 const std::vector<std::string> ALL_ANIMS =
 {
@@ -21915,12 +21924,31 @@ static bool StringEndsWith(const std::string& a, const std::string& b)
 	return std::equal(a.begin() + a.size() - b.size(), a.end(), b.begin());
 }
 
+static bool StringStartsWith(const std::string& a, const std::string& b)
+{
+	if (b.size() > a.size()) return false;
+	return std::equal(a.begin(), a.begin() + b.size(), b.begin());
+}
+
 std::vector<std::string> find_all_anims_with_suffix(std::string suffix)
 {
 	std::vector<std::string> results;
 	for each (std::string anim in ALL_ANIMS)
 	{
 		if (StringEndsWith(anim, suffix))
+		{
+			results.push_back(anim);
+		}
+	}
+	return results;
+}
+
+std::vector<std::string> find_all_anims_with_prefix(std::string prefix)
+{
+	std::vector<std::string> results;
+	for each (std::string anim in ALL_ANIMS)
+	{
+		if (StringStartsWith(anim, prefix))
 		{
 			results.push_back(anim);
 		}
@@ -21949,10 +21977,17 @@ TreeNode* build_anim_tree_with_suffix_filter(std::string filter)
 	return build_anim_tree(filtered);
 }
 
+TreeNode* build_anim_tree_with_prefix_filter(std::string filter)
+{
+	std::vector<std::string> filtered = find_all_anims_with_prefix(filter);
+	return build_anim_tree(filtered);
+}
+
 void build_anim_tree()
 {
 	rootNode = build_anim_tree(ALL_ANIMS);
 	facialsNode = build_anim_tree_with_suffix_filter("facial");
+	movementNode = build_anim_tree_with_prefix_filter("move");
 }
 
 TreeNode* build_anim_tree(std::vector<std::string> input)
@@ -22014,6 +22049,33 @@ TreeNode* build_anim_tree(std::vector<std::string> input)
 
 bool onconfirm_anim_menu(MenuItem<int> choice)
 {
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	switch (choice.value)
+	{
+	case -1:
+		switch (currentAnimMenuMode)
+		{
+		case CATEGORY_FACIAL_NOW:
+		case CATEGORY_GENERAL_NOW:
+			break;
+		case CATEGORY_FACIAL_IDLE:
+			PED::CLEAR_FACIAL_IDLE_ANIM_OVERRIDE(playerPed);
+			break;
+		case CATEGORY_MOVE_IDLE:
+			PED::CLEAR_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 0, true);
+			break;
+		case CATEGORY_MOVE_WALK:
+			PED::CLEAR_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 1, true);
+			break;
+		case CATEGORY_MOVE_RUN:
+			PED::CLEAR_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 2, true);
+			break;
+		}
+		return false;
+	}
+
 	write_text_to_log_file("onconfirm_anim_menu called");
 	TreeNode* target = currentMenuNode->children.at(choice.value);
 	if (!target->hasChildren())
@@ -22026,9 +22088,6 @@ bool onconfirm_anim_menu(MenuItem<int> choice)
 		std::stringstream ss;
 		ss << "Selected dict: " << dict << " and anim: " << anim;
 		write_text_to_log_file(ss.str());
-
-		Player player = PLAYER::PLAYER_ID();
-		Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 		if (STREAMING::DOES_ANIM_DICT_EXIST(dict))
 		{
@@ -22045,14 +22104,23 @@ bool onconfirm_anim_menu(MenuItem<int> choice)
 
 			switch (currentAnimMenuMode)
 			{
-			case 0:
+			case CATEGORY_FACIAL_NOW:
 				PED::PLAY_FACIAL_ANIM(playerPed, anim, dict);
 				break;
-			case 1:
+			case CATEGORY_FACIAL_IDLE:
 				PED::SET_FACIAL_IDLE_ANIM_OVERRIDE(playerPed, anim, dict);
 				break;
-			case 2:
+			case CATEGORY_GENERAL_NOW:
 				AI::TASK_PLAY_ANIM(playerPed, dict, anim, 8, -8, -1, 0, 0, false, 0, true);
+				break;
+			case CATEGORY_MOVE_IDLE:
+				PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 0, dict, anim, 0, true);
+				break;
+			case CATEGORY_MOVE_WALK:
+				PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 1, dict, anim, 0, true);
+				break;
+			case CATEGORY_MOVE_RUN:
+				PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 2, dict, anim, 0, true);
 				break;
 			}
 			set_status_text(ss.str());
@@ -22081,20 +22149,45 @@ bool process_anims_menu()
 	{
 		switch (currentAnimMenuMode)
 		{
-		case 0://facial immediate
+		case CATEGORY_GENERAL_NOW://facial immediate
+		case CATEGORY_FACIAL_IDLE: //facial delay
 			currentMenuNode = facialsNode;
 			break;
-		case 1: //facial delay
-			currentMenuNode = facialsNode;
+		case CATEGORY_MOVE_IDLE:
+		case CATEGORY_MOVE_WALK:
+		case CATEGORY_MOVE_RUN:
+			currentMenuNode = movementNode;
 			break;
-		case 2:
+		default:
 			currentMenuNode = rootNode;
 			break;
 		}
-		
 	}
 
 	std::vector<MenuItem<int>*> menuItems;
+
+	bool addClearItem = false;
+	if (currentAnimMenuDepth == 1)
+	{
+		switch (currentAnimMenuMode)
+		{
+		case CATEGORY_FACIAL_IDLE: //facial delay
+		case CATEGORY_MOVE_IDLE:
+		case CATEGORY_MOVE_WALK:
+		case CATEGORY_MOVE_RUN:
+			addClearItem = true;
+			break;
+		}
+	}
+
+	if (addClearItem)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->isLeaf = true;
+		item->caption = "Clear/Reset To Default";
+		item->value = -1;
+		menuItems.push_back(item);
+	}
 
 	int i = 0;
 	for each (TreeNode *node in currentMenuNode->children)
@@ -22116,14 +22209,23 @@ bool process_anims_menu()
 	char* caption;
 	switch (currentAnimMenuMode)
 	{
-	case 0://facial immediate
+	case CATEGORY_FACIAL_NOW://facial immediate
 		caption = "Facial Anims";
 		break;
-	case 1: //facial delay
+	case CATEGORY_GENERAL_NOW:
+		caption = "Player Anims";
+		break;
+	case CATEGORY_FACIAL_IDLE: //facial delay
 		caption = "Facial Idle Anims";
 		break;
-	case 2:
-		caption = "Player Anims";
+	case CATEGORY_MOVE_IDLE:
+		caption = "Idle Anims";
+		break;
+	case CATEGORY_MOVE_WALK:
+		caption = "Walking Anims";
+		break;
+	case CATEGORY_MOVE_RUN:
+		caption = "Running Anims";
 		break;
 	}
 
@@ -22138,13 +22240,6 @@ bool process_anims_menu()
 
 bool onconfirm_anim_top_menu(MenuItem<int> choice)
 {
-	if (choice.value == 3)
-	{
-		Player player = PLAYER::PLAYER_ID();
-		Ped playerPed = PLAYER::PLAYER_PED_ID();
-		PED::CLEAR_FACIAL_IDLE_ANIM_OVERRIDE(playerPed);
-		return false;
-	}
 	currentAnimMenuMode = choice.value;
 	process_anims_menu();
 	return false;
@@ -22158,26 +22253,38 @@ bool process_anims_menu_top()
 
 	MenuItem<int> *item = new MenuItem<int>();
 	item->isLeaf = false;
-	item->caption = "Facial Anims (Immediate)";
-	item->value = i++;
+	item->caption = "Facial Anims: Immediate Play";
+	item->value = CATEGORY_FACIAL_NOW;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->isLeaf = false;
-	item->caption = "Facial Anims (Idle)";
-	item->value = i++;
+	item->caption = "Facial Anims: Idle";
+	item->value = CATEGORY_FACIAL_IDLE;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->isLeaf = false;
-	item->caption = "Player Anims";
-	item->value = i++;
+	item->caption = "Movement Anims: Idle";
+	item->value = CATEGORY_MOVE_IDLE;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
-	item->isLeaf = true;
-	item->caption = "Clear Idle Facial Anim";
-	item->value = i++;
+	item->isLeaf = false;
+	item->caption = "Movement Anims: Walking";
+	item->value = CATEGORY_MOVE_WALK;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->isLeaf = false;
+	item->caption = "Movement Anims: Running";
+	item->value = CATEGORY_MOVE_RUN;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->isLeaf = false;
+	item->caption = "All Anims: Immediate Play";
+	item->value = CATEGORY_GENERAL_NOW;
 	menuItems.push_back(item);
 
 	draw_generic_menu<int>(menuItems, 0, "Anim Types", onconfirm_anim_top_menu, NULL, NULL, NULL);

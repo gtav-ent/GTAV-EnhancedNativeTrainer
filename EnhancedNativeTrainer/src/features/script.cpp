@@ -20,6 +20,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #pragma comment(lib, "Shlwapi.lib")
 
 #include "script.h"
+#include "../version.h"
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
@@ -50,8 +51,12 @@ bool featurePlayerFastRunUpdated		=	false;
 bool featurePlayerSuperJump				=	false;
 bool featurePlayerInvisible				=	false;
 bool featurePlayerInvisibleUpdated		=	false;
+bool featurePlayerDrunk = false;
+bool featurePlayerDrunkUpdated = false;
 bool featurePlayerRadio					=	false;
 bool featurePlayerRadioUpdated			=	false;
+bool featureRadioAlwaysOff = false;
+bool featureRadioAlwaysOffUpdated = false;
 
 bool featureMiscLockRadio				=	false;
 bool featureMiscHideHud					=	false;
@@ -66,6 +71,8 @@ bool featurePlayerResetOnDeath = true;
 // player model control, switching on normal ped model when needed	
 
 LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
+
+const char* CLIPSET_DRUNK = "move_m@drunk@verydrunk";
 
 const std::vector<std::string> GRAVITY_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
 const std::vector<float> GRAVITY_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f };
@@ -129,18 +136,15 @@ void update_features()
 	{
 		if (should_block_input_in_menu() || is_in_airbrake_mode())
 		{
-			//set_status_text_centre_screen("Key input disabled");
 			setGameInputToEnabled(false);
 		}
 		else
 		{
-			//set_status_text_centre_screen("Key input enabled 1");
 			setGameInputToEnabled(true);
 		}
 	}
 	else
 	{
-		//set_status_text_centre_screen("Key input enabled 2");
 		setGameInputToEnabled(true);
 	}
 
@@ -152,6 +156,8 @@ void update_features()
 	{
 		setAirbrakeRelatedInputToBlocked(false);
 	}
+
+	
 
 	update_centre_screen_status_text();
 
@@ -303,13 +309,58 @@ void update_features()
 		else if (bPlayerExists){ ENTITY::SET_ENTITY_VISIBLE(playerPed, true); }
 	}
 
+	if (featurePlayerDrunkUpdated)
+	{
+		featurePlayerDrunkUpdated = false;
+		if (featurePlayerDrunk)
+		{
+			STREAMING::REQUEST_ANIM_SET((char*)CLIPSET_DRUNK);
+			while (!STREAMING::HAS_ANIM_SET_LOADED((char*)CLIPSET_DRUNK))
+			{
+				WAIT(0);
+			}
+			PED::SET_PED_MOVEMENT_CLIPSET(playerPed, (char*)CLIPSET_DRUNK, 1.0f);
+			CAM::SHAKE_GAMEPLAY_CAM("DRUNK_SHAKE", 1.0f);
+		}
+		else
+		{
+			PED::RESET_PED_MOVEMENT_CLIPSET(playerPed, 1.0f);
+			CAM::STOP_GAMEPLAY_CAM_SHAKING(true);
+		}
+		AUDIO::SET_PED_IS_DRUNK(playerPed, featurePlayerDrunk);
+	}
+
+	if (featureRadioAlwaysOff || featurePlayerRadioUpdated)
+	{
+		if (featureRadioAlwaysOff)
+		{
+			if (featurePlayerRadio)
+			{
+				featurePlayerRadio = false;
+				featurePlayerRadioUpdated = true;
+			}
+		}
+
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle playerVeh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			AUDIO::SET_VEHICLE_RADIO_ENABLED(playerVeh, !featureRadioAlwaysOff);
+		}
+
+		AUDIO::SET_USER_RADIO_CONTROL_ENABLED(!featureRadioAlwaysOff);
+	}
+
 	// Portable radio
 	if (featurePlayerRadio || featurePlayerRadioUpdated)
 	{
 		if (featurePlayerRadio)
+		{
 			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(true);
+		}
 		else
+		{
 			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(false);
+		}
 	}
 
 	update_weapon_features(bPlayerExists, player);
@@ -341,17 +392,7 @@ void update_features()
 		if (throughDoorPressed)
 		{
 			moveThroughDoor();
-			//set_status_text("Moved through door");
 		}
-		/*
-		// Commented out until we deal with hotkeys properly, i.e at least have modifiers
-		if (disablePolicePressed)
-		{
-			featurePlayerNeverWanted = !featurePlayerNeverWanted;
-			std::string s = ((featurePlayerNeverWanted) ? "Enabled" : "Disabled");
-			set_status_text("Never Wanted : " + s);
-		}
-		*/
 	}
 }
 
@@ -474,7 +515,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		set_status_text("Player Healed");
 	}
 	break;
-	case 14:
+	case 15:
 		process_anims_menu_top();
 		break;
 	default:
@@ -485,7 +526,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 15;
+	const int lineCount = 16;
 	
 	std::string caption = "Player Options";
 
@@ -504,6 +545,7 @@ void process_player_menu()
 		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
 		{"Super Jump", &featurePlayerSuperJump, NULL, true},
 		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
+		{ "Drunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated, true },
 		{ "Anims", NULL, NULL, false }
 	};
 
@@ -553,7 +595,7 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 
 void process_misc_menu()
 {
-	const int lineCount = 4;
+	const int lineCount = 5;
 
 	std::string caption = "Miscellaneous Options";
 
@@ -561,6 +603,7 @@ void process_misc_menu()
 		{ "Trainer Options", NULL, NULL, false },
 		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
 		{"Next Radio Track",	NULL,					NULL, true},
+		{ "Radio Always Off", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated, true },
 		{"Hide HUD",			&featureMiscHideHud,	NULL},
 	};
 
@@ -601,13 +644,18 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 	case 7:
 		reset_globals();
 		break;
+	case 8:
+		process_test_menu();
+		break;
 	}
 	return false;
 }
 
 void process_main_menu()
 {
-	std::string caption = "Enhanced Native Trainer";
+	std::ostringstream captionSS;
+	captionSS << "~HUD_COLOUR_MENU_YELLOW~Enhanced ~HUD_COLOUR_WHITE~Native Trainer ~HUD_COLOUR_GREY~Update ";
+	captionSS << VERSION_STRING;
 
 	std::vector<std::string> TOP_OPTIONS = {
 		"Player",
@@ -631,7 +679,7 @@ void process_main_menu()
 		menuItems.push_back(item);
 	}
 
-	draw_generic_menu<int>(menuItems, &activeLineIndexMain, caption, onconfirm_main_menu, NULL, NULL);
+	draw_generic_menu<int>(menuItems, &activeLineIndexMain, captionSS.str(), onconfirm_main_menu, NULL, NULL);
 }
 
 void reset_globals()
@@ -661,12 +709,16 @@ void reset_globals()
 	featurePlayerFastRun			=
 	featurePlayerSuperJump			=
 	featurePlayerInvisible			=
+	featurePlayerDrunk =
 	featurePlayerRadio				=
+	featureRadioAlwaysOff =
 	featureMiscLockRadio			=
 	featureMiscHideHud				=	
 	featureWantedLevelFrozen		=	false;
 
 	featurePlayerResetOnDeath = true;
+	featureBlockInputInMenu = true;
+	featureVehInvulnIncludesCosmetic = true;
 
 	featurePlayerInvincibleUpdated =
 	featurePlayerNeverWantedUpdated =
@@ -675,7 +727,9 @@ void reset_globals()
 	featurePlayerNoNoiseUpdated =
 	featurePlayerFastSwimUpdated =
 	featurePlayerFastRunUpdated =
+	featureRadioAlwaysOffUpdated =
 	featurePlayerRadioUpdated =
+	featurePlayerDrunkUpdated =
 	featurePlayerInvisibleUpdated = true;
 
 	set_status_text("Reset All Settings");
@@ -882,14 +936,6 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 	delete peds;
 }
 
-void update_feature_enablements(std::vector<FeatureEnabledLocalDefinition> pairs)
-{
-	for (int i = 0; i < pairs.size(); i++)
-	{
-		FeatureEnabledLocalDefinition pair = pairs.at(i);
-	}
-}
-
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 {
 	std::vector<FeatureEnabledLocalDefinition> results;
@@ -904,7 +950,9 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun, &featurePlayerFastRunUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerRadio", &featurePlayerRadio, &featurePlayerRadioUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureRadioAlwaysOff", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscLockRadio", &featureMiscLockRadio });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud });
@@ -913,7 +961,9 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureBlockInputInMenu", &featureBlockInputInMenu });
 
-	add_world_feature_enablements(results);
+	add_world_feature_enablements(&results);
+
+	add_time_feature_enablements(&results);
 
 	std::vector<FeatureEnabledLocalDefinition> vehResults = get_feature_enablements_vehicles();
 	results.insert(results.end(), vehResults.begin(), vehResults.end());
@@ -927,8 +977,9 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 std::vector<StringPairSettingDBRow> get_generic_settings()
 {
 	std::vector<StringPairSettingDBRow> settings;
-	add_time_generic_settings(settings);
-	add_world_generic_settings(settings);
+	add_time_generic_settings(&settings);
+	add_world_generic_settings(&settings);
+	add_vehicle_generic_settings(&settings);
 	return settings;
 }
 
@@ -945,10 +996,13 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	}
 	*/
 
-	handle_generic_settings_time(settings);
-
 	//pass to anyone else, vehicles, weapons etc
-	handle_generic_settings_world(settings);
+
+	handle_generic_settings_time(&settings);
+
+	handle_generic_settings_vehicle(&settings);
+
+	handle_generic_settings_world(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)
@@ -1057,4 +1111,180 @@ bool should_block_input_in_menu()
 bool does_veh_invuln_include_cosmetic()
 {
 	return featureVehInvulnIncludesCosmetic;
+}
+
+bool onconfirm_test_menu(MenuItem<int> choice)
+{
+	Vehicle veh;
+	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
+	{
+		veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	}
+
+	switch (choice.value)
+	{
+	case 0:
+		PED::_0xF79F9DEF0AADE61A(PLAYER::PLAYER_PED_ID());
+		break;
+	case 1:
+		VEHICLE::_0x7D6F9A3EF26136A0(veh, true);
+		break;
+	case 2:
+		VEHICLE::_0x7D6F9A3EF26136A0(veh, false);
+		break;
+	case 3:
+	{
+		int i = VEHICLE::_0xE6B0E8CFC3633BF0(veh);
+		std::ostringstream ss;
+		ss << "Value is " << i;
+		set_status_text(ss.str());
+		break;
+	}
+	case 4:
+		VEHICLE::_0x0A436B8643716D14();
+		break;
+	case 5:
+	{
+		bool b = VEHICLE::_0xF7F203E31F96F6A1(veh, 0);
+		std::ostringstream ss;
+		ss << "Value is " << (b?1:0);
+		set_status_text(ss.str());
+		break;
+	}
+	case 6:
+	{
+		int i = VEHICLE::_0xE33FFA906CE74880(veh, 0);
+		std::ostringstream ss;
+		ss << "Value is " << i;
+		set_status_text(ss.str());
+		break;
+	}
+	case 7:
+	{
+		VEHICLE::_0x99AD4CCCB128CBC9(veh);
+		break;
+	}
+	case 8:
+		VEHICLE::SET_VEHICLE_REDUCE_GRIP(veh, true);
+		break;
+	case 9:
+		VEHICLE::SET_VEHICLE_REDUCE_GRIP(veh, false);
+		break;
+	case 10:
+		VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(veh, 0.1f);
+		break;
+	case 11:
+		VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(veh, 1.0f);
+		break;
+	case 12:
+		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 5.0f);
+		break;
+	case 13:
+		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 1.0f);
+		break;
+	case 14:
+		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 5.0f);
+		break;
+	case 15:
+		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.0f);
+		break;
+	}
+	return false;
+}
+
+void process_test_menu()
+{
+	std::vector<MenuItem<int>*> menuItems;
+
+	for (int i = 0; i <=15; i++)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = i;
+
+		std::ostringstream ss;
+		ss << "Test #" << i;
+
+		item->caption = ss.str();
+		menuItems.push_back(item);
+	}
+
+	draw_generic_menu<int>(menuItems, 0, "Test Funcs", onconfirm_test_menu, NULL, NULL, skin_save_menu_interrupt);
+
+}
+
+void debug_native_investigation()
+{
+	if (!PED::_0x784002A632822099(PLAYER::PLAYER_PED_ID())) //putting on helmet?
+	{
+		set_status_text_centre_screen("0x784... false");
+	}
+
+	if (!PED::_0x66680A92700F43DF(PLAYER::PLAYER_PED_ID())) //getting in plane?
+	{
+		set_status_text_centre_screen("0x666... false");
+	}
+
+	if (PED::_0x0525A2C2562F3CD4(PLAYER::PLAYER_PED_ID()))
+	{
+		set_status_text_centre_screen("0x0525... true");
+	}
+	if (PED::_0x3E802F11FBE27674(PLAYER::PLAYER_PED_ID()))
+	{
+		set_status_text_centre_screen("0x3e80... true");
+	}
+	if (PED::_0xF41B5D290C99A3D6(PLAYER::PLAYER_PED_ID()))
+	{
+		set_status_text_centre_screen("0x3e80... true");
+	}
+	if (PED::_0xE0D36E5D9E99CC21(PLAYER::PLAYER_PED_ID()))
+	{
+		set_status_text_centre_screen("0xE0D... true");
+	}
+
+	if (PED::_0x604E810189EE3A59(PLAYER::PLAYER_PED_ID()))
+	{
+		set_status_text_centre_screen("0x604... true");
+	}
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+		if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
+		{
+			set_status_text_centre_screen("0xAE3F... true");
+		}
+		else if (VEHICLE::_0x26C10ECBDA5D043B(veh))
+		{
+			set_status_text_centre_screen("0x26C10... true");
+		}
+		else if (VEHICLE::_0xB5CC40FBCB586380(veh)) //possibly is_vehicle_strong
+		{
+			set_status_text_centre_screen("0xB5CCC... true");
+		}
+		else if (VEHICLE::_0x62CA17B74C435651(veh))
+		{
+			set_status_text_centre_screen("0x62CA1... true");
+		}
+		else if (VEHICLE::_0x634148744F385576(veh))
+		{
+			set_status_text_centre_screen("0x634... true");
+		}
+		else if (VEHICLE::_0x1033371FC8E842A7(veh))
+		{
+			set_status_text_centre_screen("0x10333... true");
+		}
+		else if (!VEHICLE::_0x9A83F5F9963775EF(veh))
+		{
+			set_status_text_centre_screen("0x9a8... false");
+		}
+		else if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
+		{
+			set_status_text_centre_screen("0xAE3Fee... true");
+		}
+		else if (VEHICLE::_0x291E373D483E7EE7(veh))
+		{
+			set_status_text_centre_screen("0x291... true");
+		}
+	}
 }

@@ -81,6 +81,8 @@ TreeNode* build_anim_tree(std::vector<std::string> input);
 
 TreeNode* build_anim_tree_with_suffix_filter(std::string filter);
 
+TreeNode* build_anim_tree_with_prefix_filter(std::string filter);
+
 bool process_anims_menu();
 
 bool process_anims_menu_top();

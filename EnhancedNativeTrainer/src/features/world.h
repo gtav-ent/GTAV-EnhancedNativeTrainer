@@ -27,8 +27,8 @@ void reset_world_globals();
 
 void update_world_features();
 
-void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition> results);
+void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results);
 
-void add_world_generic_settings(std::vector<StringPairSettingDBRow> results);
+void add_world_generic_settings(std::vector<StringPairSettingDBRow>* results);
 
-void handle_generic_settings_world(std::vector<StringPairSettingDBRow> settings);
+void handle_generic_settings_world(std::vector<StringPairSettingDBRow>* settings);

@@ -25,11 +25,11 @@ void reset_time_globals();
 
 void update_time_features(Player player);
 
-void add_time_feature_enablements(std::vector<FeatureEnabledLocalDefinition> results);
+void add_time_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results);
 
-void add_time_generic_settings(std::vector<StringPairSettingDBRow> results);
+void add_time_generic_settings(std::vector<StringPairSettingDBRow>* results);
 
-void handle_generic_settings_time(std::vector<StringPairSettingDBRow> settings);
+void handle_generic_settings_time(std::vector<StringPairSettingDBRow>* settings);
 
 void movetime_day_forward();
 

@@ -9,6 +9,7 @@
 #include <windows.h>
 #include "..\io\config_io.h"
 
+#define VK_NOTHING 0x0
 #define VK_KEY_0	0x30                //('0')	0
 #define VK_KEY_1	0x31                //('1')	1
 #define VK_KEY_2	0x32                //('2')	2
@@ -65,6 +66,7 @@ struct VirtualKeysWithNames
 
 static const VirtualKeysWithNames ALL_KEYS[] =
 {
+	{ VK_NOTHING, "VK_NOTHING" },
 	{ VK_KEY_0, "VK_KEY_0" },
 	{ VK_KEY_1, "VK_KEY_1" },
 	{ VK_KEY_2, "VK_KEY_2" },

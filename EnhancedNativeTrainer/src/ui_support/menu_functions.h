@@ -81,7 +81,7 @@ public:
 
 	virtual ~FunctionDrivenToggleMenuItem() {}
 
-	bool(*getter_call)(std::vector<int> extras);
+	bool(*getter_call)(std::vector<T> extras);
 	void(*setter_call)(bool, std::vector<T> extras);
 
 	std::vector<T> extra_arguments;
@@ -211,12 +211,14 @@ void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int
 
 inline void draw_menu_header_line(std::string caption, float lineWidth, float lineHeight, float lineTop, float lineLeft, float textLeft, bool active, bool rescaleText = true, int curPage=1, int pageCount=1)
 {
+	/*
 	std::replace(caption.begin(), caption.end(), '-', ' ');
 	std::replace(caption.begin(), caption.end(), '_', ' ');
 	caption.erase(remove_if(caption.begin(), caption.end(), [](char c)
 	{
 		return !isalnum(c) && c != ' ';
 	}), caption.end());
+	*/
 
 	// default values
 	int text_col[4] = { 255, 255, 255, 255.0f },
@@ -276,7 +278,7 @@ inline void draw_menu_header_line(std::string caption, float lineWidth, float li
 	if (pageCount > 1)
 	{
 		std::ostringstream ss;
-		ss << " " << curPage << " of " << pageCount;
+		ss << " ~HUD_COLOUR_MENU_YELLOW~" << curPage << "~HUD_COLOUR_GREYLIGHT~ of ~HUD_COLOUR_MENU_YELLOW~" << pageCount;
 
 		text_col[0] = 255;
 		text_col[1] = 180;
@@ -449,7 +451,7 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		}
 
 		std::stringstream ss;
-		ss << std::string("$") << commaCash;
+		ss << "<C>~HUD_COLOUR_GREYLIGHT~&lt;&lt; ~HUD_COLOUR_PURE_WHITE~" << std::string("$") << commaCash << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;</C>";
 		auto ssStr = ss.str();
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
@@ -474,7 +476,27 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 
 		std::string caption = selectFromListItem->getCurrentCaption();
 
-		UI::_ADD_TEXT_COMPONENT_STRING((char *)caption.c_str());
+		std::stringstream ss;
+		if (selectFromListItem->wrap || selectFromListItem->value > 0)
+		{
+			ss << "<C>~HUD_COLOUR_GREYLIGHT~&lt;&lt; ";
+		}
+		else
+		{
+			ss << "<C>";
+		}
+		ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
+		if (selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1)
+		{
+			ss << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;</C>";
+		}
+		else
+		{
+			ss << "</C>";
+		}
+		auto ssStr = ss.str();
+
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
 
 		UI::SET_TEXT_EDGE(1, 255, 215, 0, 255);

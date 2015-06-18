@@ -305,6 +305,7 @@ KeyInputConfig::KeyInputConfig()
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT] = new KeyConfig(VK_KEY_D);
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_SPEED] = new KeyConfig(VK_SHIFT);
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
+	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_HELP] = new KeyConfig(VK_KEY_H);
 
 //Default XInput controls
 
@@ -425,6 +426,7 @@ const std::string KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT = std::string("airbrake_ro
 const std::string KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT = std::string("airbrake_rotate_right");
 const std::string KeyConfig::KEY_AIRBRAKE_SPEED = std::string("airbrake_speed");
 const std::string KeyConfig::KEY_AIRBRAKE_FREEZE_TIME = std::string("airbrake_freeze_time");
+const std::string KeyConfig::KEY_AIRBRAKE_HELP = std::string("airbrake_help");
 
 const std::string KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR = std::string("hotkey_throughdoor");
 
@@ -452,3 +454,4 @@ const std::string ControllerButtonConfig::CONTROLLER_RSTICK_U = std::string("R_S
 const std::string ControllerButtonConfig::CONTROLLER_RSTICK_D = std::string("R_STICK_DOWN");
 const std::string ControllerButtonConfig::CONTROLLER_LSTICK_CLICK = std::string("L_STICK_CLICK");
 const std::string ControllerButtonConfig::CONTROLLER_RSTICK_CLICK = std::string("R_STICK_CLICK");
+const std::string ControllerButtonConfig::CONTROLLER_NOT_BOUND = std::string("NOT_BOUND");

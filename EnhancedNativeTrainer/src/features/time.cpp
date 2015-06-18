@@ -26,6 +26,8 @@ bool featureTimeSynced = false;
 
 int activeLineIndexTime = 0;
 
+bool weHaveChangedTimeScale;
+
 bool onconfirm_time_menu(MenuItem<int> choice)
 {
 	switch (activeLineIndexTime)
@@ -167,12 +169,15 @@ void reset_time_globals()
 		featureTimeSynced = false;
 
 	featureTimePausedUpdated = true;
+
+	timeSpeedIndexWhileAiming = DEFAULT_TIME_SPEED;
+	timeSpeedIndex = DEFAULT_TIME_SPEED;
 }
 
-void add_time_feature_enablements(std::vector<FeatureEnabledLocalDefinition> results)
+void add_time_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
-	results.push_back(FeatureEnabledLocalDefinition{ "featureTimePaused", &featureTimePaused, &featureTimePausedUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureTimeSynced", &featureTimeSynced });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureTimePaused", &featureTimePaused, &featureTimePausedUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureTimeSynced", &featureTimeSynced });
 }
 
 
@@ -414,11 +419,11 @@ std::string get_day_of_game_week()
 	}
 }
 
-void handle_generic_settings_time(std::vector<StringPairSettingDBRow> settings)
+void handle_generic_settings_time(std::vector<StringPairSettingDBRow>* settings)
 {
-	for (int i = 0; i < settings.size(); i++)
+	for (int i = 0; i < settings->size(); i++)
 	{
-		StringPairSettingDBRow setting = settings.at(i);
+		StringPairSettingDBRow setting = settings->at(i);
 		if (setting.name.compare("timeSpeedIndexWhileAiming") == 0)
 		{
 			timeSpeedIndexWhileAiming = stoi(setting.value);
@@ -426,9 +431,9 @@ void handle_generic_settings_time(std::vector<StringPairSettingDBRow> settings)
 	}
 }
 
-void add_time_generic_settings(std::vector<StringPairSettingDBRow> results)
+void add_time_generic_settings(std::vector<StringPairSettingDBRow>* results)
 {
-	results.push_back(StringPairSettingDBRow{ "timeSpeedIndexWhileAiming", std::to_string(timeSpeedIndexWhileAiming) });
+	results->push_back(StringPairSettingDBRow{ "timeSpeedIndexWhileAiming", std::to_string(timeSpeedIndexWhileAiming) });
 }
 
 void update_time_features(Player player)
@@ -452,13 +457,21 @@ void update_time_features(Player player)
 	if (is_in_airbrake_mode() && is_airbrake_frozen_time())
 	{
 		GAMEPLAY::SET_TIME_SCALE(0.0f);
+		weHaveChangedTimeScale = true;
 	}
-	else if (PLAYER::IS_PLAYER_FREE_AIMING(player))
+	else if (PLAYER::IS_PLAYER_FREE_AIMING(player) && PLAYER::IS_PLAYER_CONTROL_ON(player))
 	{
 		GAMEPLAY::SET_TIME_SCALE(TIME_SPEED_VALUES.at(timeSpeedIndexWhileAiming));
+		weHaveChangedTimeScale = true;
 	}
-	else
+	else if (PLAYER::IS_PLAYER_CONTROL_ON(player))
 	{
 		GAMEPLAY::SET_TIME_SCALE(TIME_SPEED_VALUES.at(timeSpeedIndex));
+		weHaveChangedTimeScale = true;
+	}
+	else if (weHaveChangedTimeScale)
+	{
+		GAMEPLAY::SET_TIME_SCALE(1.0f);
+		weHaveChangedTimeScale = false;
 	}
 }

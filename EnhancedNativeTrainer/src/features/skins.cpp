@@ -968,4 +968,6 @@ void save_current_skin(int slot)
 			}
 		}
 	}
+
+
 }

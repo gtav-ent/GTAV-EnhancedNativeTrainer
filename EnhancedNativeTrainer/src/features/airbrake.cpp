@@ -20,6 +20,7 @@ int travelSpeed = 0;
 bool in_airbrake_mode = false;
 
 bool frozen_time = false;
+bool help_showing = true;
 
 Vector3 curLocation;
 Vector3 curRotation;
@@ -31,7 +32,7 @@ float degToRad(float degs)
 	return degs*3.141592653589793 / 180;
 }
 
-std::string airbrakeStatusLines[14];
+std::string airbrakeStatusLines[15];
 
 DWORD airbrakeStatusTextDrawTicksMax;
 bool airbrakeStatusTextGxtEntry;
@@ -50,7 +51,7 @@ void process_airbrake_menu()
 	const int lineCount = 1;
 	bool loadedAnims = false;
 
-	std::string caption = "Airbrake";
+	std::string caption = "Airbrake Mode";
 
 	//draw_menu_header_line(caption,350.0f,50.0f,15.0f,0.0f,15.0f,false);
 
@@ -115,11 +116,19 @@ void update_airbrake_text()
 
 		float textY = 0.1f;
 
+		int numActualLines = 0;
 		for (int i = 0; i < numLines; i++)
 		{
+			if (!help_showing && i != 14)
+			{
+				continue;
+			}
+
+			numActualLines++;
+
 			UI::SET_TEXT_FONT(0);
 			UI::SET_TEXT_SCALE(0.3, 0.3);
-			if (i == 0 || i == 7 || i==13)
+			if (i == 0 || i == 8 || i==14)
 			{
 				UI::SET_TEXT_OUTLINE();
 				UI::SET_TEXT_COLOUR(255, 180, 0, 255);
@@ -148,7 +157,7 @@ void update_airbrake_text()
 		int screen_w, screen_h;
 		GRAPHICS::GET_SCREEN_RESOLUTION(&screen_w, &screen_h);
 		float rectWidthScaled = 350 / (float)screen_w;
-		float rectHeightScaled = (20 + (numLines*18)) / (float)screen_h;
+		float rectHeightScaled = (20 + (numActualLines * 18)) / (float)screen_h;
 		float rectXScaled = 0 / (float)screen_h;
 		float rectYScaled = 65 / (float)screen_h;
 
@@ -183,7 +192,7 @@ void create_airbrake_help_text()
 		break;
 	}
 
-	ss << "Current Travel Speed: " << travelSpeedStr;
+	ss << "Current Travel Speed: ~HUD_COLOUR_WHITE~" << travelSpeedStr;
 
 	int index = 0;
 	airbrakeStatusLines[index++] = "Default Airbrake Keys (change in XML):";
@@ -192,6 +201,7 @@ void create_airbrake_help_text()
 	airbrakeStatusLines[index++] = "W/S - Move Forward/Back";
 	airbrakeStatusLines[index++] = "Shift - Toggle Move Speed";
 	airbrakeStatusLines[index++] = "T - Toggle Frozen Time";
+	airbrakeStatusLines[index++] = "H - Toggle This Help";
 	airbrakeStatusLines[index++] = " ";
 	airbrakeStatusLines[index++] = "Default Controller Input (change in XML):";
 	airbrakeStatusLines[index++] = "Triggers - Move Up/Down";
@@ -294,6 +304,11 @@ void airbrake(bool inVehicle)
 	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME) || IsControllerButtonJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME))
 	{
 		frozen_time = !frozen_time;
+	}
+
+	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_HELP) || IsControllerButtonJustUp(KeyConfig::KEY_AIRBRAKE_HELP))
+	{
+		help_showing = !help_showing;
 	}
 
 	create_airbrake_help_text();

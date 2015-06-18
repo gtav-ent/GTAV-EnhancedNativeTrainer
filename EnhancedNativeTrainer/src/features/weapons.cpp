@@ -563,7 +563,9 @@ void update_vehicle_guns()
 		{
 			WEAPON::REQUEST_WEAPON_ASSET(weaponAssetRocket, 31, 0);
 			while (!WEAPON::HAS_WEAPON_ASSET_LOADED(weaponAssetRocket))
+			{
 				WAIT(0);
+			}
 		}
 
 		Vector3 coords0from = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(veh, -(v1.x + 0.25f), v1.y + 1.25f, 0.1);
@@ -574,6 +576,7 @@ void update_vehicle_guns()
 		GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(coords0from.x, coords0from.y, coords0from.z,
 			coords0to.x, coords0to.y, coords0to.z,
 			250, 1, weaponAssetRocket, playerPed, 1, 0, -1.0);
+
 		GAMEPLAY::SHOOT_SINGLE_BULLET_BETWEEN_COORDS(coords1from.x, coords1from.y, coords1from.z,
 			coords1to.x, coords1to.y, coords1to.z,
 			250, 1, weaponAssetRocket, playerPed, 1, 0, -1.0);

@@ -58,7 +58,9 @@ static const ButtonsWithNames ALL_BUTTONS[] =
 	{ ControllerButtonConfig::CONTROLLER_RSTICK_L, XINPUT_R_STICK_LEFT, true },
 	{ ControllerButtonConfig::CONTROLLER_RSTICK_R, XINPUT_R_STICK_RIGHT, true },
 	{ ControllerButtonConfig::CONTROLLER_RSTICK_U, XINPUT_R_STICK_UP, true },
-	{ ControllerButtonConfig::CONTROLLER_RSTICK_D, XINPUT_R_STICK_DOWN, true }
+	{ ControllerButtonConfig::CONTROLLER_RSTICK_D, XINPUT_R_STICK_DOWN, true },
+
+	{ ControllerButtonConfig::CONTROLLER_NOT_BOUND, 0, false }
 };
 
 void init_xinput();

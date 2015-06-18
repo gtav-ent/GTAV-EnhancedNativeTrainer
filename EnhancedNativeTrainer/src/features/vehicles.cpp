@@ -14,8 +14,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\io\config_io.h"
 #include "..\debug\debuglog.h"
 
-bool lastSeenInVehicle = false;
-
 bool featureVehInvincible = false;
 bool featureVehInvincibleUpdated = false;
 bool featureNoVehFallOff = false;
@@ -34,6 +32,8 @@ bool vehSaveMenuInterrupt = false;
 bool vehSaveSlotMenuInterrupt = false;
 bool requireRefreshOfSaveSlots = false;
 bool requireRefreshOfSlotMenu = false;
+
+const int PED_FLAG_THROUGH_WINDSCREEN = 32;
 
 //Door Options list + struct
 struct struct_door_options {
@@ -56,7 +56,7 @@ int doorOptionsMenuIndex = 0;
 
 //Top Level
 
-const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "Emergency and Military", "Motorcycles", "Planes", "Helicopters", "Boats", "Bicycles" };
+const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "Emergency and Military", "Motorcycles", "Planes", "Helicopters", "Boats", "Bicycles", "Enter Name Manually" };
 
 //Cars
 
@@ -163,6 +163,8 @@ const std::vector<std::string> VALUES_BICYCLES{ "BMX", "CRUISER", "TRIBIKE2", "F
 const std::vector<std::string> VOV_SHALLOW_CAPTIONS[] = { CAPTIONS_EMERGENCY, CAPTIONS_MOTORCYCLES, CAPTIONS_PLANES, CAPTIONS_HELOS, CAPTIONS_BOATS, CAPTIONS_BICYCLES };
 
 const std::vector<std::string> VOV_SHALLOW_VALUES[] = { VALUES_EMERGENCY, VALUES_MOTORCYCLES, VALUES_PLANES, VALUES_HELOS, VALUES_BOATS, VALUES_BICYCLES };
+
+std::string lastCustomVehicleSpawn;
 
 bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
@@ -364,23 +366,6 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 				VEHICLE::SET_VEHICLE_FIXED(veh);
 			}
 
-			/*
-			if (!VEHICLE::_0x11D862A3E977A9EF(veh))
-			{
-				set_status_text("Check B");
-			}
-
-			if (VEHICLE::_0x5EF77C9ADD3B11A3(veh))
-			{
-				set_status_text("Check C");
-			}
-
-			if (VEHICLE::_0xA7ECB73355EB2F20(veh))
-			{
-				set_status_text("Check D");
-			}
-			*/
-
 			ENTITY::SET_ENTITY_HEALTH(veh, 2000.0f);
 			VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 2000.0);
 			VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 2000.0);
@@ -397,33 +382,14 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	// fall off
 	if (bPlayerExists && featureNoVehFallOffUpdated && !featureNoVehFallOff)
 	{
+		PED::SET_PED_CONFIG_FLAG(playerPed, PED_FLAG_THROUGH_WINDSCREEN, TRUE);
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 0);
 		featureNoVehFallOffUpdated = false;
 	}
 	else if (bPlayerExists && featureNoVehFallOff)
 	{
+		PED::SET_PED_CONFIG_FLAG(playerPed, PED_FLAG_THROUGH_WINDSCREEN, FALSE);
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 1);
-	}
-
-	if (bPlayerExists && featureNoVehFallOff)
-	{
-		if (PED::IS_PED_RAGDOLL(playerPed) && !PED::IS_PED_BEING_JACKED(playerPed) && lastSeenInVehicle)
-		{
-			PED::SET_PED_INTO_VEHICLE(playerPed, PED::GET_VEHICLE_PED_IS_IN(playerPed, true), -1);
-			//set_status_text("That's Why We Wear Seatbelts!");
-		}
-		else if (!PED::IS_PED_RAGDOLL(playerPed))
-		{
-			bool curInVeh = PED::IS_PED_IN_ANY_VEHICLE(playerPed, true) ? true : false;
-			if (!curInVeh)
-			{
-				lastSeenInVehicle = false;
-			}
-			else if (PED::IS_PED_GETTING_INTO_A_VEHICLE(playerPed))
-			{
-				lastSeenInVehicle = true;
-			}
-		}
 	}
 
 	// player's vehicle boost
@@ -469,14 +435,41 @@ void reset_vehicle_globals()
 		featureVehSpeedBoost =
 		featureVehicleDoorInstant =
 		featureVehSpawnInto =
+		featureNoVehFallOff =
+		featureWearHelmetOff =
 		featureWearHelmetOff = false;
 
+	featureNoVehFallOffUpdated =
+		featureWearHelmetOffUpdated =
 	featureVehInvincibleUpdated =
 		featureWearHelmetOffUpdated = true;
 }
 
 bool onconfirm_carspawn_menu(MenuItem<int> choice)
 {
+	if (choice.value == MENU_VEHICLE_CATEGORIES.size() - 1) //custom spawn
+	{
+		std::string result = show_keyboard(NULL, (char*) lastCustomVehicleSpawn.c_str());
+		if (!result.empty())
+		{
+			result = trim(result);
+			lastCustomVehicleSpawn = result;
+			Hash hash = GAMEPLAY::GET_HASH_KEY((char*)result.c_str());
+			if (!STREAMING::IS_MODEL_IN_CDIMAGE(hash) || !STREAMING::IS_MODEL_A_VEHICLE(hash))
+			{
+				std::ostringstream ss;
+				ss << "Couldn't find model '" << result << "'";
+				set_status_text(ss.str());
+				return false;
+			}
+			else
+			{
+				do_spawn_vehicle(result, result);
+			}
+		}
+		return false;
+	}
+
 	switch (choice.value)
 	{
 	case 0:
@@ -487,6 +480,7 @@ bool onconfirm_carspawn_menu(MenuItem<int> choice)
 		break;
 	default:
 		process_spawn_menu_generic(choice.value);
+		break;
 	}
 	return false;
 }
@@ -499,7 +493,7 @@ bool process_carspawn_menu()
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = MENU_VEHICLE_CATEGORIES[i];
 		item->value = i;
-		item->isLeaf = false;
+		item->isLeaf = (i == MENU_VEHICLE_CATEGORIES.size() - 1);
 		menuItems.push_back(item);
 	}
 
@@ -647,7 +641,6 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 			{
 				VEHICLE::SET_HELI_BLADES_FULL_SPEED(PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()));
 			}
-			lastSeenInVehicle = true;
 		}
 
 		WAIT(0);
@@ -959,4 +952,21 @@ bool vehicle_save_slot_menu_interrupt()
 		return true;
 	}
 	return false;
+}
+
+void add_vehicle_generic_settings(std::vector<StringPairSettingDBRow>* results)
+{
+	results->push_back(StringPairSettingDBRow{ "lastCustomVehicleSpawn", lastCustomVehicleSpawn });
+}
+
+void handle_generic_settings_vehicle(std::vector<StringPairSettingDBRow>* settings)
+{
+	for (int i = 0; i < settings->size(); i++)
+	{
+		StringPairSettingDBRow setting = settings->at(i);
+		if (setting.name.compare("lastCustomVehicleSpawn") == 0)
+		{
+			lastCustomVehicleSpawn = setting.value;
+		}
+	}
 }

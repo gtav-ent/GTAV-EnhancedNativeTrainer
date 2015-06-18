@@ -253,31 +253,31 @@ void update_world_features()
 	}
 }
 
-void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition> results)
+void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldMoonGravity", &featureWorldMoonGravity, &featureWorldMoonGravityUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomCops", &featureWorldRandomCops });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomTrains", &featureWorldRandomTrains });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomBoats", &featureWorldRandomBoats });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWorldGarbageTrucks", &featureWorldGarbageTrucks });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldMoonGravity", &featureWorldMoonGravity, &featureWorldMoonGravityUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomCops", &featureWorldRandomCops });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomTrains", &featureWorldRandomTrains });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomBoats", &featureWorldRandomBoats });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldGarbageTrucks", &featureWorldGarbageTrucks });
 
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
 
-	results.push_back(FeatureEnabledLocalDefinition{ "featureRestrictedZones", &featureRestrictedZones });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureRestrictedZones", &featureRestrictedZones });
 }
 
-void add_world_generic_settings(std::vector<StringPairSettingDBRow> settings)
+void add_world_generic_settings(std::vector<StringPairSettingDBRow>* settings)
 {
-	settings.push_back(StringPairSettingDBRow{ "lastWeather", lastWeather });
-	settings.push_back(StringPairSettingDBRow{ "lastWeatherName", lastWeatherName });
+	settings->push_back(StringPairSettingDBRow{ "lastWeather", lastWeather });
+	settings->push_back(StringPairSettingDBRow{ "lastWeatherName", lastWeatherName });
 }
 
-void handle_generic_settings_world(std::vector<StringPairSettingDBRow> settings)
+void handle_generic_settings_world(std::vector<StringPairSettingDBRow>* settings)
 {
-	for (int i = 0; i < settings.size(); i++)
+	for (int i = 0; i < settings->size(); i++)
 	{
-		StringPairSettingDBRow setting = settings.at(i);
+		StringPairSettingDBRow setting = settings->at(i);
 		if (setting.name.compare("lastWeather") == 0)
 		{
 			lastWeather = setting.value;

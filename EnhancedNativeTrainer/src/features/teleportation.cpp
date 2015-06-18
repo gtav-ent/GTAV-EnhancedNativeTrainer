@@ -106,7 +106,7 @@ std::vector<tele_location> LOCATIONS_HIGH = {
 
 std::vector<tele_location> LOCATIONS_UNDERWATER = {
 	{ "Dead Sea Monster", -3373.726f, 504.714f, -24.656f },
-	{ "Humane Labs Tunnel", 3619.749f, 2742.740f, 28.690f },
+	{ "Humane Labs Tunnel", 3838.47f, 3673.06f, -19.7281f, {}, {"chemgrill_grp1"}, false },
 	{ "Sunken Body", -3161.078f, 3001.998f, -37.974f },
 	{ "Sunken Cargo Ship", 3199.748f, -379.018f, -22.500f },
 	{ "Sunken Plane", -942.350f, 6608.752f, -20.912f },
@@ -145,7 +145,7 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	{ "Lester's House", 1273.898f, -1719.304f, 54.771f },
 	{ "Life Invader Office", -1049.13f, -231.779f, 39.0144f, { "facelobby" }, { "facelobbyfake" }, false },
 	//{ "Maze Bank Arena", -254.918f, -2019.75f, 30.1456f },
-	{ "Morgue", 275.446f, -1361.11f, 24.5378f, { "Coroner_Int_on" }, {}, false },
+	{ "Morgue", 275.446f, -1361.11f, 24.5378f, { "Coroner_Int_on" }, {"Coroner_Int_off"}, false },
 	{ "O'Neil Farm", 2454.78f, 4971.92f, 46.8103f, { "farm", "farm_props", "farmint" }, { "farm_burnt", "farm_burnt_props", "farmint_cap" }, false },
 	{ "Pacific Standard Bank Vault", 255.851f, 217.030f, 101.683f },
 	//{ "Paleto Bay Sheriff", -446.135f, 6012.91f, 31.7164f },
@@ -154,6 +154,7 @@ std::vector<tele_location> LOCATIONS_INTERIORS = {
 	//{ "Sandy Shores Sheriff", 1853.18f, 3686.63f, 34.2671f },
 	//{ "Simeon's Dealership", -56.4951f, -1095.8f, 26.4224f },
 	//{ "Split Sides West Comedy Club", -564.261f, 278.232f, 83.1364f },
+	{ "Stadium", -248.4916f, -2010.509f, 34.5743f, {"SP1_10_real_interior"}, {"SP1_10_fake_interior"}, false },
 	{ "Strip Club DJ Booth", 126.135f, -1278.583f, 29.270f },
 	{ "Torture Warehouse", 136.514f, -2203.15f, 7.30914f },
 
@@ -259,25 +260,47 @@ std::vector<tele_location> LOCATIONS_REQSCEN = {
 	//{ "Carrier", 3069.330f, -4632.4f, 15.043f, IPLS_CARRIER, {}, false },
 	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, { "ufo", "ufo_lod", "ufo_eye" }, {}, false },
 	//{ "Heist Yacht", -2043.974f, -1031.582f, 11.981f, IPLS_HEISTYACHT, {}, false },
+	{ "Max Renda Refit", -583.1606f, -282.3967f, 35.394f, {"refit_unload"}, {"bh1_16_doors_shut"}, false },
 	{ "North Yankton", 3360.19f, -4849.67f, 111.8f, IPLS_NORTH_YANKTON, {}, false },
 	{ "North Yankton Bank", 5309.519f, -5212.375f, 83.522f, IPLS_NORTH_YANKTON, {}, false },
+	{ "Simeon's Showroom", -59.7936f, -1098.784f, 27.2612f, { "shr_int" }, { "fakeint" }, false },
 	{ "SS Bulker (Intact)", -163.749f, -2377.94f, 9.3192f, { "cargoship" }, { "sunkcargoship" }, false },
 	{ "SS Bulker (Sunk)", -162.8918f, -2365.769f, 0.0f, { "sunkcargoship" }, { "cargoship" }, false },
 	{ "Train Crash Bridge", -532.1309f, 4526.187f, 88.7955f, { "canyonriver01_traincrash", "railing_end" }, { "railing_start", "canyonriver01" }, false },
 	{ "Yacht", -2023.661f, -1038.038f, 5.577f, { "smboat", "smboat_lod" }, {}, false },
 };
 
-/*
 std::vector<tele_location> LOCATIONS_BROKEN = {
-	{ "Carrier", 3069.330f, -4704.220f, 15.043f, IPLS_CARRIER, {}, false },
-	{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
+	//{ "Carrier", 3069.330f, -4704.220f, 15.043f, IPLS_CARRIER, {}, false },
+	{ "des_farmhouse", 2447.9f, 4973.4f, 47.7f, {}, {}, false },
+	{ "canyon", -1600.6194f, 4443.4565f, 0.725f, {}, {}, false },
+
+	{ "vb_30_crimetape", -1150.0391f, -1521.761f, 9.6331f, {}, {}, false },
+	{ "sheriff_cap", 1856.0288f, 3682.9983f, 33.2675f, {}, {}, false },
+	{ "CS1_16_sheriff_Cap", -440.5073f, 6018.766f, 30.49f, {}, {}, false },
+	{ "chemgrill_grp1", 3832.9f, 3665.5f, -23.4f, {}, {}, false },
+	{ "Hospitaldoorsfixed", {}, {}, false },
+	{ "SP1_10_fake/real_interior", -248.4916f, -2010.509f, 34.5743f, {}, {}, false },
+	{ "id2_14_pre_no_int etc", 716.84f, -962.05f, 31.59f, {}, {}, false },
+	{ "burnt_switch_off", 716.84f, -962.05f, 31.59f, {}, {}, false },
+	{ "des_farmhouse", 2447.9f, 4973.4f, 47.7f, {}, {}, false },
+	{ "FINBANK (1)", 2.69689322f, -667.0166f, 16.1306286f, {}, {}, false },
+	{ "FINBANK (2)", 6.194215f, -660.759338f, 33.4501877f, {}, {}, false },
+	{ "DT1_03_Shutter", 23.9346f, -669.7552f, 30.8853f, {}, {}, false },
+	{ "CS3_07_MPGates", -1601.424072265625, 2808.212646484375, 16.2598, {}, {}, false },
+	{ "PaperRCM", -1459.1273193359375f, 486.12811279296875f, 115.20159912109375f, {}, {}, false },
+	{"KorizTempWalls", -2199.1376953125, 223.4647979736328, 181.11180114746094, {}, {}, false },
+	{"mic3_chopper_debris", -2242.78466796875, 263.4779052734375, 173.6154022216797 },
+	{ "showroom", -59.79359817504883, -1098.7840576171875, 27.2612 },
+	{"FBI_colPLUG, repair, rubble", 74.29, -736.0499877929688, 46.76 },
+	{ "FBI heist", 136.00399780273438, -749.2869873046875, 153.302 }
+	//{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
 };
-*/
 
 
-std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Interiors", "Extra Exterior Scenery" };
+std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Interiors", "Extra Exterior Scenery" };// "Test", "Toggles" };
 
-std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN };
+std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN };// , LOCATIONS_BROKEN };
 
 void teleport_to_coords(Entity e, Vector3 coords)
 {
@@ -366,6 +389,11 @@ bool onconfirm_teleport_category(MenuItem<int> choice)
 		output_current_location(e);
 		return false;
 	}
+	else if (choice.value == -3)
+	{
+		process_toggles_menu();
+		return false;
+	}
 
 	lastChosenCategory = choice.value;
 
@@ -442,6 +470,14 @@ bool onconfirm_teleport_location(MenuItem<int> choice)
 
 	for (int x = 0; x < MENU_LOCATION_CATEGORIES.size(); x++)
 	{
+		/*
+		//Added to avoid showing debug toggle menu.
+		if (x == MENU_LOCATION_CATEGORIES.size() - 1)
+		{
+			continue;
+		}
+		*/
+
 		for (int y = 0; y < VOV_LOCATIONS[x].size(); y++)
 		{
 			//don't unload our newly loaded scenery
@@ -530,6 +566,17 @@ bool process_teleport_menu(int categoryIndex)
 
 		for (int i = 0; i < MENU_LOCATION_CATEGORIES.size(); i++)
 		{
+			/*
+			if (i == MENU_LOCATION_CATEGORIES.size() - 1)
+			{
+				MenuItem<int> *item = new MenuItem<int>();
+				item->caption = "Toggles";
+				item->value = -3;
+				item->isLeaf = false;
+				menuItems.push_back(item);
+			}
+			*/
+
 			MenuItem<int> *item = new MenuItem<int>();
 			item->caption = MENU_LOCATION_CATEGORIES[i];
 			item->value = i;
@@ -564,3 +611,82 @@ void reset_teleporter_globals()
 	}
 	lastChosenCategory = 0;
 }
+
+const std::vector<std::string> TOGGLE_IPLS
+{
+	"vb_30_crimetape",
+	"sheriff_cap",
+	"CS1_16_sheriff_Cap",
+	"Hospitaldoorsfixed",
+	"SP1_10_fake_interior",
+	"SP1_10_real_interior",
+	"id2_14_pre_no_int",
+	"id2_14_post_no_int",
+	"id2_14_during1",
+	"id2_14_during2",
+	"id2_14_during_door",
+	"id2_14_on_fire",
+	"burnt_switch_off",
+	"des_farmhouse",
+	"FINBANK",
+	"DT1_03_Shutter",
+	"dt1_03_interior_dt1_03_carpark",
+	"DT1_03_Gr_Closed",
+	"PAPER1_RCM_ALT", //some house's yoga mats
+	"PAPER1_RCM", //some house's yoga mats, moved slightly
+	"CS3_07_MPGates", //military base gates
+	"KorizTempWalls",
+	"mic3_chopper_debris", //debris at mall
+	"carshowroom_broken",
+	"carshowroom_boarded",
+	"FBI_colPLUG",
+	"FBI_repair",
+	"FIB_heist_dmg",
+	"FIB_heist_lights",
+	"DT1_05_rubble" //rubble outside FBI HQ
+};
+
+bool is_ipl_active(std::vector<std::string> extras)
+{
+	return STREAMING::IS_IPL_ACTIVE(extras.at(0).c_str());
+}
+
+void set_ipl_active(bool applied, std::vector<std::string> extras)
+{
+	char* scenery = (char*) extras.at(0).c_str();
+	if (applied)
+	{
+		if (!STREAMING::IS_IPL_ACTIVE(scenery))
+		{
+			STREAMING::REQUEST_IPL(scenery);
+		}
+	}
+	else
+	{
+		if (STREAMING::IS_IPL_ACTIVE(scenery))
+		{
+			STREAMING::REMOVE_IPL(scenery);
+		}
+	}
+}
+
+int toggleIndex = 0;
+
+void process_toggles_menu()
+{
+	std::vector<MenuItem<std::string>*> menuItems;
+	for (int i = 0; i < TOGGLE_IPLS.size(); i++)
+	{
+		std::string item = TOGGLE_IPLS.at(i);
+		FunctionDrivenToggleMenuItem<std::string>* toggleItem = new FunctionDrivenToggleMenuItem<std::string>();
+		toggleItem->caption = item;
+		toggleItem->getter_call = is_ipl_active;
+		toggleItem->setter_call = set_ipl_active;
+		toggleItem->value = item;
+		toggleItem->extra_arguments.push_back(item);
+		menuItems.push_back(toggleItem);
+	}
+
+	draw_generic_menu<std::string>(menuItems, &toggleIndex, "Test Toggles", NULL, NULL, NULL);
+}
+

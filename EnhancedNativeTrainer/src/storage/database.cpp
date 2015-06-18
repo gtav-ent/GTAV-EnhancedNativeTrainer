@@ -401,7 +401,7 @@ void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDef
 	{
 		FeatureEnabledLocalDefinition def = values.at(i);
 		std::stringstream ss;
-		ss << "REPLACE INTO ENT_FEATURE_ENABLEMENT VALUES ('" << def.name << "', " << (*def.enabled ? 1 : 0) << ")";
+		ss << "INSERT OR REPLACE INTO ENT_FEATURE_ENABLEMENT VALUES ('" << def.name << "', " << (*def.enabled ? 1 : 0) << ")";
 		auto ssStr = ss.str();
 		int rc = sqlite3_exec(db, ssStr.c_str(), emptyCallback, NULL, &zErrMsg);
 		if (rc != SQLITE_OK)
@@ -451,12 +451,18 @@ void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values
 	mutex_lock();
 	begin_transaction();
 
+	{
+		std::stringstream ss;
+		ss << "Asked to store " << values.size() << " generic pairs";
+		write_text_to_log_file(ss.str());
+	}
+
 	write_text_to_log_file("Asked to store generic pairs");
 	for (int i = 0; i < values.size(); i++)
 	{
 		StringPairSettingDBRow setting = values.at(i);
 		std::stringstream ss;
-		ss << "REPLACE INTO ENT_SETTING_PAIRS VALUES (?, ?);";
+		ss << "INSERT OR REPLACE INTO ENT_SETTING_PAIRS VALUES (?, ?);";
 
 		sqlite3_stmt *stmt;
 		const char *pzTest;
@@ -465,6 +471,12 @@ void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values
 
 		if (rc == SQLITE_OK)
 		{
+			{
+				std::stringstream ss;
+				ss << "Storing generic pair " << setting.name << " with value " << setting.value;
+				write_text_to_log_file(ss.str());
+			}
+
 			// bind the value
 			sqlite3_bind_text(stmt, 1, setting.name.c_str(), setting.name.length(), 0);
 			sqlite3_bind_text(stmt, 2, setting.value.c_str(), setting.value.length(), 0);

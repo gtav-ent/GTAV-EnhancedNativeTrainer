@@ -35,7 +35,7 @@ const int NOW_PERIOD = 100, MAX_DOWN = 5000; // ms
 bool IsKeyDown(std::string keyName)
 {
 	KeyConfig* key = get_config()->get_key_config()->get_key(keyName);
-	if (key == NULL)
+	if (key == NULL || key->keyCode == 0)
 	{
 		return false;
 	}
@@ -57,7 +57,11 @@ bool IsKeyDown(std::string keyName)
 
 bool IsKeyDown(DWORD key)
 {
-	return GetKeyState(key) & 0x8000;
+	if (key == 0)
+	{
+		return false;
+	}
+	return GetAsyncKeyState(key) & 0x8000;
 	//return (key < KEYS_SIZE) ? ((GetTickCount() < keyStates[key].time + MAX_DOWN) && !keyStates[key].isUpNow) : false;
 }
 
@@ -65,10 +69,11 @@ bool IsKeyJustUp(std::string keyName, bool exclusive)
 {
 	KeyConfig* key = get_config()->get_key_config()->get_key(keyName);
 
-	if (key == NULL)
+	if (key == NULL || key->keyCode == 0)
 	{
 		return false;
 	}
+
 	bool result = IsKeyJustUp(key->keyCode, exclusive);
 	if (result && key->modAlt)
 	{
@@ -87,6 +92,11 @@ bool IsKeyJustUp(std::string keyName, bool exclusive)
 
 bool IsKeyJustUp(DWORD key, bool exclusive)
 {
+	if (key == 0)
+	{
+		return false;
+	}
+
 	bool b = (key < KEYS_SIZE) ? (GetTickCount() < keyStates[key].time + NOW_PERIOD && keyStates[key].isUpNow) : false;
 	if (b && exclusive)
 		ResetKeyState(key);

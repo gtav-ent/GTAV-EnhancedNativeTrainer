@@ -42,6 +42,7 @@ public:
 	static const std::string KEY_AIRBRAKE_BACK;
 	static const std::string KEY_AIRBRAKE_SPEED;
 	static const std::string KEY_AIRBRAKE_FREEZE_TIME;
+	static const std::string KEY_AIRBRAKE_HELP;
 
 	static const std::string KEY_HOT_AIRBRAKE_THROUGH_DOOR;
 
@@ -90,6 +91,7 @@ public:
 	static const std::string CONTROLLER_RSTICK_D;
 	static const std::string CONTROLLER_LSTICK_CLICK;
 	static const std::string CONTROLLER_RSTICK_CLICK;
+	static const std::string CONTROLLER_NOT_BOUND;
 
 	inline ControllerButtonConfig()
 	{
