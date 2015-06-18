@@ -546,7 +546,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		set_status_text("Player Healed");
 	}
 	break;
-	case 15:
+	case 16:
 		process_anims_menu_top();
 		break;
 	default:
