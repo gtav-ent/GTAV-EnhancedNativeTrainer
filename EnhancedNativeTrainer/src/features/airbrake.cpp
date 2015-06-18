@@ -275,9 +275,10 @@ void airbrake(bool inVehicle)
 	bool rotateRightKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT);
 
 	//Airbrake controls vehicle if occupied
+	Entity target = playerPed;
 	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
-		playerPed = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+		target = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 	}
 
 	BOOL xBoolParam = 1;
@@ -343,8 +344,8 @@ void airbrake(bool inVehicle)
 		curHeading -= rotationSpeed;
 	}
 
-	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
-	ENTITY::SET_ENTITY_HEADING(playerPed, curHeading - rotationSpeed);
+	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(target, curLocation.x, curLocation.y, curLocation.z, xBoolParam, yBoolParam, zBoolParam);
+	ENTITY::SET_ENTITY_HEADING(target, curHeading - rotationSpeed);
 }
 
 bool is_in_airbrake_mode()

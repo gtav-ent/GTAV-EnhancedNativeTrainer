@@ -832,17 +832,36 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 		sqlite3_bind_int(stmt, index++, mod2a);
 		sqlite3_bind_int(stmt, index++, mod2b);
 
-		int custR1, custG1, custB1;
-		VEHICLE::GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, &custR1, &custG1, &custB1);
-		sqlite3_bind_int(stmt, index++, custR1);
-		sqlite3_bind_int(stmt, index++, custG1);
-		sqlite3_bind_int(stmt, index++, custB1);
+		if (VEHICLE::GET_IS_VEHICLE_PRIMARY_COLOUR_CUSTOM(veh))
+		{
+			int custR1, custG1, custB1;
+			VEHICLE::GET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, &custR1, &custG1, &custB1);
+			sqlite3_bind_int(stmt, index++, custR1);
+			sqlite3_bind_int(stmt, index++, custG1);
+			sqlite3_bind_int(stmt, index++, custB1);
+		}
+		else
+		{
+			sqlite3_bind_int(stmt, index++, -1);
+			sqlite3_bind_int(stmt, index++, -1);
+			sqlite3_bind_int(stmt, index++, -1);
+		}
 
-		int custR2, custG2, custB2;
-		VEHICLE::GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, &custR2, &custG2, &custB2);
-		sqlite3_bind_int(stmt, index++, custR2);
-		sqlite3_bind_int(stmt, index++, custG2);
-		sqlite3_bind_int(stmt, index++, custB2);
+
+		if (VEHICLE::GET_IS_VEHICLE_SECONDARY_COLOUR_CUSTOM(veh))
+		{
+			int custR2, custG2, custB2;
+			VEHICLE::GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, &custR2, &custG2, &custB2);
+			sqlite3_bind_int(stmt, index++, custR2);
+			sqlite3_bind_int(stmt, index++, custG2);
+			sqlite3_bind_int(stmt, index++, custB2);
+		}
+		else
+		{
+			sqlite3_bind_int(stmt, index++, -1);
+			sqlite3_bind_int(stmt, index++, -1);
+			sqlite3_bind_int(stmt, index++, -1);
+		}
 
 		/*
 		livery INTEGER, \ 20

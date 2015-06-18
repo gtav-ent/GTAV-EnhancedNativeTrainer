@@ -158,8 +158,6 @@ void update_features()
 		setAirbrakeRelatedInputToBlocked(false);
 	}
 
-	
-
 	update_centre_screen_status_text();
 
 	update_vehicle_guns();
@@ -201,7 +199,7 @@ void update_features()
 			if (frozenWantedLevel > 0)
 			{
 				std::stringstream ss;
-				ss << "Wanted Level frozen at: " << frozenWantedLevel << " Star";
+				ss << "Wanted Level Frozen at: " << frozenWantedLevel << " Star";
 				if (frozenWantedLevel > 1){ ss << "s"; }
 				set_status_text(ss.str());
 			}
@@ -209,8 +207,10 @@ void update_features()
 		if (frozenWantedLevel > 0)
 		{
 			if (bPlayerExists)
+			{
 				PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+				PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+			}
 		}
 		else
 		{
@@ -436,84 +436,6 @@ int getFrozenWantedLvl(){ return frozenWantedLevel; }
 void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
 void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
 bool getFrozenWantedFeature(){ return featureWantedLevelFrozen; }
-
-bool onConfirm_wantedlevel_menu(int selection, std::string caption, int value)
-{
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-	activeLineIndexWantedFreeze = selection;
-
-	switch (selection)
-	{
-	case 0:
-		if (bPlayerExists)
-		{
-			featureWantedLevelFrozen = true;
-			frozenWantedLevel = 1;
-			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
-			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-			set_status_text("Wanted Level Frozen at 1 Star");
-		}
-		break;
-	case 1:
-		if (bPlayerExists)
-		{
-			featureWantedLevelFrozen = true;
-			frozenWantedLevel = 2;
-			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
-			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-			set_status_text("Wanted Level Frozen at 2 Stars");
-		}
-		break;
-	case 2:
-		if (bPlayerExists)
-		{
-			featureWantedLevelFrozen = true;
-			frozenWantedLevel = 3;
-			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
-			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-			set_status_text("Wanted Level Frozen at 3 Stars");
-		}
-		break;
-	case 3:
-		if (bPlayerExists)
-		{
-			featureWantedLevelFrozen = true;
-			frozenWantedLevel = 4;
-			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
-			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-			set_status_text("Wanted Level Frozen at 4 Stars");
-		}
-		break;
-	case 4:
-		if (bPlayerExists)
-		{
-			featureWantedLevelFrozen = true;
-			frozenWantedLevel = 5;
-			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
-			PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-			set_status_text("Wanted Level Frozen at 5 Stars");
-		}
-		break;
-	default:
-		if (bPlayerExists)
-		{
-			featureWantedLevelFrozen = false;
-			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
-			PLAYER::SET_MAX_WANTED_LEVEL(5);
-			set_status_text("Wanted Level settings returned to default.");
-		}
-		break;
-	}
-	return false;
-}
 
 int activeLineIndexPlayer = 0;
 

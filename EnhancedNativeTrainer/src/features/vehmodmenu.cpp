@@ -117,85 +117,102 @@ const static std::string SUSP_PREFIXES[] = { "Lowered", "Street", "Sports", "Com
 
 std::string getHornTitle(int index)
 {
-	if (index == 0)
+	char* v_3 = NULL;
+	switch (index)
 	{
-		return "Truck Horn";
+	case -1: v_3 = "CMOD_HRN_0"; break;
+	case 0: v_3 = "CMOD_HRN_TRK"; break;
+	case 1: v_3 = "CMOD_HRN_COP"; break;
+	case 2:  v_3 = "CMOD_HRN_CLO";  break;
+	case 3: v_3 = "CMOD_HRN_MUS1"; break;
+	case 4: v_3 = "CMOD_HRN_MUS2"; break;
+	case 5: v_3 = "CMOD_HRN_MUS3"; break;
+	case 6: v_3 = "CMOD_HRN_MUS4"; break;
+	case 7: v_3 = "CMOD_HRN_MUS5"; break;
+	case 8: v_3 = "CMOD_HRN_SAD"; break;
+	case 9: v_3 = "HORN_CLAS1"; break;
+	case 10: v_3 = "HORN_CLAS2"; break;
+	case 11: v_3 = "HORN_CLAS3"; break;
+	case 12: v_3 = "HORN_CLAS4"; break;
+	case 13: v_3 = "HORN_CLAS5"; break;
+	case 14: v_3 = "HORN_CLAS6"; break;
+	case 15: v_3 = "HORN_CLAS7"; break;
+	case 16: v_3 = "HORN_CNOTE_C0"; break;
+	case 17: v_3 = "HORN_CNOTE_D0"; break;
+	case 18: v_3 = "HORN_CNOTE_E0"; break;
+	case 19: v_3 = "HORN_CNOTE_F0"; break;
+	case 20: v_3 = "HORN_CNOTE_G0"; break;
+	case 21: v_3 = "HORN_CNOTE_A0"; break;
+	case 22: v_3 = "HORN_CNOTE_B0"; break;
+	case 23: v_3 = "HORN_CNOTE_C1"; break;
+	case 24: v_3 = "HORN_HIPS1"; break;
+	case 25: v_3 = "HORN_HIPS2"; break;
+	case 26: v_3 = "HORN_HIPS3"; break;
+	case 27: v_3 = "HORN_HIPS4"; break;
+	case 28: v_3 = "HORN_INDI_1"; break;
+	case 29: v_3 = "HORN_INDI_2"; break;
+	case 30: v_3 = "HORN_INDI_3"; break;
+	case 31: v_3 = "HORN_INDI_4"; break;
 	}
-	else if (index == 1)
+
+	if (v_3 == NULL)
 	{
-		return "Cop Horn";
+		return "Unknown Horn";
 	}
-	else if (index == 2)
+	else
 	{
-		return "Clown Horn";
-	}
-	else if (index >= 3 && index <= 7)
-	{
-		std::ostringstream ss;
-		ss << "Musical Horn " << (index - 2);
-		return ss.str();
-	}
-	else if (index == 8)
-	{
-		return "Sad Trombone";
-	}
-	else if (index >= 9 && index <= 15)
-	{
-		std::ostringstream ss;
-		ss << "Classical Horn " << (index - 8);
-		return ss.str();
-	}
-	else if (index >= 16 && index <= 23)
-	{
-		std::string suffix;
-		switch (index)
+		char* label = UI::GET_LABEL_TEXT(v_3);
+		if (label == NULL)
 		{
-		case 16:
-			suffix = "Do";
-			break;
-		case 17:
-			suffix = "Re";
-			break;
-		case 18:
-			suffix = "Mi";
-			break;
-		case 19:
-			suffix = "Fa";
-			break;
-		case 20:
-			suffix = "Sol";
-			break;
-		case 21:
-			suffix = "La";
-			break;
-		case 22:
-			suffix = "Ti";
-			break;
-		case 23:
-			suffix = "Do (High)";
-			break;
+			return "Unknown Horn";
 		}
-		std::ostringstream ss;
-		ss << "Scale - " << suffix;
-		return ss.str();
+		return std::string(label);
 	}
-	else if (index >= 24 && index <= 26)
+}
+
+int getHornDuration(int index)
+{
+	int v_D = 0;
+
+	switch (index)
 	{
-		std::ostringstream ss;
-		ss << "Jazz Horn " << (index - 23);
-		return ss.str();
+	case -1: v_D = 1000; break;
+	case 28: v_D = 1960; break;
+	case 29: v_D = 1790; break;
+	case 30: v_D = 1990; break;
+	case 31: v_D = 2400; break;
+	case 24: v_D = 2000; break;
+	case 25: v_D = 2000; break;
+	case 26: v_D = 1500; break;
+	case 27: v_D = 2500; break;
+	case 16: v_D = 1000; break;
+	case 17: v_D = 1000; break;
+	case 18: v_D = 1000; break;
+	case 19: v_D = 1000; break;
+	case 20: v_D = 1000; break;
+	case 21: v_D = 1000; break;
+	case 22: v_D = 1000; break;
+	case 23: v_D = 1000; break;
+	case 9: v_D = 5500; break;
+	case 10: v_D = 5500; break;
+	case 11: v_D = 5500; break;
+	case 12: v_D = 4500; break;
+	case 13: v_D = 4500; break;
+	case 14: v_D = 4500; break;
+	case 15: v_D = 4500; break;
+	case 2: v_D = 1000; break;
+	case 1: v_D = 1000; break;
+	case 0: v_D = 1000; break;
+	case 3: v_D = 3500; break;
+	case 4: v_D = 5500; break;
+	case 5: v_D = 4500; break;
+	case 6: v_D = 4500; break;
+	case 7: v_D = 4500; break;
+	case 8: v_D = 4500; break;
+	default: v_D = 1000; break;
 	}
-	else if (index == 27)
-	{
-		return "Jazz Horn Loop";
-	}
-	else if (index >= 28)
-	{
-		std::ostringstream ss;
-		ss << "Star Spangled Banner " << (index - 27);
-		return ss.str();
-	}
-	return "Unknown Horn";
+
+	return v_D;
 }
 
 std::string getNormalItemTitle(Vehicle veh, int category, int index)
@@ -240,7 +257,7 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 		}
 		modItemNameStr = ss.str();
 	}
-	else if (category == 14) //suspension
+	else if (category == 14) //horns
 	{
 		modItemNameStr = getHornTitle(index);
 	}
@@ -336,6 +353,23 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 		std::ostringstream ss;
 		ss << modItemNameStr << " Applied";
 		set_status_text(ss.str());
+
+		/*
+		if (lastSelectedModValue == 14)
+		{
+			STREAMING::STOP_PLAYER_REMAIN_ARCADE();
+			PED::SET_PED_RESET_FLAG(PLAYER::PLAYER_PED_ID(), 102, 1);
+
+			Hash hashOfHorn = VEHICLE::_0x4593CF82AA179706(veh, 14, VEHICLE::GET_VEHICLE_MOD(veh, 14));
+			//AI::TASK_VEHICLE_TEMP_ACTION(PLAYER::PLAYER_PED_ID(), veh, actionID++, 4000);
+
+			AI::_0xCC665AAC360D31E7(PLAYER::PLAYER_PED_ID(), veh, true);
+			//AI::_0xCC665AAC360D31E7(PLAYER::PLAYER_PED_ID(), veh, true);
+
+			//AUDIO::OVERRIDE_VEH_HORN(veh, 1, AUDIO::GET_VEHICLE_DEFAULT_HORN(veh));
+			//VEHICLE::START_VEHICLE_HORN(veh, getHornDuration(choice.value), GAMEPLAY::GET_HASH_KEY("HELDDOWN"), false);
+		}
+		*/
 	}
 	break;
 

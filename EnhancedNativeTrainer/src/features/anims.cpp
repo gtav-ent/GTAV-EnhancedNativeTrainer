@@ -22148,8 +22148,8 @@ bool process_anims_menu()
 	if (currentAnimMenuDepth == 0)
 	{
 		switch (currentAnimMenuMode)
-		{
-		case CATEGORY_GENERAL_NOW://facial immediate
+		{//facial immediate
+		case CATEGORY_FACIAL_NOW:
 		case CATEGORY_FACIAL_IDLE: //facial delay
 			currentMenuNode = facialsNode;
 			break;
@@ -22158,6 +22158,7 @@ bool process_anims_menu()
 		case CATEGORY_MOVE_RUN:
 			currentMenuNode = movementNode;
 			break;
+		case CATEGORY_GENERAL_NOW:
 		default:
 			currentMenuNode = rootNode;
 			break;

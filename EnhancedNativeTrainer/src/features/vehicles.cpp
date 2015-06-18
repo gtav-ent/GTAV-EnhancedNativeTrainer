@@ -727,10 +727,26 @@ bool spawn_saved_car(int slot, std::string caption)
 			VEHICLE::SET_VEHICLE_LIVERY(veh, savedVeh->livery);
 		}
 
-		VEHICLE::SET_VEHICLE_COLOURS(veh, savedVeh->colourPrimary, savedVeh->colourSecondary);
+
 		VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, savedVeh->colourExtraPearl, savedVeh->colourExtraWheel);
 		VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, savedVeh->colourMod1Type, savedVeh->colourMod1Colour, savedVeh->colourMod1P3);
 		VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, savedVeh->colourMod2Type, savedVeh->colourMod2Colour);
+
+		VEHICLE::SET_VEHICLE_COLOURS(veh, savedVeh->colourPrimary, savedVeh->colourSecondary);
+
+		if (savedVeh->colourCustom1RGB[0] != -1 &&
+			savedVeh->colourCustom1RGB[1] != -1 &&
+			savedVeh->colourCustom1RGB[2] != -1)
+		{
+			VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, savedVeh->colourCustom1RGB[0], savedVeh->colourCustom1RGB[1], savedVeh->colourCustom1RGB[2]);
+		}
+
+		if (savedVeh->colourCustom2RGB[0] != -1 &&
+			savedVeh->colourCustom2RGB[1] != -1 &&
+			savedVeh->colourCustom2RGB[2] != -1)
+		{
+			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, savedVeh->colourCustom2RGB[0], savedVeh->colourCustom2RGB[1], savedVeh->colourCustom2RGB[2]);
+		}
 
 		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0);
 
