@@ -746,7 +746,7 @@ bool process_vehmod_menu()
 			{
 				std::ostringstream ss;
 				//ss << "Slot " << (compIndex + 1) << ": ";
-				ss << getModCategoryName(i) << " (" << (mods + 1) << ")";
+				ss << getModCategoryName(i) << " ~HUD_COLOUR_GREYLIGHT~(" << (mods + 1) << ")";
 
 				MenuItem<int> *item = new MenuItem<int>();
 				item->caption = ss.str();
@@ -763,7 +763,7 @@ bool process_vehmod_menu()
 	{
 		int tintCount = VEHICLE::GET_NUM_VEHICLE_WINDOW_TINTS();
 		MenuItem<int> *item = new MenuItem<int>();
-		ss << getModCategoryName(SPECIAL_ID_FOR_WINDOW_TINT) << " (" << tintCount << ")";
+		ss << getModCategoryName(SPECIAL_ID_FOR_WINDOW_TINT) << " ~HUD_COLOUR_GREYLIGHT~(" << tintCount << ")";
 		item->caption = ss.str();
 		item->value = SPECIAL_ID_FOR_WINDOW_TINT;
 		item->isLeaf = false;
@@ -773,7 +773,7 @@ bool process_vehmod_menu()
 
 		int plateCount = VEHICLE::GET_NUMBER_OF_VEHICLE_NUMBER_PLATES();
 		item = new MenuItem<int>();
-		ss << getModCategoryName(SPECIAL_ID_FOR_LICENSE_PLATES) << " (" << plateCount << ")";
+		ss << getModCategoryName(SPECIAL_ID_FOR_LICENSE_PLATES) << " ~HUD_COLOUR_GREYLIGHT~(" << plateCount << ")";
 		item->caption = ss.str();
 		item->value = SPECIAL_ID_FOR_LICENSE_PLATES;
 		item->isLeaf = false;
@@ -784,7 +784,7 @@ bool process_vehmod_menu()
 		if (!VEHICLE::IS_THIS_MODEL_A_BIKE(ENTITY::GET_ENTITY_MODEL(veh)))
 		{
 			item = new MenuItem<int>();
-			ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_CATEGORY) << " (" << WHEEL_CATEGORY_COUNT << ")";
+			ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_CATEGORY) << " ~HUD_COLOUR_GREYLIGHT~(" << WHEEL_CATEGORY_COUNT << ")";
 			item->caption = ss.str();
 			item->value = SPECIAL_ID_FOR_WHEEL_CATEGORY;
 			item->isLeaf = false;
@@ -809,7 +809,7 @@ bool process_vehmod_menu()
 		}
 
 		item = new MenuItem<int>();
-		ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_SELECTION) << " (" << wheelCount << ")";
+		ss << getModCategoryName(SPECIAL_ID_FOR_WHEEL_SELECTION) << " ~HUD_COLOUR_GREYLIGHT~(" << wheelCount << ")";
 		item->caption = ss.str();
 		item->value = SPECIAL_ID_FOR_WHEEL_SELECTION;
 		item->isLeaf = false;

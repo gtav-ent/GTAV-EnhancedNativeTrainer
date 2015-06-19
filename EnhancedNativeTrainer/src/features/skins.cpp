@@ -309,7 +309,7 @@ bool process_skinchanger_drawable_menu(std::string caption, int component)
 		{
 			int textures = PED::GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(PLAYER::PLAYER_PED_ID(), component, i);
 			std::ostringstream ss;
-			ss << "Drawable #" << i << " (" << textures << ")";
+			ss << "Drawable #" << i << " ~HUD_COLOUR_GREYLIGHT~(" << textures << ")";
 
 			MenuItem<int> *item = new MenuItem<int>();
 			item->caption = ss.str();
@@ -385,7 +385,7 @@ bool process_skinchanger_detail_menu()
 			{
 				std::ostringstream ss;
 				std::string itemText = getSkinDetailAttribDescription(compIndex);
-				ss << "Slot " << (compIndex + 1) << ": " << itemText << " (" << drawables << ")";
+				ss << "Slot " << (compIndex + 1) << ": " << itemText << " ~HUD_COLOUR_GREYLIGHT~(" << drawables << ")";
 
 				MenuItem<int> *item = new MenuItem<int>();
 				item->caption = ss.str();
@@ -721,7 +721,7 @@ bool process_prop_menu()
 			std::ostringstream ss;
 			
 				std::string itemText = getPropDetailAttribDescription(compIndex);
-				ss << "Slot " << (compIndex + 1) << ": " << itemText << " (" << drawables << ")";
+				ss << "Slot " << (compIndex + 1) << ": " << itemText << " ~HUD_COLOUR_GREYLIGHT~(" << drawables << ")";
 				item->caption = ss.str();
 
 			item->value = compIndex;
