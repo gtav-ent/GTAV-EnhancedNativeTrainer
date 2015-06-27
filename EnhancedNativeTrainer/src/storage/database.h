@@ -71,6 +71,12 @@ public:
 	int windowTint;
 	bool burstableTyres;
 	bool customTyres;
+	float dirtLevel;
+	float fadeLevel;
+	int neonRGB[3];
+	int neonEnablement[4];
+	int tyreSmokeRGB[3];
+	bool convertibleRoofUp = false;
 
 	std::vector<SavedVehicleExtraDBRow*> extras;
 	std::vector<SavedVehicleModDBRow*> mods;

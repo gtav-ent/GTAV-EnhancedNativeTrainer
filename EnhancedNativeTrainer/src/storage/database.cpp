@@ -14,7 +14,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/
-const int DATABASE_VERSION = 5;
+const int DATABASE_VERSION = 6;
 
 static int singleIntResultCallback(void *data, int count, char **rows, char **azColName)
 {
@@ -127,7 +127,20 @@ void ENTDatabase::handle_version(int oldVersion)
 			wheelType INTEGER, \
 			windowTint INTEGER, \
 			burstableTyres INTEGER, \
-			customTyres INTEGER \
+			customTyres INTEGER, \
+			dirtLevel REAL DEFAULT 0, \
+			fadeLevel REAL DEFAULT 0, \
+			neonR INTEGER DEFAULT -1, \
+			neonG INTEGER DEFAULT -1, \
+			neonB INTEGER DEFAULT -1, \
+			neon0Enabled INTEGER DEFAULT 0, \
+			neon1Enabled INTEGER DEFAULT 0, \
+			neon2Enabled INTEGER DEFAULT 0, \
+			neon3Enabled INTEGER DEFAULT 0, \
+			tyreSmokeR INTEGER DEFAULT -1, \
+			tyreSmokeG INTEGER DEFAULT -1, \
+			tyreSmokeB INTEGER DEFAULT -1, \
+			convertibleRoofUp INTEGER DEFAULT 0 \
 			)";
 		int rcVeh1 = sqlite3_exec(db, CREATE_VEHICLE_TABLE_QUERY, NULL, 0, &zErrMsg);
 		if (rcVeh1 != SQLITE_OK)
@@ -258,6 +271,36 @@ void ENTDatabase::handle_version(int oldVersion)
 		{
 			write_text_to_log_file("Couldn't add custom tyres column");
 			sqlite3_free(zErrMsg);
+		}
+	}
+
+	if (oldVersion >= 3 && oldVersion < 6)
+	{
+		char* queries[]
+		{
+			"ALTER TABLE ENT_SAVED_VEHICLES ADD dirtLevel REAL DEFAULT 0",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD fadeLevel REAL DEFAULT 0",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD neonR INTEGER DEFAULT -1",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD neonG INTEGER DEFAULT -1",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD neonB INTEGER DEFAULT -1",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD neon0Enabled INTEGER DEFAULT 0",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD neon1Enabled INTEGER DEFAULT 0",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD neon2Enabled INTEGER DEFAULT 0",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD neon3Enabled INTEGER DEFAULT 0",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD tyreSmokeR INTEGER DEFAULT -1",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD tyreSmokeG INTEGER DEFAULT -1",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD tyreSmokeB INTEGER DEFAULT -1",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD convertibleRoofUp INTEGER DEFAULT 0"
+		};
+
+		for each (char* q in queries)
+		{
+			int extraColsAddition = sqlite3_exec(db, q, NULL, 0, &zErrMsg);
+			if (extraColsAddition != SQLITE_OK)
+			{
+				write_text_to_log_file("Couldn't add v6 vehicle column");
+				sqlite3_free(zErrMsg);
+			}
 		}
 	}
 }
@@ -758,11 +801,16 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 	mutex_lock();
 
 	std::stringstream ss;
-	ss << "INSERT OR REPLACE INTO ENT_SAVED_VEHICLES VALUES (?, ?, ?, ?, ?, \
-			?, ?, ?, ?, ?, \
-		  	?, ?, ?, ?, ?, \
-			?, ?, ?, ?, ?, \
-			?, ?, ?, ?, ? );";
+	ss << "INSERT OR REPLACE INTO ENT_SAVED_VEHICLES VALUES (";
+	for (int i = 0; i < 38; i++)
+	{
+		if (i > 0)
+		{
+			ss << ", ";
+		}
+		ss << "?";
+	}
+	ss << ");"; 
 
 	/*
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \ 1
@@ -777,12 +825,12 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 			colourMod1P3 INTEGER, \ 10
 			colourMod2Type INTEGER, \ 11
 			colourMod2Colour INTEGER, \ 12
-			colourCustom1R INTEGER, \ 14
-			colourCustom1G INTEGER, \ 15
-			colourCustom1B INTEGER, \ 16
-			colourCustom2R INTEGER, \ 17
-			colourCustom2G INTEGER, \ 18
-			colourCustom2B INTEGER, \ 19
+			colourCustom1R INTEGER, \ 13
+			colourCustom1G INTEGER, \ 14
+			colourCustom1B INTEGER, \ 15
+			colourCustom2R INTEGER, \ 16
+			colourCustom2G INTEGER, \ 17
+			colourCustom2B INTEGER, \ 18
 	*/
 
 	sqlite3_stmt *stmt;
@@ -847,7 +895,6 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 			sqlite3_bind_int(stmt, index++, -1);
 		}
 
-
 		if (VEHICLE::GET_IS_VEHICLE_SECONDARY_COLOUR_CUSTOM(veh))
 		{
 			int custR2, custG2, custB2;
@@ -864,12 +911,12 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 		}
 
 		/*
-		livery INTEGER, \ 20
-		plateText TEXT, \ 21
-		plateType INTEGER, \ 22
-		wheelType INTEGER, \ 23
-		windowTint INTEGER, \ 24
-		burstableTyres INTEGER \ 25
+		livery INTEGER, \ 19
+		plateText TEXT, \ 20
+		plateType INTEGER, \ 21
+		wheelType INTEGER, \ 22
+		windowTint INTEGER, \ 23
+		burstableTyres INTEGER \ 24
 		*/
 
 		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_LIVERY(veh));
@@ -882,6 +929,39 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_WINDOW_TINT(veh));
 		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_TYRES_CAN_BURST(veh) ? 1 : 0);
 		sqlite3_bind_int(stmt, index++, VEHICLE::GET_VEHICLE_MOD_VARIATION(veh,23) ? 1 : 0);
+
+		/*
+		dirtLevel REAL DEFAULT 0, \ 25
+			fadeLevel REAL DEFAULT 0, \ 26
+			neonR INTEGER DEFAULT - 1, \ 27
+			neonG INTEGER DEFAULT - 1, \ 28
+			neonB INTEGER DEFAULT - 1, \ 29
+			neon0Enabled INTEGER DEFAULT 0, \ 30
+			neon1Enabled INTEGER DEFAULT 0, \ 21
+			neon2Enabled INTEGER DEFAULT 0, \ 32
+			neon3Enabled INTEGER DEFAULT 0 \*/
+
+		sqlite3_bind_double(stmt, index++, VEHICLE::GET_VEHICLE_DIRT_LEVEL(veh));
+		sqlite3_bind_double(stmt, index++, VEHICLE::_GET_VEHICLE_PAINT_FADE(veh));
+
+		int neonR, neonG, neonB;
+		VEHICLE::_GET_VEHICLE_NEON_LIGHTS_COLOUR(veh, &neonR, &neonG, &neonB);
+		sqlite3_bind_int(stmt, index++, neonR);
+		sqlite3_bind_int(stmt, index++, neonG);
+		sqlite3_bind_int(stmt, index++, neonB);
+
+		sqlite3_bind_int(stmt, index++, VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, 0));
+		sqlite3_bind_int(stmt, index++, VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, 1));
+		sqlite3_bind_int(stmt, index++, VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, 2));
+		sqlite3_bind_int(stmt, index++, VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, 3));
+
+		int tyreSmokeR, tyreSmokeG, tyreSmokeB;
+		VEHICLE::GET_VEHICLE_TYRE_SMOKE_COLOR(veh, &tyreSmokeR, &tyreSmokeG, &tyreSmokeB);
+		sqlite3_bind_int(stmt, index++, tyreSmokeR);
+		sqlite3_bind_int(stmt, index++, tyreSmokeG);
+		sqlite3_bind_int(stmt, index++, tyreSmokeB);
+
+		sqlite3_bind_int(stmt, index++, VEHICLE::IS_VEHICLE_A_CONVERTIBLE(veh, 0) && VEHICLE::GET_CONVERTIBLE_ROOF_STATE(veh));
 
 		// commit
 		sqlite3_step(stmt);
@@ -1023,6 +1103,24 @@ std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 			veh->windowTint = sqlite3_column_int(stmt, index++);
 			veh->burstableTyres = sqlite3_column_int(stmt, index++) == 1 ? true : false;
 			veh->customTyres = sqlite3_column_int(stmt, index++) == 1 ? true : false;
+
+			veh->dirtLevel = sqlite3_column_double(stmt, index++);
+			veh->fadeLevel = sqlite3_column_double(stmt, index++);
+
+			veh->neonRGB[0] = sqlite3_column_int(stmt, index++);
+			veh->neonRGB[1] = sqlite3_column_int(stmt, index++);
+			veh->neonRGB[2] = sqlite3_column_int(stmt, index++);
+
+			veh->neonEnablement[0] = sqlite3_column_int(stmt, index++);
+			veh->neonEnablement[1] = sqlite3_column_int(stmt, index++);
+			veh->neonEnablement[2] = sqlite3_column_int(stmt, index++);
+			veh->neonEnablement[3] = sqlite3_column_int(stmt, index++);
+
+			veh->tyreSmokeRGB[0] = sqlite3_column_int(stmt, index++);
+			veh->tyreSmokeRGB[1] = sqlite3_column_int(stmt, index++);
+			veh->tyreSmokeRGB[2] = sqlite3_column_int(stmt, index++);
+
+			veh->convertibleRoofUp = sqlite3_column_int(stmt, index++);
 
 			results.push_back(veh);
 

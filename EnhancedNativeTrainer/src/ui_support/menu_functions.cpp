@@ -204,7 +204,7 @@ void draw_menu_from_struct_def(StandardOrToggleMenuDef defs[], int lineCount, in
 		}
 		else if (defs[i].itemType != NULL && defs[i].itemType == WANTED)
 		{
-			WantedSymbolItem<int> *item = new WantedSymbolItem<int>();
+			WantedSymbolItem *item = new WantedSymbolItem();
 			item->caption = defs[i].text;
 			item->value = i;
 			menuItems.push_back(item);
@@ -295,17 +295,6 @@ std::string show_keyboard(char* title_id, char* prepopulated_text)
 
 
 template<class T>
-void MenuItem<T>::onConfirm()
-{
-	//set_status_text("Parent confirm");
-	if (onConfirmFunction != NULL)
-	{
-		onConfirmFunction(*this);
-	}
-}
-
-
-template<class T>
 void ToggleMenuItem<T>::onConfirm()
 {
 	//set_status_text("Base confirm");
@@ -362,17 +351,14 @@ void CashItem<T>::handleRightPress()
 		cash = min;
 }
 
-
-template<class T>
-int WantedSymbolItem<T>::get_wanted_value()
+int WantedSymbolItem::get_wanted_value()
 {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
 	return PLAYER::GET_PLAYER_WANTED_LEVEL(player);
 }
 
-template<class T>
-void WantedSymbolItem<T>::handleLeftPress()
+void WantedSymbolItem::handleLeftPress()
 {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
@@ -405,8 +391,7 @@ void WantedSymbolItem<T>::handleLeftPress()
 	}
 }
 
-template<class T>
-void WantedSymbolItem<T>::handleRightPress()
+void WantedSymbolItem::handleRightPress()
 {
 	turn_off_never_wanted();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
@@ -466,4 +451,42 @@ void SelectFromListMenuItem::handleRightPress()
 std::string SelectFromListMenuItem::getCurrentCaption()
 {
 	return this->itemCaptions.at(this->value);
+}
+
+void draw_ingame_sprite(MenuItemImage *image, float x, float y, int w, int h)
+{
+	int screenX = 0;
+	int screenY = 0;
+	GRAPHICS::_GET_SCREEN_ACTIVE_RESOLUTION(&screenX, &screenY);
+
+	float onePixelW = (float)1 / screenX;
+	float onePixelH = (float)1 / screenY;
+
+	x += onePixelW;
+	y += onePixelH;
+
+	float sprW = (float)w / screenX;
+	float sprH = (float)h / screenY;
+
+	float sprXPos = x + (sprW * 0.5f);
+	float sprYPos = y + (sprH * 0.5f);
+
+	draw_rect(x - onePixelW, y - onePixelH, sprW + (2 * onePixelW), sprH + (2 * onePixelH), 0, 0, 0, 180);
+
+	if (image->is_local())
+	{
+		float screencorrection = GRAPHICS::_GET_SCREEN_ASPECT_RATIO(FALSE);
+
+		drawTexture(image->localID, 0, -9999, 100, sprW, sprH/screencorrection, 0.0f, 0.0f, x, y, 0.0f, screencorrection, 1.0f, 1.0f, 1.0f, 1.0f);
+	}
+	else
+	{
+		GRAPHICS::REQUEST_STREAMED_TEXTURE_DICT(image->dict, 0);
+
+		if (!GRAPHICS::HAS_STREAMED_TEXTURE_DICT_LOADED(image->dict))
+		{
+			return;
+		}
+		GRAPHICS::DRAW_SPRITE(image->dict, image->name, sprXPos, sprYPos, sprW, sprH, 0, 255, 255, 255, 255);
+	}
 }

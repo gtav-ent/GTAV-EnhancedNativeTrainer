@@ -65,9 +65,9 @@ bool process_paint_menu_liveries();
 
 bool process_paint_menu_special(int category);
 
-bool onconfirm_color_menu_selection(MenuItem<std::string> choice);
+bool onconfirm_color_menu_selection(MenuItem<int> choice);
 
-void onhighlight_color_menu_selection(MenuItem<std::string> choice);
+void onhighlight_color_menu_selection(MenuItem<int> choice);
 
 //Vehicle mod getters and setters
 
@@ -93,6 +93,10 @@ void set_extra_enabled(bool applied, std::vector<int> extras);
 
 void set_plate_text(MenuItem<int> choice);
 
+bool is_convertible(std::vector<int> extras);
+
+void set_convertible(bool applied, std::vector<int> extras);
+
 int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
 
 bool vehicle_menu_interrupt();
@@ -106,3 +110,17 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles();
 void add_vehicle_generic_settings(std::vector<StringPairSettingDBRow>* results);
 
 void handle_generic_settings_vehicle(std::vector<StringPairSettingDBRow>* settings);
+
+void set_chrome_wheels_enabled(Vehicle veh, bool enabled);
+
+bool onconfirm_paintfade(MenuItem<float> choice);
+
+void onhighlight_paintfade(MenuItem<float> choice);
+
+int get_current_veh_invincibility_mode();
+
+void onchange_veh_invincibility_mode(int value);
+
+MenuItemImage* vehicle_image_preview_finder(MenuItem<std::string> choice);
+
+void init_vehicle_feature();

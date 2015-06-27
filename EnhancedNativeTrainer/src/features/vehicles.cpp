@@ -8,6 +8,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
+#include "..\..\resource.h"
+#include "..\utils.h"
 #include "vehicles.h"
 #include "script.h"
 #include "..\ui_support\menu_functions.h"
@@ -16,6 +18,11 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 bool featureVehInvincible = false;
 bool featureVehInvincibleUpdated = false;
+
+bool featureVehNoDamage = false;
+
+bool featureVehInvulnIncludesCosmetic = false;
+
 bool featureNoVehFallOff = false;
 bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
@@ -34,6 +41,9 @@ bool requireRefreshOfSaveSlots = false;
 bool requireRefreshOfSlotMenu = false;
 
 const int PED_FLAG_THROUGH_WINDSCREEN = 32;
+
+const std::vector<std::string> VEH_INVINC_MODE_CAPTIONS{ "Off", "Mech. Only", "Mech + Visual", "Mech + Vis + Cosmetic" };
+const std::vector<int> VEH_INVINC_MODE_VALUES{ 0, 1, 2, 3 };
 
 //Door Options list + struct
 struct struct_door_options {
@@ -78,7 +88,7 @@ const std::vector<std::string> CAPTIONS_SUVS{ "Albany Cavalcade", "Albany Cavalc
 
 const std::vector<std::string> CAPTIONS_SEDANS{ "Albany Emperor", "Albany Emperor (Rusty)", "Albany Emperor (Snow)", "Albany Primo", "Albany Washington", "Benefactor Glendale", "Benefactor Schafter", "Chariot Romero Hearse", "Cheval Fugitive", "Cheval Surge", "Declasse Asea", "Declasse Asea (Snow)", "Declasse Premier", "Dundreary Regina", "Dundreary Stretch", "Enus Super Diamond", "Karin Asterope", "Karin Intruder", "Obey Tailgater", "Ubermacht Oracle", "Ubermacht Oracle Mk2", "Vapid Stanier", "Vapid Stanier (Taxi)", "Vulcan Ingot", "Vulcar Warrener", "Zirconium Stratum" };
 
-const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan Prairie", "Declasse Rhapsody", "Dinka Blista", "Karin Dilettante", "Karin Dilettante (FlyUS)", "Weeny Issi" };
+const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan Prairie", "Declasse Rhapsody", "Dinka Blista", "Karin Dilettante", "Karin Dilettante (Liveried)", "Weeny Issi" };
 
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "OSIRIS", "VACCA", "ZENTORNO", "ADDER", "BULLET" };
 
@@ -307,21 +317,67 @@ void process_veh_menu()
 
 	std::string caption = "Vehicle Options";
 
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Vehicle Spawner", NULL, NULL, false },
-		{ "Saved Vehicles", NULL, NULL, false },
-		{ "Fix", NULL, NULL, true },
-		{ "Clean", NULL, NULL, true },
-		{ "Paint Menu", NULL, NULL, false },
-		{ "Invincible", &featureVehInvincible, &featureVehInvincibleUpdated, true },
-		{ "No Falling Off/Out", &featureNoVehFallOff, &featureNoVehFallOffUpdated, true },
-		{ "Don't Wear Helmet", &featureWearHelmetOff, &featureWearHelmetOffUpdated, true },
-		{ "Spawn Into Vehicle", &featureVehSpawnInto, NULL, true },
-		{ "Speed Boost", &featureVehSpeedBoost, NULL, true },
-		{ "Modifications", NULL, NULL, false },
-		{ "Door Control", NULL, NULL, false }
-	};
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVeh, caption, onconfirm_veh_menu);
+	std::vector<MenuItem<int>*> menuItems;
+
+	std::string menu_names[] = { "Vehicle Spawner", "Saved Vehicles", "Fix", "Clean", "Paint Menu" };
+	int i = 0;
+	for (; i < 5; i++)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = menu_names[i];
+		item->value = i;
+		item->isLeaf = (i == 3 || i == 4 );
+		item->currentMenuIndex = i;
+		menuItems.push_back(item);
+	}
+
+	i++;
+
+	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(VEH_INVINC_MODE_CAPTIONS, onchange_veh_invincibility_mode);
+	listItem->wrap = false;
+	listItem->caption = "Invincibility";
+	listItem->value = get_current_veh_invincibility_mode();
+	menuItems.push_back(listItem);
+
+	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "No Falling Off/Out";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureNoVehFallOff;
+	toggleItem->toggleValueUpdated = &featureNoVehFallOffUpdated;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Don't Wear Helmet";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWearHelmetOff;
+	toggleItem->toggleValueUpdated = &featureWearHelmetOffUpdated;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Spawn Into Vehicle";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureVehSpawnInto;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Speed Boost";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureVehSpeedBoost;
+	menuItems.push_back(toggleItem);
+
+	MenuItem<int>* item = new MenuItem<int>();
+	item->isLeaf = false;
+	item->value = i++;
+	item->caption = "Modifications";
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->isLeaf = false;
+	item->value = i++;
+	item->caption = "Door Control";
+	menuItems.push_back(item);
+
+	draw_generic_menu<int>(menuItems, &activeLineIndexVeh, caption, onconfirm_veh_menu, NULL, NULL);
 }
 
 void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
@@ -349,32 +405,40 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-			ENTITY::SET_ENTITY_INVINCIBLE(veh, TRUE);
-			ENTITY::SET_ENTITY_PROOFS(veh, 1, 1, 1, 1, 1, 1, 1, 1);
+
+			ENTITY::SET_ENTITY_HEALTH(veh, 10000.0f);
+			VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 10000.0);
+			VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 10000.0);
+
+			ENTITY::SET_ENTITY_PROOFS(veh, 1, 1, 1, featureVehNoDamage, 1, 1, 1, 1);
 			VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0);
 			VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(veh, 0);
-			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, 0);
-			ENTITY::SET_ENTITY_ONLY_DAMAGED_BY_PLAYER(veh, 0);
-			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(veh, 0);
 
-			/*
-			* This API seems to be a damage check - don't just continually repair the
-			* vehicle as it causes glitches.
-			*/
-			if (VEHICLE::_0xBCDC5017D3CE1E9E(veh) && does_veh_invuln_include_cosmetic())
-			{
-				VEHICLE::SET_VEHICLE_FIXED(veh);
-			}
+			VEHICLE::SET_VEHICLE_CAN_BREAK(veh, !featureVehNoDamage);
+			ENTITY::SET_ENTITY_INVINCIBLE(veh, featureVehNoDamage);
+			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(veh, !featureVehNoDamage);
+			VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, !featureVehNoDamage);
 
-			ENTITY::SET_ENTITY_HEALTH(veh, 2000.0f);
-			VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 2000.0);
-			VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 2000.0);
-			VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 2000.0f);
-
-			VEHICLE::SET_VEHICLE_CAN_BREAK(veh, false);
 			for (int i = 0; i < 6; i++)
 			{
-				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, FALSE); //(Vehicle, doorIndex, isBreakable)
+				VEHICLE::_SET_VEHICLE_DOOR_BREAKABLE(veh, i, !featureVehNoDamage); //(Vehicle, doorIndex, isBreakable)
+			}
+
+			if (featureVehNoDamage)
+			{
+				ENTITY::SET_ENTITY_ONLY_DAMAGED_BY_PLAYER(veh, 1);
+
+				VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 10000.0f);
+				
+				/*
+				* This API seems to be a damage check - don't just continually repair the
+				* vehicle as it causes glitches.
+				*/
+			
+				if (VEHICLE::_0xBCDC5017D3CE1E9E(veh) && featureVehNoDamage && featureVehInvulnIncludesCosmetic)
+				{
+					VEHICLE::SET_VEHICLE_FIXED(veh);
+				}
 			}
 		}
 	}
@@ -443,6 +507,9 @@ void reset_vehicle_globals()
 		featureWearHelmetOffUpdated =
 	featureVehInvincibleUpdated =
 		featureWearHelmetOffUpdated = true;
+
+	featureVehNoDamage = false;
+	featureVehInvulnIncludesCosmetic = false;
 }
 
 bool onconfirm_carspawn_menu(MenuItem<int> choice)
@@ -521,7 +588,12 @@ bool onconfirm_spawn_menu_cars(MenuItem<int> choice)
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	MenuParameters<std::string> params(menuItems, category);
+	params.menuSelectionPtr = 0;
+	params.onConfirmation = onconfirm_spawn_menu_vehicle_selection;
+	params.lineImageProvider = vehicle_image_preview_finder;
+
+	return draw_generic_menu<std::string>(params);
 }
 
 bool process_spawn_menu_cars()
@@ -566,7 +638,12 @@ bool onconfirm_spawn_menu_indus(MenuItem<int> choice)
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	MenuParameters<std::string> params(menuItems, category);
+	params.menuSelectionPtr = 0;
+	params.onConfirmation = onconfirm_spawn_menu_vehicle_selection;
+	params.lineImageProvider = vehicle_image_preview_finder;
+
+	return draw_generic_menu<std::string>(params);
 }
 
 bool process_spawn_menu_indus()
@@ -605,7 +682,12 @@ bool process_spawn_menu_generic(int topMenuSelection)
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<std::string>(menuItems, 0, category, onconfirm_spawn_menu_vehicle_selection, NULL, NULL);
+	MenuParameters<std::string> params(menuItems, category);
+	params.menuSelectionPtr = 0;
+	params.onConfirmation = onconfirm_spawn_menu_vehicle_selection;
+	params.lineImageProvider = vehicle_image_preview_finder;
+
+	return draw_generic_menu<std::string>(params);
 }
 
 bool do_spawn_vehicle(std::string modelName, std::string modelTitle)
@@ -643,6 +725,9 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 			}
 		}
 
+		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0f);
+		VEHICLE::_SET_VEHICLE_PAINT_FADE(veh, 0.0f);
+
 		WAIT(0);
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 		if (cleanup)
@@ -666,9 +751,11 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureNoVehFallOff", &featureNoVehFallOff, &featureNoVehFallOffUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehicleDoorInstant", &featureVehicleDoorInstant });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvincible", &featureVehInvincible, &featureVehInvincibleUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehNoDamage", &featureVehNoDamage, &featureVehInvincibleUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
 	return results;
 }
 
@@ -727,12 +814,13 @@ bool spawn_saved_car(int slot, std::string caption)
 			VEHICLE::SET_VEHICLE_LIVERY(veh, savedVeh->livery);
 		}
 
-
 		VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, savedVeh->colourExtraPearl, savedVeh->colourExtraWheel);
 		VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, savedVeh->colourMod1Type, savedVeh->colourMod1Colour, savedVeh->colourMod1P3);
 		VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, savedVeh->colourMod2Type, savedVeh->colourMod2Colour);
 
 		VEHICLE::SET_VEHICLE_COLOURS(veh, savedVeh->colourPrimary, savedVeh->colourSecondary);
+
+		VEHICLE::SET_VEHICLE_EXTRA_COLOURS(veh, savedVeh->colourExtraPearl, savedVeh->colourExtraWheel);
 
 		if (savedVeh->colourCustom1RGB[0] != -1 &&
 			savedVeh->colourCustom1RGB[1] != -1 &&
@@ -748,7 +836,35 @@ bool spawn_saved_car(int slot, std::string caption)
 			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, savedVeh->colourCustom2RGB[0], savedVeh->colourCustom2RGB[1], savedVeh->colourCustom2RGB[2]);
 		}
 
-		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0);
+		VEHICLE::_SET_VEHICLE_PAINT_FADE(veh, savedVeh->fadeLevel);
+
+		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, savedVeh->dirtLevel);
+
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[0] == 1);
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[1] == 1);
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[2] == 1);
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[3] == 1);
+
+		VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, savedVeh->neonRGB[0], savedVeh->neonRGB[1], savedVeh->neonRGB[2]);
+
+		if (savedVeh->tyreSmokeRGB[0] != -1 &&
+			savedVeh->tyreSmokeRGB[1] != -1 &&
+			savedVeh->tyreSmokeRGB[2] != -1)
+		{
+			VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, savedVeh->tyreSmokeRGB[0], savedVeh->tyreSmokeRGB[1], savedVeh->tyreSmokeRGB[2]);
+		}
+
+		if (VEHICLE::IS_VEHICLE_A_CONVERTIBLE(veh, 0))
+		{
+			if (savedVeh->convertibleRoofUp)
+			{
+				VEHICLE::SET_CONVERTIBLE_ROOF(veh, 1);
+			}
+			else
+			{
+				VEHICLE::SET_CONVERTIBLE_ROOF(veh, 0);
+			}
+		}
 
 		ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
 	}
@@ -985,4 +1101,429 @@ void handle_generic_settings_vehicle(std::vector<StringPairSettingDBRow>* settin
 			lastCustomVehicleSpawn = setting.value;
 		}
 	}
+}
+
+int get_current_veh_invincibility_mode()
+{
+	if (!featureVehInvincible)
+	{
+		return 0;
+	}
+	else if (!featureVehNoDamage)
+	{
+		return 1;
+	}
+	else if (!featureVehInvulnIncludesCosmetic)
+	{
+		return 2;
+	}
+	return 3;
+}
+
+void onchange_veh_invincibility_mode(int value)
+{
+	featureVehInvincible = (value > 0);
+	featureVehNoDamage = (value > 1);
+	featureVehInvulnIncludesCosmetic = (value > 2);
+
+	featureVehInvincibleUpdated = true;
+}
+
+struct VehicleImage
+{
+	char* modelName;
+	char* dict;
+	char* imgName;
+	int localID;
+};
+
+const std::vector<VehicleImage> INGAME_VEH_IMAGES =
+{
+	{ "AIRBUS", "candc_default", "airbus" },
+	{ "BARRACKS", "candc_default", "barracks" },
+	{ "BOXVILLE4", "candc_default", "boxville4" },
+	{ "BUS", "candc_default", "bus" },
+	{ "BUZZARD", "candc_default", "buzzard" },
+	{ "CARGOBOB", "candc_default", "cargobob" },
+	{ "COACH", "candc_default", "coach" },
+	{ "CRUSADER", "candc_default", "crusader" },
+	{ "DUBSTA3", "candc_default", "dubsta3" },
+	{ "DUKES2", "candc_default", "dukes" },
+	{ "DUMP", "candc_default", "dump" },
+	{ "HYDRA", "candc_default", "hydra" },
+	{ "INSURGENT", "candc_default", "insurgent" },
+	{ "INSURGENT2", "candc_default", "insurgent2" },
+	{ "JOURNEY", "candc_default", "journey" },
+	{ "MARSHALL", "candc_default", "marshall" },
+	{ "MESA", "candc_default", "mesa" },
+	{ "MESA3", "candc_default", "mesa3" },
+	{ "MONSTER", "candc_default", "monster" },
+	{ "MULE", "candc_default", "mule" },
+	{ "MULE3", "candc_default", "mule3" },
+	{ "PBUS", "candc_default", "pbus" },
+	{ "RENTALBUS", "candc_default", "rentbus" },
+	{ "RHINO", "candc_default", "rhino" },
+	{ "SAVAGE", "candc_default", "savage" },
+	{ "TECHNICAL", "candc_default", "technical" },
+	{ "VALKYRIE", "candc_default", "valkyrie" },
+	{ "DINGHY3", "dock_default", "dinghy3" },
+	{ "JETMAX", "dock_default", "jetmax" },
+	{ "MARQUIS", "dock_default", "marquis" },
+	{ "SEASHARK", "dock_default", "seashark" },
+	{ "SPEEDER", "dock_default", "speeder" },
+	{ "SQUALO", "dock_default", "squalo" },
+	{ "SUBMERSIBLE2", "dock_default", "sub2" },
+	{ "SUNTRAP", "dock_default", "suntrap" },
+	{ "TROPIC", "dock_default", "tropic" },
+	{ "ANNIHILATOR", "elt_default", "annihl" },
+	{ "CUBAN800", "elt_default", "cuban800" },
+	{ "DODO", "elt_default", "dodo" },
+	{ "DUSTER", "elt_default", "duster" },
+	{ "FROGGER", "elt_default", "frogger" },
+	{ "LUXOR", "elt_default", "luxor" },
+	{ "MAMMATUS", "elt_default", "mammatus" },
+	{ "MAVERICK", "elt_default", "maverick" },
+	{ "SHAMAL", "elt_default", "shamal" },
+	{ "STUNT", "elt_default", "stunt" },
+	{ "TITAN", "elt_default", "titan" },
+	{ "VELUM", "elt_default", "velum" },
+	{ "VELUM2", "elt_default", "velum2" },
+	{ "VESTRA", "elt_dlc_business", "vestra" },
+	{ "LUXOR2", "elt_dlc_luxe", "luxor2" },
+	{ "SWIFT2", "elt_dlc_luxe", "swift2" },
+	{ "BESRA", "elt_dlc_pilot", "besra" },
+	{ "MILJET", "elt_dlc_pilot", "miljet" },
+	{ "SWIFT", "elt_dlc_pilot", "swift" },
+	{ "ADDER", "lgm_default", "adder" },
+	{ "BANSHEE", "lgm_default", "banshee" },
+	{ "BULLET", "lgm_default", "bullet" },
+	{ "CARBONIZZARE", "lgm_default", "carboniz" },
+	{ "CARBONRS", "lgm_default", "carbon" },
+	{ "CHEETAH", "lgm_default", "cheetah" },
+	{ "COGCABRIO", "lgm_default", "cogcabri" },
+	{ "COMET2", "lgm_default", "comet2" },
+	{ "COQUETTE", "lgm_default", "coquette" },
+	{ "ELEGY2", "lgm_default", "elegy2" },
+	{ "ENTITYXF", "lgm_default", "entityxf" },
+	{ "EXEMPLAR", "lgm_default", "exemplar" },
+	{ "FELTZER2", "lgm_default", "feltzer" },
+	{ "HOTKNIFE", "lgm_default", "hotknife" },
+	{ "JB700", "lgm_default", "jb700" },
+	{ "KHAMELION", "lgm_default", "khamel" },
+	{ "MONROE", "lgm_default", "monroe" },
+	{ "NEMESIS", "sssa_dlc_heist", "nemesis" },
+	{ "NINEF", "lgm_default", "ninef" },
+	{ "NINEF2", "lgm_default", "ninef2" },
+	{ "RAPIDGT", "lgm_default", "rapidgt" },
+	{ "RAPIDGT2", "lgm_default", "rapidgt2" },
+	{ "STINGER", "lgm_default", "stinger" },
+	{ "STINGERGT", "lgm_default", "stingerg" },
+	{ "VOLTIC", "lgm_default", "voltic_tless" },
+	{ "ZTYPE", "lgm_default", "ztype" },
+	{ "ALPHA", "lgm_dlc_business", "alpha" },
+	{ "JESTER", "lgm_dlc_business", "jester" },
+	{ "TURISMOR", "lgm_dlc_business", "turismor" },
+	{ "COQUETTE2", "lgm_dlc_pilot", "coquette2" },
+	{ "HUNTLEY", "lgm_dlc_business2", "huntley" },
+	{ "MASSACRO", "lgm_dlc_business2", "massacro" },
+	{ "THRUST", "lgm_dlc_business2", "thrust" },
+	{ "ZENTORNO", "lgm_dlc_business2", "zentorno" },
+	{ "FUROREGT", "lgm_dlc_lts_creator", "furore" },
+	{ "FELTZER3", "lgm_dlc_luxe", "feltzer3" },
+	{ "OSIRIS", "lgm_dlc_luxe", "osiris" },
+	{ "VIRGO", "lgm_dlc_luxe", "virgo" },
+	{ "WINDSOR", "lgm_dlc_luxe", "windsor" },
+	{ "BMX", "pandm_default", "bmx" },
+	{ "CRUISER", "pandm_default", "cruiser" },
+	{ "SCORCHER", "pandm_default", "scorcher" },
+	{ "TRIBIKE", "pandm_default", "tribike" },
+	{ "TRIBIKE2", "pandm_default", "tribike2" },
+	{ "TRIBIKE3", "pandm_default", "tribike3" },
+	{ "AKUMA", "sssa_default", "akuma" },
+	{ "BALLER", "sssa_default", "baller2" },
+	{ "BATI", "sssa_default", "bati" },
+	{ "BATI2", "sssa_default", "bati2" },
+	{ "BFINJECTION", "sssa_default", "bfinject" },
+	{ "BIFTA", "sssa_default", "bifta" },
+	{ "BISON", "sssa_default", "bison" },
+	{ "BLAZER", "sssa_default", "blazer" },
+	{ "BODHI2", "sssa_default", "bodhi2" },
+	{ "CAVALCADE", "sssa_default", "cavcade" },
+	{ "DILETTANTE", "sssa_default", "dilettan" },
+	{ "DOUBLE", "sssa_default", "double" },
+	{ "DUNE", "sssa_default", "dune" },
+	{ "FAGGIO2", "sssa_default", "faggio" },
+	{ "FELON", "sssa_default", "felon" },
+	{ "FELON2", "sssa_default", "felon2" },
+	{ "FUGITIVE", "sssa_default", "fugitive" },
+	{ "GAUNTLET", "sssa_default", "gauntlet" },
+	{ "HEXER", "sssa_default", "hexer" },
+	{ "INFERNUS", "sssa_default", "infernus" },
+	{ "ISSI2", "sssa_default", "issi2" },
+	{ "KALAHARI", "sssa_default", "kalahari" },
+	{ "ORACLE", "sssa_default", "oracle" },
+	{ "PARADISE", "sssa_default", "paradise" },
+	{ "PCJ", "sssa_default", "pcj" },
+	{ "REBEL", "sssa_default", "rebel" },
+	{ "ROCOTO", "sssa_default", "rocoto" },
+	{ "RUFFIAN", "sssa_default", "ruffian" },
+	{ "SADLER", "sssa_default", "sadler" },
+	{ "SANCHEZ", "sssa_default", "sanchez" },
+	{ "SANCHEZ2", "sssa_default", "sanchez2" },
+	{ "SANDKING", "sssa_default", "sandking" },
+	{ "SANDKING2", "sssa_default", "sandkin2" },
+	{ "SCHWARZER", "sssa_default", "schwarze" },
+	{ "STRETCH", "sssa_default", "stretch" },
+	{ "SUPERD", "lgm_default", "superd" },
+	{ "SURANO", "lgm_default", "surano_convertable" },
+	{ "VACCA", "lgm_default", "vacca" },
+	{ "VADER", "sssa_default", "vader" },
+	{ "VIGERO", "sssa_default", "vigero" },
+	{ "ZION", "sssa_default", "zion" },
+	{ "ZION2", "sssa_default", "zion2" },
+	{ "ASEA", "sssa_dlc_business", "asea" },
+	{ "ASTEROPE", "sssa_dlc_business", "astrope" },
+	{ "BOBCATXL", "sssa_dlc_business", "bobcatxl" },
+	{ "CAVALCADE2", "sssa_dlc_business", "cavcade2" },
+	{ "INGOT", "sssa_dlc_business", "ingot" },
+	{ "INTRUDER", "sssa_dlc_business", "intruder" },
+	{ "MINIVAN", "sssa_dlc_business", "minivan" },
+	{ "PREMIER", "sssa_dlc_business", "premier" },
+	{ "RADI", "sssa_dlc_business", "radi" },
+	{ "RANCHERXL", "sssa_dlc_business", "rancherx" },
+	{ "STANIER", "sssa_dlc_business", "stanier" },
+	{ "STRATUM", "sssa_dlc_business", "stratum" },
+	{ "WASHINGTON", "sssa_dlc_business", "washingt" },
+	{ "DOMINATOR", "sssa_dlc_business2", "dominato" },
+	{ "F620", "sssa_dlc_business2", "f620" },
+	{ "FUSILADE", "sssa_dlc_business2", "fusilade" },
+	{ "PENUMBRA", "sssa_dlc_business2", "penumbra" },
+	{ "SENTINEL", "sssa_dlc_business2", "sentinel" },
+	{ "JESTER2", "sssa_dlc_christmas_2", "jester2" },
+	{ "MASSACRO2", "sssa_dlc_christmas_2", "massacro2" },
+	{ "RATLOADER2", "sssa_dlc_christmas_2", "rloader2" },
+	{ "SLAMVAN", "sssa_dlc_christmas_2", "slamvan" },
+	{ "ENDURO", "sssa_dlc_heist", "enduro" },
+	{ "GBURRITO2", "sssa_dlc_heist", "gburrito2" },
+	{ "GRESLEY", "sssa_dlc_heist", "gresley" },
+	{ "JACKAL", "sssa_dlc_heist", "jackal" },
+	{ "KURUMA", "sssa_dlc_heist", "kuruma" },
+	{ "KURUMA2", "sssa_dlc_heist", "kuruma2" },
+	{ "LANDSTALKER", "sssa_dlc_heist", "landstalker" },
+	{ "RUMPO", "sssa_dlc_heist", "rumpo" },
+	{ "SCHAFTER2", "sssa_dlc_heist", "schafter2" },
+	{ "SEMINOLE", "sssa_dlc_heist", "seminole" },
+	{ "SURGE", "sssa_dlc_heist", "surge" },
+	{ "BLADE", "sssa_dlc_hipster", "blade" },
+	{ "BLAZER3", "sssa_dlc_hipster", "blazer3" },
+	{ "BUFFALO", "sssa_dlc_hipster", "buffalo" },
+	{ "BUFFALO2", "sssa_dlc_hipster", "buffalo2" },
+	{ "GLENDALE", "sssa_dlc_hipster", "glendale" },
+	{ "PANTO", "sssa_dlc_hipster", "panto" },
+	{ "PICADOR", "sssa_dlc_hipster", "picador" },
+	{ "PIGALLE", "sssa_dlc_hipster", "pigalle" },
+	{ "PRIMO", "sssa_dlc_hipster", "primo" },
+	{ "REBEL2", "sssa_dlc_hipster", "rebel2" },
+	{ "REGINA", "sssa_dlc_hipster", "regina" },
+	{ "RHAPSODY", "sssa_dlc_hipster", "rhapsody" },
+	{ "SURFER", "sssa_dlc_hipster", "surfer" },
+	{ "TAILGATER", "sssa_dlc_hipster", "tailgater" },
+	{ "WARRENER", "sssa_dlc_hipster", "warrener" },
+	{ "YOUGA", "sssa_dlc_hipster", "youga" },
+	{ "SOVEREIGN", "sssa_dlc_independence", "sovereign" },
+	{ "HAKUCHOU", "sssa_dlc_lts_creator", "hakuchou" },
+	{ "INNOVATION", "sssa_dlc_lts_creator", "innovation" },
+	{ "BLISTA2", "sssa_dlc_mp_to_sp", "blista2" },
+	{ "BUFFALO3", "sssa_dlc_mp_to_sp", "buffalo3" },
+	{ "DOMINATOR2", "sssa_dlc_mp_to_sp", "dominator2" },
+	{ "GAUNTLET2", "sssa_dlc_mp_to_sp", "gauntlet2" },
+	{ "STALION", "sssa_dlc_mp_to_sp", "stallion" },
+	{ "STALION2", "sssa_dlc_mp_to_sp", "stalion2" },
+	{ "RATLOADER", "sssa_dlc_valentines", "rloader" },
+	{ "CASCO", "lgm_dlc_heist", "casco" },
+	{ "LECTRO", "lgm_dlc_heist"	"lectro" }
+};
+
+static std::vector<VehicleImage> ALL_VEH_IMAGES;
+
+MenuItemImage* vehicle_image_preview_finder(MenuItem<std::string> choice)
+{
+	for each (VehicleImage vimg in ALL_VEH_IMAGES)
+	{
+		if (strcmp(vimg.modelName, choice.value.c_str()) == 0)
+		{
+			MenuItemImage* image = new MenuItemImage();
+			image->dict = vimg.dict;
+			if (image->is_local())
+			{
+				image->localID = vimg.localID;
+			}
+			else
+			{
+				image->name = vimg.imgName;
+			}
+			return image;
+		}
+	}
+
+	std::ostringstream ss;
+	ss << "Couldn't find preview for " << choice.value;
+	write_text_to_log_file(ss.str());
+	return NULL;
+}
+
+
+
+void unpack_veh_preview(char* model, int resRef, std::string bitmapName)
+{
+	WAIT(0);
+
+	HMODULE module = GetENTModuleHandle();
+	if (module == NULL)
+	{
+		write_text_to_log_file("Can't load images because module is null");
+		return;
+	}
+
+	// Locate the resource in the application's executable.
+	HRSRC imageResHandle = FindResource(
+		module,             // This component.
+		MAKEINTRESOURCE(resRef),   // Resource name.
+		_T("PNG"));        // Resource type.
+
+	if (imageResHandle == NULL)
+	{
+		std::ostringstream ss;
+		int e = GetLastError();
+		ss << "Couldn't find resource " << VP_ASEA_SNOW << ", error " << e;
+		write_text_to_log_file(ss.str());
+		return;
+	}
+
+	HGLOBAL hRes = LoadResource(module, imageResHandle);
+	LPVOID memRes = LockResource(hRes);
+	DWORD sizeRes = SizeofResource(module, imageResHandle);
+
+	std::transform(bitmapName.begin(), bitmapName.end(), bitmapName.begin(), ::tolower);
+
+	std::ostringstream filenameSS;
+	filenameSS << bitmapName << ".png";
+	auto filename = filenameSS.str();
+	char* filePath = get_temp_dir_path((char*) filename.c_str());
+
+	if (!does_file_exist(filePath))
+	{
+		HANDLE newFile = CreateFile(filePath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (newFile == INVALID_HANDLE_VALUE)
+		{
+			write_text_to_log_file("Couldn't create img file in temp");
+			return;
+		}
+
+		DWORD written = 0;
+		if (!WriteFile(newFile, hRes, sizeRes, &written, NULL))
+		{
+			write_text_to_log_file("Couldn't write to img file in temp");
+			CloseHandle(newFile);
+			return;
+		}
+
+		CloseHandle(newFile);
+	}
+
+	int textureID = createTexture(filePath);
+	if (textureID != 0)
+	{
+		std::ostringstream ss;
+		ss << "Create texture returned " << textureID;
+		write_text_to_log_file(ss.str());
+
+		ALL_VEH_IMAGES.push_back({ model, (char*)LOCAL_TEXTURE_DICT, NULL, textureID });
+	}
+	else
+	{
+		write_text_to_log_file("Couldn't read texture from file");
+	}
+}
+
+void init_vehicle_feature()
+{
+	//copy all the ingame images
+	ALL_VEH_IMAGES.insert(ALL_VEH_IMAGES.end(), INGAME_VEH_IMAGES.begin(), INGAME_VEH_IMAGES.end());
+
+	unpack_veh_preview("ASEA2", VP_ASEA_SNOW, "VP_ASEA_SNOW");
+
+	unpack_veh_preview("BALLER2", VP_BALLER_SMALL, "VP_BALLER_SMALL");
+	unpack_veh_preview("BJXL", VP_BJXL, "VP_BJXL");
+	unpack_veh_preview("BLISTA", VP_BLISTA, "VP_BLISTA");
+	unpack_veh_preview("BUCCANEER", VP_BUCCANEER, "VP_BUCCANEER");
+	unpack_veh_preview("DILETTANTE2", VP_DILET_LIVERY, "VP_DILET_LIVERY");
+	unpack_veh_preview("DUBSTA", VP_DUBSTA, "VP_DUBSTA");
+	unpack_veh_preview("DUBSTA2", VP_DUBSTA_BLACK, "VP_DUBSTA_BLACK");
+	unpack_veh_preview("DUKES", VP_DUKES, "VP_DUKES");
+	unpack_veh_preview("DLOADER", VP_DUNELOADER, "VP_DUNELOADER");
+	unpack_veh_preview("EMPEROR", VP_EMPEROR, "VP_EMPEROR");
+
+	unpack_veh_preview("EMPEROR2", VP_EMPEROR_RUSTY, "VP_EMPEROR_RUSTY");
+	unpack_veh_preview("EMPEROR3", VP_EMPEROR_SNOW, "VP_EMPEROR_SNOW");
+	unpack_veh_preview("FQ2", VP_FQ2, "VP_FQ2");
+	unpack_veh_preview("FUTO", VP_FUTO, "VP_FUTO");
+	unpack_veh_preview("GRANGER", VP_GRANGER, "VP_GRANGER");
+	unpack_veh_preview("GUARDIAN", VP_GUARDIAN, "VP_GUARDIAN");
+	unpack_veh_preview("HABANERO", VP_HABANERO, "VP_HABANERO");
+	unpack_veh_preview("ROMERO", VP_HEARSE, "VP_HEARSE");
+	unpack_veh_preview("BLAZER2", VP_LIFEGUARD, "VP_LIFEGUARD");
+	unpack_veh_preview("MANANA", VP_MANANA, "VP_MANANA");
+
+	unpack_veh_preview("MESA2", VP_MESA_SNOW, "VP_MESA_SNOW");
+	unpack_veh_preview("BLISTA3", VP_MONKEY_BLISTA, "VP_MONKEY_BLISTA");
+	unpack_veh_preview("ORACLE2", VP_ORACLE2, "VP_ORACLE2");
+	unpack_veh_preview("PATRIOT", VP_PATRIOT, "VP_PATRIOT");
+	unpack_veh_preview("PEYOTE", VP_PEYOTE, "VP_PEYOTE");
+	unpack_veh_preview("PHOENIX", VP_PHOENIX, "VP_PHOENIX");
+	unpack_veh_preview("PRAIRIE", VP_PRAIRIE, "VP_PRAIRIE");
+	unpack_veh_preview("RANCHERXL2", VP_RANCHERXL_SNOW, "VP_RANCHERXL_SNOW");
+	unpack_veh_preview("BTYPE", VP_ROOSEVELT, "VP_ROOSEVELT");
+	unpack_veh_preview("RUINER", VP_RUINER, "VP_RUINER");
+
+	unpack_veh_preview("SABREGT", VP_SABRE, "VP_SABRE");
+	unpack_veh_preview("SENTINEL2", VP_SENTINEL, "VP_SENTINEL");
+	unpack_veh_preview("SERRANO", VP_SERRANO, "VP_SERRANO");
+	unpack_veh_preview("SLAMVAN2", VP_SLAMVAN_LOSTMC, "VP_SLAMVAN_LOSTMC");
+	unpack_veh_preview("DUNE2", VP_SPACEDOCKER, "VP_SPACEDOCKER");
+	unpack_veh_preview("SULTAN", VP_SULTAN, "VP_SULTAN");
+	unpack_veh_preview("TAXI", VP_TAXI, "VP_TAXI");
+	unpack_veh_preview("TORNADO", VP_TORNADO, "VP_TORNADO");
+	unpack_veh_preview("TORNADO2", VP_TORNADO_CAB, "VP_TORNADO_CAB");
+	unpack_veh_preview("TORNADO3", VP_TORNADO_RUSTY, "VP_TORNADO_RUSTY");
+
+	unpack_veh_preview("TORNADO4", VP_TORNADO_CAB_RUSTY, "VP_TORNADO_CAB_RUSTY");
+	unpack_veh_preview("VOODOO2", VP_VOODOO, "VP_VOODOO");
+
+	unpack_veh_preview("JET", VP_JET, "VP_VOODOO");
+	unpack_veh_preview("BAGGER", VP_BAGGER, "VP_BAGGER");
+	unpack_veh_preview("BISON2", VP_BISON2, "VP_BISON2");
+	unpack_veh_preview("BISON3", VP_BISON3, "VP_BISON3");
+	unpack_veh_preview("BLIMP", VP_BLIMP, "VP_BLIMP");
+
+	unpack_veh_preview("BLIMP2", VP_BLIMP2, "VP_BLIMP2");
+	unpack_veh_preview("BUZZARD2", VP_BUZZARD2, "VP_BUZZARD2");
+	unpack_veh_preview("CARGOPLANE", VP_CARGO, "VP_CARGO");
+	unpack_veh_preview("CARGOBOB2", VP_CARGOBOB2, "VP_CARGOBOB2");
+	unpack_veh_preview("CARGOBOB3", VP_CARGOBOB3, "VP_CARGOBOB3");
+
+	unpack_veh_preview("DAEMON", VP_DAEMON, "VP_DAEMON");
+	unpack_veh_preview("DINGHY", VP_DINGHY, "VP_DINGHY");
+	unpack_veh_preview("DINGHY2", VP_DINGHY2, "VP_DINGHY2");
+	unpack_veh_preview("FIXTER", VP_FIXTER, "VP_FIXTER");
+	unpack_veh_preview("FROGGER2", VP_FROGGER2, "VP_FROGGER2");
+
+	unpack_veh_preview("LAZER", VP_LAZER, "VP_LAZER");
+	unpack_veh_preview("POLMAV", VP_POLMAV, "VP_POLMAV");
+	unpack_veh_preview("PREDATOR", VP_PREDATOR, "VP_PREDATOR");
+	unpack_veh_preview("SADLER2", VP_SADLER_SNOW, "VP_SADLER_SNOW");
+	unpack_veh_preview("SEASHARK2", VP_SEASHARK2, "VP_SEASHARK2");
+
+	unpack_veh_preview("SKYLIFT", VP_SKYLIFT, "VP_SKYLIFT");
+	unpack_veh_preview("SUBMERSIBLE", VP_SUB, "VP_SUB");
 }

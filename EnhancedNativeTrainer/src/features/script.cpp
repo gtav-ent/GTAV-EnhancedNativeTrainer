@@ -22,6 +22,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "../version.h"
 
+#include <set>
+
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
 int game_frame_num = 0;
@@ -66,7 +68,6 @@ bool featureWantedLevelFrozenUpdated	=	false;
 int  frozenWantedLevel					=	0;
 
 bool featureBlockInputInMenu = true;
-bool featureVehInvulnIncludesCosmetic = true;
 bool featurePlayerResetOnDeath = true;
 
 // player model control, switching on normal ped model when needed	
@@ -77,6 +78,8 @@ const char* CLIPSET_DRUNK = "move_m@drunk@verydrunk";
 
 const std::vector<std::string> GRAVITY_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
 const std::vector<float> GRAVITY_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f };
+
+std::set<Ped> lastSeenPeds;
 
 void check_player_model()
 {
@@ -117,6 +120,26 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
+	/*int* gp = reinterpret_cast<int *>(getGlobalPtr(0x1801D9));
+	*gp = 1;
+
+	gp = reinterpret_cast<int *>(getGlobalPtr(0x187385 + 0x10F18));
+	*gp = 1;
+
+	gp = reinterpret_cast<int *>(getGlobalPtr(0x250FDB + 0xf158D));
+	*gp = 0;*/
+
+	//CONTROLS::DISABLE_CONTROL_ACTION(0, 19, 1);
+	CONTROLS::DISABLE_CONTROL_ACTION(0, 288, 1);
+	CONTROLS::DISABLE_CONTROL_ACTION(0, 289, 1);
+	CONTROLS::DISABLE_CONTROL_ACTION(2, 288, 1);
+	CONTROLS::DISABLE_CONTROL_ACTION(2, 289, 1);
+	CONTROLS::DISABLE_CONTROL_ACTION(0, 48, 1);
+	CONTROLS::DISABLE_CONTROL_ACTION(0, 173, 1);
+
+	int* gp = reinterpret_cast<int *>(getGlobalPtr(0x42CA + 0x9));
+	*gp = 0xFF;
+
 	everInitialised = true;
 	game_frame_num++;
 	if (game_frame_num >= 100000)
@@ -165,6 +188,8 @@ void update_features()
 	update_world_features();
 
 	check_player_model();
+
+	//debug_native_investigation();
 
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
@@ -514,14 +539,13 @@ int activeLineIndexTrainerConfig = 0;
 
 void process_misc_trainerconfig_menu()
 {
-	const int lineCount = 3;
+	const int lineCount = 2;
 
 	std::string caption = "Trainer Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Lock Controls While In Menu", &featureBlockInputInMenu, NULL },
-		{ "Reset Skin On Death", &featurePlayerResetOnDeath, NULL },
-		{ "Vehicle Invinc. Includes Visual Damage", &featureVehInvulnIncludesCosmetic, NULL },
+		{ "Reset Skin On Death", &featurePlayerResetOnDeath, NULL }
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTrainerConfig, caption, NULL);
@@ -619,7 +643,8 @@ void process_main_menu()
 		"World",
 		"Time",
 		"Miscellaneous",
-		"Reset All Settings"
+		"Reset All Settings",
+		"Test"
 	};
 
 	std::vector<MenuItem<int>*> menuItems;
@@ -672,7 +697,6 @@ void reset_globals()
 
 	featurePlayerResetOnDeath = true;
 	featureBlockInputInMenu = true;
-	featureVehInvulnIncludesCosmetic = true;
 
 	featurePlayerInvincibleUpdated =
 	featurePlayerNeverWantedUpdated =
@@ -708,6 +732,8 @@ void main()
 	write_text_to_log_file("Loading settings");
 
 	load_settings();
+
+	init_vehicle_feature();
 
 	write_text_to_log_file("Loaded settings OK");
 
@@ -871,6 +897,7 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 	peds[0] = numElements;
 	int found = PED::GET_PED_NEARBY_PEDS(playerPed, peds, -1);
 	int y = 0;
+
 	for (int i = 0; i < found; i++)
 	{
 		int offsettedID = i * 2 + 2;
@@ -882,10 +909,60 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 
 		Ped xped = peds[offsettedID];
 
+		bool inSet = lastSeenPeds.find(xped) != lastSeenPeds.end();
+		if (!inSet)
+		{
+			lastSeenPeds.insert(xped);
+		}
+	}
+
+	std::set<Ped>::iterator it;
+	for (it = lastSeenPeds.begin(); it != lastSeenPeds.end();)
+	{
+		if (!ENTITY::DOES_ENTITY_EXIST(*it))
+		{
+			lastSeenPeds.erase(it++);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	for each (Ped xped in lastSeenPeds)
+	{
 		y++;
 		PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
 		PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
-		PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
+		//PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
+
+		PED::SET_PED_DIES_WHEN_INJURED(xped, false);
+		PED::SET_PED_MAX_HEALTH(xped, 10000);
+		ENTITY::SET_ENTITY_HEALTH(xped, 10000);
+		PED::SET_PED_SUFFERS_CRITICAL_HITS(xped, false);
+		WEAPON::GIVE_WEAPON_TO_PED(xped, GAMEPLAY::GET_HASH_KEY("WEAPON_MG"), 1000, true, true);
+
+		PED::SET_PED_COMBAT_ABILITY(xped, 1);
+		//PED::SET_PED_
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(xped, false);
+
+		PED::SET_PED_AS_ENEMY(xped, true);
+
+		if (!PED::IS_PED_IN_ANY_VEHICLE(xped,0))
+		{
+			//AI::CLEAR_PED_TASKS_IMMEDIATELY(xped);
+		}
+
+		if (PED::_IS_PED_DEAD(xped, 1))
+		{
+			set_status_text("Trying to resurrect");
+			PED::RESURRECT_PED(xped);
+		}
+		else if (PED::IS_PED_INJURED(xped))
+		{
+			set_status_text("Trying to heal");
+			PED::REVIVE_INJURED_PED(xped);
+		}
 	}
 	delete peds;
 }
@@ -912,7 +989,6 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud });
 
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerResetOnDeath", &featurePlayerResetOnDeath });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureBlockInputInMenu", &featureBlockInputInMenu });
 
 	add_world_feature_enablements(&results);
@@ -1023,6 +1099,36 @@ void init_storage()
 	delete folder;
 }
 
+char* get_temp_dir_path()
+{
+	WCHAR s[MAX_PATH];
+	GetTempPathW(MAX_PATH, s);
+	
+	WCHAR combined[MAX_PATH];
+	PathCombineW(combined, s, L"GTAV Enhanced Native Trainer");
+
+	char *result = new char[MAX_PATH];
+
+	wcstombs(result, combined, MAX_PATH);
+
+	write_text_to_log_file("Temp directory is:");
+	write_text_to_log_file(result);
+
+	return result;
+}
+
+char* get_temp_dir_path(char* file)
+{
+	char *output = new char[MAX_PATH];
+
+	char* folder = get_temp_dir_path();
+	PathCombine(output, folder, file);
+
+	delete folder;
+
+	return output;
+}
+
 char* get_storage_dir_path()
 {
 	PWSTR localAppData;
@@ -1062,11 +1168,6 @@ bool should_block_input_in_menu()
 	return featureBlockInputInMenu;
 }
 
-bool does_veh_invuln_include_cosmetic()
-{
-	return featureVehInvulnIncludesCosmetic;
-}
-
 bool onconfirm_test_menu(MenuItem<int> choice)
 {
 	Vehicle veh;
@@ -1078,11 +1179,35 @@ bool onconfirm_test_menu(MenuItem<int> choice)
 	switch (choice.value)
 	{
 	case 0:
-		PED::_0xF79F9DEF0AADE61A(PLAYER::PLAYER_PED_ID());
+	{
+		/*int* gp = reinterpret_cast<int *>(getGlobalPtr(0x1801D9));
+		*gp = 1;
+
+		gp = reinterpret_cast<int *>(getGlobalPtr(0x187385 + 0x10F18));
+		*gp = 1;
+
+		gp = reinterpret_cast<int *>(getGlobalPtr(0x250FDB + 0xf158D));
+		*gp = 0;*/
+
+
+		//GAMEPLAY::SET_BIT(gp, 0);
+		//GAMEPLAY::SET_BIT(gp, 1);
+
+		set_status_text_centre_screen("Bits cleared");
+		
 		break;
+	}
 	case 1:
-		VEHICLE::_0x7D6F9A3EF26136A0(veh, true);
+	{
+		{
+			int* gp = reinterpret_cast<int *>(getGlobalPtr(0x42CA + 0x9));
+			std::ostringstream ss;
+			ss << "Value is " << *gp;
+			set_status_text_centre_screen(ss.str());
+		}
+
 		break;
+	}
 	case 2:
 		VEHICLE::_0x7D6F9A3EF26136A0(veh, false);
 		break;
@@ -1169,6 +1294,7 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
+	/*
 	if (!PED::_0x784002A632822099(PLAYER::PLAYER_PED_ID())) //putting on helmet?
 	{
 		set_status_text_centre_screen("0x784... false");
@@ -1200,11 +1326,24 @@ void debug_native_investigation()
 	{
 		set_status_text_centre_screen("0x604... true");
 	}
+	*/
 
 	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
 	{
 		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-		if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
+
+		int primary, secondary;
+		VEHICLE::GET_VEHICLE_COLOURS(veh, &primary, &secondary);
+
+		std::ostringstream ss;
+		ss << "Primary: " << primary << ", sec: " << secondary;
+		set_status_text_centre_screen(ss.str());
+
+		/*if (!VEHICLE::_0x8D474C8FAEFF6CDE(veh))
+		{
+			set_status_text_centre_screen("0x8D474... false");
+		}
+		else if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
 		{
 			set_status_text_centre_screen("0xAE3F... true");
 		}
@@ -1240,5 +1379,29 @@ void debug_native_investigation()
 		{
 			set_status_text_centre_screen("0x291... true");
 		}
+		else if (VEHICLE::_0x4198AB0022B15F87(veh))
+		{
+			set_status_text_centre_screen("0x419... true");
+		}
+		else if (VEHICLE::_0x755D6D5267CBBD7E(veh))
+		{
+			set_status_text_centre_screen("0x755... true");
+		}
+		else if (VEHICLE::_0x5991A01434CE9677(veh))
+		{
+			set_status_text_centre_screen("0x599... true");
+		}
+		else if (VEHICLE::_0x1821D91AD4B56108(veh))
+		{
+			set_status_text_centre_screen("0x182... true");
+		}
+		else if (VEHICLE::_0x6E08BF5B3722BAC9(veh))
+		{
+			set_status_text_centre_screen("0x6E0... true");
+		}
+		else if (VEHICLE::_0xD4C4642CB7F50B5D(veh))
+		{
+			set_status_text_centre_screen("0xD4C... true");
+		}*/
 	}
 }

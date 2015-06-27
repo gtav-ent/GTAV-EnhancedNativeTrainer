@@ -430,6 +430,16 @@ const std::string KeyConfig::KEY_AIRBRAKE_HELP = std::string("airbrake_help");
 
 const std::string KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR = std::string("hotkey_throughdoor");
 
+const std::string KeyConfig::KEY_HOT_1 = std::string("hotkey_1");
+const std::string KeyConfig::KEY_HOT_2 = std::string("hotkey_2");
+const std::string KeyConfig::KEY_HOT_3 = std::string("hotkey_3");
+const std::string KeyConfig::KEY_HOT_4 = std::string("hotkey_4");
+const std::string KeyConfig::KEY_HOT_5 = std::string("hotkey_5");
+const std::string KeyConfig::KEY_HOT_6 = std::string("hotkey_6");
+const std::string KeyConfig::KEY_HOT_7 = std::string("hotkey_7");
+const std::string KeyConfig::KEY_HOT_8 = std::string("hotkey_8");
+const std::string KeyConfig::KEY_HOT_9 = std::string("hotkey_9");
+
 const std::string ControllerButtonConfig::CONTROLLER_BTN_X = std::string("BUTTON_X");
 const std::string ControllerButtonConfig::CONTROLLER_BTN_Y = std::string("BUTTON_Y");
 const std::string ControllerButtonConfig::CONTROLLER_BTN_A = std::string("BUTTON_A");

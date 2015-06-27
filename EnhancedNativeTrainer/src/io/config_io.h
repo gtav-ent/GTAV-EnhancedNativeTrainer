@@ -46,6 +46,16 @@ public:
 
 	static const std::string KEY_HOT_AIRBRAKE_THROUGH_DOOR;
 
+	static const std::string KEY_HOT_1;
+	static const std::string KEY_HOT_2;
+	static const std::string KEY_HOT_3;
+	static const std::string KEY_HOT_4;
+	static const std::string KEY_HOT_5;
+	static const std::string KEY_HOT_6;
+	static const std::string KEY_HOT_7;
+	static const std::string KEY_HOT_8;
+	static const std::string KEY_HOT_9;
+
 	inline KeyConfig(int code)
 	{
 		this->keyCode = code;

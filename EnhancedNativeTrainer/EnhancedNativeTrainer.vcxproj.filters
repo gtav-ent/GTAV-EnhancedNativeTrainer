@@ -22,6 +22,7 @@
     <ClCompile Include="src\features\time.cpp" />
     <ClCompile Include="src\io\xinput.cpp" />
     <ClCompile Include="inc\xinput\CXBOXController.cpp" />
+    <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\main.h" />
@@ -29,7 +30,6 @@
     <ClInclude Include="inc\sqlite3\sqlite3.h" />
     <ClInclude Include="inc\sqlite3\sqlite3ext.h" />
     <ClInclude Include="inc\types.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="src\features\airbrake.h" />
     <ClInclude Include="src\features\anims.h" />
     <ClInclude Include="src\ui_support\menu_functions.h" />
@@ -48,6 +48,12 @@
     <ClInclude Include="src\io\xinput.h" />
     <ClInclude Include="inc\xinput\CXBOXController.h" />
     <ClInclude Include="src\version.h" />
+    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\types.h" />
+    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\enums.h" />
+    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\main.h" />
+    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\nativeCaller.h" />
+    <ClInclude Include="src\utils.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />
@@ -56,11 +62,79 @@
     <None Include="Documents\Enhanced Trainer Release Notes.rtf" />
     <None Include="Documents\GTA V Peds Master.xlsm" />
     <None Include="Documents\GTA V Vehicles Master.xlsm" />
+    <None Include="vehiclep.bin" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\ScriptHookV.lib" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Documents\veh-previews\asea_snow.png" />
+    <Image Include="Documents\veh-previews\baller_small.png" />
+    <Image Include="Documents\veh-previews\bjxl.png" />
+    <Image Include="Documents\veh-previews\blista.png" />
+    <Image Include="Documents\veh-previews\buccaneer.png" />
+    <Image Include="Documents\veh-previews\dilet_livery.png" />
+    <Image Include="Documents\veh-previews\dubsta.png" />
+    <Image Include="Documents\veh-previews\dubsta_black.png" />
+    <Image Include="Documents\veh-previews\dukes.png" />
+    <Image Include="Documents\veh-previews\duneloader.png" />
+    <Image Include="Documents\veh-previews\emperor.png" />
+    <Image Include="Documents\veh-previews\emperor_rusty.png" />
+    <Image Include="Documents\veh-previews\emperor_snow.png" />
+    <Image Include="Documents\veh-previews\fq2.png" />
+    <Image Include="Documents\veh-previews\futo.png" />
+    <Image Include="Documents\veh-previews\granger.png" />
+    <Image Include="Documents\veh-previews\guardian.png" />
+    <Image Include="Documents\veh-previews\habanero.png" />
+    <Image Include="Documents\veh-previews\hearse.png" />
+    <Image Include="Documents\veh-previews\lifeguard.png" />
+    <Image Include="Documents\veh-previews\manana.png" />
+    <Image Include="Documents\veh-previews\mesa_snow.png" />
+    <Image Include="Documents\veh-previews\monkey_blista.png" />
+    <Image Include="Documents\veh-previews\oracle2.png" />
+    <Image Include="Documents\veh-previews\patriot.png" />
+    <Image Include="Documents\veh-previews\peyote.png" />
+    <Image Include="Documents\veh-previews\phoenix.png" />
+    <Image Include="Documents\veh-previews\prairie.png" />
+    <Image Include="Documents\veh-previews\rancherxl_snow.png" />
+    <Image Include="Documents\veh-previews\roosevelt.png" />
+    <Image Include="Documents\veh-previews\ruiner.png" />
+    <Image Include="Documents\veh-previews\sabre.png" />
+    <Image Include="Documents\veh-previews\sentinel.png" />
+    <Image Include="Documents\veh-previews\serrano.png" />
+    <Image Include="Documents\veh-previews\slamvan_lostmc.png" />
+    <Image Include="Documents\veh-previews\spacedocker.png" />
+    <Image Include="Documents\veh-previews\sultan.png" />
+    <Image Include="Documents\veh-previews\taxi.png" />
+    <Image Include="Documents\veh-previews\tornado.png" />
+    <Image Include="Documents\veh-previews\tornado_cab.png" />
+    <Image Include="Documents\veh-previews\tornado_cab_rusty.png" />
+    <Image Include="Documents\veh-previews\tornado_rusty.png" />
+    <Image Include="Documents\veh-previews\voodoo.png" />
+    <Image Include="Documents\veh-previews\sub.png" />
+    <Image Include="Documents\veh-previews\seashark2.png" />
+    <Image Include="Documents\veh-previews\skylift.png" />
+    <Image Include="Documents\veh-previews\sadler_snow.png" />
+    <Image Include="Documents\veh-previews\predator.png" />
+    <Image Include="Documents\veh-previews\polmav.png" />
+    <Image Include="Documents\veh-previews\lazer.png" />
+    <Image Include="Documents\veh-previews\frogger2.png" />
+    <Image Include="Documents\veh-previews\fixter.png" />
+    <Image Include="Documents\veh-previews\dinghy2.png" />
+    <Image Include="Documents\veh-previews\daemon.png" />
+    <Image Include="Documents\veh-previews\dinghy.png" />
+    <Image Include="Documents\veh-previews\cargobob3.png" />
+    <Image Include="Documents\veh-previews\cargobob2.png" />
+    <Image Include="Documents\veh-previews\cargo.png" />
+    <Image Include="Documents\veh-previews\blimp2.png" />
+    <Image Include="Documents\veh-previews\buzzard2.png" />
+    <Image Include="Documents\veh-previews\blimp.png" />
+    <Image Include="Documents\veh-previews\bison3.png" />
+    <Image Include="Documents\veh-previews\bison2.png" />
+    <Image Include="Documents\veh-previews\bagger.png" />
+    <Image Include="Documents\veh-previews\b747.png" />
   </ItemGroup>
 </Project>

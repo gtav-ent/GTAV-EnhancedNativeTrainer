@@ -17,6 +17,8 @@ const std::vector<std::string> TIME_SPEED_CAPTIONS{ "Minimum", "0.1x", "0.5x", "
 const std::vector<float> TIME_SPEED_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f };
 const int DEFAULT_TIME_SPEED = 4;
 
+const int TIME_TO_SLOW_AIM = 2000;
+
 int timeSpeedIndexWhileAiming = DEFAULT_TIME_SPEED;
 int timeSpeedIndex = DEFAULT_TIME_SPEED;
 
@@ -26,7 +28,20 @@ bool featureTimeSynced = false;
 
 int activeLineIndexTime = 0;
 
+int timeSinceAimingBegan = 0;
+
 bool weHaveChangedTimeScale;
+
+float quadratic_time_transition(float start, float end, float progress)
+{
+	//The quadratic stuff
+	float t = 1 - progress;
+	t = 1 - (t * t);
+
+	float difference = end - start;
+
+	return (start + (difference * t));
+}
 
 bool onconfirm_time_menu(MenuItem<int> choice)
 {
@@ -439,7 +454,7 @@ void add_time_generic_settings(std::vector<StringPairSettingDBRow>* results)
 void update_time_features(Player player)
 {
 	// time pause
-	if (featureTimePausedUpdated)
+	if (featureTimePaused || featureTimePausedUpdated)
 	{
 		TIME::PAUSE_CLOCK(featureTimePaused);
 		featureTimePausedUpdated = false;
@@ -448,6 +463,12 @@ void update_time_features(Player player)
 	// time sync
 	if (featureTimeSynced)
 	{
+		if (featureTimePaused)
+		{
+			featureTimePaused = false;
+			featureTimePausedUpdated = true;
+		}
+
 		time_t now = time(0);
 		tm t;
 		localtime_s(&t, &now);
@@ -459,10 +480,33 @@ void update_time_features(Player player)
 		GAMEPLAY::SET_TIME_SCALE(0.0f);
 		weHaveChangedTimeScale = true;
 	}
+	else if (CONTROLS::IS_CONTROL_PRESSED(0, 19))
+	{
+		//do nothing
+	}
 	else if (PLAYER::IS_PLAYER_FREE_AIMING(player) && PLAYER::IS_PLAYER_CONTROL_ON(player))
 	{
-		GAMEPLAY::SET_TIME_SCALE(TIME_SPEED_VALUES.at(timeSpeedIndexWhileAiming));
-		weHaveChangedTimeScale = true;
+		if (timeSinceAimingBegan == 0)
+		{
+			timeSinceAimingBegan = GetTickCount();
+		}
+
+		if ((GetTickCount() - timeSinceAimingBegan) < TIME_TO_SLOW_AIM)
+		{
+			float fullSpeedTime = weHaveChangedTimeScale ? TIME_SPEED_VALUES.at(timeSpeedIndex) : 1.0f;
+			float targetTime = TIME_SPEED_VALUES.at(timeSpeedIndexWhileAiming);
+			
+			float progress = ((float)(GetTickCount() - timeSinceAimingBegan) / TIME_TO_SLOW_AIM);
+
+			float rate = quadratic_time_transition(fullSpeedTime, targetTime, progress);
+			
+			GAMEPLAY::SET_TIME_SCALE(rate);
+		}
+		else
+		{
+			GAMEPLAY::SET_TIME_SCALE(TIME_SPEED_VALUES.at(timeSpeedIndexWhileAiming));
+			weHaveChangedTimeScale = true;
+		}
 	}
 	else if (PLAYER::IS_PLAYER_CONTROL_ON(player))
 	{
@@ -473,5 +517,10 @@ void update_time_features(Player player)
 	{
 		GAMEPLAY::SET_TIME_SCALE(1.0f);
 		weHaveChangedTimeScale = false;
+	}
+
+	if (timeSinceAimingBegan > 0 && !(PLAYER::IS_PLAYER_FREE_AIMING(player) && PLAYER::IS_PLAYER_CONTROL_ON(player)))
+	{
+		timeSinceAimingBegan = 0;
 	}
 }

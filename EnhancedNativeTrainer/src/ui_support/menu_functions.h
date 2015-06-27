@@ -27,9 +27,12 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <vector>
 #include <algorithm>
 
+#pragma once
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
 extern void(*periodic_feature_call)(void);
+
+static const char* LOCAL_TEXTURE_DICT = "LOCALTEXTURES";
 
 template<class T>
 class MenuItem
@@ -44,7 +47,14 @@ public:
 	bool isLeaf = true;
 	void (*onConfirmFunction)(const MenuItem<T> choice) = NULL;
 
-	virtual void onConfirm();
+	virtual inline void onConfirm()
+	{
+		//set_status_text("Parent confirm");
+		if (onConfirmFunction != NULL)
+		{
+			onConfirmFunction(*this);
+		}
+	};
 
 	virtual bool isAbsorbingLeftAndRightEvents() { return false; };
 
@@ -91,14 +101,13 @@ public:
 		return getter_call(extra_arguments);
 	}
 
-	virtual void onConfirm()
+	virtual inline void onConfirm()
 	{
 		setter_call(!getter_call(extra_arguments), extra_arguments);
 	}
 };
 
-template<class T>
-class WantedSymbolItem : public MenuItem < T >
+class WantedSymbolItem : public MenuItem <int>
 {
 public:
 
@@ -180,6 +189,54 @@ struct StringStandardOrToggleMenuDef {
 	bool *pUpdated;
 };
 
+class MenuItemImage
+{
+public:
+	inline bool is_local()
+	{
+		return strcmp(dict, LOCAL_TEXTURE_DICT) == 0;
+	};
+
+	char* dict;
+	char* name;
+	int localID;
+};
+
+template<class T>
+class MenuParameters
+{
+public:
+	inline MenuParameters(std::vector<MenuItem<T>*> items, std::string headerText)
+	{
+		this->items = items;
+		this->headerText = headerText;
+	}
+
+	std::vector<MenuItem<T>*> items;
+	std::string headerText;
+	int *menuSelectionPtr = 0;
+	bool(*onConfirmation)(MenuItem<T> value) = NULL;
+	void(*onHighlight)(MenuItem<T> value) = NULL;
+	void(*onExit)(bool returnValue) = NULL;
+	bool(*interruptCheck)(void) = NULL;
+	MenuItemImage*(*lineImageProvider)(MenuItem<T> value) = NULL;
+
+	int get_menu_selection_index()
+	{
+		return *menuSelectionPtr;
+	}
+
+	void set_menu_selection_index(int index)
+	{
+		*menuSelectionPtr = index;
+	}
+
+	bool has_menu_selection_ptr()
+	{
+		return menuSelectionPtr != 0;
+	}
+};
+
 static const float TEXT_HEIGHT_NORMAL = 17.0f;
 
 static const float TEXT_HEIGHT_TITLE = 24.0f;
@@ -208,6 +265,8 @@ bool is_menu_showing();
 * but you'll have to look at uses to be sure, and to understand scaling.
 */
 void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int A_6, int A_7);
+
+void draw_ingame_sprite(MenuItemImage *image, float x, float y, int w, int h);
 
 inline void draw_menu_header_line(std::string caption, float lineWidth, float lineHeight, float lineTop, float lineLeft, float textLeft, bool active, bool rescaleText = true, int curPage=1, int pageCount=1)
 {
@@ -479,24 +538,25 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		std::stringstream ss;
 		if (selectFromListItem->wrap || selectFromListItem->value > 0)
 		{
-			ss << "<C>~HUD_COLOUR_GREYLIGHT~&lt;&lt; ";
+			ss << "~HUD_COLOUR_GREYLIGHT~&lt;&lt; ";
 		}
 		else
 		{
-			ss << "<C>";
+			ss << "";
 		}
 		ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
 		if (selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1)
 		{
-			ss << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;</C>";
+			ss << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;";
 		}
 		else
 		{
-			ss << "</C>";
+			ss << "";
 		}
 		auto ssStr = ss.str();
 
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
+		UI::_ADD_TEXT_COMPONENT_STRING("XX");
 		UI::_DRAW_TEXT(0, textY);
 
 		UI::SET_TEXT_EDGE(1, 255, 215, 0, 255);
@@ -525,7 +585,7 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		UI::_DRAW_TEXT(0, textY);
 		*/
 	}
-	else if (WantedSymbolItem<T>* wantedItem = dynamic_cast<WantedSymbolItem<T>*>(item))
+	else if (WantedSymbolItem* wantedItem = dynamic_cast<WantedSymbolItem*>(item))
 	{
 		rightMarginScaled = 10.0f / (float)screen_w;
 		float starTextScale = 0.6f;
@@ -646,7 +706,20 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 	void(*onExit)(bool returnValue),
 	bool(*interruptCheck)(void) = NULL)
 {
-	if (items.size() == 0)
+	MenuParameters<T> params(items, headerText);
+	params.menuSelectionPtr = menuSelectionPtr;
+	params.interruptCheck = interruptCheck;
+	params.onConfirmation = onConfirmation;
+	params.onExit = onExit;
+	params.onHighlight = onHighlight;
+
+	return draw_generic_menu(params);
+}
+
+template<typename T>
+bool draw_generic_menu(MenuParameters<T> params)
+{
+	if (params.items.size() == 0)
 	{
 		set_status_text("Whoops, nothing to see here");
 		return false;
@@ -654,37 +727,43 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 
 	bool result = false;
 	DWORD waitTime = 150;
-	const int totalItems = (int) items.size();
+	const int totalItems = (int) params.items.size();
 	const int itemsPerLine = 10;
 	const int lineCount = (int)(ceil((double)totalItems / (double)itemsPerLine));
 
 	int currentSelectionIndex;
-	if (menuSelectionPtr != 0)
+	if (params.has_menu_selection_ptr())
 	{
-		if (*menuSelectionPtr >= totalItems)
+		if (params.get_menu_selection_index() >= totalItems)
 		{
-			*menuSelectionPtr = 0;
+			params.set_menu_selection_index(0);
 		}
-		else if (*menuSelectionPtr < 0)
+		else if (params.get_menu_selection_index() < 0)
 		{
-			*menuSelectionPtr = 0;
+			params.set_menu_selection_index(0);
 		}
-		currentSelectionIndex = *menuSelectionPtr;
+		currentSelectionIndex = params.get_menu_selection_index();
 	}
 	else
 	{
 		currentSelectionIndex = 0;
 	}
 
-	if (onHighlight != NULL)
+	if (params.onHighlight != NULL)
 	{
-		onHighlight(*items[currentSelectionIndex]);
+		params.onHighlight(*params.items[currentSelectionIndex]);
+	}
+
+	MenuItemImage* image = NULL;
+	if (params.lineImageProvider != NULL)
+	{
+		image = params.lineImageProvider(*params.items[currentSelectionIndex]);
 	}
 
 	//populate the menu items' indices
 	for (int i = 0; i < totalItems; i++)
 	{
-		items[i]->currentMenuIndex = i;
+		params.items[i]->currentMenuIndex = i;
 	}
 
 	while (true)
@@ -701,14 +780,14 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 			set_menu_showing(false);
 			process_airbrake_menu();
 		}
-		else if (interruptCheck != NULL && interruptCheck())
+		else if (params.interruptCheck != NULL && params.interruptCheck())
 		{
 			return false;
 		}
 
 		if (!is_menu_showing())
 		{
-			if (interruptCheck != NULL && interruptCheck())
+			if (params.interruptCheck != NULL && params.interruptCheck())
 			{
 				return false;
 			}
@@ -730,7 +809,7 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 		DWORD maxTickCount = GetTickCount() + waitTime;
 		do
 		{
-			draw_menu_header_line(headerText,
+			draw_menu_header_line(params.headerText,
 				350.0f,//line W
 				50.0f,//line H
 				15.0f,//line T
@@ -741,6 +820,8 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 				(currentLine + 1),
 				lineCount
 				);
+
+			float activeLineY = 0;
 
 			for (int i = 0; i < itemsOnThisLine; i++)
 			{
@@ -753,7 +834,24 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 				float lineLeft = 35.0f;
 				float textOffset = 10.0f;
 
-				draw_menu_item_line(items[lineStartPosition + i], lineWidth, lineHeight, lineTop, lineLeft, textOffset, i == positionOnThisLine, false);
+				draw_menu_item_line(params.items[lineStartPosition + i], lineWidth, lineHeight, lineTop, lineLeft, textOffset, i == positionOnThisLine, false);
+
+				if (i == positionOnThisLine)
+				{
+					activeLineY = lineTop;
+				}
+			}
+
+			if (image != NULL)
+			{
+				int screen_w, screen_h;
+				GRAPHICS::GET_SCREEN_RESOLUTION(&screen_w, &screen_h);
+
+				float lineXPx = 35.0f + 350.0f + 8.0f;
+				float lineXGame = lineXPx / (float)screen_w;
+				float lineYGame = activeLineY / (float)screen_h;
+
+				draw_ingame_sprite(image, lineXGame, lineYGame, 256, 128);
 			}
 
 			if (periodic_feature_call != NULL)
@@ -768,7 +866,7 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 		bool bSelect, bBack, bUp, bDown, bLeft, bRight;
 		get_button_state(&bSelect, &bBack, &bUp, &bDown, &bLeft, &bRight);
 
-		MenuItem<T> *choice = items[currentSelectionIndex];
+		MenuItem<T> *choice = params.items[currentSelectionIndex];
 
 		if (bSelect)
 		{
@@ -779,9 +877,9 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 			choice->onConfirm();
 
 			//fire the main handler
-			if (onConfirmation != NULL)
+			if (params.onConfirmation != NULL)
 			{
-				result = onConfirmation(*choice);
+				result = params.onConfirmation(*choice);
 			}
 
 			if (result)
@@ -879,22 +977,27 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 								waitTime = 200;
 							}
 
-				if (onHighlight != NULL && originalIndex != currentSelectionIndex)
+				if (params.onHighlight != NULL && originalIndex != currentSelectionIndex)
 				{
-					onHighlight(*items[currentSelectionIndex]);
+					params.onHighlight(*params.items[currentSelectionIndex]);
 				}
 
-				if (menuSelectionPtr != 0)
+				if (params.lineImageProvider != NULL && originalIndex != currentSelectionIndex)
 				{
-					*menuSelectionPtr = currentSelectionIndex;
+					image = params.lineImageProvider(*params.items[currentSelectionIndex]);
+				}
+
+				if (params.has_menu_selection_ptr())
+				{
+					params.set_menu_selection_index(currentSelectionIndex);
 				}
 			}
 		}
 	}
 
-	if (onExit != NULL)
+	if (params.onExit != NULL)
 	{
-		onExit(result);
+		params.onExit(result);
 	}
 
 	// wait before exit
@@ -909,11 +1012,16 @@ bool draw_generic_menu(std::vector<MenuItem<T>*> items, int *menuSelectionPtr, s
 	}
 
 	//clean up the items memory
-	for (int i = 0; i< items.size(); i++)
+	for (int i = 0; i< params.items.size(); i++)
 	{
-		delete (items[i]);
+		delete (params.items[i]);
 	}
-	items.clear();
+	params.items.clear();
+
+	if (image != NULL)
+	{
+		delete image;
+	}
 
 	return result;
 }

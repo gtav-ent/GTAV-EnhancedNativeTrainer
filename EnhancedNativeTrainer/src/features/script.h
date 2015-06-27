@@ -112,7 +112,6 @@ std::vector<StringPairSettingDBRow> get_generic_settings();
 
 void handle_generic_settings(std::vector<StringPairSettingDBRow> settings);
 
-
 int getFrozenWantedLvl();
 void setFrozenWantedLvl(int level);
 bool getFrozenWantedFeature();
@@ -133,10 +132,14 @@ char* get_storage_dir_path();
 
 char* get_storage_dir_path(char* file);
 
+char* get_temp_dir_path();
+
+char* get_temp_dir_path(char* file);
+
 ENTDatabase* get_database();
 
 bool should_block_input_in_menu();
 
-bool does_veh_invuln_include_cosmetic();
-
 void process_test_menu();
+
+void debug_native_investigation();

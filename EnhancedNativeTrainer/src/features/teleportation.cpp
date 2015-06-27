@@ -257,7 +257,7 @@ std::vector<const char*> IPLS_NORTH_YANKTON = {
 
 
 std::vector<tele_location> LOCATIONS_REQSCEN = {
-	//{ "Carrier", 3069.330f, -4632.4f, 15.043f, IPLS_CARRIER, {}, false },
+	{ "Carrier", 3069.330f, -4632.4f, 15.043f, IPLS_CARRIER, {}, false },
 	{ "Fort Zancudo UFO", -2052.000f, 3237.000f, 1456.973f, { "ufo", "ufo_lod", "ufo_eye" }, {}, false },
 	//{ "Heist Yacht", -2043.974f, -1031.582f, 11.981f, IPLS_HEISTYACHT, {}, false },
 	{ "Max Renda Refit", -583.1606f, -282.3967f, 35.394f, {"refit_unload"}, {"bh1_16_doors_shut"}, false },

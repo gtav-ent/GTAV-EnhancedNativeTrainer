@@ -44,6 +44,8 @@ const static int SPECIAL_ID_FOR_TOGGLE_VARIATIONS = 95;
 
 const static int SPECIAL_ID_FOR_PLATE_TEXT = 96;
 
+const static int SPECIAL_ID_FOR_CONVERTIBLE = 97;
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -857,6 +859,16 @@ bool process_vehmod_menu()
 		menuItems.push_back(toggleItem);
 	}
 
+	if (VEHICLE::IS_VEHICLE_A_CONVERTIBLE(veh, false))
+	{
+		toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = "Toggle Convertible";
+		toggleItem->getter_call = is_convertible;
+		toggleItem->setter_call = set_convertible;
+		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+		menuItems.push_back(toggleItem);
+	}
+
 	for (int i = 1; i < 10; i++)
 	{
 		if (!VEHICLE::DOES_EXTRA_EXIST(veh, i))
@@ -915,12 +927,40 @@ bool is_custom_tyres(std::vector<int> extras)
 
 void set_custom_tyres(bool applied, std::vector<int> extras)
 {
+	if (applied)
+	{
+		set_status_text("CTs applied");
+	}
+	else
+	{
+		set_status_text("CTs unapplied");
+	}
+
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 	VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 	int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 23);
 	VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, applied); //Add Custom Tires
 	VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, applied); //Add Custom Tires (For bike rear wheels if they exist)
 	set_status_text("Changed Tires");
+}
+
+bool is_convertible(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	return (VEHICLE::GET_CONVERTIBLE_ROOF_STATE(veh) == 1);
+}
+
+void set_convertible(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	if (applied)
+	{
+		VEHICLE::RAISE_CONVERTIBLE_ROOF(veh, true);
+	}
+	else
+	{
+		VEHICLE::LOWER_CONVERTIBLE_ROOF(veh, true);
+	}
 }
 
 bool is_turbocharged(std::vector<int> extras)
@@ -996,4 +1036,48 @@ bool vehicle_menu_interrupt()
 	}
 
 	return false;
+}
+
+void set_chrome_wheels_enabled(Vehicle veh, bool enabled)
+{
+	int count;
+	int wheelType = VEHICLE::GET_VEHICLE_WHEEL_TYPE(veh);
+	if (wheelType == 6)
+	{
+		count = WHEEL_CATEGORY_COUNT_BIKE;
+	}
+	else if (wheelType == 7)
+	{
+		count = WHEEL_CATEGORY_COUNTS[6];
+	}
+	else
+	{
+		count = WHEEL_CATEGORY_COUNTS[wheelType];
+	}
+
+	int curWheel = VEHICLE::GET_VEHICLE_MOD(veh, 23);
+	if (curWheel == -1)
+	{
+		return;
+	}
+
+	int newWheel;
+	if (curWheel > count && !enabled)
+	{
+		newWheel = curWheel - count;
+	}
+	else if (curWheel < count && enabled)
+	{
+		newWheel = curWheel + count;
+	}
+	else
+	{
+		newWheel = curWheel;
+	}
+
+	if (newWheel != curWheel)
+	{
+		VEHICLE::SET_VEHICLE_MOD(veh, 23, newWheel, 0);
+		VEHICLE::SET_VEHICLE_MOD(veh, 24, newWheel, 0);
+	}
 }
