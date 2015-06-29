@@ -64,6 +64,7 @@ void process_airbrake_menu()
 		STREAMING::REQUEST_ANIM_DICT(AIRBRAKE_ANIM_A);
 		while (!STREAMING::HAS_ANIM_DICT_LOADED(AIRBRAKE_ANIM_A))
 		{
+			make_periodic_feature_call();
 			WAIT(0);
 		}
 		loadedAnims = true;

@@ -79,7 +79,11 @@ bool applyChosenSkin(DWORD model)
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
 	{
 		STREAMING::REQUEST_MODEL(model);
-		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
+		while (!STREAMING::HAS_MODEL_LOADED(model))
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
 		//STREAMING::LOAD_ALL_OBJECTS_NOW();
 
 		Vehicle veh = NULL;
@@ -236,7 +240,11 @@ bool process_skinchanger_texture_menu(std::string caption)
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
 	{
 		STREAMING::REQUEST_MODEL(model);
-		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
+		while (!STREAMING::HAS_MODEL_LOADED(model))
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
 
 		int currentDrawable = PED::GET_PED_DRAWABLE_VARIATION(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue);
 		int textures = PED::GET_NUMBER_OF_PED_TEXTURE_VARIATIONS(PLAYER::PLAYER_PED_ID(), skinDetailMenuValue, currentDrawable);
@@ -302,7 +310,11 @@ bool process_skinchanger_drawable_menu(std::string caption, int component)
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
 	{
 		STREAMING::REQUEST_MODEL(model);
-		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
+		while (!STREAMING::HAS_MODEL_LOADED(model))
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
 
 		int drawables = PED::GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS(PLAYER::PLAYER_PED_ID(), component);
 		for (int i = 0; i < drawables; i++)
@@ -368,7 +380,11 @@ bool process_skinchanger_detail_menu()
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
 	{
 		STREAMING::REQUEST_MODEL(model);
-		while (!STREAMING::HAS_MODEL_LOADED(model))	WAIT(0);
+		while (!STREAMING::HAS_MODEL_LOADED(model))
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
 
 		for (; i < partVariations + fixedChoices; i++)
 		{

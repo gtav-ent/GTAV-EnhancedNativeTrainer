@@ -1010,6 +1010,7 @@ bool draw_generic_menu(MenuParameters<T> params)
 		DWORD maxTickCount = GetTickCount() + waitTime;
 		do
 		{
+			make_periodic_feature_call();
 			WAIT(0);
 		} while (GetTickCount() < maxTickCount);
 		waitTime = 0;

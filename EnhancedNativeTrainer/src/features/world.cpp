@@ -266,6 +266,8 @@ void update_world_features()
 		{
 			STREAMING::SET_PED_POPULATION_BUDGET(3);
 		}
+
+		featureWorldNoPedsUpdated = false;
 	}
 
 	if (featureWorldNoTrafficUpdated)
@@ -284,10 +286,12 @@ void update_world_features()
 		}
 		else
 		{
-			STREAMING::SET_PED_POPULATION_BUDGET(3);
+			STREAMING::SET_VEHICLE_POPULATION_BUDGET(3);
 			VEHICLE::SET_ALL_VEHICLE_GENERATORS_ACTIVE();
 			PATHFIND::SET_ROADS_BACK_TO_ORIGINAL(-10000.0, -10000.0, -200.0, 10000.0, 10000.0, 1000.0, 1);
 		}
+
+		featureWorldNoTrafficUpdated = false;
 	}
 
 

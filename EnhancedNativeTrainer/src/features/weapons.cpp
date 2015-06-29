@@ -564,6 +564,7 @@ void update_vehicle_guns()
 			WEAPON::REQUEST_WEAPON_ASSET(weaponAssetRocket, 31, 0);
 			while (!WEAPON::HAS_WEAPON_ASSET_LOADED(weaponAssetRocket))
 			{
+				make_periodic_feature_call();
 				WAIT(0);
 			}
 		}

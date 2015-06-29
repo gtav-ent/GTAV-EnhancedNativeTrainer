@@ -361,6 +361,7 @@ void update_features()
 			STREAMING::REQUEST_ANIM_SET((char*)CLIPSET_DRUNK);
 			while (!STREAMING::HAS_ANIM_SET_LOADED((char*)CLIPSET_DRUNK))
 			{
+				make_periodic_feature_call();
 				WAIT(0);
 			}
 			PED::SET_PED_MOVEMENT_CLIPSET(playerPed, (char*)CLIPSET_DRUNK, 1.0f);

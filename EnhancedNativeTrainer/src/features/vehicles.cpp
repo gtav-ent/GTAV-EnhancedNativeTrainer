@@ -703,7 +703,12 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_A_VEHICLE(model))
 	{
 		STREAMING::REQUEST_MODEL(model);
-		while (!STREAMING::HAS_MODEL_LOADED(model)) WAIT(0);
+		while (!STREAMING::HAS_MODEL_LOADED(model))
+		{
+			make_periodic_feature_call();
+			WAIT(0);
+		}
+
 		FLOAT lookDir = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
 		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 5.0, 0.0);
 		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, lookDir, 1, 0);
@@ -1373,6 +1378,7 @@ MenuItemImage* vehicle_image_preview_finder(MenuItem<std::string> choice)
 void unpack_veh_preview(char* model, int resRef, std::string bitmapName)
 {
 	WAIT(0);
+	make_periodic_feature_call();
 
 	HMODULE module = GetENTModuleHandle();
 	if (module == NULL)
@@ -1381,27 +1387,6 @@ void unpack_veh_preview(char* model, int resRef, std::string bitmapName)
 		return;
 	}
 
-	// Locate the resource in the application's executable.
-	HRSRC imageResHandle = FindResource(
-		module,             // This component.
-		MAKEINTRESOURCE(resRef),   // Resource name.
-		_T("PNG"));        // Resource type.
-
-	if (imageResHandle == NULL)
-	{
-		std::ostringstream ss;
-		int e = GetLastError();
-		ss << "Couldn't find resource " << VP_ASEA_SNOW << ", error " << e;
-		write_text_to_log_file(ss.str());
-		return;
-	}
-
-	HGLOBAL hRes = LoadResource(module, imageResHandle);
-	LPVOID memRes = LockResource(hRes);
-	DWORD sizeRes = SizeofResource(module, imageResHandle);
-
-	std::transform(bitmapName.begin(), bitmapName.end(), bitmapName.begin(), ::tolower);
-
 	std::ostringstream filenameSS;
 	filenameSS << bitmapName << ".png";
 	auto filename = filenameSS.str();
@@ -1409,6 +1394,27 @@ void unpack_veh_preview(char* model, int resRef, std::string bitmapName)
 
 	if (!does_file_exist(filePath))
 	{
+		// Locate the resource in the application's executable.
+		HRSRC imageResHandle = FindResource(
+			module,             // This component.
+			MAKEINTRESOURCE(resRef),   // Resource name.
+			_T("PNG"));        // Resource type.
+
+		if (imageResHandle == NULL)
+		{
+			std::ostringstream ss;
+			int e = GetLastError();
+			ss << "Couldn't find resource " << bitmapName << " and code " << resRef << ", error " << e;
+			write_text_to_log_file(ss.str());
+			return;
+		}
+
+		HGLOBAL hRes = LoadResource(module, imageResHandle);
+		LPVOID memRes = LockResource(hRes);
+		DWORD sizeRes = SizeofResource(module, imageResHandle);
+
+		std::transform(bitmapName.begin(), bitmapName.end(), bitmapName.begin(), ::tolower);
+
 		HANDLE newFile = CreateFile(filePath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (newFile == INVALID_HANDLE_VALUE)
 		{
@@ -1423,22 +1429,16 @@ void unpack_veh_preview(char* model, int resRef, std::string bitmapName)
 			CloseHandle(newFile);
 			return;
 		}
-
-		CloseHandle(newFile);
+		else
+		{
+			CloseHandle(newFile);
+		}
 	}
 
-	int textureID = createTexture(filePath);
-	if (textureID != 0)
+	if (does_file_exist(filePath))
 	{
-		std::ostringstream ss;
-		ss << "Create texture returned " << textureID;
-		write_text_to_log_file(ss.str());
-
+		int textureID = createTexture(filePath);
 		ALL_VEH_IMAGES.push_back({ model, (char*)LOCAL_TEXTURE_DICT, NULL, textureID });
-	}
-	else
-	{
-		write_text_to_log_file("Couldn't read texture from file");
 	}
 }
 
@@ -1542,7 +1542,7 @@ void init_vehicle_feature()
 	unpack_veh_preview("PEYOTE", VP_PEYOTE, "VP_PEYOTE");
 	unpack_veh_preview("PHANTOM", VP_PHANTOM, "VP_PHANTOM");
 	unpack_veh_preview("PHOENIX", VP_PHOENIX, "VP_PHOENIX");
-	unpack_veh_preview("POLICE", VP_PHANTOM, "VP_PHANTOM");
+	unpack_veh_preview("POLICE", VP_POLICE, "VP_POLICE");
 	unpack_veh_preview("POLICE2", VP_POLICE2, "VP_POLICE2");
 	unpack_veh_preview("POLICE3", VP_POLICE3, "VP_POLICE3");
 	unpack_veh_preview("POLICE4", VP_POLICE4, "VP_POLICE4");

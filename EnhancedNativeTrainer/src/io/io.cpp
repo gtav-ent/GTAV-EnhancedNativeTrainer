@@ -29,6 +29,7 @@ bool trainer_switch_pressed()
 		do
 		{
 			UpdateXInputControlState();
+			make_periodic_feature_call();
 			WAIT(0);
 		} while (GetTickCount() < maxTickCount);
 	}
@@ -64,6 +65,7 @@ bool airbrake_switch_pressed()
 		do
 		{
 			UpdateXInputControlState();
+			make_periodic_feature_call();
 			WAIT(0);
 		} while (GetTickCount() < maxTickCount);
 	}

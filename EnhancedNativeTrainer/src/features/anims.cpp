@@ -22138,6 +22138,7 @@ bool onconfirm_anim_menu(MenuItem<int> choice)
 					STREAMING::REQUEST_ANIM_DICT(dict);
 					while (!STREAMING::HAS_ANIM_DICT_LOADED(dict))
 					{
+						make_periodic_feature_call();
 						WAIT(0);
 					}
 				}
@@ -22156,6 +22157,7 @@ bool onconfirm_anim_menu(MenuItem<int> choice)
 				STREAMING::REQUEST_ANIM_SET((char*)dict);
 				while (!STREAMING::HAS_ANIM_SET_LOADED(dict) && GetTickCount() < ticks + 5000)
 				{
+					make_periodic_feature_call();
 					WAIT(0);
 				}
 				if (!STREAMING::HAS_ANIM_SET_LOADED(dict))

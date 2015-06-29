@@ -259,6 +259,7 @@ std::string show_keyboard(char* title_id, char* prepopulated_text)
 	while (GetTickCount() < time)
 	{
 		make_periodic_feature_call();
+		make_periodic_feature_call();
 		WAIT(0);
 	}
 
@@ -279,6 +280,7 @@ std::string show_keyboard(char* title_id, char* prepopulated_text)
 	while (GAMEPLAY::UPDATE_ONSCREEN_KEYBOARD() == 0)
 	{
 		//update_status_text();
+		make_periodic_feature_call();
 		WAIT(0);
 	}
 
