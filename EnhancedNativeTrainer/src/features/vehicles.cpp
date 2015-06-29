@@ -221,7 +221,7 @@ bool process_veh_door_menu() {
 	toggleItem->toggleValue = &featureVehicleDoorInstant;
 	menuItems.push_back(toggleItem);
 
-	for (int i = 1; i < DOOR_NAMES.size(); i++)
+	for (int i = 0; i < DOOR_NAMES.size(); i++)
 	{
 
 		MenuItem<int> *item = new MenuItem<int>();
@@ -838,9 +838,9 @@ bool spawn_saved_car(int slot, std::string caption)
 		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, savedVeh->dirtLevel);
 
 		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[0] == 1);
-		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[1] == 1);
-		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[2] == 1);
-		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 0, savedVeh->neonEnablement[3] == 1);
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 1, savedVeh->neonEnablement[1] == 1);
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 2, savedVeh->neonEnablement[2] == 1);
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, 3, savedVeh->neonEnablement[3] == 1);
 
 		VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, savedVeh->neonRGB[0], savedVeh->neonRGB[1], savedVeh->neonRGB[2]);
 
