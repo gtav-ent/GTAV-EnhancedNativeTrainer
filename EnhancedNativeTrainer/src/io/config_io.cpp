@@ -272,6 +272,50 @@ void KeyInputConfig::set_control(char* function, ControllerButtonConfig* config)
 	}
 }
 
+bool KeyInputConfig::is_hotkey_assigned(int i)
+{
+	std::string target;
+	switch (i)
+	{
+		case 1:
+			target = KeyConfig::KEY_HOT_1;
+			break;
+		case 2:
+			target = KeyConfig::KEY_HOT_2;
+			break;
+		case 3:
+			target = KeyConfig::KEY_HOT_3;
+			break;
+		case 4:
+			target = KeyConfig::KEY_HOT_4;
+			break;
+		case 5:
+			target = KeyConfig::KEY_HOT_5;
+			break;
+		case 6:
+			target = KeyConfig::KEY_HOT_6;
+			break;
+		case 7:
+			target = KeyConfig::KEY_HOT_7;
+			break;
+		case 8:
+			target = KeyConfig::KEY_HOT_8;
+			break;
+		case 9:
+			target = KeyConfig::KEY_HOT_9;
+			break;
+		default:
+			return false;
+	}
+
+	KeyConfig* conf = this->keyConfigs[target];
+	if (conf == NULL || conf->keyCode == 0)
+	{
+		return false;
+	}
+	return true;
+}
+
 TrainerConfig::TrainerConfig()
 {
 	this->keyConfig = new KeyInputConfig();
@@ -306,6 +350,16 @@ KeyInputConfig::KeyInputConfig()
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_SPEED] = new KeyConfig(VK_SHIFT);
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_HELP] = new KeyConfig(VK_KEY_H);
+
+	this->keyConfigs[KeyConfig::KEY_HOT_1] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_2] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_3] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_4] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_5] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_6] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_7] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_8] = new KeyConfig(0);
+	this->keyConfigs[KeyConfig::KEY_HOT_9] = new KeyConfig(0);
 
 //Default XInput controls
 

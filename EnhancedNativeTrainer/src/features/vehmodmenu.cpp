@@ -44,8 +44,6 @@ const static int SPECIAL_ID_FOR_TOGGLE_VARIATIONS = 95;
 
 const static int SPECIAL_ID_FOR_PLATE_TEXT = 96;
 
-const static int SPECIAL_ID_FOR_CONVERTIBLE = 97;
-
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -859,16 +857,6 @@ bool process_vehmod_menu()
 		menuItems.push_back(toggleItem);
 	}
 
-	if (VEHICLE::IS_VEHICLE_A_CONVERTIBLE(veh, false))
-	{
-		toggleItem = new FunctionDrivenToggleMenuItem<int>();
-		toggleItem->caption = "Toggle Convertible";
-		toggleItem->getter_call = is_convertible;
-		toggleItem->setter_call = set_convertible;
-		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
-		menuItems.push_back(toggleItem);
-	}
-
 	for (int i = 1; i < 10; i++)
 	{
 		if (!VEHICLE::DOES_EXTRA_EXIST(veh, i))
@@ -942,25 +930,6 @@ void set_custom_tyres(bool applied, std::vector<int> extras)
 	VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, applied); //Add Custom Tires
 	VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, applied); //Add Custom Tires (For bike rear wheels if they exist)
 	set_status_text("Changed Tires");
-}
-
-bool is_convertible(std::vector<int> extras)
-{
-	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-	return (VEHICLE::GET_CONVERTIBLE_ROOF_STATE(veh) == 1);
-}
-
-void set_convertible(bool applied, std::vector<int> extras)
-{
-	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-	if (applied)
-	{
-		VEHICLE::RAISE_CONVERTIBLE_ROOF(veh, true);
-	}
-	else
-	{
-		VEHICLE::LOWER_CONVERTIBLE_ROOF(veh, true);
-	}
 }
 
 bool is_turbocharged(std::vector<int> extras)

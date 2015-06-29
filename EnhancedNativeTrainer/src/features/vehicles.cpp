@@ -51,17 +51,6 @@ struct struct_door_options {
 	bool *pState;
 };
 
-std::vector<struct_door_options> DOOR_OPTIONS = {
-	{ "Toggle Open Instantly", &featureVehicleDoorInstant },
-	{ "Front Right", NULL }, //INDEX 0
-	{ "Front Left", NULL }, //INDEX 1
-	{ "Rear Right", NULL }, //INDEX 2
-	{ "Rear Left", NULL }, //INDEX 3 (This opens the ramp on the An-225|CARGOPLANE)
-	{ "Hood", NULL }, //INDEX 4
-	{ "Trunk ", NULL }, //INDEX 5 (Opens ramp on C-130|TITAN)
-	{ "Trunk 2", NULL } //INDEX 6 (What uses this?)
-};
-
 int doorOptionsMenuIndex = 0;
 
 //Top Level
@@ -118,13 +107,13 @@ const std::vector<std::string> MENU_INDUS_CATEGORIES{ "Pickups", "Vans", "Trucks
 
 const std::vector<std::string> CAPTIONS_PICKUPS{ "Bravado Bison", "Bravado Bison (Backrack)", "Bravado Bison (Construction)", "Bravado Ratloader", "Bravado Ratloader (Rusty)", "Vapid Bobcat", "Vapid Sadler", "Vapid Sadler (Snow)" };
 
-const std::vector<std::string> CAPTIONS_VANS{ "BF Surfer", "BF Surfer (Rusty)", "Bravado Paradise", "Bravado Rumpo (Deludamol)", "Bravado Rumpo (Weazel News)", "Bravado Youga", "Brute Camper", "Brute Pony (Business)", "Brute Pony (Cannibus Shop)", "Brute Taco Van", "Declasse Burrito", "Declasse Burrito (Bug Stars)", "Declasse Burrito (Construction)", "Declasse Burrito (Gang)", "Declasse Burrito (Graphics)", "Declasse Burrito (Snow)", "Declasse Burrito (The Lost)", "Vapid Minivan", "Vapid Speedo", "Vapid Speedo (Clown)", "Zirconium Journey" };
+const std::vector<std::string> CAPTIONS_VANS{ "BF Surfer", "BF Surfer (Rusty)", "Bravado Paradise", "Bravado Rumpo (Deludamol)", "Bravado Rumpo (Plain/Weazel)", "Bravado Youga", "Brute Camper", "Brute Pony (Business)", "Brute Pony (Cannibus Shop)", "Brute Taco Van", "Declasse Burrito", "Declasse Burrito (Bug Stars)", "Declasse Burrito (Construction)", "Declasse Burrito (Gang)", "Declasse Burrito (Graphics)", "Declasse Burrito (Snow)", "Declasse Burrito (The Lost)", "Vapid Minivan", "Vapid Speedo", "Vapid Speedo (Clown)", "Zirconium Journey" };
 
 const std::vector<std::string> CAPTIONS_TRUCKS{ "Brute Boxville (Go Postal)", "Brute Boxville (Humane Labs)", "Brute Boxville (Post OP)", "Brute Boxville (Water & Power)", "Brute Stockade", "Brute Stockade (Snow)", "Brute Tipper (2 Axle)", "Brute Tipper (3 Axle)", "Cutter", "Dock Handler", "Dock Tug", "Dump Truck", "HVY Biff", "Jobuilt Hauler", "Jobuilt Phantom", "Jobuilt Rubble", "Maibatsu Mule (Graphics 1)", "Maibatsu Mule (Graphics 2)", "Maibatsu Mule (Plain)", "Mixer", "Mixer (Support Wheel)", "MTL Flatbed Truck", "MTL Packer", "MTL Pounder", "Vapid Benson", "Vapid Scrap Truck", "Vapid Tow Truck", "Vapid Tow Truck (Old)" };
 
-const std::vector<std::string> CAPTIONS_SERVICES{ "Airtug", "Brute Airport Bus", "Brute Bus (City Bus)", "Brute Rental Shuttle Bus", "Brute Tourbus", "Cable Car (Mt. Chilliad)", "Dashound Dashound Coach", "Dozer", "Forklift", "Jobuilt Trashmaster", "Jobuilt Trashmaster (Rusty)", "Nagasaki Caddy", "Nagasaki Caddy (Golf)", "Ripley (Airport Tug)", "Stanley Fieldmaster Tractor", "Stanley Fieldmaster Tractor (Snow)", "Stanley Lawn Mower", "Stanley Tractor (Rusty)", "Vapid Pickup Utility", "Vapid Plumbing Utility", "Vapid Telephone Utility" };
+const std::vector<std::string> CAPTIONS_SERVICES{ "Airtug", "Brute Airport Bus", "Brute Bus (City Bus)", "Brute Rental Shuttle Bus", "Brute Tourbus", "Cable Car (Mt. Chilliad)", "Dashound Coach", "Dozer", "Forklift", "Jobuilt Trashmaster", "Jobuilt Trashmaster (Rusty)", "Nagasaki Caddy (New)", "Nagasaki Caddy (Old)", "Ripley (Airport Tug)", "Stanley Fieldmaster Tractor", "Stanley Fieldmaster Tractor (Snow)", "Stanley Lawn Mower", "Stanley Tractor (Rusty)", "Vapid Pickup Utility", "Vapid Plumbing Utility", "Vapid Telephone Utility" };
 
-const std::vector<std::string> CAPTIONS_TRAILERS{ "Army Flatbed Trailer (Empty)", "Army Flatbed Trailer (With Drill)", "Army Fuel Tanker", "Boat Trailer", "Boat Trailer", "Car Transport Trailer", "Car Transport Trailer (Empty)", "Commercial Trailer (Graphics 1)", "Commercial Trailer (Graphics 2)", "Container Trailer", "Fame or Shame Trailer", "Flatbed Trailer", "Flatbed Trailer", "Grain Trailer", "Hay Bale Trailer", "Logging Trailer", "Meth Lab Trailer", "Petrol Tanker Trailer (Plain)", "Petrol Tanker Trailer (RON)", "Plain Trailer", "Rake Trailer", "Small Trailer" };
+const std::vector<std::string> CAPTIONS_TRAILERS{ "Army Flatbed Trailer (Empty)", "Army Flatbed Trailer (With Drill)", "Army Fuel Tanker", "Boat Trailer", "Boat Trailer (With Boat)", "Car Transport Trailer", "Car Transport Trailer (Empty)", "Commercial Trailer (Graphics 1)", "Commercial Trailer (Graphics 2)", "Container Trailer", "Fame or Shame Trailer", "Flatbed Trailer 1", "Flatbed Trailer 2", "Grain Trailer", "Hay Bale Trailer", "Logging Trailer", "Meth Lab Trailer", "Petrol Tanker Trailer (Plain)", "Petrol Tanker Trailer (RON)", "Plain Trailer", "Rake Trailer", "Small Trailer" };
 
 const std::vector<std::string> CAPTIONS_TRAINS{ "Container Car 1", "Container Car 2", "Flatbed Car", "Freight Train Cab", "Grain Car", "Metro Train (Half)", "Oil Tanker Car" };
 
@@ -134,7 +123,7 @@ const std::vector<std::string> VALUES_VANS{ "SURFER", "SURFER2", "PARADISE", "RU
 
 const std::vector<std::string> VALUES_TRUCKS{ "BOXVILLE2", "BOXVILLE3", "BOXVILLE4", "BOXVILLE", "STOCKADE", "STOCKADE3", "TIPTRUCK", "TIPTRUCK2", "CUTTER", "HANDLER", "DOCKTUG", "DUMP", "BIFF", "HAULER", "PHANTOM", "RUBBLE", "MULE", "MULE2", "MULE3", "MIXER", "MIXER2", "FLATBED", "PACKER", "POUNDER", "BENSON", "SCRAP", "TOWTRUCK", "TOWTRUCK2" };
 
-const std::vector<std::string> VALUES_SERVICES{ "AIRTUG", "AIRBUS", "BUS", "RENTALBUS", "TOURBUS", "CABLECAR", "COACH", "BULLDOZER", "FORKLIFT", "TRASH2", "TRASH", "CADDY2", "CADDY", "RIPLEY", "TRACTOR2", "TRACTOR3", "MOWER", "TRACTOR", "UTILLITRUCK3", "UTILLITRUCK2", "UTILLITRUCK" };
+const std::vector<std::string> VALUES_SERVICES{ "AIRTUG", "AIRBUS", "BUS", "RENTALBUS", "TOURBUS", "CABLECAR", "COACH", "BULLDOZER", "FORKLIFT", "TRASH", "TRASH2", "CADDY", "CADDY2", "RIPLEY", "TRACTOR2", "TRACTOR3", "MOWER", "TRACTOR", "UTILLITRUCK3", "UTILLITRUCK2", "UTILLITRUCK" };
 
 const std::vector<std::string> VALUES_TRAILERS{ "ARMYTRAILER", "ARMYTRAILER2", "ARMYTANKER", "BOATTRAILER", "TR3", "TR4", "TR2", "TRAILERS2", "TRAILERS3", "DOCKTRAILER", "TVTRAILER", "FREIGHTTRAILER", "TRFLAT", "GRAINTRAILER", "BALETRAILER", "TRAILERLOGS", "PROPTRAILER", "TANKER2", "TANKER", "TRAILERS", "RAKETRAILER", "TRAILERSMALL" };
 
@@ -152,7 +141,7 @@ const std::vector<std::string> CAPTIONS_MOTORCYCLES{ "Dinka Akuma", "Dinka Doubl
 
 const std::vector<std::string> CAPTIONS_PLANES{ "Buckingham Cargo Plane (An-225)", "Buckingham Jet (B747)", "Buckingham Luxor", "Buckingham Luxor Deluxe", "Buckingham Miljet", "Buckingham Shamal", "Buckingham Vestra", "Jobuilt Mammatus", "Jobuilt P-996 Lazer", "Jobuilt Velum (4 Seater)", "Jobuilt Velum (5 Seater)", "Mammoth Dodo", "Mammoth Hydra", "Mammoth Titan", "Western Besra", "Western Cuban 800", "Western Duster", "Western Mallard Stunt Plane" };
 
-const std::vector<std::string> CAPTIONS_HELOS{ "Blimp (Atomic)", "Blimp (Xero Gas)", "Buckingham Savage", "Buckingham Swift", "Buckingham Swift Deluxe", "Buckingham Valkyrie", "HVY Skylift", "Maibatsu Frogger", "Maibatsu Frogger (TPE/FIB)", "Nagasaki Buzzard (Unarmed)", "Nagasaki Buzzard Attack Chopper", "Western Annihilator", "Western Cargobob (Desert Camo)", "Western Cargobob (Jetsam)", "Western Cargobob (TPE)", "Western Maverick", "Western Maverick (Police)" };
+const std::vector<std::string> CAPTIONS_HELOS{ "Blimp (Atomic)", "Blimp (Xero Gas)", "Buckingham Savage", "Buckingham Swift", "Buckingham Swift Deluxe", "Buckingham Valkyrie", "HVY Skylift", "Maibatsu Frogger", "Maibatsu Frogger (TPE/FIB)", "Nagasaki Buzzard (Unarmed)", "Nagasaki Buzzard Attack Chopper", "Western Annihilator", "Western Cargobob (Desert Camo)", "Western Cargobob (Jetsam)", "Western Cargobob (TPE)", "Western Maverick", "Western Maverick (Emergency)" };
 
 const std::vector<std::string> CAPTIONS_BOATS{ "Dinka Marquis", "Kraken Sub", "Nagasaki Dinghy (2 Seater)", "Nagasaki Dinghy (4 Seater, Black)", "Nagasaki Dinghy (4 Seater, Red)", "Pegassi Speeder", "Shitzu Jetmax", "Shitzu Predator (Police)", "Shitzu Squalo", "Shitzu Suntrap", "Shitzu Tropic", "Speedophile Seashark", "Speedophile Seashark (Lifeguard)", "Submersible" };
 
@@ -177,6 +166,12 @@ const std::vector<std::string> VOV_SHALLOW_VALUES[] = { VALUES_EMERGENCY, VALUES
 std::string lastCustomVehicleSpawn;
 
 bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
+
+	if (choice.value == -1)
+	{
+		return false;
+	}
+
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
@@ -206,21 +201,43 @@ bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 bool process_veh_door_menu() {
 	std::string caption = "Door Options";
 
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+
 	std::vector<MenuItem<int>*> menuItems;
 	std::vector<int>menuIndexes;
 
-	ToggleMenuItem<int> *immediateToggle = new ToggleMenuItem<int>();
-	immediateToggle->value = 0;
-	immediateToggle->caption = DOOR_OPTIONS[0].text;
-	immediateToggle->toggleValue = DOOR_OPTIONS[0].pState;
-	menuItems.push_back(immediateToggle);
+	std::vector<std::string> DOOR_NAMES = {
+		"Front Left",
+		"Front Right",
+		"Rear Left",
+		"Rear Right",
+		"Hood",
+		"Trunk ",
+		"Trunk 2"
+	};
 
-	for (int i = 1; i < DOOR_OPTIONS.size(); i++) {
+	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Toggle Open Instantly";
+	toggleItem->toggleValue = &featureVehicleDoorInstant;
+	menuItems.push_back(toggleItem);
+
+	for (int i = 1; i < DOOR_NAMES.size(); i++)
+	{
 
 		MenuItem<int> *item = new MenuItem<int>();
 		item->value = i;
-		item->caption = DOOR_OPTIONS[i].text;
+		item->caption = DOOR_NAMES[i];
 		menuItems.push_back(item);
+	}
+
+	if (VEHICLE::IS_VEHICLE_A_CONVERTIBLE(veh, false))
+	{
+		FunctionDrivenToggleMenuItem<int>* toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = "Convertible Roof Down?";
+		toggleItem->getter_call = is_convertible_roofdown;
+		toggleItem->setter_call = set_convertible_roofdown;
+		toggleItem->value = -1;
+		menuItems.push_back(toggleItem);
 	}
 
 	return draw_generic_menu<int>(menuItems, &doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
@@ -250,35 +267,10 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	}
 		break;
 	case 2: //fix
-		if (bPlayerExists)
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-
-				VEHICLE::SET_VEHICLE_FIXED(veh);
-				VEHICLE::SET_VEHICLE_DEFORMATION_FIXED(veh);
-				VEHICLE::SET_VEHICLE_NEEDS_TO_BE_HOTWIRED(veh, false);
-
-				VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 1000.0f);
-				VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 1000.0f);
-				VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 1000.f);
-
-				VEHICLE::SET_VEHICLE_UNDRIVEABLE(veh, false);
-				VEHICLE::SET_VEHICLE_ENGINE_CAN_DEGRADE(veh, false);
-
-				VEHICLE::SET_VEHICLE_ENGINE_ON(veh, true, true);
-
-				set_status_text("Vehicle Repaired");
-			}
-			else
-				set_status_text("Player isn't in a vehicle");
+		fix_vehicle();
 		break;
 	case 3: //clean
-		if (bPlayerExists)
-			if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-				VEHICLE::SET_VEHICLE_DIRT_LEVEL(PED::GET_VEHICLE_PED_IS_USING(playerPed), 0);
-			else
-				set_status_text("Player isn't in a vehicle");
+		clean_vehicle();
 		break;
 	case 4: //Replaced random paint with paint menu, not sure if random would still be a desired feature
 		if (process_paint_menu()) return false;
@@ -405,6 +397,11 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+			if (FIRE::IS_ENTITY_ON_FIRE(veh))
+			{
+				FIRE::STOP_ENTITY_FIRE(veh);
+			}
 
 			ENTITY::SET_ENTITY_HEALTH(veh, 10000.0f);
 			VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 10000.0);
@@ -1120,7 +1117,7 @@ int get_current_veh_invincibility_mode()
 	return 3;
 }
 
-void onchange_veh_invincibility_mode(int value)
+void onchange_veh_invincibility_mode(int value, SelectFromListMenuItem* source)
 {
 	featureVehInvincible = (value > 0);
 	featureVehNoDamage = (value > 1);
@@ -1340,8 +1337,7 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "STALION", "sssa_dlc_mp_to_sp", "stallion" },
 	{ "STALION2", "sssa_dlc_mp_to_sp", "stalion2" },
 	{ "RATLOADER", "sssa_dlc_valentines", "rloader" },
-	{ "CASCO", "lgm_dlc_heist", "casco" },
-	{ "LECTRO", "lgm_dlc_heist"	"lectro" }
+	{ "CASCO", "lgm_dlc_heist", "casco" }
 };
 
 static std::vector<VehicleImage> ALL_VEH_IMAGES;
@@ -1451,79 +1447,250 @@ void init_vehicle_feature()
 	//copy all the ingame images
 	ALL_VEH_IMAGES.insert(ALL_VEH_IMAGES.end(), INGAME_VEH_IMAGES.begin(), INGAME_VEH_IMAGES.end());
 
+	unpack_veh_preview("AIRTUG", VP_AIRTUG, "VP_AIRTUG");
+	unpack_veh_preview("AMBULANCE", VP_AMBULANCE, "VP_AMBULANCE");
+	unpack_veh_preview("ARMYTANKER", VP_ARMYTANKER, "VP_ARMYTANKER");
+	unpack_veh_preview("ARMYTRAILER", VP_ARMYTRAILER, "VP_ARMYTRAILER");
+	unpack_veh_preview("ARMYTRAILER2", VP_ARMYTRAILER2, "VP_ARMYTRAILER2");
 	unpack_veh_preview("ASEA2", VP_ASEA_SNOW, "VP_ASEA_SNOW");
 
+	unpack_veh_preview("BAGGER", VP_BAGGER, "VP_BAGGER");
+	unpack_veh_preview("BALETRAILER", VP_BALETRAILER, "VP_BALETRAILER");
 	unpack_veh_preview("BALLER2", VP_BALLER_SMALL, "VP_BALLER_SMALL");
+	unpack_veh_preview("BARRACKS2", VP_BARRACKS2, "VP_BARRACKS2");
+	unpack_veh_preview("BENSON", VP_BENSON, "VP_BENSON");
+	unpack_veh_preview("BIFF", VP_BIFF, "VP_BIFF");
+	unpack_veh_preview("BISON2", VP_BISON2, "VP_BISON2");
+	unpack_veh_preview("BISON3", VP_BISON3, "VP_BISON3");
 	unpack_veh_preview("BJXL", VP_BJXL, "VP_BJXL");
+	unpack_veh_preview("BLAZER2", VP_LIFEGUARD, "VP_LIFEGUARD");
+	unpack_veh_preview("BLIMP", VP_BLIMP, "VP_BLIMP");
+	unpack_veh_preview("BLIMP2", VP_BLIMP2, "VP_BLIMP2");
 	unpack_veh_preview("BLISTA", VP_BLISTA, "VP_BLISTA");
+	unpack_veh_preview("BOATTRAILER", VP_BOATTRAILER, "VP_BOATTRAILER");
+	unpack_veh_preview("BOXVILLE", VP_BOXVILLE, "VP_BOXVILLE");
+	unpack_veh_preview("BOXVILLE2", VP_BOXVILLE2, "VP_BOXVILLE2");
+	unpack_veh_preview("BOXVILLE3", VP_BOXVILLE3, "VP_BOXVILLE3");
+	unpack_veh_preview("BLISTA3", VP_MONKEY_BLISTA, "VP_MONKEY_BLISTA");
+	unpack_veh_preview("BTYPE", VP_ROOSEVELT, "VP_ROOSEVELT");
 	unpack_veh_preview("BUCCANEER", VP_BUCCANEER, "VP_BUCCANEER");
+	unpack_veh_preview("BURRITO", VP_BURRITO, "VP_BURRITO");
+	unpack_veh_preview("BURRITO2", VP_BURRITO2, "VP_BURRITO2");
+	unpack_veh_preview("BURRITO3", VP_BURRITO3, "VP_BURRITO3");
+	unpack_veh_preview("BURRITO4", VP_BURRITO4, "VP_BURRITO4");
+	unpack_veh_preview("BURRITO5", VP_BURRITO5, "VP_BURRITO5");
+	unpack_veh_preview("BUZZARD2", VP_BUZZARD2, "VP_BUZZARD2");
+	unpack_veh_preview("CABLECAR", VP_CABLECAR, "VP_CABLECAR");
+	unpack_veh_preview("CADDY", VP_CADDY, "VP_CADDY");
+	unpack_veh_preview("CADDY2", VP_CADDY2, "VP_CADDY2");
+	unpack_veh_preview("CAMPER", VP_CAMPER, "VP_CAMPER");
+	unpack_veh_preview("CARGOBOB2", VP_CARGOBOB2, "VP_CARGOBOB2");
+	unpack_veh_preview("CARGOBOB3", VP_CARGOBOB3, "VP_CARGOBOB3");
+	unpack_veh_preview("CUTTER", VP_CUTTER, "VP_CUTTER");
+	unpack_veh_preview("CARGOPLANE", VP_CARGO, "VP_CARGO");
+	unpack_veh_preview("DAEMON", VP_DAEMON, "VP_DAEMON");
 	unpack_veh_preview("DILETTANTE2", VP_DILET_LIVERY, "VP_DILET_LIVERY");
+	unpack_veh_preview("DINGHY", VP_DINGHY, "VP_DINGHY");
+	unpack_veh_preview("DINGHY2", VP_DINGHY2, "VP_DINGHY2");
+	unpack_veh_preview("HANDLER", VP_DOCKHANDLER, "VP_DOCKHANDLER");
+	unpack_veh_preview("DOCKTRAILER", VP_DOCKTRAILER, "VP_DOCKTRAILER");
+	unpack_veh_preview("DOCKTUG", VP_DOCKTUG, "VP_DOCKTUG");
+	unpack_veh_preview("BULLDOZER", VP_DOZER, "VP_DOZER");
+	unpack_veh_preview("DLOADER", VP_DUNELOADER, "VP_DUNELOADER");
 	unpack_veh_preview("DUBSTA", VP_DUBSTA, "VP_DUBSTA");
 	unpack_veh_preview("DUBSTA2", VP_DUBSTA_BLACK, "VP_DUBSTA_BLACK");
 	unpack_veh_preview("DUKES", VP_DUKES, "VP_DUKES");
-	unpack_veh_preview("DLOADER", VP_DUNELOADER, "VP_DUNELOADER");
+	unpack_veh_preview("DUNE2", VP_SPACEDOCKER, "VP_SPACEDOCKER");
 	unpack_veh_preview("EMPEROR", VP_EMPEROR, "VP_EMPEROR");
-
 	unpack_veh_preview("EMPEROR2", VP_EMPEROR_RUSTY, "VP_EMPEROR_RUSTY");
 	unpack_veh_preview("EMPEROR3", VP_EMPEROR_SNOW, "VP_EMPEROR_SNOW");
+	unpack_veh_preview("FBI", VP_FBI, "VP_FBI");
+	unpack_veh_preview("FBI2", VP_FBI2, "VP_FBI2");
+	unpack_veh_preview("FIRETRUK", VP_FIRETRUK, "VP_FIRETRUK");
+	unpack_veh_preview("FIXTER", VP_FIXTER, "VP_FIXTER");
+	unpack_veh_preview("FLATBED", VP_FLATBED, "VP_FLATBED");
+	unpack_veh_preview("FORKLIFT", VP_FORKLIFT, "VP_FORKLIFT");
 	unpack_veh_preview("FQ2", VP_FQ2, "VP_FQ2");
+	unpack_veh_preview("FREIGHT", VP_FREIGHT, "VP_FREIGHT");
+	unpack_veh_preview("FREIGHTCAR", VP_FREIGHTCAR, "VP_FREIGHTCAR");
+	unpack_veh_preview("FREIGHTCONT1", VP_FREIGHTCONT1, "VP_FREIGHTCONT1");
+	unpack_veh_preview("FREIGHTCONT2", VP_FREIGHTCONT2, "VP_FREIGHTCONT2");
+	unpack_veh_preview("FREIGHTGRAIN", VP_FREIGHTGRAIN, "VP_FREIGHTGRAIN");
+	unpack_veh_preview("FREIGHTTRAILER", VP_FREIGHTTRAILER, "VP_FREIGHTTRAILER");
+	unpack_veh_preview("FROGGER2", VP_FROGGER2, "VP_FROGGER2");
 	unpack_veh_preview("FUTO", VP_FUTO, "VP_FUTO");
+	unpack_veh_preview("GBURRITO", VP_GBURRITO, "VP_GBURRITO");
+	unpack_veh_preview("GRAINTRAILER", VP_GRAINTRAILER, "VP_GRAINTRAILER");
 	unpack_veh_preview("GRANGER", VP_GRANGER, "VP_GRANGER");
 	unpack_veh_preview("GUARDIAN", VP_GUARDIAN, "VP_GUARDIAN");
 	unpack_veh_preview("HABANERO", VP_HABANERO, "VP_HABANERO");
-	unpack_veh_preview("ROMERO", VP_HEARSE, "VP_HEARSE");
-	unpack_veh_preview("BLAZER2", VP_LIFEGUARD, "VP_LIFEGUARD");
+	unpack_veh_preview("HAULER", VP_HAULER, "VP_HAULER");
+	unpack_veh_preview("JET", VP_JET, "VP_JET");
+	unpack_veh_preview("LAZER", VP_LAZER, "VP_LAZER");
+	unpack_veh_preview("LECTRO", VP_LECTRO, "VP_LECTRO");
+	unpack_veh_preview("LGUARD", VP_LGUARD, "VP_LGUARD");
 	unpack_veh_preview("MANANA", VP_MANANA, "VP_MANANA");
-
 	unpack_veh_preview("MESA2", VP_MESA_SNOW, "VP_MESA_SNOW");
-	unpack_veh_preview("BLISTA3", VP_MONKEY_BLISTA, "VP_MONKEY_BLISTA");
+	unpack_veh_preview("METROTRAIN", VP_METROTRAIN, "VP_METROTRAIN");
+	unpack_veh_preview("MIXER", VP_MIXER, "VP_MIXER");
+	unpack_veh_preview("MIXER2", VP_MIXER2, "VP_MIXER2");
+	unpack_veh_preview("MOWER", VP_MOWER, "VP_MOWER");
+	unpack_veh_preview("MULE2", VP_MULE2, "VP_MULE2");
 	unpack_veh_preview("ORACLE2", VP_ORACLE2, "VP_ORACLE2");
+	unpack_veh_preview("PACKER", VP_PACKER, "VP_PACKER");
 	unpack_veh_preview("PATRIOT", VP_PATRIOT, "VP_PATRIOT");
 	unpack_veh_preview("PEYOTE", VP_PEYOTE, "VP_PEYOTE");
+	unpack_veh_preview("PHANTOM", VP_PHANTOM, "VP_PHANTOM");
 	unpack_veh_preview("PHOENIX", VP_PHOENIX, "VP_PHOENIX");
+	unpack_veh_preview("POLICE", VP_PHANTOM, "VP_PHANTOM");
+	unpack_veh_preview("POLICE2", VP_POLICE2, "VP_POLICE2");
+	unpack_veh_preview("POLICE3", VP_POLICE3, "VP_POLICE3");
+	unpack_veh_preview("POLICE4", VP_POLICE4, "VP_POLICE4");
+	unpack_veh_preview("POLICEB", VP_POLICEB, "VP_POLICEB");
+	unpack_veh_preview("POLICEOLD1", VP_POLICEOLD1, "VP_POLICEOLD1");
+	unpack_veh_preview("POLICEOLD2", VP_POLICEOLD2, "VP_POLICEOLD2");
+	unpack_veh_preview("POLICET", VP_POLICET, "VP_POLICET");
+	unpack_veh_preview("POLMAV", VP_POLMAV, "VP_POLMAV");
+	unpack_veh_preview("PONY", VP_PONY, "VP_PONY");
+	unpack_veh_preview("PONY2", VP_PONY2, "VP_PONY2");
+	unpack_veh_preview("POUNDER", VP_POUNDER, "VP_POUNDER");
 	unpack_veh_preview("PRAIRIE", VP_PRAIRIE, "VP_PRAIRIE");
+	unpack_veh_preview("PRANGER", VP_PRANGER, "VP_PRANGER");
+	unpack_veh_preview("PREDATOR", VP_PREDATOR, "VP_PREDATOR");
+	unpack_veh_preview("PROPTRAILER", VP_PROPTRAILER, "VP_PROPTRAILER");
+	unpack_veh_preview("RAKETRAILER", VP_RAKETRAILER, "VP_RAKETRAILER");
 	unpack_veh_preview("RANCHERXL2", VP_RANCHERXL_SNOW, "VP_RANCHERXL_SNOW");
-	unpack_veh_preview("BTYPE", VP_ROOSEVELT, "VP_ROOSEVELT");
+	unpack_veh_preview("RIOT", VP_RIOT, "VP_RIOT");
+	unpack_veh_preview("RIPLEY", VP_RIPLEY, "VP_RIPLEY");
+	unpack_veh_preview("ROMERO", VP_HEARSE, "VP_HEARSE");
 	unpack_veh_preview("RUINER", VP_RUINER, "VP_RUINER");
-
+	unpack_veh_preview("RUBBLE", VP_RUBBLE, "VP_RUBBLE");
+	unpack_veh_preview("RUMPO2", VP_RUMPO2, "VP_RUMPO2");
 	unpack_veh_preview("SABREGT", VP_SABRE, "VP_SABRE");
+	unpack_veh_preview("SADLER2", VP_SADLER_SNOW, "VP_SADLER_SNOW");
+	unpack_veh_preview("SCRAP", VP_SCRAP, "VP_SCRAP");
+	unpack_veh_preview("SEASHARK2", VP_SEASHARK2, "VP_SEASHARK2");
 	unpack_veh_preview("SENTINEL2", VP_SENTINEL, "VP_SENTINEL");
 	unpack_veh_preview("SERRANO", VP_SERRANO, "VP_SERRANO");
+	unpack_veh_preview("SHERIFF", VP_SHERIFF, "VP_SHERIFF");
+	unpack_veh_preview("SHERIFF2", VP_SHERIFF2, "VP_SHERIFF2");
+	unpack_veh_preview("SKYLIFT", VP_SKYLIFT, "VP_SKYLIFT");
 	unpack_veh_preview("SLAMVAN2", VP_SLAMVAN_LOSTMC, "VP_SLAMVAN_LOSTMC");
-	unpack_veh_preview("DUNE2", VP_SPACEDOCKER, "VP_SPACEDOCKER");
+	unpack_veh_preview("SPEEDO", VP_SPEEDO, "VP_SPEEDO");
+	unpack_veh_preview("SPEEDO2", VP_SPEEDO2, "VP_SPEEDO2");
+	unpack_veh_preview("STOCKADE", VP_STOCKADE, "VP_STOCKADE");
+	unpack_veh_preview("STOCKADE3", VP_STOCKADE3, "VP_STOCKADE3");
+	unpack_veh_preview("SUBMERSIBLE", VP_SUB, "VP_SUB");
 	unpack_veh_preview("SULTAN", VP_SULTAN, "VP_SULTAN");
+	unpack_veh_preview("SURFER2", VP_SURFER2, "VP_SURFER2");
+	unpack_veh_preview("TACO", VP_TACO, "VP_TACO");
+	unpack_veh_preview("TANKER", VP_TANKER, "VP_TANKER");
+	unpack_veh_preview("TANKER2", VP_TANKER2, "VP_TANKER2");
+	unpack_veh_preview("TANKERCAR", VP_TANKERCAR, "VP_TANKERCAR");
 	unpack_veh_preview("TAXI", VP_TAXI, "VP_TAXI");
+	unpack_veh_preview("TIPTRUCK", VP_TIPTRUCK, "VP_TIPTRUCK");
+	unpack_veh_preview("TIPTRUCK2", VP_TIPTRUCK2, "VP_TIPTRUCK2");
 	unpack_veh_preview("TORNADO", VP_TORNADO, "VP_TORNADO");
 	unpack_veh_preview("TORNADO2", VP_TORNADO_CAB, "VP_TORNADO_CAB");
 	unpack_veh_preview("TORNADO3", VP_TORNADO_RUSTY, "VP_TORNADO_RUSTY");
-
 	unpack_veh_preview("TORNADO4", VP_TORNADO_CAB_RUSTY, "VP_TORNADO_CAB_RUSTY");
+	unpack_veh_preview("TOURBUS", VP_TOURBUS, "VP_TOURBUS");
+	unpack_veh_preview("TOWTRUCK", VP_TOWTRUCK, "VP_TOWTRUCK");
+	unpack_veh_preview("TOWTRUCK2", VP_TOWTRUCK2, "VP_TOWTRUCK2");
+	unpack_veh_preview("TR2", VP_TR2, "VP_TR2");
+	unpack_veh_preview("TR3", VP_TR3, "VP_TR3");
+	unpack_veh_preview("TR4", VP_TR4, "VP_TR4");
+	unpack_veh_preview("TRACTOR", VP_TRACTOR, "VP_TRACTOR");
+	unpack_veh_preview("TRACTOR2", VP_TRACTOR2, "VP_TRACTOR2");
+	unpack_veh_preview("TRACTOR3", VP_TRACTOR3, "VP_TRACTOR3");
+	unpack_veh_preview("TRAILERLOGS", VP_TRAILERLOGS, "VP_TRAILERLOGS");
+	unpack_veh_preview("TRAILERS", VP_TRAILERS, "VP_TRAILERS");
+	unpack_veh_preview("TRAILERS2", VP_TRAILERS2, "VP_TRAILERS2");
+	unpack_veh_preview("TRAILERS3", VP_TRAILERS3, "VP_TRAILERS3");
+	unpack_veh_preview("TRAILERSMALL", VP_TRAILERSMALL, "VP_TRAILERSMALL");
+	unpack_veh_preview("TRASH", VP_TRASH, "VP_TRASH");
+	unpack_veh_preview("TRASH2", VP_TRASH2, "VP_TRASH2");
+	unpack_veh_preview("TRFLAT", VP_TRFLAT, "VP_TRFLAT");
+	unpack_veh_preview("TVTRAILER", VP_TVTRAILER, "VP_TVTRAILER");
+	unpack_veh_preview("UTILLITRUCK", VP_UTILLITRUCK, "VP_UTILLITRUCK");
+	unpack_veh_preview("UTILLITRUCK2", VP_UTILLITRUCK2, "VP_UTILLITRUCK2");
+	unpack_veh_preview("UTILLITRUCK3", VP_UTILLITRUCK3, "VP_UTILLITRUCK3");
 	unpack_veh_preview("VOODOO2", VP_VOODOO, "VP_VOODOO");
+}
 
-	unpack_veh_preview("JET", VP_JET, "VP_VOODOO");
-	unpack_veh_preview("BAGGER", VP_BAGGER, "VP_BAGGER");
-	unpack_veh_preview("BISON2", VP_BISON2, "VP_BISON2");
-	unpack_veh_preview("BISON3", VP_BISON3, "VP_BISON3");
-	unpack_veh_preview("BLIMP", VP_BLIMP, "VP_BLIMP");
+void fix_vehicle()
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	unpack_veh_preview("BLIMP2", VP_BLIMP2, "VP_BLIMP2");
-	unpack_veh_preview("BUZZARD2", VP_BUZZARD2, "VP_BUZZARD2");
-	unpack_veh_preview("CARGOPLANE", VP_CARGO, "VP_CARGO");
-	unpack_veh_preview("CARGOBOB2", VP_CARGOBOB2, "VP_CARGOBOB2");
-	unpack_veh_preview("CARGOBOB3", VP_CARGOBOB3, "VP_CARGOBOB3");
+	if (bPlayerExists)
+	{
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
-	unpack_veh_preview("DAEMON", VP_DAEMON, "VP_DAEMON");
-	unpack_veh_preview("DINGHY", VP_DINGHY, "VP_DINGHY");
-	unpack_veh_preview("DINGHY2", VP_DINGHY2, "VP_DINGHY2");
-	unpack_veh_preview("FIXTER", VP_FIXTER, "VP_FIXTER");
-	unpack_veh_preview("FROGGER2", VP_FROGGER2, "VP_FROGGER2");
+			VEHICLE::SET_VEHICLE_FIXED(veh);
+			VEHICLE::SET_VEHICLE_DEFORMATION_FIXED(veh);
+			VEHICLE::SET_VEHICLE_NEEDS_TO_BE_HOTWIRED(veh, false);
 
-	unpack_veh_preview("LAZER", VP_LAZER, "VP_LAZER");
-	unpack_veh_preview("POLMAV", VP_POLMAV, "VP_POLMAV");
-	unpack_veh_preview("PREDATOR", VP_PREDATOR, "VP_PREDATOR");
-	unpack_veh_preview("SADLER2", VP_SADLER_SNOW, "VP_SADLER_SNOW");
-	unpack_veh_preview("SEASHARK2", VP_SEASHARK2, "VP_SEASHARK2");
+			if (FIRE::IS_ENTITY_ON_FIRE(veh))
+			{
+				FIRE::STOP_ENTITY_FIRE(veh);
+			}
 
-	unpack_veh_preview("SKYLIFT", VP_SKYLIFT, "VP_SKYLIFT");
-	unpack_veh_preview("SUBMERSIBLE", VP_SUB, "VP_SUB");
+			VEHICLE::SET_VEHICLE_ENGINE_HEALTH(veh, 1000.0f);
+			VEHICLE::SET_VEHICLE_PETROL_TANK_HEALTH(veh, 1000.0f);
+			VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 1000.f);
+
+			VEHICLE::SET_VEHICLE_UNDRIVEABLE(veh, false);
+			VEHICLE::SET_VEHICLE_ENGINE_CAN_DEGRADE(veh, false);
+
+			VEHICLE::SET_VEHICLE_ENGINE_ON(veh, true, true);
+
+			set_status_text("Vehicle Repaired");
+		}
+		else
+		{
+			set_status_text("Player isn't in a vehicle");
+		}
+	}
+}
+
+void clean_vehicle()
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (bPlayerExists)
+	{
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			VEHICLE::SET_VEHICLE_DIRT_LEVEL(PED::GET_VEHICLE_PED_IS_USING(playerPed), 0);
+		}
+		else
+		{
+			set_status_text("Player isn't in a vehicle");
+		}
+	}
+}
+
+
+bool is_convertible_roofdown(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	int roofState = VEHICLE::GET_CONVERTIBLE_ROOF_STATE(veh);
+	return ( roofState == 2 || roofState == 1);
+}
+
+void set_convertible_roofdown(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	if (applied)
+	{
+		VEHICLE::LOWER_CONVERTIBLE_ROOF(veh, featureVehicleDoorInstant);
+	}
+	else
+	{
+		VEHICLE::RAISE_CONVERTIBLE_ROOF(veh, featureVehicleDoorInstant);
+	}
 }

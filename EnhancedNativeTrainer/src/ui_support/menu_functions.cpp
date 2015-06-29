@@ -426,7 +426,7 @@ void SelectFromListMenuItem::handleLeftPress()
 	}
 	if (onValueChangeCallback != NULL)
 	{
-		this->onValueChangeCallback(value);
+		this->onValueChangeCallback(value, this);
 	}
 }
 
@@ -444,7 +444,7 @@ void SelectFromListMenuItem::handleRightPress()
 	}
 	if (onValueChangeCallback != NULL)
 	{
-		this->onValueChangeCallback(value);
+		this->onValueChangeCallback(value, this);
 	}
 }
 

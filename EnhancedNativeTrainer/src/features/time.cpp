@@ -80,7 +80,7 @@ bool onconfirm_time_menu(MenuItem<int> choice)
 	return false;
 }
 
-void onchange_game_speed_callback(int value)
+void onchange_game_speed_callback(int value, SelectFromListMenuItem* source)
 {
 	timeSpeedIndex = value;
 	std::stringstream ss;
@@ -88,7 +88,7 @@ void onchange_game_speed_callback(int value)
 	set_status_text(ss.str());
 }
 
-void onchange_aiming_speed_callback(int value)
+void onchange_aiming_speed_callback(int value, SelectFromListMenuItem* source)
 {
 	timeSpeedIndexWhileAiming = value;
 	std::stringstream ss;
@@ -480,9 +480,9 @@ void update_time_features(Player player)
 		GAMEPLAY::SET_TIME_SCALE(0.0f);
 		weHaveChangedTimeScale = true;
 	}
-	else if (CONTROLS::IS_CONTROL_PRESSED(0, 19))
+	else if (CONTROLS::IS_CONTROL_PRESSED(0, 19) || PLAYER::IS_PLAYER_DEAD(PLAYER::PLAYER_ID()))
 	{
-		//do nothing
+		//do nothing so the game chooses the speed for us
 	}
 	else if (PLAYER::IS_PLAYER_FREE_AIMING(player) && PLAYER::IS_PLAYER_CONTROL_ON(player))
 	{

@@ -135,6 +135,8 @@ public:
 
 	/**Change the key binding using a function string and key string.*/
 	void set_control(char* function, ControllerButtonConfig* config);
+
+	bool is_hotkey_assigned(int i);
 };
 
 /**A class to hold all the user settings.*/

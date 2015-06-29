@@ -23,3 +23,7 @@ bool process_teleport_menu(int categoryIndex);
 void reset_teleporter_globals();
 
 void process_toggles_menu();
+
+void teleport_to_marker(Entity e);
+
+void teleport_to_last_vehicle();

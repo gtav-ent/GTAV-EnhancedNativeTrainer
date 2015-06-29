@@ -3840,7 +3840,7 @@ namespace PATHFIND
 	static void _0x228E5C6AD4D74BFD(BOOL p0) { invoke<Void>(0x228E5C6AD4D74BFD, p0); } // 0x228E5C6AD4D74BFD 0xD6A3B458
 	static BOOL _0xF7B79A50B905A30D(float p0, float p1, float p2, float p3) { return invoke<BOOL>(0xF7B79A50B905A30D, p0, p1, p2, p3); } // 0xF7B79A50B905A30D 0x86E80A17
 	static BOOL _0x07FB139B592FA687(float p0, float p1, float p2, float p3) { return invoke<BOOL>(0x07FB139B592FA687, p0, p1, p2, p3); } // 0x07FB139B592FA687 0x2CDA5012
-	static void SET_ROADS_BACK_TO_ORIGINAL(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5) { invoke<Void>(0x1EE7063B80FFC77C, p0, p1, p2, p3, p4, p5); } // 0x1EE7063B80FFC77C 0x86AC4A85
+	static void SET_ROADS_BACK_TO_ORIGINAL(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, int p6) { invoke<Void>(0x1EE7063B80FFC77C, p0, p1, p2, p3, p4, p5, p6); } // 0x1EE7063B80FFC77C 0x86AC4A85
 	static void SET_ROADS_BACK_TO_ORIGINAL_IN_ANGLED_AREA(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6) { invoke<Void>(0x0027501B9F3B407E, p0, p1, p2, p3, p4, p5, p6); } // 0x0027501B9F3B407E 0x9DB5D209
 	static void _0x0B919E1FB47CC4E0(float p0) { invoke<Void>(0x0B919E1FB47CC4E0, p0); } // 0x0B919E1FB47CC4E0 0x3C5085E4
 	static void _0xAA76052DDA9BFC3E(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6) { invoke<Void>(0xAA76052DDA9BFC3E, p0, p1, p2, p3, p4, p5, p6); } // 0xAA76052DDA9BFC3E 0xD0F51299

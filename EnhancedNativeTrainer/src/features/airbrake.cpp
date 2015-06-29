@@ -252,6 +252,7 @@ void airbrake(bool inVehicle)
 	switch (travelSpeed)
 	{
 	case 0:
+		rotationSpeed = 0.8f;
 		forwardPush = 0.2f;
 		break;
 	case 1:

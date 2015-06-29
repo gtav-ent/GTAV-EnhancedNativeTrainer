@@ -17,6 +17,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\..\inc\main.h"
 
 //#include "script.h"
+#include "..\debug\debuglog.h"
 #include "..\io\io.h"
 #include "..\features\airbrake.h"
 
@@ -128,7 +129,7 @@ class SelectFromListMenuItem : public MenuItem <int>
 {
 public:
 
-	inline SelectFromListMenuItem(std::vector<std::string> captions, void(*onValueChangeCallback)(int))
+	inline SelectFromListMenuItem(std::vector<std::string> captions, void(*onValueChangeCallback)(int, SelectFromListMenuItem*))
 	{
 		this->itemCaptions = captions;
 		this->onValueChangeCallback = onValueChangeCallback;
@@ -148,9 +149,11 @@ public:
 
 	std::vector<std::string> itemCaptions;
 
-	void(*onValueChangeCallback)(int index);
+	void(*onValueChangeCallback)(int index, SelectFromListMenuItem* source);
 
 	bool wrap = true;
+
+	std::vector<int> extras;
 };
 
 template<class T>
@@ -519,7 +522,7 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 	{
 		UI::SET_TEXT_FONT(font);
 		UI::SET_TEXT_SCALE(0.0, text_scale);
-		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
+		UI::SET_TEXT_COLOUR(205, 205, 205, 255);
 		UI::SET_TEXT_RIGHT_JUSTIFY(1);
 
 		UI::SET_TEXT_OUTLINE();
@@ -538,7 +541,7 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		std::stringstream ss;
 		if (selectFromListItem->wrap || selectFromListItem->value > 0)
 		{
-			ss << "~HUD_COLOUR_GREYLIGHT~&lt;&lt; ";
+			ss << "&lt;&lt; ";
 		}
 		else
 		{
@@ -555,8 +558,9 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		}
 		auto ssStr = ss.str();
 
+		write_text_to_log_file(ssStr);
+
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
-		UI::_ADD_TEXT_COMPONENT_STRING("XX");
 		UI::_DRAW_TEXT(0, textY);
 
 		UI::SET_TEXT_EDGE(1, 255, 215, 0, 255);

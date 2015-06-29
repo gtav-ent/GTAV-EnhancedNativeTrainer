@@ -18,6 +18,12 @@ bool featureRestrictedZones = true;
 
 bool featureWorldMoonGravity = false;
 bool featureWorldMoonGravityUpdated = false;
+
+bool featureWorldNoPeds = false;
+bool featureWorldNoPedsUpdated = false;
+bool featureWorldNoTraffic = false;
+bool featureWorldNoTrafficUpdated = false;
+
 bool featureWorldRandomCops = true;
 bool featureWorldRandomTrains = true;
 bool featureWorldRandomBoats = true;
@@ -165,6 +171,20 @@ void process_world_menu()
 	menuItems.push_back(togItem);
 
 	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "No Pedestrians";
+	togItem->value = 1;
+	togItem->toggleValue = &featureWorldNoPeds;
+	togItem->toggleValueUpdated = &featureWorldNoPedsUpdated;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "No Traffic";
+	togItem->value = 1;
+	togItem->toggleValue = &featureWorldNoTraffic;
+	togItem->toggleValueUpdated = &featureWorldNoTrafficUpdated;
+	menuItems.push_back(togItem);
+
+	togItem = new ToggleMenuItem<int>();
 	togItem->caption = "Random Cops";
 	togItem->value = 2;
 	togItem->toggleValue = &featureWorldRandomCops;
@@ -194,16 +214,6 @@ void process_world_menu()
 	togItem->toggleValue = &featureRestrictedZones;
 	menuItems.push_back(togItem);
 
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Time", NULL, NULL },
-		{ "Moon Gravity", &featureWorldMoonGravity, NULL },
-		{ "Random Cops", &featureWorldRandomCops, NULL },
-		{ "Random Trains", &featureWorldRandomTrains, NULL },
-		{ "Random Boats", &featureWorldRandomBoats, NULL },
-		{ "Garbage Trucks", &featureWorldGarbageTrucks, NULL },
-		{ "Restricted Zones", &featureRestrictedZones, NULL }
-	};
-
 	draw_generic_menu<int>(menuItems, &activeLineIndexWorld, caption, onconfirm_world_menu, NULL, NULL);
 }
 
@@ -218,10 +228,17 @@ void reset_world_globals()
 	featureWeatherFreeze =
 	featureWorldMoonGravity = false;
 
+	featureWorldNoPeds = false;
+	featureWorldNoTraffic = false;
+
 	featureWorldRandomCops =
 		featureWorldRandomTrains =
 		featureWorldRandomBoats =
 		featureWorldGarbageTrucks = true;
+
+	featureWorldNoPedsUpdated = true;
+	featureWorldMoonGravityUpdated = true;
+	featureWorldNoTrafficUpdated = true;
 }
 
 void update_world_features()
@@ -235,6 +252,48 @@ void update_world_features()
 	else if (featureWorldMoonGravityUpdated)
 	{
 		GAMEPLAY::SET_GRAVITY_LEVEL(0);
+	}
+
+	if (featureWorldNoPedsUpdated)
+	{
+		if (featureWorldNoPeds)
+		{
+			Vector3 v3 = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), 1);
+			GAMEPLAY::CLEAR_AREA_OF_PEDS(v3.x, v3.y, v3.z, 1000.0, 0);
+			STREAMING::SET_PED_POPULATION_BUDGET(0);
+		}
+		else
+		{
+			STREAMING::SET_PED_POPULATION_BUDGET(3);
+		}
+	}
+
+	if (featureWorldNoTrafficUpdated)
+	{
+		VEHICLE::_0xF796359A959DF65D(!featureWorldNoTraffic);
+		GRAPHICS::DISABLE_VEHICLE_DISTANTLIGHTS(featureWorldNoTraffic);
+
+		if (featureWorldNoTraffic)
+		{
+			Vector3 v3 = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), 1);
+			GAMEPLAY::CLEAR_AREA_OF_VEHICLES(v3.x, v3.y, v3.z, 1000.0, 0, 0, 0, 0, 0);
+
+			STREAMING::SET_VEHICLE_POPULATION_BUDGET(0);
+			VEHICLE::SET_ALL_VEHICLE_GENERATORS_ACTIVE_IN_AREA(-10000.0, -10000.0, -200.0, 10000.0, 10000.0, 1000.0, 0, 1);
+			PATHFIND::SET_ROADS_IN_AREA(-10000.0, -10000.0, -200.0, 10000.0, 10000.0, 1000.0, 0, 1);
+		}
+		else
+		{
+			STREAMING::SET_PED_POPULATION_BUDGET(3);
+			VEHICLE::SET_ALL_VEHICLE_GENERATORS_ACTIVE();
+			PATHFIND::SET_ROADS_BACK_TO_ORIGINAL(-10000.0, -10000.0, -200.0, 10000.0, 10000.0, 1000.0, 1);
+		}
+	}
+
+
+	if (!featureWorldRandomTrains)
+	{
+		VEHICLE::DELETE_ALL_TRAINS();
 	}
 
 	if (featureWeatherFreeze && !lastWeather.empty())
@@ -265,6 +324,9 @@ void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* r
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureRestrictedZones", &featureRestrictedZones });
+
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldNoPeds", &featureWorldNoPeds, &featureWorldNoPedsUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldNoTraffic", &featureWorldNoTraffic, &featureWorldNoTrafficUpdated });
 }
 
 void add_world_generic_settings(std::vector<StringPairSettingDBRow>* settings)

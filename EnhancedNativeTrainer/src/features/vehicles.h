@@ -93,9 +93,9 @@ void set_extra_enabled(bool applied, std::vector<int> extras);
 
 void set_plate_text(MenuItem<int> choice);
 
-bool is_convertible(std::vector<int> extras);
+bool is_convertible_roofdown(std::vector<int> extras);
 
-void set_convertible(bool applied, std::vector<int> extras);
+void set_convertible_roofdown(bool applied, std::vector<int> extras);
 
 int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
 
@@ -119,8 +119,12 @@ void onhighlight_paintfade(MenuItem<float> choice);
 
 int get_current_veh_invincibility_mode();
 
-void onchange_veh_invincibility_mode(int value);
+void onchange_veh_invincibility_mode(int value, SelectFromListMenuItem* source);
 
 MenuItemImage* vehicle_image_preview_finder(MenuItem<std::string> choice);
 
 void init_vehicle_feature();
+
+void fix_vehicle();
+
+void clean_vehicle();

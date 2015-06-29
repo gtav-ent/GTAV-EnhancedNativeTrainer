@@ -7,6 +7,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "anims.h"
 #include "..\ui_support\menu_functions.h"
 #include "..\debug\debuglog.h"
+#include "..\utils.h"
 
 #include <sstream>
 #include <vector>
@@ -17,16 +18,25 @@ TreeNode *facialsNode;
 
 TreeNode *movementNode;
 
+TreeNode *movementClipsetNode;
+
 TreeNode *currentMenuNode;
 int currentAnimMenuDepth = 0;
 int currentAnimMenuMode = -1;
+
+char* lastImmediatePlayDict = 0;
+char* lastImmediatePlayAnim = 0;
+int lastImmediateType = 0;
 
 const int CATEGORY_FACIAL_IDLE = 90;
 const int CATEGORY_MOVE_IDLE = 91;
 const int CATEGORY_MOVE_WALK = 92;
 const int CATEGORY_MOVE_RUN = 93;
+const int CATEGORY_MOVE_CLIPSET = 96;
 const int CATEGORY_FACIAL_NOW = 94;
 const int CATEGORY_GENERAL_NOW = 95;
+
+bool loaded = false;
 
 const std::vector<std::string> ALL_ANIMS =
 {
@@ -21918,18 +21928,6 @@ const std::vector<std::string> ALL_ANIMS =
 #endif
 };
 
-static bool StringEndsWith(const std::string& a, const std::string& b)
-{
-	if (b.size() > a.size()) return false;
-	return std::equal(a.begin() + a.size() - b.size(), a.end(), b.begin());
-}
-
-static bool StringStartsWith(const std::string& a, const std::string& b)
-{
-	if (b.size() > a.size()) return false;
-	return std::equal(a.begin(), a.begin() + b.size(), b.begin());
-}
-
 std::vector<std::string> find_all_anims_with_suffix(std::string suffix)
 {
 	std::vector<std::string> results;
@@ -21977,20 +21975,49 @@ TreeNode* build_anim_tree_with_suffix_filter(std::string filter)
 	return build_anim_tree(filtered);
 }
 
+TreeNode* build_anim_tree_for_clipsets(std::string filter)
+{
+	std::vector<std::string> filtered = find_all_anims_with_prefix(filter);
+	std::vector<std::string>::iterator iter;
+	for (iter = filtered.begin(); iter != filtered.end();)
+	{
+		std::string current = *iter;
+		if (current.find("@ ") != std::string::npos)
+		{
+			iter = filtered.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+	return build_anim_tree(filtered, false);
+}
+
 TreeNode* build_anim_tree_with_prefix_filter(std::string filter)
 {
 	std::vector<std::string> filtered = find_all_anims_with_prefix(filter);
 	return build_anim_tree(filtered);
 }
 
-void build_anim_tree()
+DWORD WINAPI build_anim_tree_thread(LPVOID lpParameter)
 {
 	rootNode = build_anim_tree(ALL_ANIMS);
 	facialsNode = build_anim_tree_with_suffix_filter("facial");
 	movementNode = build_anim_tree_with_prefix_filter("move");
+	movementClipsetNode = build_anim_tree_for_clipsets("move");
+	loaded = true;
+	return 0;
 }
 
-TreeNode* build_anim_tree(std::vector<std::string> input)
+void build_anim_tree()
+{
+	DWORD myThreadID;
+	HANDLE myHandle = CreateThread(0, 0, build_anim_tree_thread, 0, 0, &myThreadID);
+	CloseHandle(myHandle);
+}
+
+TreeNode* build_anim_tree(std::vector<std::string> input, bool includeAnim)
 {
 	TreeNode* resultRoot = new TreeNode();
 
@@ -22040,7 +22067,10 @@ TreeNode* build_anim_tree(std::vector<std::string> input)
 			}
 		}
 
-		currentNode->addChild(get_anim_from_string(anim));
+		if (includeAnim)
+		{
+			currentNode->addChild(get_anim_from_string(anim));
+		}
 	}
 	
 	resultRoot->isRoot = true;
@@ -22072,6 +22102,9 @@ bool onconfirm_anim_menu(MenuItem<int> choice)
 		case CATEGORY_MOVE_RUN:
 			PED::CLEAR_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 2, true);
 			break;
+		case CATEGORY_MOVE_CLIPSET:
+			PED::RESET_PED_MOVEMENT_CLIPSET(playerPed, 1.0f);
+			break;
 		}
 		return false;
 	}
@@ -22080,55 +22113,76 @@ bool onconfirm_anim_menu(MenuItem<int> choice)
 	TreeNode* target = currentMenuNode->children.at(choice.value);
 	if (!target->hasChildren())
 	{
-		auto dict_str = target->getFullDict();
+		auto dict_str = target->getFullDict(currentAnimMenuMode == CATEGORY_MOVE_CLIPSET);
 		char* dict = (char*) dict_str.c_str();
 		auto anim_str = target->value;
 		char* anim = (char*)anim_str.c_str();
 
+		/*
 		std::stringstream ss;
 		ss << "Selected dict: " << dict << " and anim: " << anim;
 		write_text_to_log_file(ss.str());
+		*/
 
-		if (STREAMING::DOES_ANIM_DICT_EXIST(dict))
+		switch (currentAnimMenuMode)
 		{
-			STREAMING::REQUEST_ANIM_DICT(dict);
-			while (!STREAMING::HAS_ANIM_DICT_LOADED(dict))
-			{
-				WAIT(0);
-			}
-
-			PED::SET_PED_CAN_PLAY_AMBIENT_ANIMS(playerPed, true);
-			PED::SET_PED_CAN_PLAY_AMBIENT_BASE_ANIMS(playerPed, true);
-			PED::SET_PED_CAN_PLAY_GESTURE_ANIMS(playerPed, true);
-			//PED::SET_PED_CAN_PLAY_VISEME_ANIMS(playerPed, true);
-
-			switch (currentAnimMenuMode)
-			{
 			case CATEGORY_FACIAL_NOW:
-				PED::PLAY_FACIAL_ANIM(playerPed, anim, dict);
-				break;
 			case CATEGORY_FACIAL_IDLE:
-				PED::SET_FACIAL_IDLE_ANIM_OVERRIDE(playerPed, anim, dict);
-				break;
 			case CATEGORY_GENERAL_NOW:
-				AI::TASK_PLAY_ANIM(playerPed, dict, anim, 8, -8, -1, 0, 0, false, 0, true);
-				break;
 			case CATEGORY_MOVE_IDLE:
-				PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 0, dict, anim, 0, true);
-				break;
 			case CATEGORY_MOVE_WALK:
-				PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 1, dict, anim, 0, true);
-				break;
 			case CATEGORY_MOVE_RUN:
-				PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 2, dict, anim, 0, true);
-				break;
+			{
+				if (STREAMING::DOES_ANIM_DICT_EXIST(dict))
+				{
+					STREAMING::REQUEST_ANIM_DICT(dict);
+					while (!STREAMING::HAS_ANIM_DICT_LOADED(dict))
+					{
+						WAIT(0);
+					}
+				}
+				else
+				{
+					set_status_text("Can't find this animation");
+					return false;
+				}
 			}
-			set_status_text(ss.str());
+			break;
+			case CATEGORY_MOVE_CLIPSET:
+			{
+				
+
+				DWORD ticks = GetTickCount();
+				STREAMING::REQUEST_ANIM_SET((char*)dict);
+				while (!STREAMING::HAS_ANIM_SET_LOADED(dict) && GetTickCount() < ticks + 5000)
+				{
+					WAIT(0);
+				}
+				if (!STREAMING::HAS_ANIM_SET_LOADED(dict))
+				{
+					std::stringstream ss;
+					ss << "Loading clipset " << dict << " failed";
+					set_status_text(ss.str());
+					return false;
+				}
+			}
+			break;
 		}
-		else
+
+		switch (currentAnimMenuMode)
 		{
-			set_status_text("Can't find this animation");
+		case CATEGORY_FACIAL_NOW:
+		case CATEGORY_GENERAL_NOW:
+			lastImmediatePlayDict = dict;
+			lastImmediatePlayAnim = anim;
+			lastImmediateType = currentAnimMenuMode;
+			break;
 		}
+
+		do_play_anim(playerPed, dict, anim, currentAnimMenuMode);
+
+		set_status_text("Animation applied");
+
 		return false;
 	}
 	else
@@ -22145,6 +22199,12 @@ bool onconfirm_anim_menu(MenuItem<int> choice)
 
 bool process_anims_menu()
 {
+	if (!loaded)
+	{
+		set_status_text("Anims not loaded yet, please try later");
+		return false;
+	}
+
 	if (currentAnimMenuDepth == 0)
 	{
 		switch (currentAnimMenuMode)
@@ -22158,6 +22218,9 @@ bool process_anims_menu()
 		case CATEGORY_MOVE_RUN:
 			currentMenuNode = movementNode;
 			break;
+		case CATEGORY_MOVE_CLIPSET:
+			currentMenuNode = movementClipsetNode;
+			break;
 		case CATEGORY_GENERAL_NOW:
 		default:
 			currentMenuNode = rootNode;
@@ -22168,7 +22231,7 @@ bool process_anims_menu()
 	std::vector<MenuItem<int>*> menuItems;
 
 	bool addClearItem = false;
-	if (currentAnimMenuDepth == 1)
+	if (currentAnimMenuDepth == 0)
 	{
 		switch (currentAnimMenuMode)
 		{
@@ -22176,6 +22239,7 @@ bool process_anims_menu()
 		case CATEGORY_MOVE_IDLE:
 		case CATEGORY_MOVE_WALK:
 		case CATEGORY_MOVE_RUN:
+		case CATEGORY_MOVE_CLIPSET:
 			addClearItem = true;
 			break;
 		}
@@ -22225,6 +22289,9 @@ bool process_anims_menu()
 	case CATEGORY_MOVE_WALK:
 		caption = "Walking Anims";
 		break;
+	case CATEGORY_MOVE_CLIPSET:
+		caption = "Movement Clipsets";
+		break;
 	case CATEGORY_MOVE_RUN:
 		caption = "Running Anims";
 		break;
@@ -22272,6 +22339,12 @@ bool process_anims_menu_top()
 
 	item = new MenuItem<int>();
 	item->isLeaf = false;
+	item->caption = "Movement Clipsets";
+	item->value = CATEGORY_MOVE_CLIPSET;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->isLeaf = false;
 	item->caption = "Movement Anims: Walking";
 	item->value = CATEGORY_MOVE_WALK;
 	menuItems.push_back(item);
@@ -22291,4 +22364,49 @@ bool process_anims_menu_top()
 	draw_generic_menu<int>(menuItems, 0, "Anim Types", onconfirm_anim_top_menu, NULL, NULL, NULL);
 
 	return false;
+}
+
+void replay_last_anim()
+{
+	if (lastImmediatePlayAnim == 0 || lastImmediatePlayDict == 0)
+	{
+		set_status_text("No animation to play");
+	}
+	else
+	{
+		do_play_anim(PLAYER::PLAYER_PED_ID(), lastImmediatePlayDict, lastImmediatePlayAnim, lastImmediateType);
+	}
+}
+
+void do_play_anim(Ped playerPed, char* dict, char* anim, int mode)
+{
+	PED::SET_PED_CAN_PLAY_AMBIENT_ANIMS(playerPed, true);
+	PED::SET_PED_CAN_PLAY_AMBIENT_BASE_ANIMS(playerPed, true);
+	PED::SET_PED_CAN_PLAY_GESTURE_ANIMS(playerPed, true);
+	//PED::SET_PED_CAN_PLAY_VISEME_ANIMS(playerPed, true);
+
+	switch (mode)
+	{
+	case CATEGORY_FACIAL_NOW:
+		PED::PLAY_FACIAL_ANIM(playerPed, anim, dict);
+		break;
+	case CATEGORY_FACIAL_IDLE:
+		PED::SET_FACIAL_IDLE_ANIM_OVERRIDE(playerPed, anim, dict);
+		break;
+	case CATEGORY_GENERAL_NOW:
+		AI::TASK_PLAY_ANIM(playerPed, dict, anim, 8, -8, -1, 0, 0, false, 0, true);
+		break;
+	case CATEGORY_MOVE_IDLE:
+		PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 0, dict, anim, 0, true);
+		break;
+	case CATEGORY_MOVE_WALK:
+		PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 1, dict, anim, 0, true);
+		break;
+	case CATEGORY_MOVE_RUN:
+		PED::SET_PED_ALTERNATE_MOVEMENT_ANIM(playerPed, 2, dict, anim, 0, true);
+		break;
+	case CATEGORY_MOVE_CLIPSET:
+		PED::SET_PED_MOVEMENT_CLIPSET(playerPed, dict, 1.0f);
+		break;
+	}
 }

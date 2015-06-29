@@ -376,6 +376,23 @@ void teleport_to_marker(Entity e)
 	}
 }
 
+void teleport_to_last_vehicle()
+{
+	Vehicle veh = PLAYER::GET_PLAYERS_LAST_VEHICLE();
+	if (ENTITY::DOES_ENTITY_EXIST(veh))
+	{
+		PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
+		if (VEHICLE::IS_THIS_MODEL_A_HELI(ENTITY::GET_ENTITY_MODEL(veh)) || VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)))
+		{
+			VEHICLE::SET_HELI_BLADES_FULL_SPEED(PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()));
+		}
+	}
+	else
+	{
+		set_status_text("No vehicle found");
+	}
+}
+
 bool onconfirm_teleport_category(MenuItem<int> choice)
 {
 	Entity e = PLAYER::PLAYER_PED_ID();
@@ -384,12 +401,17 @@ bool onconfirm_teleport_category(MenuItem<int> choice)
 		teleport_to_marker(e);
 		return false;
 	}
+	else if (choice.value == -3)
+	{
+		teleport_to_last_vehicle();
+		return false;
+	}
 	else if (choice.value == -1)
 	{
 		output_current_location(e);
 		return false;
 	}
-	else if (choice.value == -3)
+	else if (choice.value == -4)
 	{
 		process_toggles_menu();
 		return false;
@@ -553,13 +575,19 @@ bool process_teleport_menu(int categoryIndex)
 		std::vector<MenuItem<int>*> menuItems;
 
 		MenuItem<int> *markerItem = new MenuItem<int>();
-		markerItem->caption = "GO TO MARKER";
+		markerItem->caption = "Go To Marker";
 		markerItem->value = -2;
 		markerItem->isLeaf = true;
 		menuItems.push_back(markerItem);
 
+		markerItem = new MenuItem<int>();
+		markerItem->caption = "Go To Last Vehicle";
+		markerItem->value = -3;
+		markerItem->isLeaf = true;
+		menuItems.push_back(markerItem);
+
 		MenuItem<int> *dialogItem = new MenuItem<int>();
-		dialogItem->caption = "SHOW COORDINATES";
+		dialogItem->caption = "Show Coordinates";
 		dialogItem->value = -1;
 		dialogItem->isLeaf = true;
 		menuItems.push_back(dialogItem);

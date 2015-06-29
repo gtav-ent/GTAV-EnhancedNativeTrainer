@@ -444,6 +444,10 @@ bool onconfirm_color_menu_selection(MenuItem<int> choice)
 
 				VEHICLE::SET_VEHICLE_MOD_COLOR_1(veh, 0, 0, 0);
 				VEHICLE::SET_VEHICLE_COLOURS(veh, whichpaint, secondary);
+				if (whichpart == 2)
+				{
+					primary = whichpaint;
+				}
 			}
 
 			if (::whichpart == 1 || ::whichpart == 2) //apply secondary Color
@@ -456,6 +460,11 @@ bool onconfirm_color_menu_selection(MenuItem<int> choice)
 
 				VEHICLE::SET_VEHICLE_MOD_COLOR_2(veh, 0, 0);
 				VEHICLE::SET_VEHICLE_COLOURS(veh, primary, whichpaint);
+
+				if (whichpart == 2)
+				{
+					secondary = whichpaint;
+				}
 			}
 			
 			if (::whichpart == 3) //Apply pearl Topcoat

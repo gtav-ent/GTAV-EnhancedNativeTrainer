@@ -26,6 +26,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "skins.h"
 #include "script.h"
 #include "vehicles.h"
+#include "misc.h"
 #include "teleportation.h"
 #include "airbrake.h"
 #include "weapons.h"
@@ -102,7 +103,9 @@ void update_features();
 
 void reset_globals();
 
-void set_all_nearby_peds_to_calm(Ped playerPed, int count);
+void update_nearby_peds(Ped playerPed, int count);
+
+void set_all_nearby_peds_to_calm();
 
 //DB persistent stuff
 
@@ -138,8 +141,12 @@ char* get_temp_dir_path(char* file);
 
 ENTDatabase* get_database();
 
-bool should_block_input_in_menu();
-
 void process_test_menu();
 
 void debug_native_investigation();
+
+void heal_player();
+
+void toggle_invisibility();
+
+void reset_wanted_level();

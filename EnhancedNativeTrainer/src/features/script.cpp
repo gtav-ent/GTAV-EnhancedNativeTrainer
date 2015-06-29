@@ -20,6 +20,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #pragma comment(lib, "Shlwapi.lib")
 
 #include "script.h"
+#include "hotkeys.h"
 #include "../version.h"
 
 #include <set>
@@ -55,20 +56,10 @@ bool featurePlayerInvisible				=	false;
 bool featurePlayerInvisibleUpdated		=	false;
 bool featurePlayerDrunk = false;
 bool featurePlayerDrunkUpdated = false;
-bool featurePlayerRadio					=	false;
-bool featurePlayerRadioUpdated			=	false;
-bool featureRadioAlwaysOff = false;
-bool featureRadioAlwaysOffUpdated = false;
-
-bool featureMiscLockRadio				=	false;
-bool featureMiscHideHud					=	false;
 
 bool featureWantedLevelFrozen			=	false;
 bool featureWantedLevelFrozenUpdated	=	false;
 int  frozenWantedLevel					=	0;
-
-bool featureBlockInputInMenu = true;
-bool featurePlayerResetOnDeath = true;
 
 // player model control, switching on normal ped model when needed	
 
@@ -89,7 +80,7 @@ void check_player_model()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed)) return;
 
-	if (ENTITY::IS_ENTITY_DEAD(playerPed) && featurePlayerResetOnDeath)
+	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death() )
 	{
 		bool found = false;
 		Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
@@ -127,18 +118,11 @@ void update_features()
 	*gp = 1;
 
 	gp = reinterpret_cast<int *>(getGlobalPtr(0x250FDB + 0xf158D));
-	*gp = 0;*/
-
-	//CONTROLS::DISABLE_CONTROL_ACTION(0, 19, 1);
-	CONTROLS::DISABLE_CONTROL_ACTION(0, 288, 1);
-	CONTROLS::DISABLE_CONTROL_ACTION(0, 289, 1);
-	CONTROLS::DISABLE_CONTROL_ACTION(2, 288, 1);
-	CONTROLS::DISABLE_CONTROL_ACTION(2, 289, 1);
-	CONTROLS::DISABLE_CONTROL_ACTION(0, 48, 1);
-	CONTROLS::DISABLE_CONTROL_ACTION(0, 173, 1);
+	*gp = 0;
 
 	int* gp = reinterpret_cast<int *>(getGlobalPtr(0x42CA + 0x9));
 	*gp = 0xFF;
+	*/
 
 	everInitialised = true;
 	game_frame_num++;
@@ -156,9 +140,11 @@ void update_features()
 
 	UpdateXInputControlState();
 
+	check_for_hotkey_presses();
+
 	if (is_menu_showing() || is_in_airbrake_mode())
 	{
-		if (should_block_input_in_menu() || is_in_airbrake_mode())
+		if (is_input_blocked_in_menu() || is_in_airbrake_mode())
 		{
 			setGameInputToEnabled(false);
 		}
@@ -288,6 +274,8 @@ void update_features()
 	// everyone ignores player
 	if (featurePlayerIgnoredByAll)
 	{
+		update_nearby_peds(playerPed, 50);
+
 		if (bPlayerExists)
 		{
 			PLAYER::SET_POLICE_IGNORE_PLAYER(player, true);
@@ -296,7 +284,7 @@ void update_features()
 			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, true);
 			if (game_frame_num % 5 == 0)
 			{
-				set_all_nearby_peds_to_calm(playerPed, 50);
+				set_all_nearby_peds_to_calm();
 			}
 		}
 	}
@@ -386,50 +374,14 @@ void update_features()
 		AUDIO::SET_PED_IS_DRUNK(playerPed, featurePlayerDrunk);
 	}
 
-	if (featureRadioAlwaysOff || featurePlayerRadioUpdated)
-	{
-		if (featureRadioAlwaysOff)
-		{
-			if (featurePlayerRadio)
-			{
-				featurePlayerRadio = false;
-				featurePlayerRadioUpdated = true;
-			}
-		}
-
-		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-		{
-			Vehicle playerVeh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-			AUDIO::SET_VEHICLE_RADIO_ENABLED(playerVeh, !featureRadioAlwaysOff);
-		}
-
-		AUDIO::SET_USER_RADIO_CONTROL_ENABLED(!featureRadioAlwaysOff);
-	}
-
-	// Portable radio
-	if (featurePlayerRadio || featurePlayerRadioUpdated)
-	{
-		if (featurePlayerRadio)
-		{
-			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(true);
-		}
-		else
-		{
-			AUDIO::SET_MOBILE_RADIO_ENABLED_DURING_GAMEPLAY(false);
-		}
-	}
-
+	
 	update_weapon_features(bPlayerExists, player);
 
 	update_vehicle_features(bPlayerExists, playerPed);
 
-	update_time_features(player);
+	update_misc_features(bPlayerExists, playerPed);
 
-	// hide hud
-	if (featureMiscHideHud)
-	{
-		UI::HIDE_HUD_AND_RADAR_THIS_FRAME();
-	}
+	update_time_features(player);
 
 	//Disable airbrake on death
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
@@ -480,17 +432,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		break;
 	case 1:
 	{
-		ENTITY::SET_ENTITY_HEALTH(playerPed, ENTITY::GET_ENTITY_MAX_HEALTH(playerPed));
-		PED::ADD_ARMOUR_TO_PED(playerPed, PLAYER::GET_PLAYER_MAX_ARMOUR(player) - PED::GET_PED_ARMOUR(playerPed));
-		PED::SET_PED_WETNESS_HEIGHT(playerPed, -2.0);
-		PED::CLEAR_PED_BLOOD_DAMAGE(playerPed);
-		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-		{
-			Vehicle playerVeh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-			if (ENTITY::DOES_ENTITY_EXIST(playerVeh) && !ENTITY::IS_ENTITY_DEAD(playerVeh))
-				VEHICLE::SET_VEHICLE_FIXED(playerVeh);
-		}
-		set_status_text("Player Healed");
+		heal_player();
 	}
 	break;
 	case 16:
@@ -525,68 +467,12 @@ void process_player_menu()
 		{"Super Jump", &featurePlayerSuperJump, NULL, true},
 		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
 		{ "Drunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated, true },
-		{ "Anims", NULL, NULL, false }
+		{ "Animations", NULL, NULL, false }
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
 }
 
-//==================
-// MISC MENU
-//==================
-
-int activeLineIndexTrainerConfig = 0;
-
-void process_misc_trainerconfig_menu()
-{
-	const int lineCount = 2;
-
-	std::string caption = "Trainer Options";
-
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Lock Controls While In Menu", &featureBlockInputInMenu, NULL },
-		{ "Reset Skin On Death", &featurePlayerResetOnDeath, NULL }
-	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexTrainerConfig, caption, NULL);
-}
-
-int activeLineIndexMisc = 0;
-
-bool onconfirm_misc_menu(MenuItem<int> choice)
-{
-	switch (activeLineIndexMisc)
-	{
-	case 0:
-		process_misc_trainerconfig_menu();
-		break;
-		// next radio track
-	case 2:
-		AUDIO::SKIP_RADIO_FORWARD();
-		break;
-		// switchable features
-	default:
-		break;
-	}
-	return false;
-}
-
-void process_misc_menu()
-{
-	const int lineCount = 5;
-
-	std::string caption = "Miscellaneous Options";
-
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Trainer Options", NULL, NULL, false },
-		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
-		{"Next Radio Track",	NULL,					NULL, true},
-		{ "Radio Always Off", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated, true },
-		{"Hide HUD",			&featureMiscHideHud,	NULL},
-	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexMisc, caption, onconfirm_misc_menu);
-}
 
 //==================
 // MAIN MENU
@@ -643,8 +529,7 @@ void process_main_menu()
 		"World",
 		"Time",
 		"Miscellaneous",
-		"Reset All Settings",
-		"Test"
+		"Reset All Settings"
 	};
 
 	std::vector<MenuItem<int>*> menuItems;
@@ -673,11 +558,14 @@ void reset_globals()
 
 	reset_world_globals();
 
+	reset_misc_globals();
+
 	activeLineIndexMain			=
 	activeLineIndexPlayer		=
 	activeLineIndexWantedFreeze	=
 	frozenWantedLevel			=	0;
 
+	featurePlayerDrunk =
 	featurePlayerInvincible			=
 	featurePlayerNeverWanted		=
 	featurePlayerIgnoredByPolice			=
@@ -688,15 +576,7 @@ void reset_globals()
 	featurePlayerFastRun			=
 	featurePlayerSuperJump			=
 	featurePlayerInvisible			=
-	featurePlayerDrunk =
-	featurePlayerRadio				=
-	featureRadioAlwaysOff =
-	featureMiscLockRadio			=
-	featureMiscHideHud				=	
 	featureWantedLevelFrozen		=	false;
-
-	featurePlayerResetOnDeath = true;
-	featureBlockInputInMenu = true;
 
 	featurePlayerInvincibleUpdated =
 	featurePlayerNeverWantedUpdated =
@@ -705,8 +585,6 @@ void reset_globals()
 	featurePlayerNoNoiseUpdated =
 	featurePlayerFastSwimUpdated =
 	featurePlayerFastRunUpdated =
-	featureRadioAlwaysOffUpdated =
-	featurePlayerRadioUpdated =
 	featurePlayerDrunkUpdated =
 	featurePlayerInvisibleUpdated = true;
 
@@ -745,6 +623,8 @@ void main()
 
 	// tell cout to use our new locale.
 	std::cout.imbue(comma_locale);
+	
+	set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is ready!");
 
 	while (true)
 	{
@@ -812,6 +692,8 @@ LONG CALLBACK unhandled_handler(EXCEPTION_POINTERS* e)
 
 int filterException(int code, PEXCEPTION_POINTERS ex)
 {
+	set_status_text("Whoops, ENT crashed!");
+
 	write_text_to_log_file("ScriptMain exception");
 	make_minidump(ex);
 	return EXCEPTION_EXECUTE_HANDLER;
@@ -823,6 +705,8 @@ void ScriptMain()
 	__try
 	{
 #endif
+
+		set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is initialising...");
 
 		clear_log_file();
 
@@ -888,7 +772,7 @@ void turn_off_never_wanted()
 	PLAYER::SET_MAX_WANTED_LEVEL(5);
 }
 
-void set_all_nearby_peds_to_calm(Ped playerPed, int count)
+void update_nearby_peds(Ped playerPed, int count)
 {
 	const int numElements = count;
 	const int arrSize = numElements * 2 + 2;
@@ -896,7 +780,6 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 	Ped *peds = new Ped[arrSize];
 	peds[0] = numElements;
 	int found = PED::GET_PED_NEARBY_PEDS(playerPed, peds, -1);
-	int y = 0;
 
 	for (int i = 0; i < found; i++)
 	{
@@ -929,13 +812,18 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 		}
 	}
 
+	delete peds;
+}
+
+void set_all_nearby_peds_to_calm()
+{
 	for each (Ped xped in lastSeenPeds)
 	{
-		y++;
 		PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
 		PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
-		//PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
+		PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
 
+		/*
 		PED::SET_PED_DIES_WHEN_INJURED(xped, false);
 		PED::SET_PED_MAX_HEALTH(xped, 10000);
 		ENTITY::SET_ENTITY_HEALTH(xped, 10000);
@@ -947,12 +835,7 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(xped, false);
 
 		PED::SET_PED_AS_ENEMY(xped, true);
-
-		if (!PED::IS_PED_IN_ANY_VEHICLE(xped,0))
-		{
-			//AI::CLEAR_PED_TASKS_IMMEDIATELY(xped);
-		}
-
+		
 		if (PED::_IS_PED_DEAD(xped, 1))
 		{
 			set_status_text("Trying to resurrect");
@@ -963,8 +846,8 @@ void set_all_nearby_peds_to_calm(Ped playerPed, int count)
 			set_status_text("Trying to heal");
 			PED::REVIVE_INJURED_PED(xped);
 		}
+		*/
 	}
-	delete peds;
 }
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
@@ -982,18 +865,12 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerRadio", &featurePlayerRadio, &featurePlayerRadioUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureRadioAlwaysOff", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated });
-
-	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscLockRadio", &featureMiscLockRadio });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud });
-
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerResetOnDeath", &featurePlayerResetOnDeath });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureBlockInputInMenu", &featureBlockInputInMenu });
 
 	add_world_feature_enablements(&results);
 
 	add_time_feature_enablements(&results);
+
+	add_misc_feature_enablements(&results);
 
 	std::vector<FeatureEnabledLocalDefinition> vehResults = get_feature_enablements_vehicles();
 	results.insert(results.end(), vehResults.begin(), vehResults.end());
@@ -1010,6 +887,8 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_time_generic_settings(&settings);
 	add_world_generic_settings(&settings);
 	add_vehicle_generic_settings(&settings);
+	add_misc_generic_settings(&settings);
+	add_hotkey_generic_settings(&settings);
 	return settings;
 }
 
@@ -1030,9 +909,13 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 
 	handle_generic_settings_time(&settings);
 
+	handle_generic_settings_misc(&settings);
+
 	handle_generic_settings_vehicle(&settings);
 
 	handle_generic_settings_world(&settings);
+
+	handle_generic_settings_hotkey(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)
@@ -1095,6 +978,19 @@ void init_storage()
 	else
 	{
 		write_text_to_log_file("Couldn't create storage dir");
+	}
+	delete folder;
+
+	folder = get_temp_dir_path();
+	write_text_to_log_file("Trying to create temp folder");
+	write_text_to_log_file(std::string(folder));
+	if (CreateDirectory(folder, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+	{
+		write_text_to_log_file("Temp dir created or exists");
+	}
+	else
+	{
+		write_text_to_log_file("Couldn't create temp dir");
 	}
 	delete folder;
 }
@@ -1161,11 +1057,6 @@ char* get_storage_dir_path(char* file)
 ENTDatabase* get_database()
 {
 	return database;
-}
-
-bool should_block_input_in_menu()
-{
-	return featureBlockInputInMenu;
 }
 
 bool onconfirm_test_menu(MenuItem<int> choice)
@@ -1404,4 +1295,43 @@ void debug_native_investigation()
 			set_status_text_centre_screen("0xD4C... true");
 		}*/
 	}
+}
+
+void heal_player()
+{
+	// common variables
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	ENTITY::SET_ENTITY_HEALTH(playerPed, ENTITY::GET_ENTITY_MAX_HEALTH(playerPed));
+	PED::ADD_ARMOUR_TO_PED(playerPed, PLAYER::GET_PLAYER_MAX_ARMOUR(player) - PED::GET_PED_ARMOUR(playerPed));
+	PED::SET_PED_WETNESS_HEIGHT(playerPed, -2.0);
+	PED::CLEAR_PED_BLOOD_DAMAGE(playerPed);
+	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		Vehicle playerVeh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+		if (ENTITY::DOES_ENTITY_EXIST(playerVeh) && !ENTITY::IS_ENTITY_DEAD(playerVeh))
+			VEHICLE::SET_VEHICLE_FIXED(playerVeh);
+	}
+	set_status_text("Player Healed");
+}
+
+void toggle_invisibility()
+{
+	featurePlayerInvisible = !featurePlayerInvisible;
+	if (featurePlayerInvisible)
+	{
+		set_status_text("Player invisible");
+	}
+	else
+	{
+		set_status_text("Player no longer invisible");
+	}
+	featurePlayerInvisibleUpdated = true;
+}
+
+void reset_wanted_level()
+{
+	PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
+	set_status_text("Wanted Level cleared");
 }

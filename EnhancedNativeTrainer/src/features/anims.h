@@ -6,6 +6,12 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #pragma once
 
+#include "..\..\inc\natives.h"
+#include "..\..\inc\types.h"
+#include "..\..\inc\enums.h"
+
+#include "..\..\inc\main.h"
+
 #include <sstream>
 
 #include <vector>
@@ -44,19 +50,19 @@ public:
 		return newChild;
 	}
 
-	std::string getFullDict()
+	std::string getFullDict(bool includeLeaf=false)
 	{
 		std::stringstream ss;
 
 		if (parent != NULL)
 		{
-			ss << parent->getFullDict();
+			ss << parent->getFullDict(includeLeaf);
 		}
-		if (this->hasChildren() && parent != NULL && !parent->isRoot)
+		if ((this->hasChildren() || includeLeaf) && parent != NULL && !parent->isRoot)
 		{
 			ss << "@";
 		}
-		if (this->hasChildren())
+		if ((this->hasChildren() || includeLeaf))
 		{
 			ss << value;
 		}
@@ -77,7 +83,7 @@ public:
 
 void build_anim_tree();
 
-TreeNode* build_anim_tree(std::vector<std::string> input);
+TreeNode* build_anim_tree(std::vector<std::string> input, bool includeAnim=true);
 
 TreeNode* build_anim_tree_with_suffix_filter(std::string filter);
 
@@ -86,3 +92,7 @@ TreeNode* build_anim_tree_with_prefix_filter(std::string filter);
 bool process_anims_menu();
 
 bool process_anims_menu_top();
+
+void replay_last_anim();
+
+void do_play_anim(Ped playerPed, char* dict, char* anim, int mode);

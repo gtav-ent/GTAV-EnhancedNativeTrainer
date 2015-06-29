@@ -53,3 +53,15 @@ bool does_file_exist(const char* name)
 	struct stat buffer;
 	return (stat(name, &buffer) == 0);
 }
+
+bool StringEndsWith(const std::string& a, const std::string& b)
+{
+	if (b.size() > a.size()) return false;
+	return std::equal(a.begin() + a.size() - b.size(), a.end(), b.begin());
+}
+
+bool StringStartsWith(const std::string& a, const std::string& b)
+{
+	if (b.size() > a.size()) return false;
+	return std::equal(a.begin(), a.begin() + b.size(), b.begin());
+}
