@@ -486,6 +486,19 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		*/
 		featureWearHelmetOffUpdated = false;
 	}
+
+	/*
+	if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+		int primary, secondary, pearl, wheel;
+		VEHICLE::GET_VEHICLE_COLOURS(veh, &primary, &secondary);
+		VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &pearl, &wheel);
+		std::ostringstream ss;
+		ss << "P: " << primary << ", S: " << secondary << ", Pe: " << pearl << ", Wh: " << wheel;
+		set_status_text_centre_screen(ss.str());
+	}
+	*/
 }
 
 void reset_vehicle_globals()

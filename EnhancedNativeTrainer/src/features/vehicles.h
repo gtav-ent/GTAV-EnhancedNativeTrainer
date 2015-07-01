@@ -63,7 +63,7 @@ bool process_paint_menu_type();
 
 bool process_paint_menu_liveries();
 
-bool process_paint_menu_special(int category);
+bool process_paint_menu_special();
 
 bool onconfirm_color_menu_selection(MenuItem<int> choice);
 
@@ -128,3 +128,12 @@ void init_vehicle_feature();
 void fix_vehicle();
 
 void clean_vehicle();
+
+struct PaintColour
+{
+	std::string name;
+	int mainValue;
+	int pearlAddition;
+};
+
+void apply_paint(PaintColour whichpaint);
