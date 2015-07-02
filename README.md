@@ -12,6 +12,4 @@ However, before doing anything, please familiarise yourself with [our wiki](http
 
 **Current coordination status**:
 
-We are back to normal after a Script Hook update was released to match the new game version, after the 'Ill Gotten Gains' DLC update broke compatibility.
-
-Pull request processing etc is now back to normal after a holiday.
+This repository is currently due to be shut down, and work will continue offline in private. You have until 9th July to comment on this, which you can do [here](https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer/issues/103).
