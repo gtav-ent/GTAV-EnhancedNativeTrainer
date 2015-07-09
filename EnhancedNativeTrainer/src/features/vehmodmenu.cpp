@@ -161,7 +161,7 @@ std::string getHornTitle(int index)
 	}
 	else
 	{
-		char* label = UI::GET_LABEL_TEXT(v_3);
+		char* label = UI::_GET_LABEL_TEXT(v_3);
 		if (label == NULL)
 		{
 			return "Unknown Horn";
@@ -279,7 +279,7 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 		bool foundName = false;
 		if (modItemNameChr != NULL && strlen(modItemNameChr) > 0)
 		{
-			char* modItemNameTxt = UI::GET_LABEL_TEXT(modItemNameChr);
+			char* modItemNameTxt = UI::_GET_LABEL_TEXT(modItemNameChr);
 			if (modItemNameTxt != NULL)
 			{
 				modItemNameStr = std::string(modItemNameTxt);
