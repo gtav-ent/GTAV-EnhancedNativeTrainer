@@ -9,7 +9,3 @@ Coders, please, feel free to submit your pull requests, and also feel free to ra
 However, before doing anything, please familiarise yourself with [our wiki](https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer/wiki).
 
 **TL;DR LICENSE REMINDER FOR DEVELOPERS:** You can do [almost anything](https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer/wiki/Licensing-and-Distribution) you like with this code, including trying to sell it and not giving us credit for the work, but if you release something based on it, you need to make your code open source too. That's what the GPL means. If you don't manage to do this, I will come after you in a deeply tedious fashion.
-
-**Current coordination status**:
-
-This repository is currently due to be shut down, and work will continue offline in private. You have until 9th July to comment on this, which you can do [here](https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer/issues/103).
