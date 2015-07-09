@@ -30,6 +30,9 @@ bool featureWorldRandomTrains = true;
 bool featureWorldRandomBoats = true;
 bool featureWorldGarbageTrucks = true;
 
+bool featureBlackout = false;
+bool featureBlackoutUpdated = false;
+
 bool featureWeatherWind = false;
 bool featureWeatherFreeze = false;
 std::string lastWeather;
@@ -215,6 +218,13 @@ void process_world_menu()
 	togItem->toggleValue = &featureRestrictedZones;
 	menuItems.push_back(togItem);
 
+	togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Blackout";
+	togItem->value = 6;
+	togItem->toggleValue = &featureBlackout;
+	togItem->toggleValueUpdated = &featureBlackoutUpdated;
+	menuItems.push_back(togItem);
+
 	draw_generic_menu<int>(menuItems, &activeLineIndexWorld, caption, onconfirm_world_menu, NULL, NULL);
 }
 
@@ -231,6 +241,7 @@ void reset_world_globals()
 
 	featureWorldNoPeds = false;
 	featureWorldNoTraffic = false;
+	featureBlackout = false;
 
 	featureWorldRandomCops =
 		featureWorldRandomTrains =
@@ -240,6 +251,7 @@ void reset_world_globals()
 	featureWorldNoPedsUpdated = true;
 	featureWorldMoonGravityUpdated = true;
 	featureWorldNoTrafficUpdated = true;
+	featureBlackoutUpdated = true;
 }
 
 void update_world_features()
@@ -253,6 +265,12 @@ void update_world_features()
 	else if (featureWorldMoonGravityUpdated)
 	{
 		GAMEPLAY::SET_GRAVITY_LEVEL(0);
+	}
+
+	if (featureBlackoutUpdated)
+	{
+		GRAPHICS::_SET_BLACKOUT(featureBlackout);
+		featureBlackoutUpdated = false;
 	}
 
 	if (featureWorldNoPedsUpdated)
@@ -343,6 +361,7 @@ void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* r
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureBlackout", &featureBlackout, &featureBlackoutUpdated });
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureRestrictedZones", &featureRestrictedZones });
 

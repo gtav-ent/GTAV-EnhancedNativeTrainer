@@ -3279,6 +3279,7 @@ namespace UI
 namespace GRAPHICS
 {
 	static float _GET_SCREEN_ASPECT_RATIO(BOOL b) { return invoke<float>(0xF1307EF624A80D87, b); }
+	static void _SET_BLACKOUT(BOOL b) { invoke<Void>(0x1268615ACE24D504, b); }
 
 	static void SET_DEBUG_LINES_AND_SPHERES_DRAWING_ACTIVE(BOOL enabled) { invoke<Void>(0x175B6BFC15CDD0C5, enabled); } // 0x175B6BFC15CDD0C5 0x1418CA37
 	static void DRAW_DEBUG_LINE(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6, Any p7, Any p8, Any p9) { invoke<Void>(0x7FDFADE676AA3CB0, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9); } // 0x7FDFADE676AA3CB0 0xABF783AB
