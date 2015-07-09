@@ -42,15 +42,15 @@ bool IsKeyDown(std::string keyName)
 	bool result = IsKeyDown(key->keyCode);
 	if (result && key->modAlt)
 	{
-		result = (GetKeyState(VK_MENU) & 0x8000);
+		result = ((bool)GetKeyState(VK_MENU) & 0x8000);
 	}
 	if (result && key->modShift)
 	{
-		result = (GetKeyState(VK_SHIFT) & 0x8000);
+		result = ((bool)GetKeyState(VK_SHIFT) & 0x8000);
 	}
 	if (result && key->modCtrl)
 	{
-		result = (GetKeyState(VK_LCONTROL) & 0x8000 || GetKeyState(VK_RCONTROL) & 0x8000);
+		result = ((bool)GetKeyState(VK_LCONTROL) & 0x8000 || (bool)GetKeyState(VK_RCONTROL) & 0x8000);
 	}
 	return result;
 }

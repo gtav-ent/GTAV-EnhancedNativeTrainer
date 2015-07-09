@@ -11,6 +11,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <string>
 #include <sstream>
 
+#pragma warning(disable : 4267) // size_t conversion
+
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/

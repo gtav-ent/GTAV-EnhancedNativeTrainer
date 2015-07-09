@@ -30,9 +30,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "teleportation.h"
 #include "airbrake.h"
 #include "weapons.h"
-#include "anims.h";
-#include "world.h";
-#include "time.h";
+#include "anims.h"
+#include "world.h"
+#include "time.h"
 //#include "crash_handler.h"
 
 #include <DbgHelp.h>

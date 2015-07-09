@@ -29,7 +29,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <algorithm>
 
 #pragma once
-#pragma warning(disable : 4244 4305) // double <-> float conversions
+#pragma warning(disable : 4244 4305 4267) // double <-> float conversions <-> size_t conversions
 
 extern void(*periodic_feature_call)(void);
 

@@ -13,6 +13,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\ui_support\menu_functions.h"
 #include "weapons.h"
 
+#pragma warning(disable : 4192)
+
 /***
 * VARS
 */

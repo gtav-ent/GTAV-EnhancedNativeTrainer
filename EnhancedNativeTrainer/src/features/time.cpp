@@ -432,6 +432,7 @@ std::string get_day_of_game_week()
 	case 6:
 		return "Sat";
 	}
+	return std::string();
 }
 
 void handle_generic_settings_time(std::vector<StringPairSettingDBRow>* settings)
