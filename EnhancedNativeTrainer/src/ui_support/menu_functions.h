@@ -48,13 +48,19 @@ public:
 	bool isLeaf = true;
 	void (*onConfirmFunction)(const MenuItem<T> choice) = NULL;
 
-	virtual inline void onConfirm()
+	/**
+	Handle the on-item confirmation press.
+	Returns whether the confirmation has been absorbed; if not, it will be
+	passed up to the parent menu.
+	*/
+	virtual inline bool onConfirm()
 	{
 		//set_status_text("Parent confirm");
 		if (onConfirmFunction != NULL)
 		{
 			onConfirmFunction(*this);
 		}
+		return false;
 	};
 
 	virtual bool isAbsorbingLeftAndRightEvents() { return false; };
@@ -82,7 +88,7 @@ public:
 		return *toggleValue;
 	}
 
-	virtual void onConfirm();
+	virtual bool onConfirm();
 };
 
 template<class T>
@@ -102,9 +108,10 @@ public:
 		return getter_call(extra_arguments);
 	}
 
-	virtual inline void onConfirm()
+	virtual inline bool onConfirm()
 	{
 		setter_call(!getter_call(extra_arguments), extra_arguments);
+		return true;
 	}
 };
 
@@ -116,7 +123,7 @@ public:
 
 	int get_wanted_value();
 
-	virtual void onConfirm() { };
+	virtual bool onConfirm() { return true; };
 
 	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
 
@@ -137,7 +144,7 @@ public:
 
 	virtual ~SelectFromListMenuItem() {}
 
-	virtual void onConfirm() { };
+	virtual bool onConfirm() { return true; };
 
 	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
 
@@ -166,7 +173,7 @@ class CashItem : public MenuItem <T>
 	int min = 10000;
 	int max = 10000000;
 
-	virtual void onConfirm();
+	virtual bool onConfirm();
 	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
 	virtual void handleLeftPress();
 	virtual void handleRightPress();
@@ -878,10 +885,10 @@ bool draw_generic_menu(MenuParameters<T> params)
 
 			waitTime = 200;
 
-			choice->onConfirm();
+			bool confHandled = choice->onConfirm();
 
 			//fire the main handler
-			if (params.onConfirmation != NULL)
+			if (!confHandled && params.onConfirmation != NULL)
 			{
 				result = params.onConfirmation(*choice);
 			}

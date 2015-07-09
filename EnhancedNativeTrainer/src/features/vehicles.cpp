@@ -179,7 +179,8 @@ bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	if (choice.currentMenuIndex >= 0) {
+	if (choice.value >= 0)
+	{
 		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);

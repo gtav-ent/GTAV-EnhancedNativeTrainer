@@ -296,7 +296,7 @@ std::string show_keyboard(char* title_id, char* prepopulated_text)
 
 
 template<class T>
-void ToggleMenuItem<T>::onConfirm()
+bool ToggleMenuItem<T>::onConfirm()
 {
 	//set_status_text("Base confirm");
 
@@ -313,11 +313,13 @@ void ToggleMenuItem<T>::onConfirm()
 			*toggleValueUpdated = true;
 		}
 	}
+
+	return true;
 }
 
 
 template<class T>
-void CashItem<T>::onConfirm()
+bool CashItem<T>::onConfirm()
 {
 	for (int i = 0; i < 3; i++)
 	{
@@ -332,6 +334,7 @@ void CashItem<T>::onConfirm()
 		STATS::STAT_SET_INT(hash, newAmount, 1);
 	}
 	set_status_text("Cash Added");
+	return true;
 }
 
 template<class T>
