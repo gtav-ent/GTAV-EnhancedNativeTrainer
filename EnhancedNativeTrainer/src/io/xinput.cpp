@@ -6,6 +6,7 @@
 
 #include "..\io\xinput.h"
 #include "..\features\script.h"
+#include "..\features\misc.h"
 #include "..\debug\debuglog.h"
 
 #include <sstream>
@@ -27,6 +28,11 @@ void end_xinput()
 
 bool IsControllerButtonDown(std::string btnName)
 {
+	if (is_controller_ignored_in_trainer())
+	{
+		return false;
+	}
+
 	ControllerButtonConfig* buttonConf = get_config()->get_key_config()->get_controller_button(btnName);
 	if (buttonConf == NULL || buttonConf->buttonCodes.size() == 0)
 	{
@@ -71,6 +77,11 @@ bool IsControllerButtonDown(std::string btnName)
 
 bool IsControllerButtonJustUp(std::string btnName)
 {
+	if (is_controller_ignored_in_trainer())
+	{
+		return false;
+	}
+
 	ControllerButtonConfig* buttonConf = get_config()->get_key_config()->get_controller_button(btnName);
 	if (buttonConf == NULL || buttonConf->buttonCodes.size() == 0)
 	{

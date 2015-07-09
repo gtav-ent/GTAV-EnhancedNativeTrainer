@@ -137,3 +137,7 @@ struct PaintColour
 };
 
 void apply_paint(PaintColour whichpaint);
+
+int get_current_veh_friction_mode();
+
+void onchange_veh_friction_mode(int value, SelectFromListMenuItem* source);

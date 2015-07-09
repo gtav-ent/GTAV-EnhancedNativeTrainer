@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "utils.h"
 #include <windows.h>
 #include <sys/stat.h>
+#include <vector>
 
 extern "C" IMAGE_DOS_HEADER __ImageBase; // MSVC specific, with other compilers use HMODULE from DllMain
 
@@ -64,4 +65,18 @@ bool StringStartsWith(const std::string& a, const std::string& b)
 {
 	if (b.size() > a.size()) return false;
 	return std::equal(a.begin(), a.begin() + b.size(), b.begin());
+}
+
+std::wstring ConvertFromUtf8ToUtf16(const std::string& str)
+{
+	std::wstring convertedString;
+	int requiredSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, 0, 0);
+	if (requiredSize > 0)
+	{
+		std::vector<wchar_t> buffer(requiredSize);
+		MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &buffer[0], requiredSize);
+		convertedString.assign(buffer.begin(), buffer.end() - 1);
+	}
+
+	return convertedString;
 }

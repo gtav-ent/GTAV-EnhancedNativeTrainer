@@ -113,7 +113,7 @@ std::string geSpecialItemTitle(int category, int index)
 
 const static std::string BRAKES_AND_TRANS_PREFIXES[] = { "Street", "Sports", "Race" };
 
-const static std::string SUSP_PREFIXES[] = { "Lowered", "Street", "Sports", "Competition" };
+const static std::string SUSP_PREFIXES[] = { "Lowered", "Street", "Sports", "Competition", "Race", "Extra Low" };
 
 std::string getHornTitle(int index)
 {
@@ -153,6 +153,9 @@ std::string getHornTitle(int index)
 	case 29: v_3 = "HORN_INDI_2"; break;
 	case 30: v_3 = "HORN_INDI_3"; break;
 	case 31: v_3 = "HORN_INDI_4"; break;
+	case 32: v_3 = "HORN_LUXE1"; break;
+	case 33: v_3 = "HORN_LUXE2"; break;
+	case 34: v_3 = "HORN_LUXE3"; break;
 	}
 
 	if (v_3 == NULL)
@@ -570,12 +573,15 @@ bool process_vehmod_category_menu(int category)
 
 	for (int i = 0; i < count; i++)
 	{
-		std::string modItemNameStr = getNormalItemTitle(veh, actualCategory, i);
-		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = modItemNameStr;
-		item->value = i;
-		item->isLeaf = true;
-		menuItems.push_back(item);
+		if (!(category == 14 && i > 34))
+		{
+			std::string modItemNameStr = getNormalItemTitle(veh, actualCategory, i);
+			MenuItem<int> *item = new MenuItem<int>();
+			item->caption = modItemNameStr;
+			item->value = i;
+			item->isLeaf = true;
+			menuItems.push_back(item);
+		}
 	}
 
 	//Find menu index to return to

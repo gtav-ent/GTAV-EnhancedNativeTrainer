@@ -24,8 +24,11 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "../version.h"
 
 #include <set>
+#include <iostream>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
+
+int last_player_slot_seen = 0;
 
 int game_frame_num = 0;
 
@@ -56,6 +59,10 @@ bool featurePlayerInvisible				=	false;
 bool featurePlayerInvisibleUpdated		=	false;
 bool featurePlayerDrunk = false;
 bool featurePlayerDrunkUpdated = false;
+bool featureNightVision = false;
+bool featureNightVisionUpdated = false;
+bool featureThermalVision = false;
+bool featureThermalVisionUpdated = false;
 
 bool featureWantedLevelFrozen			=	false;
 bool featureWantedLevelFrozenUpdated	=	false;
@@ -74,6 +81,12 @@ std::set<Ped> lastSeenPeds;
 
 void check_player_model()
 {
+	/*
+	std::stringstream ss;
+	ss << "PID: " << *gp;
+	set_status_text_centre_screen(ss.str());
+	*/
+
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
@@ -96,8 +109,24 @@ void check_player_model()
 
 		if (!found)
 		{
-			set_status_text("Resetting player model");
-			applyChosenSkin("player_zero");
+			set_status_text("Resetting death state because a custom skin was used");
+			GAMEPLAY::_RESET_LOCALPLAYER_STATE();
+			
+			switch (last_player_slot_seen)
+			{
+			case 0:
+				applyChosenSkin("player_zero");
+				break;
+			case 1:
+				applyChosenSkin("player_one");
+				break;
+			case 2:
+				applyChosenSkin("player_two");
+				break;
+			default:
+				applyChosenSkin("player_zero");
+				break;
+			}
 		}
 
 		// wait until player is ressurected
@@ -136,6 +165,20 @@ void update_features()
 		DWORD myThreadID;
 		HANDLE myHandle = CreateThread(0, 0, save_settings_thread, 0, 0, &myThreadID);
 		CloseHandle(myHandle);
+	}
+
+	int* gp = NULL;
+	switch (getGameVersion())
+	{
+		case VER_1_0_372_2_STEAM:
+		case VER_1_0_372_2_NOSTEAM:
+			gp = reinterpret_cast<int *>(getGlobalPtr(0x3839));
+			break;
+	}
+	
+	if (gp != NULL && *gp >= 0 && *gp <= 2)
+	{
+		last_player_slot_seen = *gp;
 	}
 
 	UpdateXInputControlState();
@@ -375,7 +418,18 @@ void update_features()
 		AUDIO::SET_PED_IS_DRUNK(playerPed, featurePlayerDrunk);
 	}
 
-	
+	if (featureNightVisionUpdated)
+	{
+		GRAPHICS::SET_NIGHTVISION(featureNightVision);
+		featureNightVisionUpdated = false;
+	}
+
+	if (featureThermalVisionUpdated)
+	{
+		GRAPHICS::SET_SEETHROUGH(featureThermalVision);
+		featureThermalVisionUpdated = false;
+	}
+
 	update_weapon_features(bPlayerExists, player);
 
 	update_vehicle_features(bPlayerExists, playerPed);
@@ -436,7 +490,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		heal_player();
 	}
 	break;
-	case 16:
+	case 18:
 		process_anims_menu_top();
 		break;
 	default:
@@ -447,7 +501,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 17;
+	const int lineCount = 19;
 	
 	std::string caption = "Player Options";
 
@@ -468,7 +522,9 @@ void process_player_menu()
 		{"Super Jump", &featurePlayerSuperJump, NULL, true},
 		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
 		{ "Drunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated, true },
-		{ "Animations", NULL, NULL, false }
+		{ "Night Vision", &featureNightVision, &featureNightVisionUpdated, true },
+		{ "Thermal Vision", &featureThermalVision, &featureThermalVisionUpdated, true },
+		{ "Animations", NULL, NULL, false },
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexPlayer, caption, onconfirm_player_menu);
@@ -531,6 +587,7 @@ void process_main_menu()
 		"Time",
 		"Miscellaneous",
 		"Reset All Settings"
+		//"Test"
 	};
 
 	std::vector<MenuItem<int>*> menuItems;
@@ -577,6 +634,8 @@ void reset_globals()
 	featurePlayerFastRun			=
 	featurePlayerSuperJump			=
 	featurePlayerInvisible			=
+	featureNightVision =
+	featureThermalVision =
 	featureWantedLevelFrozen		=	false;
 
 	featurePlayerInvincibleUpdated =
@@ -587,6 +646,8 @@ void reset_globals()
 	featurePlayerFastSwimUpdated =
 	featurePlayerFastRunUpdated =
 	featurePlayerDrunkUpdated =
+	featureNightVisionUpdated =
+	featureThermalVisionUpdated =
 	featurePlayerInvisibleUpdated = true;
 
 	set_status_text("Reset All Settings");
@@ -659,7 +720,7 @@ void make_minidump(EXCEPTION_POINTERS* e)
 	if (pMiniDumpWriteDump == nullptr)
 		return;
 
-	auto hFile = CreateFileA(get_storage_dir_path("ENT-minidump.dmp"), GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	auto hFile = CreateFileW(get_storage_dir_path("ENT-minidump.dmp"), GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return;
 
@@ -723,6 +784,9 @@ void ScriptMain()
 		if (!database->open() )
 		{
 			write_text_to_log_file("Failed to open database");
+			set_status_text("ENT couldn't open its database - sorry, exiting");
+			database = NULL;
+			return;
 		}
 
 		build_anim_tree();
@@ -866,6 +930,8 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureNightVision", &featureNightVision, &featureNightVisionUpdated });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureThermalVision", &featureThermalVision, &featureThermalVisionUpdated });
 
 	add_world_feature_enablements(&results);
 
@@ -942,16 +1008,13 @@ void save_settings()
 	}
 	*/
 
-	write_text_to_log_file("Locked");
-
-	write_text_to_log_file("Actually saving");
-	database->store_setting_pairs(get_generic_settings());
-	database->store_feature_enabled_pairs(get_feature_enablements());
-	write_text_to_log_file("Save flag released");
-
-	write_text_to_log_file("Unlocking");
-	//db_mutex.unlock();
-	write_text_to_log_file("Unlocked");
+	if (database != NULL)
+	{
+		write_text_to_log_file("Actually saving");
+		database->store_setting_pairs(get_generic_settings());
+		database->store_feature_enabled_pairs(get_feature_enablements());
+		write_text_to_log_file("Save flag released");
+	}
 }
 
 void load_settings()
@@ -969,10 +1032,14 @@ void load_settings()
 
 void init_storage()
 {
-	char* folder = get_storage_dir_path();
+	WCHAR* folder = get_storage_dir_path();
 	write_text_to_log_file("Trying to create storage folder");
-	write_text_to_log_file(std::string(folder));
-	if (CreateDirectory(folder, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+
+	std::wstring ws1(folder);
+	std::string folderSS1(ws1.begin(), ws1.end());
+
+	write_text_to_log_file(folderSS1);
+	if (CreateDirectoryW(folder, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 	{
 		write_text_to_log_file("Storage dir created or exists");
 	}
@@ -982,10 +1049,13 @@ void init_storage()
 	}
 	delete folder;
 
-	folder = get_temp_dir_path();
+	WCHAR* folder2 = get_temp_dir_path();
+	std::wstring ws2(folder2);
+	std::string folderSS2(ws2.begin(), ws2.end());
+
 	write_text_to_log_file("Trying to create temp folder");
-	write_text_to_log_file(std::string(folder));
-	if (CreateDirectory(folder, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+	write_text_to_log_file(folderSS2);
+	if (CreateDirectoryW(folder2, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
 	{
 		write_text_to_log_file("Temp dir created or exists");
 	}
@@ -993,10 +1063,10 @@ void init_storage()
 	{
 		write_text_to_log_file("Couldn't create temp dir");
 	}
-	delete folder;
+	delete folder2;
 }
 
-char* get_temp_dir_path()
+WCHAR* get_temp_dir_path()
 {
 	WCHAR s[MAX_PATH];
 	GetTempPathW(MAX_PATH, s);
@@ -1004,29 +1074,37 @@ char* get_temp_dir_path()
 	WCHAR combined[MAX_PATH];
 	PathCombineW(combined, s, L"GTAV Enhanced Native Trainer");
 
-	char *result = new char[MAX_PATH];
+	WCHAR *result = new WCHAR[MAX_PATH];
 
-	wcstombs(result, combined, MAX_PATH);
+	wcsncpy(result, combined, MAX_PATH);
+
+	std::wstring ws(result);
+	std::string folderSS(ws.begin(), ws.end());
 
 	write_text_to_log_file("Temp directory is:");
-	write_text_to_log_file(result);
+	write_text_to_log_file(folderSS);
 
 	return result;
 }
 
-char* get_temp_dir_path(char* file)
+WCHAR* get_temp_dir_path(char* file)
 {
-	char *output = new char[MAX_PATH];
+	WCHAR *output = new WCHAR[MAX_PATH];
 
-	char* folder = get_temp_dir_path();
-	PathCombine(output, folder, file);
+	WCHAR* folder = get_temp_dir_path();
+
+	WCHAR* wfile = new WCHAR[MAX_PATH];
+	mbstowcs(wfile, file, MAX_PATH);
+
+	PathCombineW(output, folder, wfile);
 
 	delete folder;
+	delete wfile;
 
 	return output;
 }
 
-char* get_storage_dir_path()
+WCHAR* get_storage_dir_path()
 {
 	PWSTR localAppData;
 	SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &localAppData);
@@ -1034,23 +1112,27 @@ char* get_storage_dir_path()
 	WCHAR combined[MAX_PATH];
 	PathCombineW(combined, localAppData, L"GTAV Enhanced Native Trainer");
 
-	char *result = new char[MAX_PATH];
+	WCHAR *result = new WCHAR[MAX_PATH];
 
-	wcstombs(result, combined, MAX_PATH);
+	wcsncpy(result, combined, MAX_PATH);
 
 	CoTaskMemFree(localAppData);
 
 	return result;
 }
 
-char* get_storage_dir_path(char* file)
+WCHAR* get_storage_dir_path(char* file)
 {
-	char *output = new char[MAX_PATH];
+	WCHAR *output = new WCHAR[MAX_PATH];
+	WCHAR* folder = get_storage_dir_path();
 
-	char* folder = get_storage_dir_path();
-	PathCombine(output, folder, file);
+	WCHAR* wfile = new WCHAR[MAX_PATH];
+	mbstowcs(wfile, file, MAX_PATH);
+
+	PathCombineW(output, folder, wfile);
 
 	delete folder;
+	delete wfile;
 
 	return output;
 }
@@ -1072,36 +1154,87 @@ bool onconfirm_test_menu(MenuItem<int> choice)
 	{
 	case 0:
 	{
-		/*int* gp = reinterpret_cast<int *>(getGlobalPtr(0x1801D9));
-		*gp = 1;
-
-		gp = reinterpret_cast<int *>(getGlobalPtr(0x187385 + 0x10F18));
-		*gp = 1;
-
-		gp = reinterpret_cast<int *>(getGlobalPtr(0x250FDB + 0xf158D));
-		*gp = 0;*/
-
-
-		//GAMEPLAY::SET_BIT(gp, 0);
-		//GAMEPLAY::SET_BIT(gp, 1);
-
-		set_status_text_centre_screen("Bits cleared");
-		
+		std::string val0 = show_keyboard(NULL, NULL);
+		if (!val0.empty())
+		{
+			int v0 = stoi(val0);
+			std::string val1 = show_keyboard(NULL, NULL);
+			if (!val1.empty())
+			{
+				int v1 = stoi(val1);
+				std::string val2 = show_keyboard(NULL, NULL);
+				if (!val2.empty())
+				{
+					float v2 = stof(val2);
+					PED::SET_PED_HEAD_OVERLAY(PLAYER::PLAYER_PED_ID(), v0, v1, v2);
+				}
+			}
+		}
 		break;
 	}
 	case 1:
 	{
 		{
-			int* gp = reinterpret_cast<int *>(getGlobalPtr(0x42CA + 0x9));
+			/*
+			int x1 = 0, x2 = 0;
+			float x3 = 0;
+			PED::_0x4852FC386E2E1BB5(PLAYER::PLAYER_PED_ID(), x1, x2, x3);
+
+			int y1 = 0, y2 = 0;
+			float y3 = 0;
+			PED::_0x013E5CFC38CD5387(PLAYER::PLAYER_PED_ID(), y1, y2, y3);
+
 			std::ostringstream ss;
-			ss << "Value is " << *gp;
+			ss << "X1: " << x1 << ", 2: " << x2 << ", 3: " << x3 << "\n";
+			ss << "Y1: " << y1 << ", 2: " << y2 << ", 3: " << y3 << "\n";
 			set_status_text_centre_screen(ss.str());
+			*/
+
+			for (int i = 0; i < 9; i++)
+			{
+				int x = PED::_0xA60EF3B6461A4D43(PLAYER::PLAYER_PED_ID(), i);
+				std::ostringstream ss;
+				ss << "Index " << i << ": " << x;
+				set_status_text(ss.str());
+			}
 		}
 
 		break;
 	}
 	case 2:
-		VEHICLE::_0x7D6F9A3EF26136A0(veh, false);
+	{
+		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 2.0, 0.0);
+
+		Hash hash1 = GAMEPLAY::GET_HASH_KEY("s_f_y_airhostess_01");
+		STREAMING::REQUEST_MODEL(hash1);
+		while (!STREAMING::HAS_MODEL_LOADED(hash1))
+		{
+			WAIT(0);
+		}
+		Ped p1 = PED::CREATE_PED(25, hash1, coords.x, coords.y, coords.z, 0, false, false);
+
+		coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(p1, 0.0, 2.0, 0.0);
+
+		Hash hash2 = GAMEPLAY::GET_HASH_KEY("u_m_y_abner");
+		STREAMING::REQUEST_MODEL(hash2);
+		while (!STREAMING::HAS_MODEL_LOADED(hash2))
+		{
+			WAIT(0);
+		}
+		Ped p2 = PED::CREATE_PED(25, hash2, coords.x, coords.y, coords.z, 0, false, false);
+
+		std::string val2 = show_keyboard(NULL, NULL);
+		if (!val2.empty())
+		{
+			float v2 = stof(val2);
+			std::ostringstream ss;
+			ss << "Float: " << v2;
+			set_status_text(ss.str());
+
+			PED::SET_PED_HEAD_BLEND_DATA(PLAYER::PLAYER_PED_ID(), 0, 0, 0, 0, 0, 0, 0.0f, v2, 0.0f, 0);
+			PED::SET_PED_BLEND_FROM_PARENTS(PLAYER::PLAYER_PED_ID(), p1, p2, v2, 0xbf800000);
+		}
+	}
 		break;
 	case 3:
 	{
@@ -1201,6 +1334,15 @@ void debug_native_investigation()
 	{
 		set_status_text_centre_screen("0x0525... true");
 	}
+	if (PED::_0xE0D36E5D9E99CC21(PLAYER::PLAYER_PED_ID()))
+	{
+		set_status_text_centre_screen("0xE0D... true");
+	}
+	if (PED::_0x604E810189EE3A59(PLAYER::PLAYER_PED_ID()))
+	{
+		set_status_text_centre_screen("0x604... true");
+	}
+
 	if (PED::_0x3E802F11FBE27674(PLAYER::PLAYER_PED_ID()))
 	{
 		set_status_text_centre_screen("0x3e80... true");
@@ -1208,10 +1350,6 @@ void debug_native_investigation()
 	if (PED::_0xF41B5D290C99A3D6(PLAYER::PLAYER_PED_ID()))
 	{
 		set_status_text_centre_screen("0x3e80... true");
-	}
-	if (PED::_0xE0D36E5D9E99CC21(PLAYER::PLAYER_PED_ID()))
-	{
-		set_status_text_centre_screen("0xE0D... true");
 	}
 
 	if (PED::_0x604E810189EE3A59(PLAYER::PLAYER_PED_ID()))
@@ -1335,4 +1473,21 @@ void reset_wanted_level()
 {
 	PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
 	set_status_text("Wanted Level cleared");
+}
+
+int get_frame_number()
+{
+	return game_frame_num;
+}
+
+void toggle_thermal_vision()
+{
+	featureThermalVision = !featureThermalVision;
+	featureThermalVisionUpdated = true;
+}
+
+void toggle_night_vision()
+{
+	featureNightVision = !featureNightVision;
+	featureNightVisionUpdated = true;
 }

@@ -124,6 +124,35 @@ const PaintColour CHROME_COLOUR =
 	"Chrome", 120, 0
 };
 
+bool onconfirm_paintdirt(MenuItem<float> choice)
+{
+	return true;
+}
+
+
+void onhighlight_paintdirt(MenuItem<float> choice)
+{
+	// common variables
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+
+	if (!bPlayerExists)
+	{
+		return;
+	}
+
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		set_status_text("Player isn't in a vehicle");
+		return;
+	}
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+	VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, choice.value);
+}
+
 bool onconfirm_paintfade(MenuItem<float> choice)
 {
 	return true;
@@ -191,6 +220,45 @@ bool process_paint_menu_fades()
 	menuItems.push_back(item);
 
 	return draw_generic_menu<float>(menuItems, 0, "Paint Fade", onconfirm_paintfade, onhighlight_paintfade, NULL, vehicle_menu_interrupt);
+}
+
+bool process_paint_menu_dirt()
+{
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		set_status_text("Player isn't in a vehicle");
+		return false;
+	}
+
+	std::vector<MenuItem<float>*> menuItems;
+
+	MenuItem<float> *item = new MenuItem<float>();
+	item->caption = "Clean";
+	item->value = 0.0f;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	for (int i = 20; i < 100; i += 20)
+	{
+		MenuItem<float> *item = new MenuItem<float>();
+		std::ostringstream ss;
+		ss << i << "% Dirty";
+		item->caption = ss.str();
+		item->value = ((float)i / 100) * 15.0f;
+		item->isLeaf = true;
+		menuItems.push_back(item);
+	}
+
+	item = new MenuItem<float>();
+	item->caption = "Fully Dirty";
+	item->value = 14.89999f;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	return draw_generic_menu<float>(menuItems, 0, "Dirt Level", onconfirm_paintdirt, onhighlight_paintdirt, NULL, vehicle_menu_interrupt);
 }
 
 void onhighlight_livery(MenuItem<int> choice)
@@ -295,6 +363,10 @@ bool onconfirm_paint_menu(MenuItem<int> choice)
 	else if (whichpart == -2)
 	{
 		process_paint_menu_fades();
+	}
+	else if (whichpart == -3)
+	{
+		process_paint_menu_dirt();
 	}
 	else
 	{
@@ -427,10 +499,15 @@ bool process_paint_menu()
 		menuItems.push_back(item);
 	}
 
-	std::ostringstream ss;
 	MenuItem<int> *item = new MenuItem<int>();
 	item->caption = "Paint Fade";
 	item->value = -2;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Dirt Level";
+	item->value = -3;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 

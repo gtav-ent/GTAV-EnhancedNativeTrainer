@@ -117,6 +117,15 @@ void trigger_function_for_hotkey(int hotkey)
 	case HKEY_MENU_SKIN_CUST:
 		set_status_text("Not implemented yet");
 		break;
+	case HKEY_MENU_NEXT_RADIO_TRACK:
+		AUDIO::SKIP_RADIO_FORWARD();
+		break;
+	case HKEY_TOGGLE_NIGHT_VIS:
+		toggle_night_vision();
+		break;
+	case HKEY_TOGGLE_THERMAL_VIS:
+		toggle_thermal_vision();
+		break;
 	default:
 	{
 		std::ostringstream ss;

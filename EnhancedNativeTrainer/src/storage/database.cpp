@@ -317,13 +317,15 @@ bool ENTDatabase::open()
 
 	write_text_to_log_file("Opening DB file");
 
-	char* db_path = get_storage_dir_path("ent.db");
+	WCHAR* db_path = get_storage_dir_path("ent.db");
 
-	write_text_to_log_file(std::string(db_path));
+	std::wstring ws(db_path);
+	std::string fileSS(ws.begin(), ws.end());
+	write_text_to_log_file(fileSS);
 
 	mutex_lock();
 
-	int rc = sqlite3_open_v2(db_path, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+	int rc = sqlite3_open16(db_path, &db);
 	delete db_path;
 	if (rc == SQLITE_OK)
 	{

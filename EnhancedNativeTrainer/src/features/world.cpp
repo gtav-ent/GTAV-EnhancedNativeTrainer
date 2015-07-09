@@ -9,6 +9,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "world.h"
+#include "script.h"
 #include "..\ui_support\menu_functions.h"
 
 int activeLineIndexWorld = 0;
@@ -269,6 +270,12 @@ void update_world_features()
 
 		featureWorldNoPedsUpdated = false;
 	}
+	else if (featureWorldNoPeds && get_frame_number() % 100 == 50)
+	{
+		Vector3 v3 = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), 1);
+		GAMEPLAY::CLEAR_AREA_OF_PEDS(v3.x, v3.y, v3.z, 1000.0, 0);
+		STREAMING::SET_PED_POPULATION_BUDGET(0);
+	}
 
 	if (featureWorldNoTrafficUpdated)
 	{
@@ -293,7 +300,17 @@ void update_world_features()
 
 		featureWorldNoTrafficUpdated = false;
 	}
-
+	else if (featureWorldNoTraffic)// && get_frame_number() % 100 == 0)
+	{
+		if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+		{
+			Vector3 v3 = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), 1);
+			GAMEPLAY::CLEAR_AREA_OF_VEHICLES(v3.x, v3.y, v3.z, 1000.0, 0, 0, 0, 0, 0);
+		}
+		STREAMING::SET_VEHICLE_POPULATION_BUDGET(0);
+		VEHICLE::SET_ALL_VEHICLE_GENERATORS_ACTIVE_IN_AREA(-10000.0, -10000.0, -200.0, 10000.0, 10000.0, 1000.0, 0, 1);
+		PATHFIND::SET_ROADS_IN_AREA(-10000.0, -10000.0, -200.0, 10000.0, 10000.0, 1000.0, 0, 1);
+	}
 
 	if (!featureWorldRandomTrains)
 	{

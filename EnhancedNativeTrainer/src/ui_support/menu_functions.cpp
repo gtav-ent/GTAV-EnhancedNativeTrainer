@@ -259,7 +259,6 @@ std::string show_keyboard(char* title_id, char* prepopulated_text)
 	while (GetTickCount() < time)
 	{
 		make_periodic_feature_call();
-		make_periodic_feature_call();
 		WAIT(0);
 	}
 

@@ -35,3 +35,5 @@ void handle_generic_settings_misc(std::vector<StringPairSettingDBRow>* settings)
 bool is_player_reset_on_death();
 
 bool is_input_blocked_in_menu();
+
+bool is_controller_ignored_in_trainer();

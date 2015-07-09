@@ -39,8 +39,7 @@
     <key function="airbrake_freeze_time" value="VK_KEY_T"/>
     <key function="airbrake_help" value="VK_KEY_H"/>
     
-    <!-- Uncomment these and change the attributes to set your hotkeys-->
-    <!--
+    <!-- To enable your hotkeys, change VK_NOTHING to a real key, and optionally alter the other attributes-->
     <key function="hotkey_1" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
     <key function="hotkey_2" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
     <key function="hotkey_3" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
@@ -50,7 +49,6 @@
     <key function="hotkey_7" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
     <key function="hotkey_8" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
     <key function="hotkey_9" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
-    -->
 
     <!--
     This next bit should be self-explanatory. The function names are the same.

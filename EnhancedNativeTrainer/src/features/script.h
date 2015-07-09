@@ -131,13 +131,15 @@ DWORD WINAPI save_settings_thread(LPVOID lpParameter);
 
 void init_storage();
 
-char* get_storage_dir_path();
+int get_frame_number();
 
-char* get_storage_dir_path(char* file);
+WCHAR* get_storage_dir_path();
 
-char* get_temp_dir_path();
+WCHAR* get_storage_dir_path(char* file);
 
-char* get_temp_dir_path(char* file);
+WCHAR* get_temp_dir_path();
+
+WCHAR* get_temp_dir_path(char* file);
 
 ENTDatabase* get_database();
 
@@ -150,3 +152,7 @@ void heal_player();
 void toggle_invisibility();
 
 void reset_wanted_level();
+
+void toggle_thermal_vision();
+
+void toggle_night_vision();

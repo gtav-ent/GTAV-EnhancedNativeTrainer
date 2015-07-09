@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #pragma once
 
 #include <string>
+#include <stdio.h>
 #include <windows.h>
 
 // returns module load path with trailing slash
@@ -23,3 +24,5 @@ bool does_file_exist(const char* name);
 bool StringEndsWith(const std::string& a, const std::string& b);
 
 bool StringStartsWith(const std::string& a, const std::string& b);
+
+std::wstring ConvertFromUtf8ToUtf16(const std::string& str);

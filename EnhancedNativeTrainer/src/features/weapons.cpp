@@ -14,10 +14,10 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 const std::vector<std::string> MENU_WEAPON_CATEGORIES{ "Melee", "Handguns", "Submachine Guns", "Assault Rifles", "Shotguns", "Sniper Rifles", "Heavy Weapons", "Thrown Weapons" };
 
-const std::vector<std::string> CAPTIONS_MELEE{ "Knife", "Nightstick", "Hammer", "Baseball Bat", "Golf Club", "Crowbar", "Bottle", "Antique Dagger", "Hatchet" };
-const std::vector<std::string> VALUES_MELEE{ "WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR", "WEAPON_BOTTLE", "WEAPON_DAGGER", "WEAPON_HATCHET" }; //9
-const std::vector<std::string> CAPTIONS_HANDGUN{ "Pistol", "Combat Pistol", "AP Pistol", "Pistol .50", "SNS Pistol", "Heavy Pistol", "Vintage Pistol", "Stun Gun", "Flare Gun" };
-const std::vector<std::string> VALUES_HANDGUN{ "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_SNSPISTOL", "WEAPON_HEAVYPISTOL", "WEAPON_VINTAGEPISTOL", "WEAPON_STUNGUN", "WEAPON_FLAREGUN" }; //9
+const std::vector<std::string> CAPTIONS_MELEE{ "Knife", "Nightstick", "Hammer", "Baseball Bat", "Golf Club", "Crowbar", "Bottle", "Antique Dagger", "Hatchet", "Knuckle Duster" };
+const std::vector<std::string> VALUES_MELEE{ "WEAPON_KNIFE", "WEAPON_NIGHTSTICK", "WEAPON_HAMMER", "WEAPON_BAT", "WEAPON_GOLFCLUB", "WEAPON_CROWBAR", "WEAPON_BOTTLE", "WEAPON_DAGGER", "WEAPON_HATCHET", "WEAPON_KNUCKLE" }; //10
+const std::vector<std::string> CAPTIONS_HANDGUN{ "Pistol", "Combat Pistol", "AP Pistol", "Pistol .50", "SNS Pistol", "Heavy Pistol", "Vintage Pistol", "Stun Gun", "Flare Gun", "Marksman Pistol" };
+const std::vector<std::string> VALUES_HANDGUN{ "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_SNSPISTOL", "WEAPON_HEAVYPISTOL", "WEAPON_VINTAGEPISTOL", "WEAPON_STUNGUN", "WEAPON_FLAREGUN", "WEAPON_MARKSMANPISTOL" }; //10
 const std::vector<std::string> CAPTIONS_SUBMACHINE{ "Micro SMG", "SMG", "Assault SMG", "MG", "Combat MG", "Gusenberg Sweeper", "Combat PDW" };
 const std::vector<std::string> VALUES_SUBMACHINE{ "WEAPON_MICROSMG", "WEAPON_SMG", "WEAPON_ASSAULTSMG", "WEAPON_MG", "WEAPON_COMBATMG", "WEAPON_GUSENBERG", "WEAPON_COMBATPDW" }; //6
 const std::vector<std::string> CAPTIONS_ASSAULT{ "Assault Rifle", "Carbine Rifle", "Advanced Rifle", "Special Carbine", "Bullpup Rifle" };
@@ -131,6 +131,9 @@ const std::vector<std::string> VALUES_ATTACH_SPECIALCARBINE{ "COMPONENT_SPECIALC
 const std::vector<std::string> CAPTIONS_ATTACH_COMBATPDW{ "Extended Magazine", "Flashlight", "Scope", "Grip" };
 const std::vector<std::string> VALUES_ATTACH_COMBATPDW{ "COMPONENT_COMBATPDW_CLIP_02", "COMPONENT_AT_AR_FLSH", "COMPONENT_AT_SCOPE_SMALL", "COMPONENT_AT_AR_AFGRIP" };
 
+const std::vector<std::string> CAPTIONS_ATTACH_KNUCKLES{ "Default", "Pimp", "Ballas", "Dollars", "Diamond", "Hate", "Love", "Player", "King", "Vagos" };
+const std::vector<std::string> VALUES_ATTACH_KNUCKLES{ "COMPONENT_KNUCKLE_VARMOD_BASE", "COMPONENT_KNUCKLE_VARMOD_PIMP", "COMPONENT_KNUCKLE_VARMOD_BALLAS", "COMPONENT_KNUCKLE_VARMOD_DOLLAR", "COMPONENT_KNUCKLE_VARMOD_DIAMOND", "COMPONENT_KNUCKLE_VARMOD_HATE", "COMPONENT_KNUCKLE_VARMOD_LOVE", "COMPONENT_KNUCKLE_VARMOD_PLAYER", "COMPONENT_KNUCKLE_VARMOD_KING", "COMPONENT_KNUCKLE_VARMOD_VAGOS" };
+
 //Tintable weapons list
 const std::vector<std::string> WEAPONTYPES_TINT{ "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_APPISTOL", "WEAPON_PISTOL50", "WEAPON_SNSPISTOL", "WEAPON_HEAVYPISTOL", "WEAPON_VINTAGEPISTOL", "WEAPON_STUNGUN", "WEAPON_FLAREGUN", "WEAPON_MICROSMG", "WEAPON_SMG", "WEAPON_ASSAULTSMG", "WEAPON_MG", "WEAPON_COMBATMG", "WEAPON_GUSENBERG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_ADVANCEDRIFLE", "WEAPON_SPECIALCARBINE", "WEAPON_BULLPUPRIFLE", "WEAPON_PUMPSHOTGUN", "WEAPON_SAWNOFFSHOTGUN", "WEAPON_BULLPUPSHOTGUN", "WEAPON_ASSAULTSHOTGUN", "WEAPON_MUSKET", "WEAPON_HEAVYSHOTGUN", "WEAPON_SNIPERRIFLE", "WEAPON_HEAVYSNIPER", "WEAPON_MARKSMANRIFLE", "WEAPON_GRENADELAUNCHER", "WEAPON_RPG", "WEAPON_MINIGUN", "WEAPON_FIREWORK", "WEAPON_RAILGUN", "WEAPON_HOMINGLAUNCHER", "WEAPON_COMBATPDW" };
 
@@ -170,6 +173,60 @@ bool saved_parachute = false;
 int saved_armour = 0;
 
 bool redrawWeaponMenuAfterEquipChange = false;
+
+void onchange_knuckle_appearance(int value, SelectFromListMenuItem* source)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	int weapHash = GAMEPLAY::GET_HASH_KEY("WEAPON_KNUCKLE");
+
+	int i = 0;
+
+	Hash hashToApply = 0;
+	for each (std::string componentName in VALUES_ATTACH_KNUCKLES)
+	{
+		DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+		WEAPON::REMOVE_WEAPON_COMPONENT_FROM_PED(playerPed, weapHash, componentHash);
+		
+		if ( i==value )
+		{
+			hashToApply = componentHash;
+		}
+
+		i++;
+	}
+
+	if ( hashToApply != 0)
+	{
+		WEAPON::GIVE_WEAPON_COMPONENT_TO_PED(playerPed, weapHash, hashToApply);
+	}
+}
+
+int get_current_knuckle_appearance()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	int weapHash = GAMEPLAY::GET_HASH_KEY("WEAPON_KNUCKLE");
+
+	int i = 0;
+	for each (std::string componentName in VALUES_ATTACH_KNUCKLES)
+	{
+		if (i == 0)
+		{
+			continue;
+		}
+
+		DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+		if (WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, weapHash, componentHash))
+		{
+			return i;
+		}
+
+		i++;
+	}
+	
+	return 0;
+}
 
 bool process_individual_weapon_menu(int weaponIndex)
 {
@@ -257,6 +314,15 @@ bool process_individual_weapon_menu(int weaponIndex)
 				item->extra_arguments.push_back(i);
 				menuItems.push_back(item);
 			}
+		}
+
+		if (strcmp(weaponChar, "WEAPON_KNUCKLE") == 0)
+		{
+			SelectFromListMenuItem *listItem = new SelectFromListMenuItem(CAPTIONS_ATTACH_KNUCKLES, onchange_knuckle_appearance);
+			listItem->wrap = false;
+			listItem->caption = "Skin Choice";
+			listItem->value = get_current_knuckle_appearance();
+			menuItems.push_back(listItem);
 		}
 
 		int tintableIndex = -1;
@@ -564,7 +630,6 @@ void update_vehicle_guns()
 			WEAPON::REQUEST_WEAPON_ASSET(weaponAssetRocket, 31, 0);
 			while (!WEAPON::HAS_WEAPON_ASSET_LOADED(weaponAssetRocket))
 			{
-				make_periodic_feature_call();
 				WAIT(0);
 			}
 		}

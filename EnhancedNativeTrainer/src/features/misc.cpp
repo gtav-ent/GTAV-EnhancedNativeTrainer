@@ -19,7 +19,6 @@ int activeLineIndexTrainerConfig = 0;
 int activeLineHotkeyConfig = 0;
 
 bool featureBlockInputInMenu = false;
-bool featurePlayerResetOnDeath = true;
 
 bool featurePlayerRadio = false;
 bool featurePlayerRadioUpdated = false;
@@ -28,6 +27,9 @@ bool featureRadioAlwaysOffUpdated = false;
 
 bool featureMiscLockRadio = false;
 bool featureMiscHideHud = false;
+bool featureMiscHideHudUpdated = false;
+
+bool featureControllerIgnoreInTrainer = false;
 
 const int TRAINERCONFIG_HOTKEY_MENU = 99;
 
@@ -103,8 +105,8 @@ void process_misc_trainerconfig_menu()
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Reset Skin On Death";
-	toggleItem->toggleValue = &featurePlayerResetOnDeath;
+	toggleItem->caption = "Turn Off All Controller Input In Trainer";
+	toggleItem->toggleValue = &featureControllerIgnoreInTrainer;
 	menuItems.push_back(toggleItem);
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexTrainerConfig, caption, onconfirm_trainerconfig_menu, NULL, NULL);
@@ -141,7 +143,7 @@ void process_misc_menu()
 		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
 		{ "Next Radio Track", NULL, NULL, true },
 		{ "Radio Always Off", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated, true },
-		{ "Hide HUD", &featureMiscHideHud, NULL },
+		{ "Hide HUD", &featureMiscHideHud, &featureMiscHideHudUpdated },
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexMisc, caption, onconfirm_misc_menu);
@@ -154,10 +156,11 @@ void reset_misc_globals()
 		featureMiscLockRadio =
 		featureRadioAlwaysOff = false;
 
-	featurePlayerResetOnDeath = true;
+	featureControllerIgnoreInTrainer = false;
 	featureBlockInputInMenu = false;
 
 	featureRadioAlwaysOffUpdated =
+		featureMiscHideHudUpdated =
 		featurePlayerRadioUpdated = true;
 }
 
@@ -199,7 +202,28 @@ void update_misc_features(BOOL playerExists, Ped playerPed)
 	// hide hud
 	if (featureMiscHideHud)
 	{
-		UI::HIDE_HUD_AND_RADAR_THIS_FRAME();
+		for (int i = 0; i < 21; i++)
+		{
+			//at least in theory...
+			switch (i)
+			{
+			case 5: //mp message
+			case 10: //help text
+			case 11: //floating help 1
+			case 12: //floating help 2
+			case 14: //reticle
+			case 16: //radio wheel
+			case 19: //weapon wheel
+				continue;
+			}
+			UI::HIDE_HUD_COMPONENT_THIS_FRAME(i);
+		}
+		
+		UI::DISPLAY_RADAR(false);
+	}
+	else if (featureMiscHideHudUpdated)
+	{
+		UI::DISPLAY_RADAR(true);
 	}
 }
 
@@ -209,9 +233,9 @@ void add_misc_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* re
 	results->push_back(FeatureEnabledLocalDefinition{ "featureRadioAlwaysOff", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated });
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureMiscLockRadio", &featureMiscLockRadio });
-	results->push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureMiscHideHud", &featureMiscHideHud, &featureMiscHideHudUpdated });
 
-	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerResetOnDeath", &featurePlayerResetOnDeath });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureControllerIgnoreInTrainer", &featureControllerIgnoreInTrainer });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureBlockInputInMenu", &featureBlockInputInMenu });
 }
 
@@ -227,10 +251,20 @@ void handle_generic_settings_misc(std::vector<StringPairSettingDBRow>* settings)
 
 bool is_player_reset_on_death()
 {
-	return featurePlayerResetOnDeath;
+	Hash dmHash = GAMEPLAY::GET_HASH_KEY("director_mode");
+	if (SCRIPT::_GET_NUMBER_OF_INSTANCES_OF_STREAMED_SCRIPT(dmHash) > 0)
+	{
+		return false;
+	}
+	return true;
 }
 
 bool is_input_blocked_in_menu()
 {
 	return featureBlockInputInMenu;
+}
+
+bool is_controller_ignored_in_trainer()
+{
+	return featureControllerIgnoreInTrainer;
 }

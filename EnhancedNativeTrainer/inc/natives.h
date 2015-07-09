@@ -376,6 +376,10 @@ namespace ENTITY
 
 namespace PED
 {
+	static void _0x4852FC386E2E1BB5(Ped ped, int p0, int p1, float p2) { invoke<Void>(0x4852FC386E2E1BB5, ped, p0, p1, p2); }
+	static void _0x013E5CFC38CD5387(Ped ped, int p0, int p1, float p2) { invoke<Void>(0x013E5CFC38CD5387, ped, p0, p1, p2); }
+	static int _0xA60EF3B6461A4D43(Ped ped, int index) { return invoke<int>(0xA60EF3B6461A4D43, ped, index); }
+
 	static Ped CREATE_PED(int pedType, Hash pedHash, float posX, float posY, float posZ, float heading, BOOL networkHandle, BOOL returnPedHandle) { return invoke<Ped>(0xD49F9B0955C367DE, pedType, pedHash, posX, posY, posZ, heading, networkHandle, returnPedHandle); } // 0xD49F9B0955C367DE 0x0389EF71
 	static void DELETE_PED(Ped* ped) { invoke<Void>(0x9614299DCB53E54B, ped); } // 0x9614299DCB53E54B 0x13EFB9A0
 	static Ped CLONE_PED(Ped ped, float x, float y, float z) { return invoke<Ped>(0xEF29A16337FACADB, ped, x, y, z); } // 0xEF29A16337FACADB 0x8C8A8D6E
@@ -2066,7 +2070,7 @@ namespace GAMEPLAY
 	static Any _0x6FDDF453C0C756EC() { return invoke<Any>(0x6FDDF453C0C756EC); } // 0x6FDDF453C0C756EC 0xC3C10FCC
 	static void _0xFB00CA71DA386228() { invoke<Void>(0xFB00CA71DA386228); } // 0xFB00CA71DA386228 0x054EC103
 	static Any _0x5AA3BEFA29F03AD4() { return invoke<Any>(0x5AA3BEFA29F03AD4); } // 0x5AA3BEFA29F03AD4 0x46B5A15C
-	static void _0xC0AA53F866B3134D() { invoke<Void>(0xC0AA53F866B3134D); } // 0xC0AA53F866B3134D 0x5D209F25
+	static void _RESET_LOCALPLAYER_STATE() { invoke<Void>(0xC0AA53F866B3134D); } // 0xC0AA53F866B3134D 0x5D209F25
 	static void _0x0A60017F841A54F2(Any p0, Any p1, Any p2, Any p3) { invoke<Void>(0x0A60017F841A54F2, p0, p1, p2, p3); } // 0x0A60017F841A54F2 0x2D33F15A
 	static void _0x1FF6BF9A63E5757F() { invoke<Void>(0x1FF6BF9A63E5757F); } // 0x1FF6BF9A63E5757F 0xDF99925C
 	static void _0x1BB299305C3E8C13(Any p0, Any p1, Any p2, Any p3) { invoke<Void>(0x1BB299305C3E8C13, p0, p1, p2, p3); } // 0x1BB299305C3E8C13 0xA27F4472
@@ -2837,7 +2841,7 @@ namespace SCRIPT
 	static Any _0x30B4FA1C82DD4B9F() { return invoke<Any>(0x30B4FA1C82DD4B9F); } // 0x30B4FA1C82DD4B9F 0x1E28B28F
 	static int GET_ID_OF_THIS_THREAD() { return invoke<int>(0xC30338E8088E2E21); } // 0xC30338E8088E2E21 0xDE524830
 	static void TERMINATE_THIS_THREAD() { invoke<Void>(0x1090044AD1DA76FA); } // 0x1090044AD1DA76FA 0x3CD9CBB7
-	static int _0x2C83A9DA6BFFC4F9(Hash ScriptHash) { return invoke<int>(0x2C83A9DA6BFFC4F9, ScriptHash); } // 0x2C83A9DA6BFFC4F9 0x029D3841
+	static int _GET_NUMBER_OF_INSTANCES_OF_STREAMED_SCRIPT(Hash ScriptHash) { return invoke<int>(0x2C83A9DA6BFFC4F9, ScriptHash); } // 0x2C83A9DA6BFFC4F9 0x029D3841
 	static Any GET_THIS_SCRIPT_NAME() { return invoke<Any>(0x442E0A7EDE4A738A); } // 0x442E0A7EDE4A738A 0xA40FD5D9
 	static Any _0x8A1C8B1738FFE87E() { return invoke<Any>(0x8A1C8B1738FFE87E); } // 0x8A1C8B1738FFE87E 0x2BEE1F45
 	static Any GET_NUMBER_OF_EVENTS(Any p0) { return invoke<Any>(0x5F92A689A06620AA, p0); } // 0x5F92A689A06620AA 0xA3525D60
