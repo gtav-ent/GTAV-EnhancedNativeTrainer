@@ -456,10 +456,11 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 0);
 		featureNoVehFallOffUpdated = false;
 	}
-	else if (bPlayerExists && featureNoVehFallOff)
+	else if (bPlayerExists && featureNoVehFallOffUpdated && featureNoVehFallOff)
 	{
 		PED::SET_PED_CONFIG_FLAG(playerPed, PED_FLAG_THROUGH_WINDSCREEN, FALSE);
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 1);
+		featureNoVehFallOffUpdated = false;
 	}
 
 	// player's vehicle boost
@@ -528,17 +529,16 @@ void reset_vehicle_globals()
 	//veh_spawn_menu_index = 0;
 
 	featureVehInvincible =
-		featureVehSpeedBoost =
-		featureVehicleDoorInstant =
-		featureVehSpawnInto =
-		featureNoVehFallOff =
-		featureWearHelmetOff =
-		featureWearHelmetOff = false;
+	featureVehSpeedBoost =
+	featureVehicleDoorInstant =
+	featureVehSpawnInto =
+	featureNoVehFallOff =
+	featureWearHelmetOff = false;
 
 	featureNoVehFallOffUpdated =
-		featureWearHelmetOffUpdated =
+	featureWearHelmetOffUpdated =
 	featureVehInvincibleUpdated =
-		featureWearHelmetOffUpdated = true;
+	featureWearHelmetOffUpdated = true;
 
 	featureVehNoDamage = false;
 	featureVehInvulnIncludesCosmetic = false;
