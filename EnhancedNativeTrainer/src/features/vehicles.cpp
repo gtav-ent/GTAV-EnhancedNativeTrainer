@@ -456,11 +456,10 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 0);
 		featureNoVehFallOffUpdated = false;
 	}
-	else if (bPlayerExists && featureNoVehFallOffUpdated && featureNoVehFallOff)
+	else if (bPlayerExists && featureNoVehFallOff)
 	{
 		PED::SET_PED_CONFIG_FLAG(playerPed, PED_FLAG_THROUGH_WINDSCREEN, FALSE);
 		PED::SET_PED_CAN_BE_KNOCKED_OFF_VEHICLE(playerPed, 1);
-		featureNoVehFallOffUpdated = false;
 	}
 
 	// player's vehicle boost
