@@ -33,21 +33,6 @@
   <ItemGroup>
     <ClInclude Include="src\version.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\enums.h">
-      <Filter>Header Files\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\main.h">
-      <Filter>Header Files\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\main.h">
-      <Filter>Header Files\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\nativeCaller.h">
-      <Filter>Header Files\inc</Filter>
-    </ClInclude>
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\nativeCaller.h">
-      <Filter>Header Files\inc</Filter>
-    </ClInclude>
     <ClInclude Include="inc\types.h">
       <Filter>Header Files\inc</Filter>
     </ClInclude>
@@ -95,7 +80,7 @@
     </ClInclude>
     <ClInclude Include="src\features\misc.h">
       <Filter>Header Files\src</Filter>
-    </ClInclude>
+    </ClInclude>pro
     <ClInclude Include="src\features\script.h">
       <Filter>Header Files\src</Filter>
     </ClInclude>
@@ -120,6 +105,9 @@
     <ClInclude Include="src\features\world.h">
       <Filter>Header Files\src</Filter>
     </ClInclude>
+    <ClCompile Include="src\features\props.h">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Documents\Enhanced Trainer Release Notes.rtf">
@@ -715,6 +703,9 @@
       <Filter>Source Files\src</Filter>
     </ClCompile>
     <ClCompile Include="src\features\world.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\props.cpp">
       <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
