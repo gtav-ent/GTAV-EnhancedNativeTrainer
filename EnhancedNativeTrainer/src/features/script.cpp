@@ -141,6 +141,12 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
+	/*
+	std::ostringstream perfSS;
+	perfSS << "Calls this frame: " << get_calls_per_frame() << " in " << get_ticks_since_last_frame() << "ms";
+	write_text_to_log_file(perfSS.str());
+	*/
+
 	/*int* gp = reinterpret_cast<int *>(getGlobalPtr(0x1801D9));
 	*gp = 1;
 
