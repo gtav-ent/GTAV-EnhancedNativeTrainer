@@ -841,20 +841,21 @@ bool process_vehmod_menu()
 		toggleItem->setter_call = set_xenon_headlights;
 		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
 		menuItems.push_back(toggleItem);
-	}
 
-	if (!isWeird && !isAircraft)
-	{
+		toggleItem = new FunctionDrivenToggleMenuItem<int>();
+		toggleItem->caption = "Toggle Neon Lights";
+		toggleItem->getter_call = is_neon_headlights;
+		toggleItem->setter_call = set_neon_headlights;
+		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
+		menuItems.push_back(toggleItem);
+
 		toggleItem = new FunctionDrivenToggleMenuItem<int>();
 		toggleItem->caption = "Toggle Bulletproof Tires";
 		toggleItem->getter_call = is_bulletproof_tyres;
 		toggleItem->setter_call = set_bulletproof_tyres;
 		toggleItem->value = SPECIAL_ID_FOR_TOGGLE_VARIATIONS;
 		menuItems.push_back(toggleItem);
-	}
 
-	if (!isWeird && !isAircraft && !isABike)
-	{
 		toggleItem = new FunctionDrivenToggleMenuItem<int>();
 		toggleItem->caption = "Toggle Custom Tires";
 		toggleItem->getter_call = is_custom_tyres;
@@ -991,6 +992,32 @@ void set_xenon_headlights(bool applied, std::vector<int> extras)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, 22, applied); //Headlights
+}
+
+bool is_neon_headlights(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	for (int i = 0; i < 3; i++)
+	{
+		return VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, i) ? true : false;
+	}
+}
+
+int RandomRGB()
+{
+	return rand() % 255;
+}
+
+void set_neon_headlights(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+
+	for (int i = 0; i < 3; i++)
+	{
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, i, applied);
+	}
+
+	if (applied) VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, RandomRGB(), RandomRGB(), RandomRGB());
 }
 
 bool vehicle_menu_interrupt()

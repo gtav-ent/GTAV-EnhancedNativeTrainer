@@ -528,17 +528,16 @@ void reset_vehicle_globals()
 	//veh_spawn_menu_index = 0;
 
 	featureVehInvincible =
-		featureVehSpeedBoost =
-		featureVehicleDoorInstant =
-		featureVehSpawnInto =
-		featureNoVehFallOff =
-		featureWearHelmetOff =
-		featureWearHelmetOff = false;
+	featureVehSpeedBoost =
+	featureVehicleDoorInstant =
+	featureVehSpawnInto =
+	featureNoVehFallOff =
+	featureWearHelmetOff = false;
 
 	featureNoVehFallOffUpdated =
-		featureWearHelmetOffUpdated =
+	featureWearHelmetOffUpdated =
 	featureVehInvincibleUpdated =
-		featureWearHelmetOffUpdated = true;
+	featureWearHelmetOffUpdated = true;
 
 	featureVehNoDamage = false;
 	featureVehInvulnIncludesCosmetic = false;
