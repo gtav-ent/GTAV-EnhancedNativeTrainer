@@ -3280,6 +3280,10 @@ namespace GRAPHICS
 {
 	static float _GET_SCREEN_ASPECT_RATIO(BOOL b) { return invoke<float>(0xF1307EF624A80D87, b); }
 	static void _SET_BLACKOUT(BOOL b) { invoke<Void>(0x1268615ACE24D504, b); }
+	static void _0x1BBC135A4D25EDDE(BOOL b) { invoke<Void>(0x1BBC135A4D25EDDE, b); }
+	static void _0xA46B73FAA3460AE1(BOOL b) { invoke<Void>(0xA46B73FAA3460AE1, b); }
+	static void _0xAEEDAD1420C65CC0(BOOL b) { invoke<Void>(0xAEEDAD1420C65CC0, b); }
+	static void _0x4CC7F0FEA5283FE0(BOOL b) { invoke<Void>(0x4CC7F0FEA5283FE0, b); }
 
 	static void SET_DEBUG_LINES_AND_SPHERES_DRAWING_ACTIVE(BOOL enabled) { invoke<Void>(0x175B6BFC15CDD0C5, enabled); } // 0x175B6BFC15CDD0C5 0x1418CA37
 	static void DRAW_DEBUG_LINE(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6, Any p7, Any p8, Any p9) { invoke<Void>(0x7FDFADE676AA3CB0, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9); } // 0x7FDFADE676AA3CB0 0xABF783AB
@@ -3514,7 +3518,7 @@ namespace GRAPHICS
 	static void _0xBBF327DED94E4DEB(Any* p0) { invoke<Void>(0xBBF327DED94E4DEB, p0); } // 0xBBF327DED94E4DEB 0x85BA15A4
 	static void _0xBDEB86F4D5809204(float p0) { invoke<Void>(0xBDEB86F4D5809204, p0); } // 0xBDEB86F4D5809204 0x9559BB38
 	static void _0xBF59707B3E5ED531(Any* p0) { invoke<Void>(0xBF59707B3E5ED531, p0); } // 0xBF59707B3E5ED531 0x554BA16E
-	static void _0x1A8E2C8B9CF4549C(Any* p0, Any* p1) { invoke<Void>(0x1A8E2C8B9CF4549C, p0, p1); } // 0x1A8E2C8B9CF4549C 0xE8F538B5
+	static void _0x1A8E2C8B9CF4549C(char* p0, char* p1) { invoke<Void>(0x1A8E2C8B9CF4549C, p0, p1); } // 0x1A8E2C8B9CF4549C 0xE8F538B5
 	static void _0x15E33297C3E8DC60(Any p0) { invoke<Void>(0x15E33297C3E8DC60, p0); } // 0x15E33297C3E8DC60 0x805BAB08
 	static void _0x5096FD9CCB49056D(Any* p0) { invoke<Void>(0x5096FD9CCB49056D, p0); } // 0x5096FD9CCB49056D 0x908A335E
 	static void _0x92CCC17A7A2285DA() { invoke<Void>(0x92CCC17A7A2285DA); } // 0x92CCC17A7A2285DA 0x6776720A

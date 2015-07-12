@@ -25,6 +25,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <set>
 #include <iostream>
+#include <vector>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
@@ -560,12 +561,15 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_time_menu();
 		break;
 	case 6:
-		process_misc_menu();
+		process_props_menu();
 		break;
 	case 7:
-		reset_globals();
+		process_misc_menu();
 		break;
 	case 8:
+		reset_globals();
+		break;
+	case 9:
 		process_test_menu();
 		break;
 	}
@@ -585,6 +589,7 @@ void process_main_menu()
 		"Vehicles",
 		"World",
 		"Time",
+		"Props",
 		"Miscellaneous",
 		"Reset All Settings"
 		//"Test"
@@ -1142,167 +1147,110 @@ ENTDatabase* get_database()
 	return database;
 }
 
-bool onconfirm_test_menu(MenuItem<int> choice)
+struct GraphicsTest
 {
-	Vehicle veh;
-	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
+	void (*function)(BOOL);
+	bool state;
+};
+
+bool allGraphicsOn = false;
+
+std::vector<GraphicsTest> graphicsTests = {
+	{ GRAPHICS::_0x1BBC135A4D25EDDE, false },
+	{ GRAPHICS::_0x23BA6B0C2AD7B0D3, false },
+	{ GRAPHICS::_0x22A249A53034450A, false },
+	{ GRAPHICS::_0xDC459CFA0CCE245B, false },
+	{ GRAPHICS::_0xC6372ECD45D73BCD, false },
+	//{ GRAPHICS::_0x61BB1D9B3A95D802, false },
+	{ GRAPHICS::_0xEF398BEEE4EF45F9, false },
+	//{ GRAPHICS::_0x80ECBC0C856D3B0B, false }, //off = far shadows
+
+	{ GRAPHICS::_0x25FC3E33A31AD0C9, false },
+	{ GRAPHICS::_0x6DDBF9DFFC4AC080, false },
+	//{ GRAPHICS::_0xD39D13C9FEBF0511, false }, //off = detailed shadows
+
+	{ GRAPHICS::_0x0AE73D8DF3A762B2, false },
+	{ GRAPHICS::_0xA51C4B86B71652AE, false },
+	{ GRAPHICS::_0xC0416B061F2B7E5E, false },
+
+	{ GRAPHICS::_0x06F761EA47C1D3ED, false },
+	{ GRAPHICS::_0xE63D7C6EECECB66B, false },
+	//{ GRAPHICS::_0x7AC24EAB6D74118D, false },
+	{ GRAPHICS::_0x8CDE909A0370BB3A, false },
+	{ GRAPHICS::_0x8CDE909A0370BB3A, false },
+
+	{ GRAPHICS::_0x9DCE1F0F78260875, false },
+	{ GRAPHICS::_0xCA4AE345A153D573, false },
+	{ GRAPHICS::_0x9B079E5221D984D3, false },
+	{ GRAPHICS::_0xA46B73FAA3460AE1, false },
+
+	{ GRAPHICS::_0x0E4299C549F0D1F1, false },
+	{ GRAPHICS::_0x02369D5C8A51FDCF, false },
+	{ GRAPHICS::_0x03300B57FCAC6DDB, false },
+	{ GRAPHICS::_0xAEEDAD1420C65CC0, false },
+	{ GRAPHICS::_0x4CC7F0FEA5283FE0, false },
+
+	{ GRAPHICS::_0x74C180030FDE4B69, false },
+	//{ GRAPHICS::_0xD1C55B110E4DF534, false },
+	{ GRAPHICS::_0x108BE26959A9D9BB, false },
+	{ GRAPHICS::_0xA356990E161C9E65, false },
+	//{ GRAPHICS::_SET_BLACKOUT, false }
+};
+
+bool get_graphics_test(std::vector<int> extras)
+{
+	int choice = extras.at(0);
+	GraphicsTest* gt = &graphicsTests.at(choice);
+	return gt->state;
+}
+
+void set_graphics_test(bool applied, std::vector<int> extras)
+{
+	int choice = extras.at(0);
+
+	GraphicsTest* gt = &graphicsTests.at(choice);
+	gt->state = !gt->state;
+	gt->function(gt->state);
+
+	//std::ostringstream ss;
+	//ss << "Item " << choice << " set to " << gt->state << " using " << gt->function;
+	//set_status_text_centre_screen(ss.str());
+}
+
+void set_all_graphics_test(bool applied, std::vector<int> extras)
+{
+	allGraphicsOn = applied;
+	for (int i = 0; i < graphicsTests.size(); i++)
 	{
-		veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+		GraphicsTest* gt = &graphicsTests.at(i);
+		gt->state = applied;
+		gt->function(gt->state);
 	}
+}
 
-	switch (choice.value)
-	{
-	case 0:
-	{
-		std::string val0 = show_keyboard(NULL, NULL);
-		if (!val0.empty())
-		{
-			int v0 = stoi(val0);
-			std::string val1 = show_keyboard(NULL, NULL);
-			if (!val1.empty())
-			{
-				int v1 = stoi(val1);
-				std::string val2 = show_keyboard(NULL, NULL);
-				if (!val2.empty())
-				{
-					float v2 = stof(val2);
-					PED::SET_PED_HEAD_OVERLAY(PLAYER::PLAYER_PED_ID(), v0, v1, v2);
-				}
-			}
-		}
-		break;
-	}
-	case 1:
-	{
-		{
-			/*
-			int x1 = 0, x2 = 0;
-			float x3 = 0;
-			PED::_0x4852FC386E2E1BB5(PLAYER::PLAYER_PED_ID(), x1, x2, x3);
-
-			int y1 = 0, y2 = 0;
-			float y3 = 0;
-			PED::_0x013E5CFC38CD5387(PLAYER::PLAYER_PED_ID(), y1, y2, y3);
-
-			std::ostringstream ss;
-			ss << "X1: " << x1 << ", 2: " << x2 << ", 3: " << x3 << "\n";
-			ss << "Y1: " << y1 << ", 2: " << y2 << ", 3: " << y3 << "\n";
-			set_status_text_centre_screen(ss.str());
-			*/
-
-			for (int i = 0; i < 9; i++)
-			{
-				int x = PED::_0xA60EF3B6461A4D43(PLAYER::PLAYER_PED_ID(), i);
-				std::ostringstream ss;
-				ss << "Index " << i << ": " << x;
-				set_status_text(ss.str());
-			}
-		}
-
-		break;
-	}
-	case 2:
-	{
-		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 2.0, 0.0);
-
-		Hash hash1 = GAMEPLAY::GET_HASH_KEY("s_f_y_airhostess_01");
-		STREAMING::REQUEST_MODEL(hash1);
-		while (!STREAMING::HAS_MODEL_LOADED(hash1))
-		{
-			WAIT(0);
-		}
-		Ped p1 = PED::CREATE_PED(25, hash1, coords.x, coords.y, coords.z, 0, false, false);
-
-		coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(p1, 0.0, 2.0, 0.0);
-
-		Hash hash2 = GAMEPLAY::GET_HASH_KEY("u_m_y_abner");
-		STREAMING::REQUEST_MODEL(hash2);
-		while (!STREAMING::HAS_MODEL_LOADED(hash2))
-		{
-			WAIT(0);
-		}
-		Ped p2 = PED::CREATE_PED(25, hash2, coords.x, coords.y, coords.z, 0, false, false);
-
-		std::string val2 = show_keyboard(NULL, NULL);
-		if (!val2.empty())
-		{
-			float v2 = stof(val2);
-			std::ostringstream ss;
-			ss << "Float: " << v2;
-			set_status_text(ss.str());
-
-			PED::SET_PED_HEAD_BLEND_DATA(PLAYER::PLAYER_PED_ID(), 0, 0, 0, 0, 0, 0, 0.0f, v2, 0.0f, 0);
-			PED::SET_PED_BLEND_FROM_PARENTS(PLAYER::PLAYER_PED_ID(), p1, p2, v2, 0xbf800000);
-		}
-	}
-		break;
-	case 3:
-	{
-		int i = VEHICLE::_0xE6B0E8CFC3633BF0(veh);
-		std::ostringstream ss;
-		ss << "Value is " << i;
-		set_status_text(ss.str());
-		break;
-	}
-	case 4:
-		VEHICLE::_0x0A436B8643716D14();
-		break;
-	case 5:
-	{
-		bool b = VEHICLE::_0xF7F203E31F96F6A1(veh, 0);
-		std::ostringstream ss;
-		ss << "Value is " << (b?1:0);
-		set_status_text(ss.str());
-		break;
-	}
-	case 6:
-	{
-		int i = VEHICLE::_0xE33FFA906CE74880(veh, 0);
-		std::ostringstream ss;
-		ss << "Value is " << i;
-		set_status_text(ss.str());
-		break;
-	}
-	case 7:
-	{
-		VEHICLE::_0x99AD4CCCB128CBC9(veh);
-		break;
-	}
-	case 8:
-		VEHICLE::SET_VEHICLE_REDUCE_GRIP(veh, true);
-		break;
-	case 9:
-		VEHICLE::SET_VEHICLE_REDUCE_GRIP(veh, false);
-		break;
-	case 10:
-		VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(veh, 0.1f);
-		break;
-	case 11:
-		VEHICLE::SET_VEHICLE_FRICTION_OVERRIDE(veh, 1.0f);
-		break;
-	case 12:
-		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 5.0f);
-		break;
-	case 13:
-		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 1.0f);
-		break;
-	case 14:
-		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 5.0f);
-		break;
-	case 15:
-		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.0f);
-		break;
-	}
-	return false;
+bool get_all_graphics_test(std::vector<int> extras)
+{
+	return allGraphicsOn;
 }
 
 void process_test_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
 
-	for (int i = 0; i <=15; i++)
+	FunctionDrivenToggleMenuItem<int> *item = new FunctionDrivenToggleMenuItem<int>();
+	item->getter_call = get_all_graphics_test;
+	item->setter_call = set_all_graphics_test;
+	item->caption = "All Options";
+	item->isLeaf = false;
+	item->value = -1;
+	menuItems.push_back(item);
+
+	for (int i = 0; i < graphicsTests.size(); i++)
 	{
-		MenuItem<int> *item = new MenuItem<int>();
+		FunctionDrivenToggleMenuItem<int> *item = new FunctionDrivenToggleMenuItem<int>();
+		item->getter_call = get_graphics_test;
+		item->setter_call = set_graphics_test;
+		item->extra_arguments.push_back(i);
 		item->isLeaf = false;
 		item->value = i;
 
@@ -1313,12 +1261,19 @@ void process_test_menu()
 		menuItems.push_back(item);
 	}
 
-	draw_generic_menu<int>(menuItems, 0, "Test Funcs", onconfirm_test_menu, NULL, NULL, skin_save_menu_interrupt);
+	draw_generic_menu<int>(menuItems, 0, "Test Funcs", NULL, NULL, NULL, skin_save_menu_interrupt);
 
 }
 
 void debug_native_investigation()
 {
+	for (int i = 0; i < graphicsTests.size(); i++)
+	{
+		GraphicsTest* gt = &graphicsTests.at(i);
+		//gt->state = applied;
+		gt->function(gt->state);
+	}
+
 	/*
 	if (!PED::_0x784002A632822099(PLAYER::PLAYER_PED_ID())) //putting on helmet?
 	{
@@ -1358,6 +1313,7 @@ void debug_native_investigation()
 	}
 	*/
 
+	/*
 	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
 	{
 		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
@@ -1367,7 +1323,7 @@ void debug_native_investigation()
 
 		std::ostringstream ss;
 		ss << "Primary: " << primary << ", sec: " << secondary;
-		set_status_text_centre_screen(ss.str());
+		set_status_text_centre_screen(ss.str());*/
 
 		/*if (!VEHICLE::_0x8D474C8FAEFF6CDE(veh))
 		{
@@ -1432,8 +1388,8 @@ void debug_native_investigation()
 		else if (VEHICLE::_0xD4C4642CB7F50B5D(veh))
 		{
 			set_status_text_centre_screen("0xD4C... true");
-		}*/
-	}
+		}
+	}*/
 }
 
 void heal_player()

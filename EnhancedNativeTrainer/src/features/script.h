@@ -33,6 +33,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "anims.h"
 #include "world.h"
 #include "time.h"
+#include "props.h"
 //#include "crash_handler.h"
 
 #include <DbgHelp.h>
@@ -156,3 +157,7 @@ void reset_wanted_level();
 void toggle_thermal_vision();
 
 void toggle_night_vision();
+
+bool get_graphics_test(std::vector<int> extras);
+
+void set_graphics_test(bool applied, std::vector<int> extras);
