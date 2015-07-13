@@ -6,7 +6,7 @@ GTA V PC Enhanced Native Trainer, building on Alexander Blade's original sample.
 
 However, before doing anything, please familiarise yourself with [our wiki](https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer/wiki).
 
-**This GitHub is now private**, but all the prior contributors should have been added, and new requests will be approved. You now have greater access than you did previously, so you can push directly, but **the fork-and-pull-request way of working is still preferred for big changes**.
+**This GitHub is now private**, but all the prior contributors should have been added, and new requests will be approved. You now have greater access than you did previously, so you can push directly, but **the fork-and-pull-request way of working is still preferred for big changes**, or things you're not 100% sure about.
 
 Feel free to raise issues or take on existing unassigned issues - please assign them to yourself.
 
