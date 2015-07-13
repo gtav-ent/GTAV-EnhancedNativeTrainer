@@ -33,6 +33,12 @@
   <ItemGroup>
     <ClInclude Include="src\version.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="inc\main.h">
+      <Filter>Header Files\inc</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\nativeCaller.h">
+      <Filter>Header Files\inc</Filter>
+    </ClInclude>
     <ClInclude Include="inc\types.h">
       <Filter>Header Files\inc</Filter>
     </ClInclude>
@@ -80,7 +86,7 @@
     </ClInclude>
     <ClInclude Include="src\features\misc.h">
       <Filter>Header Files\src</Filter>
-    </ClInclude>pro
+    </ClInclude>
     <ClInclude Include="src\features\script.h">
       <Filter>Header Files\src</Filter>
     </ClInclude>
