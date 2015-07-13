@@ -13,6 +13,7 @@ struct PropInfo
 {
 	char* model;
 	std::string label;
+	std::string category;
 };
 
 bool onconfirm_prop_selection(MenuItem<std::string> choice);

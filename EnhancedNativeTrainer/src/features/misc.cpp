@@ -220,6 +220,7 @@ void update_misc_features(BOOL playerExists, Ped playerPed)
 		}
 		
 		UI::DISPLAY_RADAR(false);
+		featureMiscHideHudUpdated = false;
 	}
 	else if (featureMiscHideHudUpdated)
 	{

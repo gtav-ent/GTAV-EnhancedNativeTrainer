@@ -597,8 +597,8 @@ void process_main_menu()
 		"Time",
 		"Props",
 		"Miscellaneous",
-		"Reset All Settings"
-		//"Test"
+		"Reset All Settings",
+		"Test"
 	};
 
 	std::vector<MenuItem<int>*> menuItems;
@@ -1239,9 +1239,32 @@ bool get_all_graphics_test(std::vector<int> extras)
 	return allGraphicsOn;
 }
 
+bool onconfirm_testmenu(MenuItem<int> choice)
+{
+	Ped ped = PLAYER::PLAYER_PED_ID();
+	Hash hash = GAMEPLAY::GET_HASH_KEY("WEAPON_NIGHTSTICK");
+	DWORD start = GetTickCount();
+	for (int i = 0; i < 100000; i++)
+	{
+		Hash hash;
+		WEAPON::GET_CURRENT_PED_WEAPON(ped, &hash, true);
+	}
+	DWORD end = GetTickCount();
+	std::ostringstream ss;
+	ss << "1000 weapon calls took " << (end - start) << "msec";
+	set_status_text_centre_screen(ss.str());
+	return false;
+}
+
 void process_test_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
+
+	MenuItem<int> *mitem = new MenuItem<int>();
+	mitem->caption = "SCPW Performance Test";
+	mitem->isLeaf = false;
+	mitem->value = -2;
+	menuItems.push_back(mitem);
 
 	FunctionDrivenToggleMenuItem<int> *item = new FunctionDrivenToggleMenuItem<int>();
 	item->getter_call = get_all_graphics_test;
@@ -1267,7 +1290,7 @@ void process_test_menu()
 		menuItems.push_back(item);
 	}
 
-	draw_generic_menu<int>(menuItems, 0, "Test Funcs", NULL, NULL, NULL, skin_save_menu_interrupt);
+	draw_generic_menu<int>(menuItems, 0, "Test Funcs", onconfirm_testmenu, NULL, NULL, skin_save_menu_interrupt);
 
 }
 
