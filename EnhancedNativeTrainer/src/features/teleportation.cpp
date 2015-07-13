@@ -90,6 +90,8 @@ std::vector<tele_location> LOCATIONS_LANDMARKS = {
 
 std::vector<tele_location> LOCATIONS_HIGH = {
 	{ "Airplane Graveyard Airplane Tail ", 2395.096f, 3049.616f, 60.053f },
+	{ "Bridge Pole", -279.242f, -2438.71f, 124.004f },
+	{ "Building Crane Top", -119.879f, -977.357f, 304.249f },
 	{ "FIB Building Roof", 150.126f, -754.591f, 262.865f },
 	{ "Galileo Observatory Roof", -438.804f, 1076.097f, 352.411f },
 	{ "IAA Building Roof", 134.085f, -637.859f, 262.851f },
@@ -101,6 +103,7 @@ std::vector<tele_location> LOCATIONS_HIGH = {
 	{ "Satellite Dish Antenna", 2034.988f, 2953.105f, 74.602f },
 	{ "Stab City", 126.975f, 3714.419f, 46.827f },
 	{ "Very High Up", -129.964f, 8130.873f, 6705.307f },
+	{ "Very Very High Up", -119.879f, -977.357f, 10000.0f },
 	{ "Windmill Top", 2026.677f, 1842.684f, 133.313f }
 };
 
