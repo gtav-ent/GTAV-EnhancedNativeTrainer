@@ -27,6 +27,7 @@ bool featureNoVehFallOff = false;
 bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehSpawnInto = false;
+bool featureVehSpawnTuned = false;
 bool featureVehicleDoorInstant = false;
 bool featureWearHelmetOff = false;
 bool featureWearHelmetOffUpdated = false;
@@ -363,6 +364,12 @@ void process_veh_menu()
 	toggleItem->caption = "Speed Boost";
 	toggleItem->value = i++;
 	toggleItem->toggleValue = &featureVehSpeedBoost;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Spawn Tuned";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureVehSpawnTuned;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
@@ -752,6 +759,16 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 		//			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh); //returns BOOL of Vehicle on ground status.
 		//		}
 
+		if (featureVehSpawnTuned)
+		{
+			VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+			VEHICLE::SET_VEHICLE_MOD(veh, 11, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 11) - 1, 1); //Engine
+			VEHICLE::SET_VEHICLE_MOD(veh, 12, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 12) - 1, 1); //Brakes
+			VEHICLE::SET_VEHICLE_MOD(veh, 13, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 13) - 1, 1); //Transmission
+			VEHICLE::TOGGLE_VEHICLE_MOD(veh, 18, 1); //Turbo Tuning
+			VEHICLE::TOGGLE_VEHICLE_MOD(veh, 22, 1); //Headlights
+		}
+
 		if (featureVehSpawnInto)
 		{
 			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
@@ -790,6 +807,7 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehNoDamage", &featureVehNoDamage, &featureVehInvincibleUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
+	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureMorePower", &featureMorePower, &featureMorePowerUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
 	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
