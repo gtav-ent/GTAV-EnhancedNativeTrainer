@@ -9,6 +9,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "../ui_support/menu_functions.h"
 
+#pragma once
+
 struct PropInfo
 {
 	char* model;

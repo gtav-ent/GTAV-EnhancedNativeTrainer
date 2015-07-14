@@ -487,7 +487,9 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 			}
 			else
 				if (ENTITY::IS_ENTITY_IN_AIR(veh) || speed > 5.0)
+				{
 					VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
+				}
 		}
 	}
 
@@ -495,14 +497,12 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	{
 		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 50.0f);
 		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
-		//VEHICLE::SET_VEHICLE_REDUCE_GRIP(veh, true);
-		//featureReduceGripUpdated = false;
+		featureMorePowerUpdated = false;
 	}
 	else if (featureMorePowerUpdated)
 	{
 		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 0.0f);
-		//VEHICLE::SET_VEHICLE_REDUCE_GRIP(veh, false);
-		//featureReduceGripUpdated = false;
+		featureMorePowerUpdated = false;
 	}
 
 	//Prevents player from wearing a helmet
