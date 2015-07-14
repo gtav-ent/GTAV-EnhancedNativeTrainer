@@ -266,7 +266,10 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		if (process_carspawn_menu()) return false;
 		break;
 	case 1:
+	{
 		if (process_savedveh_menu()) return false;
+		break;
+	}
 		break;
 	case 2: //fix
 		fix_vehicle();
@@ -274,16 +277,28 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 3: //clean
 		clean_vehicle();
 		break;
-	case 4: //paint menu
+	case 4: //Replaced random paint with paint menu, not sure if random would still be a desired feature
 		if (process_paint_menu()) return false;
+		//if (bPlayerExists)
+		//{
+		//	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		//	{
+		//		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+		//		VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
+		//		if (VEHICLE::_DOES_VEHICLE_HAVE_SECONDARY_COLOUR(veh))
+		//			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
+		//	}
+		//	else
+		//	{
+		//		set_status_text("Player isn't in a vehicle");
+		//	}
+		//}
 		break;
+
 	case 5:
-		if (process_neon_lights_menu()) return false;
-		break;
-	case 6:
 		if (process_vehmod_menu()) return false;
 		break;
-	case 13:
+	case 12:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
@@ -295,53 +310,28 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 
 void process_veh_menu()
 {
-	int i = 0;
-
 	std::string caption = "Vehicle Options";
 
 	std::vector<MenuItem<int>*> menuItems;
-	MenuItem<int> *item;
 
-	item = new MenuItem<int>();
-	item->caption = "Vehicle Spawner";
-	item->value = item->currentMenuIndex = i++;
+	std::string menu_names[] = { "Vehicle Spawner", "Saved Vehicles", "Fix", "Clean", "Paint Menu" };
+	int i = 0;
+	for (; i < 5; i++)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = menu_names[i];
+		item->value = i;
+		item->isLeaf = (i == 3 || i == 4 );
+		item->currentMenuIndex = i;
+		menuItems.push_back(item);
+	}
+
+	i++;
+
+	MenuItem<int>* item = new MenuItem<int>();
 	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Saved Vehicles";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Fix";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = true;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Clean";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = true;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Paint Menu";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Neon Lights Menu";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
+	item->value = i++;
 	item->caption = "Modifications";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(VEH_INVINC_MODE_CAPTIONS, onchange_veh_invincibility_mode);
@@ -394,6 +384,7 @@ void process_veh_menu()
 	item->value = i++;
 	item->caption = "Door Control";
 	menuItems.push_back(item);
+
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexVeh, caption, onconfirm_veh_menu, NULL, NULL);
 }
@@ -451,12 +442,12 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 				ENTITY::SET_ENTITY_ONLY_DAMAGED_BY_PLAYER(veh, 1);
 
 				VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 10000.0f);
-
+				
 				/*
 				* This API seems to be a damage check - don't just continually repair the
 				* vehicle as it causes glitches.
 				*/
-
+			
 				if (VEHICLE::_0xBCDC5017D3CE1E9E(veh) && featureVehNoDamage && featureVehInvulnIncludesCosmetic)
 				{
 					VEHICLE::SET_VEHICLE_FIXED(veh);
@@ -528,13 +519,13 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	/*
 	if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
-	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-	int primary, secondary, pearl, wheel;
-	VEHICLE::GET_VEHICLE_COLOURS(veh, &primary, &secondary);
-	VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &pearl, &wheel);
-	std::ostringstream ss;
-	ss << "P: " << primary << ", S: " << secondary << ", Pe: " << pearl << ", Wh: " << wheel;
-	set_status_text_centre_screen(ss.str());
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+		int primary, secondary, pearl, wheel;
+		VEHICLE::GET_VEHICLE_COLOURS(veh, &primary, &secondary);
+		VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &pearl, &wheel);
+		std::ostringstream ss;
+		ss << "P: " << primary << ", S: " << secondary << ", Pe: " << pearl << ", Wh: " << wheel;
+		set_status_text_centre_screen(ss.str());
 	}
 	*/
 }
@@ -563,7 +554,7 @@ bool onconfirm_carspawn_menu(MenuItem<int> choice)
 {
 	if (choice.value == MENU_VEHICLE_CATEGORIES.size() - 1) //custom spawn
 	{
-		std::string result = show_keyboard(NULL, (char*)lastCustomVehicleSpawn.c_str());
+		std::string result = show_keyboard(NULL, (char*) lastCustomVehicleSpawn.c_str());
 		if (!result.empty())
 		{
 			result = trim(result);
@@ -846,7 +837,7 @@ bool spawn_saved_car(int slot, std::string caption)
 		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, (savedVeh->burstableTyres == 1) ? TRUE : FALSE);
 
 		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, savedVeh->plateType);
-		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, (char*)savedVeh->plateText.c_str());
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, (char*) savedVeh->plateText.c_str());
 
 		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, savedVeh->windowTint);
 
@@ -950,41 +941,41 @@ bool onconfirm_savedveh_slot_menu(MenuItem<int> choice)
 		spawn_saved_car(activeSavedVehicleIndex, activeSavedVehicleSlotName);
 		break;
 	case 2: //overwrite
-	{
-		save_current_vehicle(activeSavedVehicleIndex);
-		requireRefreshOfSaveSlots = true;
-		requireRefreshOfSlotMenu = true;
-		vehSaveSlotMenuInterrupt = true;
-		vehSaveMenuInterrupt = true;
-	}
-	break;
+		{
+			save_current_vehicle(activeSavedVehicleIndex);
+			requireRefreshOfSaveSlots = true;
+			requireRefreshOfSlotMenu = true;
+			vehSaveSlotMenuInterrupt = true;
+			vehSaveMenuInterrupt = true;
+		}
+		break;
 	case 3: //rename
-	{
-		std::string result = show_keyboard(NULL, (char*)activeSavedVehicleSlotName.c_str());
-		if (!result.empty())
+		{
+			std::string result = show_keyboard(NULL, (char*)activeSavedVehicleSlotName.c_str());
+			if (!result.empty())
+			{
+				ENTDatabase* database = get_database();
+				database->rename_saved_vehicle(result, activeSavedVehicleIndex);
+
+				activeSavedVehicleSlotName = result;
+			}
+			requireRefreshOfSaveSlots = true;
+			requireRefreshOfSlotMenu = true;
+			vehSaveSlotMenuInterrupt = true;
+			vehSaveMenuInterrupt = true;
+		}
+		break;
+	case 4: //delete
 		{
 			ENTDatabase* database = get_database();
-			database->rename_saved_vehicle(result, activeSavedVehicleIndex);
+			database->delete_saved_vehicle(activeSavedVehicleIndex);
 
-			activeSavedVehicleSlotName = result;
+			requireRefreshOfSlotMenu = false;
+			requireRefreshOfSaveSlots = true;
+			vehSaveSlotMenuInterrupt = true;
+			vehSaveMenuInterrupt = true;
 		}
-		requireRefreshOfSaveSlots = true;
-		requireRefreshOfSlotMenu = true;
-		vehSaveSlotMenuInterrupt = true;
-		vehSaveMenuInterrupt = true;
-	}
-	break;
-	case 4: //delete
-	{
-		ENTDatabase* database = get_database();
-		database->delete_saved_vehicle(activeSavedVehicleIndex);
-
-		requireRefreshOfSlotMenu = false;
-		requireRefreshOfSaveSlots = true;
-		vehSaveSlotMenuInterrupt = true;
-		vehSaveMenuInterrupt = true;
-	}
-	break;
+		break;
 	}
 	return false;
 }
@@ -1046,7 +1037,7 @@ void save_current_vehicle(int slot)
 			}
 			else
 			{
-				ss << "Saved Vehicle " << (lastKnownSavedVehicleCount + 1);
+				ss << "Saved Vehicle "<< (lastKnownSavedVehicleCount+1);
 			}
 
 			auto existingText = ss.str();
@@ -1074,7 +1065,7 @@ void save_current_vehicle(int slot)
 
 bool onconfirm_savedveh_menu(MenuItem<int> choice)
 {
-	if (choice.value == -1)
+	if ( choice.value == -1 )
 	{
 		save_current_vehicle(-1);
 		requireRefreshOfSaveSlots = true;
@@ -1124,7 +1115,8 @@ bool process_savedveh_menu()
 			delete (*it);
 		}
 		savedVehs.clear();
-	} while (requireRefreshOfSaveSlots);
+	}
+	while (requireRefreshOfSaveSlots);
 
 	return false;
 }
@@ -1457,7 +1449,7 @@ void unpack_veh_preview(char* model, int resRef, std::string bitmapName)
 	std::ostringstream filenameSS;
 	filenameSS << bitmapName << ".png";
 	auto filename = filenameSS.str();
-	WCHAR* filePath = get_temp_dir_path((char*)filename.c_str());
+	WCHAR* filePath = get_temp_dir_path((char*) filename.c_str());
 
 	char* filePathNonW = new char[MAX_PATH];
 	wcstombs(filePathNonW, filePath, MAX_PATH);
@@ -1754,7 +1746,7 @@ bool is_convertible_roofdown(std::vector<int> extras)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 	int roofState = VEHICLE::GET_CONVERTIBLE_ROOF_STATE(veh);
-	return (roofState == 2 || roofState == 1);
+	return ( roofState == 2 || roofState == 1);
 }
 
 void set_convertible_roofdown(bool applied, std::vector<int> extras)

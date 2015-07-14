@@ -22,23 +22,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <string>
 
 /***
-* STRUCTS
-*/
-
-struct PaintColour
-{
-	std::string name;
-	int mainValue;
-	int pearlAddition;
-};
-
-struct NeonLightsColor
-{
-	std::string name;
-	int rVal, gVal, bVal;
-};
-
-/***
 * METHODS
 */
 
@@ -86,23 +69,6 @@ bool onconfirm_color_menu_selection(MenuItem<int> choice);
 
 void onhighlight_color_menu_selection(MenuItem<int> choice);
 
-//Neon lights menu
-bool isThisACar(Vehicle veh);
-
-void apply_neon_colors(int colorMenuIndex);
-
-void disableneonlights();
-
-bool process_neon_lights_menu();
-
-bool onconfirm_neon_lights_selection(MenuItem<int> colorMenuIndex);
-
-void onhighlight_neon_lights_selection(MenuItem<int> colorMenuIndex);
-
-bool is_neonLights(std::vector<int> extras);
-
-void set_neonLights(bool applied, std::vector<int> extras);
-
 //Vehicle mod getters and setters
 
 bool is_custom_tyres(std::vector<int> extras);
@@ -120,6 +86,10 @@ void set_bulletproof_tyres(bool applied, std::vector<int> extras);
 bool is_xenon_headlights(std::vector<int> extras);
 
 void set_xenon_headlights(bool applied, std::vector<int> extras);
+
+bool is_neon_lights_enabled(std::vector<int> extras);
+
+void set_neon_lights_enabled(bool applied, std::vector<int> extras);
 
 bool is_extra_enabled(std::vector<int> extras);
 
@@ -163,9 +133,14 @@ void fix_vehicle();
 
 void clean_vehicle();
 
-void apply_paint(PaintColour whichpaint);
+struct PaintColour
+{
+	std::string name;
+	int mainValue;
+	int pearlAddition;
+};
 
-void apply_neon_colors(NeonLightsColor whichcolor);
+void apply_paint(PaintColour whichpaint);
 
 int get_current_veh_friction_mode();
 

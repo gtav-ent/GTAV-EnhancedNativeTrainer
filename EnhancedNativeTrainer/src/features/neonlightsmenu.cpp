@@ -24,8 +24,6 @@ const std::vector<NeonLightsColor> NEON_COLORS{
 
 int menuIndex = 0;
 
-const static int SPECIAL_ID_FOR_TOGGLE_VARIATIONS = 95;
-
 bool inline isThisACar(Vehicle veh) {
 	// Return true if the current vehicle is a car, as certain vehicles don't support neon lights
 	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
