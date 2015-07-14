@@ -7,6 +7,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "props.h"
 #include "script.h"
 
+#include <set>
+
 int lastSelectedCategoryIndex = 0;
 
 const std::vector<std::string> PROP_CATEGORIES =
@@ -3897,9 +3899,11 @@ const std::vector<PropInfo> ALL_PROPS =
 	{ "prop_space_rifle", "Space Rifle", "Weaponry" }
 };
 
-bool param1 = true;
-bool param2 = true;
-bool param3 = true;
+std::set<Object> propsWeCreated;
+
+bool creationParam1 = true;
+bool creationParam2 = true;
+bool creationParam3 = true;
 
 float vectRads(float degs)
 {
@@ -3909,13 +3913,29 @@ float vectRads(float degs)
 
 std::string lastCustomPropSpawn;
 
+void manage_prop_set()
+{
+	std::set<Ped>::iterator it;
+	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
+	{
+		if (!ENTITY::DOES_ENTITY_EXIST(*it))
+		{
+			propsWeCreated.erase(it++);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
 void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 {
 	STREAMING::REQUEST_MODEL(propHash);
 	DWORD now = GetTickCount();
 	while (!STREAMING::HAS_MODEL_LOADED(propHash) && GetTickCount() < now + 5000 )
 	{
-		//make_periodic_feature_call();
+		make_periodic_feature_call();
 		WAIT(0);
 	}
 
@@ -3936,20 +3956,38 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 
 	FLOAT spawnOffX = 0.0f;
 	FLOAT spawnOffY = 3.5f;
-	FLOAT spawnOffZ = 4.0f;
+	FLOAT spawnOffZ = 0.0f;
+
+	Vector3 minDimens;
+	Vector3 maxDimens;
+	GAMEPLAY::GET_MODEL_DIMENSIONS(propHash, &minDimens, &maxDimens);
+	spawnOffY = max(3.5f, 0.3f + max(maxDimens.x, maxDimens.y));
+	spawnOffZ = 0.0f;
+
+	std::ostringstream ss;
+	ss << "Z Offset: " << spawnOffZ << " bc height: " << (maxDimens.z-minDimens.z);
+	set_status_text(ss.str());
 
 	Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(playerPed, spawnOffX, spawnOffY, spawnOffZ);
 
-	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords.x, coords.y, coords.z, param1, param2, param3);
+	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords.x, coords.y, coords.z, creationParam1, creationParam2, creationParam3);
 
 	if (ENTITY::DOES_ENTITY_EXIST(obj))
 	{
 		ENTITY::SET_ENTITY_COLLISION(obj, 1, 0);
 		OBJECT::PLACE_OBJECT_ON_GROUND_PROPERLY(obj);
+		
+		Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(obj, 0);
+		float height = ENTITY::GET_ENTITY_HEIGHT_ABOVE_GROUND(obj);
+		ENTITY::SET_ENTITY_COORDS_NO_OFFSET(obj, curLocation.x, curLocation.y, curLocation.z-height+0.01f, 1, 1, 1);
+
 		ENTITY::SET_ENTITY_HAS_GRAVITY(obj, true);
 		ENTITY::FREEZE_ENTITY_POSITION(obj, false);
+		ENTITY::APPLY_FORCE_TO_ENTITY(obj, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
 		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(obj, true);
 		ENTITY::SET_ENTITY_LOAD_COLLISION_FLAG(obj, true);
+		propsWeCreated.insert(obj);
+		manage_prop_set();
 	}
 	else
 	{
@@ -3974,12 +4012,11 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 	}
 
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(propHash);
-	ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&obj);
+	//ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&obj);
 }
 
 void do_spawn_prop(PropInfo prop, bool silent)
 {
-
 	Hash propHash = GAMEPLAY::GET_HASH_KEY((char *)prop.model);
 
 	if (!STREAMING::IS_MODEL_IN_CDIMAGE(propHash) || !STREAMING::IS_MODEL_VALID(propHash))
@@ -4054,17 +4091,21 @@ void process_props_menu_incategory(int categoryIndex)
 		}
 	}
 
+	/*
 	std::ostringstream ssd;
 	ssd << count << " of " << total << " and " << ALL_PROPS.size();
 	set_status_text_centre_screen(ssd.str());
+	*/
 
 	std::vector<MenuItem<int>*> menuItems;
 
+	/*
 	MenuItem<int>* item = new MenuItem<int>();
 	item->value = -1;
 	item->caption = "Spawn All In Category";
 	item->isLeaf = true;
 	menuItems.push_back(item);
+	*/
 
 	int i = 0;
 	for each (PropInfo prop in filtered)
@@ -4114,12 +4155,12 @@ bool onconfirm_prop_category(MenuItem<int> choice)
 	return false;
 }
 
-void process_props_menu()
+void process_props_spawn_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
 
 	int i = 0;
-	for each (std::string category in PROP_CATEGORIES )
+	for each (std::string category in PROP_CATEGORIES)
 	{
 		MenuItem<int>* item = new MenuItem<int>();
 		item->value = i;
@@ -4136,21 +4177,72 @@ void process_props_menu()
 	menuItems.push_back(item);
 	i++;
 
+	/*
 	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
 	toggleItem->caption = "Spawn Param 1";
-	toggleItem->toggleValue = &param1;
+	toggleItem->toggleValue = &creationParam1;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
 	toggleItem->caption = "Spawn Param 2";
-	toggleItem->toggleValue = &param2;
+	toggleItem->toggleValue = &creationParam2;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
 	toggleItem->caption = "Spawn Param 3";
-	toggleItem->toggleValue = &param3;
+	toggleItem->toggleValue = &creationParam3;
 	menuItems.push_back(toggleItem);
+	*/
 
-	draw_generic_menu<int>(menuItems, &propCategorySelection, "Prop Categories", onconfirm_prop_category, NULL, NULL, NULL);
+	draw_generic_menu<int>(menuItems, &propCategorySelection, "Object Categories", onconfirm_prop_category, NULL, NULL, NULL);
+}
 
+bool onconfirm_prop_menu(MenuItem<int> choice)
+{
+	if (choice.value == 0)
+	{
+		process_props_spawn_menu();
+	}
+	else if (choice.value == 1)
+	{
+		int count = 0;
+		for each (Object obj in propsWeCreated)
+		{
+			if (ENTITY::DOES_ENTITY_EXIST(obj))
+			{
+				count++;
+				OBJECT::DELETE_OBJECT(&obj);
+			}
+		}
+		manage_prop_set();
+		std::ostringstream ss;
+		ss << count << " object" << (count != 1 ? "s" : "") << " removed";
+		set_status_text(ss.str());
+	}
+	return false;
+}
+
+int prop_menu_selection = 0;
+
+void process_props_menu()
+{
+	std::vector<MenuItem<int>*> menuItems;
+
+	int i = 0;
+
+	MenuItem<int>* item = new MenuItem<int>();
+	item->value = 0;
+	item->caption = "Object Spawner";
+	item->isLeaf = false;
+	menuItems.push_back(item);
+	i++;
+
+	item = new MenuItem<int>();
+	item->value = 1;
+	item->caption = "Remove All Spawned Objects";
+	item->isLeaf = true;
+	menuItems.push_back(item);
+	i++;
+	
+	draw_generic_menu<int>(menuItems, &prop_menu_selection, "Objects", onconfirm_prop_menu, NULL, NULL, NULL);
 }

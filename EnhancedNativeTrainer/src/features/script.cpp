@@ -595,7 +595,7 @@ void process_main_menu()
 		"Vehicles",
 		"World",
 		"Time",
-		"Props",
+		"Objects",
 		"Miscellaneous",
 		"Reset All Settings",
 		"Test"
