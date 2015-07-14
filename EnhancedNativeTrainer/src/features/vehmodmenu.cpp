@@ -301,6 +301,20 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 	return modItemNameStr;
 }
 
+void addClanLogoToVehicle(Vehicle vehicle, Ped ped)
+{
+	vector3_t x, y, z;
+	float scale;
+	Hash modelHash = ENTITY::GET_ENTITY_MODEL(vehicle);
+	if (GetVehicleInfoForClanLogo(modelHash, x, y, z, scale))
+	{
+		int alpha = 200;
+		if (modelHash == VEHICLE_WINDSOR)
+			alpha = 255;
+		GRAPHICS::_ADD_CLAN_DECAL_TO_VEHICLE(vehicle, ped, ENTITY::_GET_ENTITY_BONE_INDEX(vehicle, "chassis_dummy"), x.x, x.y, x.z, y.x, y.y, y.z, z.x, z.y, z.z, scale, 0, alpha);
+	}
+}
+
 //std::string HORN_NAMES[] = { "Stock Horn", "Star Spangled Banner 1", "Star Spangled Banner 1", "Star Spangled Banner 1", "Star Spangled Banner 1", "Jazz Horn 1", };
 
 bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
@@ -654,22 +668,70 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 	{
 	case -1: //Upgrade Performance
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-		VEHICLE::SET_VEHICLE_MOD(veh, 11, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 11) - 1, 1); //Engine
-		VEHICLE::SET_VEHICLE_MOD(veh, 12, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 12) - 1, 1); //Brakes
-		VEHICLE::SET_VEHICLE_MOD(veh, 13, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 13) - 1, 1); //Transmission
-		VEHICLE::TOGGLE_VEHICLE_MOD(veh, 18, 1); //Turbo Tuning
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
+		VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
 		set_status_text("Added All Performance Upgrades");
 		break;
 
 	case -2: //Upgrade Armor and Tires
 
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-		VEHICLE::SET_VEHICLE_MOD(veh, 16, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 16) - 1, 1); //Armor
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //Armor
 		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0); //Bulletproof Tires
 		set_status_text("Added All Armor Upgrades and Bulletproof Tires");
 		break;
 
-	case -3: //Remove All Mods
+	case -3: //Add All Mods Pimp My Ride
+
+		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SPOILER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SPOILER) - 1, 1); //--Spoilers
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_FRONTBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FRONTBUMPER) - 1, 1); //--Front Bumper
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_REARBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_REARBUMPER) - 1, 1); //--Rear Bumper
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SIDESKIRT, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SIDESKIRT) - 1, 1); //--Side Skirt
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_EXHAUST, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_EXHAUST) - 1, 1); //--Exhaust
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_CHASSIS, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_CHASSIS) - 1, 1); //--Chassis or roll cage
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_GRILLE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_GRILLE) - 1, 1); //--Grille
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_HOOD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_HOOD) - 1, 1); //--Hood
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_FENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FENDER) - 1, 1); //--Fender
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_RIGHTFENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_RIGHTFENDER) - 1, 1); //--Right Fender
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ROOF, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 10) - 1, MOD_ROOF); //--Roof
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 11) - 1, MOD_ENGINE); //--Engine
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 12) - 1, MOD_BRAKES); //--Brakes
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 13) - 1, MOD_TRANSMISSION); //--Transmission
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_HORNS, HORN_MUSICAL1, 0);										  //--Horns
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SUSPENSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SUSPENSION) - 1, 1); //--Suspension
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //--Armor
+
+		VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, TRUE); //--Turbo
+		VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TIRESMOKE, TRUE); //--Tire Smoke
+		VEHICLE::SET_VEHICLE_TYRE_SMOKE_COLOR(veh, TIRESMOKE_COLOR_BLACK); //--Tire Smoke Colour
+		VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, TRUE); //--Xenon Lights
+		
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_FRONTWHEELS, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BACKWHEELS) - 1, 1);//Bikes only?
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_BACKWHEELS, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BACKWHEELS) - 1, 1);//Bikes only?
+
+		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0f);
+		ENTITY::SET_ENTITY_PROOFS(veh, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+		VEHICLE::SET_VEHICLE_STRONG(veh, TRUE);
+		VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(veh, FALSE);
+		VEHICLE::SET_VEHICLE_CAN_BREAK(veh, FALSE); 
+		VEHICLE::SET_VEHICLE_ENGINE_CAN_DEGRADE(veh, FALSE);
+		VEHICLE::SET_VEHICLE_IS_STOLEN(veh, FALSE);
+		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, FALSE);
+		VEHICLE::SET_VEHICLE_BODY_HEALTH(veh, 1000.0f);
+
+		VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, WHEEL_TYPE_HIGHEND);
+		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, WINDOWTINT_LIGHTSMOKE);
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, PLATE_YANKTON);
+		addClanLogoToVehicle(veh, playerPed);
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENHANCED");
+
+		set_status_text("Added All Available Upgrades");
+		break;
+
+	case -4: //Remove All Mods
 
 		for (int i = 0; i < 25; i++)
 		{
@@ -729,10 +791,16 @@ bool process_vehmod_menu()
 		menuItems.push_back(item2);
 
 		MenuItem<int> *item3 = new MenuItem<int>();
-		item3->caption = "Remove All Upgrades";
+		item3->caption = "Add All Available Mods (Pimp My Ride)";
 		item3->value = -3;
 		item3->isLeaf = true;
 		menuItems.push_back(item3);
+
+		MenuItem<int> *item4 = new MenuItem<int>();
+		item4->caption = "Remove All Upgrades";
+		item4->value = -4;
+		item4->isLeaf = true;
+		menuItems.push_back(item4);
 	}
 
 	if (!isWeird && !isAircraft)
@@ -1004,6 +1072,8 @@ bool is_neon_lights_enabled(std::vector<int> extras)
 	{
 		return VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, i) ? true : false;
 	}
+
+	return false;
 }
 
 int RandomRGB()
