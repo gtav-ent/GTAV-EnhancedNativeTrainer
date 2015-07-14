@@ -303,7 +303,7 @@ namespace ENTITY
 	static void ATTACH_ENTITY_TO_ENTITY(Entity entity1, Entity entity2, int boneIndex, float x, float y, float z, float rot_x, float rot_y, float rot_z, BOOL p9, BOOL p10, BOOL p11, BOOL p12, int unk, BOOL p14) { invoke<Void>(0x6B9BBD38AB0796DF, entity1, entity2, boneIndex, x, y, z, rot_x, rot_y, rot_z, p9, p10, p11, p12, unk, p14); } // 0x6B9BBD38AB0796DF 0xEC024237
 	static void ATTACH_ENTITY_TO_ENTITY_PHYSICALLY(Entity entity1, Entity entity2, int boneIndex, Any unknown2, float x1, float y1, float z1, float x2, float y2, float z2, float rot_x, float rot_y, float rot_z, float unknown3, BOOL unknown4, BOOL unknown5, BOOL unknown6, BOOL unknown7, Any unknown8) { invoke<Void>(0xC3675780C92F90F9, entity1, entity2, boneIndex, unknown2, x1, y1, z1, x2, y2, z2, rot_x, rot_y, rot_z, unknown3, unknown4, unknown5, unknown6, unknown7, unknown8); } // 0xC3675780C92F90F9 0x0547417F
 	static void _0xF4080490ADC51C6F(Any p0) { invoke<Void>(0xF4080490ADC51C6F, p0); } // 0xF4080490ADC51C6F 0x6909BA59
-	static Any _0xFB71170B7E76ACBA(Any p0, Any* p1) { return invoke<Any>(0xFB71170B7E76ACBA, p0, p1); } // 0xFB71170B7E76ACBA 0xE4ECAC22
+	static int _GET_ENTITY_BONE_INDEX(Entity entity, char* boneName) { return invoke<int, Entity, char*>(0xB96C39A95065BDE2, entity, boneName); } // FB71170B7E76ACBA E4ECAC22
 	static void CLEAR_ENTITY_LAST_DAMAGE_ENTITY(Entity entity) { invoke<Void>(0xA72CD9CA74A5ECBA, entity); } // 0xA72CD9CA74A5ECBA 0x2B83F43B
 	static void DELETE_ENTITY(Entity* EntityHandle) { invoke<Void>(0xAE3CBE5BF394C9C9, EntityHandle); } // 0xAE3CBE5BF394C9C9 0xFAA3D236
 	static void DETACH_ENTITY(Any p0, BOOL p1, BOOL p2) { invoke<Void>(0x961AC54BF0613F5D, p0, p1, p2); } // 0x961AC54BF0613F5D 0xC8EFCB41
@@ -3493,7 +3493,7 @@ namespace GRAPHICS
 	static void _0x8A35C742130C6080(Any p0, Any* p1, Any* p2) { invoke<Void>(0x8A35C742130C6080, p0, p1, p2); } // 0x8A35C742130C6080 0x335695CF
 	static void _0xB7ED70C49521A61D(Any p0) { invoke<Void>(0xB7ED70C49521A61D, p0); } // 0xB7ED70C49521A61D 0x7B786555
 	static void MOVE_VEHICLE_DECALS(Any p0, Any p1) { invoke<Void>(0x84C8D7C2D30D3280, p0, p1); } // 0x84C8D7C2D30D3280 0xCE9E6CF2
-	static BOOL _0x428BDCB9DA58DA53(Any p0, Any p1, Any p2, float p3, float p4, float p5, float p6, float p7, float p8, float p9, float p10, float p11, float p12, Any p13) { return invoke<BOOL>(0x428BDCB9DA58DA53, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13); } // 0x428BDCB9DA58DA53 0x12077738
+	static BOOL _ADD_CLAN_DECAL_TO_VEHICLE(Vehicle vehicle, Ped ped, int boneIndex, float x1, float x2, float x3, float y1, float y2, float y3, float z1, float z2, float z3, float scale, Any p13, int alpha) { return invoke<BOOL, Vehicle, Ped, int, float, float, float, float, float, float, float, float, float, float, Any, int>(0x3060392FFFE04FE2, vehicle, ped, boneIndex, x1, x2, x3, y1, y2, y3, z1, z2, z3, scale, p13, alpha); } // 428BDCB9DA58DA53 12077738
 	static void _0xD2300034310557E4(Any p0, Any p1) { invoke<Void>(0xD2300034310557E4, p0, p1); } // 0xD2300034310557E4 0x667046A8
 	static Any _0xFE26117A5841B2FF(Any p0, Any p1) { return invoke<Any>(0xFE26117A5841B2FF, p0, p1); } // 0xFE26117A5841B2FF 0x4F4D76E8
 	static BOOL _0x060D935D3981A275(Any p0, Any p1) { return invoke<BOOL>(0x060D935D3981A275, p0, p1); } // 0x060D935D3981A275 0x6D58F73B
