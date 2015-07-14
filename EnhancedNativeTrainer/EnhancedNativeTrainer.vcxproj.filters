@@ -42,9 +42,6 @@
     <ClInclude Include="inc\types.h">
       <Filter>Header Files\inc</Filter>
     </ClInclude>
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\types.h">
-      <Filter>Header Files\inc</Filter>
-    </ClInclude>
     <ClInclude Include="src\io\xinput.h">
       <Filter>Header Files\inc</Filter>
     </ClInclude>
@@ -111,9 +108,9 @@
     <ClInclude Include="src\features\world.h">
       <Filter>Header Files\src</Filter>
     </ClInclude>
-    <ClCompile Include="src\features\props.h">
-      <Filter>Source Files\src</Filter>
-    </ClCompile>
+    <ClInclude Include="src\features\props.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Documents\Enhanced Trainer Release Notes.rtf">
@@ -712,6 +709,9 @@
       <Filter>Source Files\src</Filter>
     </ClCompile>
     <ClCompile Include="src\features\props.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\neonlightsmenu.cpp">
       <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
