@@ -791,7 +791,7 @@ bool process_vehmod_menu()
 		menuItems.push_back(item2);
 
 		MenuItem<int> *item3 = new MenuItem<int>();
-		item3->caption = "Add All Available Mods (Pimp My Ride)";
+		item3->caption = "Add All Available Upgrades - Pimp My Ride";
 		item3->value = -3;
 		item3->isLeaf = true;
 		menuItems.push_back(item3);
