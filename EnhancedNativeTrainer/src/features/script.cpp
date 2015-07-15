@@ -40,24 +40,24 @@ ENTDatabase* database = NULL;
 //std::mutex db_mutex;
 
 // features
-bool featurePlayerInvincible			=	false;
-bool featurePlayerInvincibleUpdated		=	false;
-bool featurePlayerNeverWanted			=	false;
+bool featurePlayerInvincible = false;
+bool featurePlayerInvincibleUpdated = false;
+bool featurePlayerNeverWanted = false;
 bool featurePlayerNeverWantedUpdated = false;
-bool featurePlayerIgnoredByPolice				=	false;
-bool featurePlayerIgnoredByPoliceUpdated		=	false;
+bool featurePlayerIgnoredByPolice = false;
+bool featurePlayerIgnoredByPoliceUpdated = false;
 bool featurePlayerIgnoredByAll = false;
 bool featurePlayerIgnoredByAllUpdated = false;
-bool featurePlayerUnlimitedAbility		=	false;
-bool featurePlayerNoNoise				=	false;
-bool featurePlayerNoNoiseUpdated		=	false;
-bool featurePlayerFastSwim				=	false;
-bool featurePlayerFastSwimUpdated		=	false;
-bool featurePlayerFastRun				=	false;
-bool featurePlayerFastRunUpdated		=	false;
-bool featurePlayerSuperJump				=	false;
-bool featurePlayerInvisible				=	false;
-bool featurePlayerInvisibleUpdated		=	false;
+bool featurePlayerUnlimitedAbility = false;
+bool featurePlayerNoNoise = false;
+bool featurePlayerNoNoiseUpdated = false;
+bool featurePlayerFastSwim = false;
+bool featurePlayerFastSwimUpdated = false;
+bool featurePlayerFastRun = false;
+bool featurePlayerFastRunUpdated = false;
+bool featurePlayerSuperJump = false;
+bool featurePlayerInvisible = false;
+bool featurePlayerInvisibleUpdated = false;
 bool featurePlayerDrunk = false;
 bool featurePlayerDrunkUpdated = false;
 bool featureNightVision = false;
@@ -65,9 +65,9 @@ bool featureNightVisionUpdated = false;
 bool featureThermalVision = false;
 bool featureThermalVisionUpdated = false;
 
-bool featureWantedLevelFrozen			=	false;
-bool featureWantedLevelFrozenUpdated	=	false;
-int  frozenWantedLevel					=	0;
+bool featureWantedLevelFrozen = false;
+bool featureWantedLevelFrozenUpdated = false;
+int  frozenWantedLevel = 0;
 
 // player model control, switching on normal ped model when needed	
 
