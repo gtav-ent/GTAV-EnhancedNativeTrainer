@@ -25,7 +25,7 @@ const std::vector<NeonLightsColor> NEON_COLORS{
 	{ "Pink", NEON_COLOR_PONYPINK },
 	{ "Hot Pink", NEON_COLOR_HOTPINK },
 	{ "Purple", NEON_COLOR_PURPLE },
-	{ "Back Light", NEON_COLOR_BACKLIGHT }
+	{ "Black Light", NEON_COLOR_BLACKLIGHT }
 };
 
 int menuIndex = 0;
