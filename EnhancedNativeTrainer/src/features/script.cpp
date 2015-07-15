@@ -588,29 +588,70 @@ void process_main_menu()
 	captionSS << "~HUD_COLOUR_MENU_YELLOW~Enhanced ~HUD_COLOUR_WHITE~Native Trainer ~HUD_COLOUR_GREY~Update ";
 	captionSS << VERSION_STRING;
 
-	std::vector<std::string> TOP_OPTIONS = {
-		"Player",
-		"Teleport",
-		"Weapons",
-		"Vehicles",
-		"World",
-		"Time",
-		"Objects",
-		"Miscellaneous",
-		"Reset All Settings",
-		"Test"
-	};
-
 	std::vector<MenuItem<int>*> menuItems;
-	for (int i = 0; i < TOP_OPTIONS.size(); i++)
-	{
-		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = TOP_OPTIONS[i];
-		item->value = i;
-		item->isLeaf = (i==7);
-		item->currentMenuIndex = i;
-		menuItems.push_back(item);
-	}
+
+	int i = 0;
+	MenuItem<int> *item;
+
+	item = new MenuItem<int>();
+	item->caption = "Player";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Teleport";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Weapons";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Vehicles";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "World";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Time";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Objects";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Miscellaneous";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Reset All Settings";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "*TEST*";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexMain, captionSS.str(), onconfirm_main_menu, NULL, NULL);
 }
