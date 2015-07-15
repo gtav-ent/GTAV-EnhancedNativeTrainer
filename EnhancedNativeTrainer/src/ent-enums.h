@@ -443,7 +443,7 @@ enum WindowTints //m8 do you even int tint?
 };
 
 #define NEON_COLOR_WHITE 222, 222, 255
-#define NEON_COLOR_BLUE 2, 21, 255
+#define NEON_COLOR_BLACK 32, 32, 32
 #define NEON_COLOR_ELECTRICBLUE 3, 83, 255
 #define NEON_COLOR_MINTGREEN 0, 255, 140
 #define NEON_COLOR_LIMEGREEN 94, 255, 1

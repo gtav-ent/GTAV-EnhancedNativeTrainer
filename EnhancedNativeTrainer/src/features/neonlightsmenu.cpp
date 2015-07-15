@@ -13,13 +13,19 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\io\config_io.h"
 
 const std::vector<NeonLightsColor> NEON_COLORS{
-	{ "White", 255, 255, 255},
-	{ "Red", 255, 0, 0 },
-	{ "Green", 0, 255, 0 },
-	{ "Blue", 0, 0, 255 },
-	{ "Yellow", 255, 255, 0 },
-	{ "Magenta", 255, 0, 255 },
-	{ "Cyan", 0, 255, 255 }
+	{ "White", NEON_COLOR_WHITE },
+	{ "Black", NEON_COLOR_BLACK },
+	{ "Electric Blue", NEON_COLOR_ELECTRICBLUE },
+	{ "Mint Green", NEON_COLOR_MINTGREEN },
+	{ "Lime Green", NEON_COLOR_LIMEGREEN },
+	{ "Yellow", NEON_COLOR_YELLOW },
+	{ "Gold", NEON_COLOR_GOLDENSHOWER },
+	{ "Orange", NEON_COLOR_ORANGE },
+	{ "Red", NEON_COLOR_RED },
+	{ "Pink", NEON_COLOR_PONYPINK },
+	{ "Hot Pink", NEON_COLOR_HOTPINK },
+	{ "Purple", NEON_COLOR_PURPLE },
+	{ "Back Light", NEON_COLOR_BACKLIGHT }
 };
 
 int menuIndex = 0;
