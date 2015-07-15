@@ -89,10 +89,6 @@ bool is_xenon_headlights(std::vector<int> extras);
 
 void set_xenon_headlights(bool applied, std::vector<int> extras);
 
-bool is_neon_lights_enabled(std::vector<int> extras);
-
-void set_neon_lights_enabled(bool applied, std::vector<int> extras);
-
 bool is_extra_enabled(std::vector<int> extras);
 
 void set_extra_enabled(bool applied, std::vector<int> extras);
@@ -147,3 +143,23 @@ void apply_paint(PaintColour whichpaint);
 int get_current_veh_friction_mode();
 
 void onchange_veh_friction_mode(int value, SelectFromListMenuItem* source);
+
+struct NeonLightsColor
+{
+	std::string colorString;
+	int rVal, gVal, bVal;
+};
+
+bool inline isThisACar(Vehicle veh);
+
+void apply_neon_colors(int colorIndex);
+
+void onhighlight_neon_lights_selection(MenuItem<int> colorIndex);
+
+bool onconfirm_neon_lights_selection(MenuItem<int> choice);
+
+bool is_neonLights(std::vector<int> extras);
+
+void set_neonLights(bool applied, std::vector<int> extras);
+
+bool process_neon_lights_menu();

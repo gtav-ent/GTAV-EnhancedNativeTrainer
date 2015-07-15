@@ -714,6 +714,9 @@
     <ClCompile Include="src\features\props.cpp">
       <Filter>Source Files\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\features\neonlightsmenu.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml">
