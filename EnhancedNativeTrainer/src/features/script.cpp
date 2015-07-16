@@ -71,7 +71,7 @@ int  frozenWantedLevel = 0;
 
 // player model control, switching on normal ped model when needed	
 
-LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
+LPCSTR player_models[] = { "player_zero", "player_one", "player_two", "mp_f_freemode_01", "mp_m_freemode_01" };
 
 const char* CLIPSET_DRUNK = "move_m@drunk@verydrunk";
 
@@ -94,7 +94,7 @@ void check_player_model()
 
 	if (!ENTITY::DOES_ENTITY_EXIST(playerPed)) return;
 
-	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death() )
+	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death())
 	{
 		bool found = false;
 		Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
@@ -108,11 +108,14 @@ void check_player_model()
 			}
 		}
 
+		// Figure out how to handle death with MP skins later...
+		// I don't want to reset them each time, but we need to figure out a way to get them to respawn at the hospital on death
+
 		if (!found)
 		{
 			set_status_text("Resetting death state because a custom skin was used");
 			GAMEPLAY::_RESET_LOCALPLAYER_STATE();
-			
+
 			switch (last_player_slot_seen)
 			{
 			case 0:
@@ -493,10 +496,8 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		if (process_skinchanger_menu())	return true;
 		break;
 	case 1:
-	{
 		heal_player();
-	}
-	break;
+		break;
 	case 18:
 		process_anims_menu_top();
 		break;
@@ -513,21 +514,21 @@ void process_player_menu()
 	std::string caption = "Player Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Player Skin", NULL, NULL, false},
-		{"Heal Player", NULL, NULL, true},
-		{"Add Cash", NULL, NULL, true, CASH},
-		{"Wanted Level", NULL, NULL, true, WANTED},
+		{ "Player Skin", NULL, NULL, false },
+		{ "Heal Player", NULL, NULL, true },
+		{ "Add Cash", NULL, NULL, true, CASH },
+		{ "Wanted Level", NULL, NULL, true, WANTED },
 		{ "Freeze Wanted Level", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated, true },
 		{ "Never Wanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated, true },
-		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
-		{"Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
+		{ "Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true },
+		{ "Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
 		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
-		{"Unlimited Ability", &featurePlayerUnlimitedAbility, NULL, true},
-		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
-		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
-		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
-		{"Super Jump", &featurePlayerSuperJump, NULL, true},
-		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
+		{ "Unlimited Ability", &featurePlayerUnlimitedAbility, NULL, true },
+		{ "Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true },
+		{ "Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true },
+		{ "Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true },
+		{ "Super Jump", &featurePlayerSuperJump, NULL, true },
+		{ "Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true },
 		{ "Drunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated, true },
 		{ "Night Vision", &featureNightVision, &featureNightVisionUpdated, true },
 		{ "Thermal Vision", &featureThermalVision, &featureThermalVisionUpdated, true },
