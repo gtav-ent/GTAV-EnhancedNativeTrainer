@@ -8,6 +8,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "airbrake.h"
 #include "..\io\keyboard.h"
 #include "..\io\config_io.h"
+#include "..\utils.h"
 #include "script.h"
 
 bool exitFlag = false;

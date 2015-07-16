@@ -332,6 +332,7 @@ void process_veh_menu()
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
+	//TODO: disable if not a car - but requires menu refresh
 	item = new MenuItem<int>();
 	item->caption = "Neon Lights Menu";
 	item->value = item->currentMenuIndex = i++;
@@ -760,8 +761,13 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 			WAIT(0);
 		}
 
+		Vector3 minDimens;
+		Vector3 maxDimens;
+		GAMEPLAY::GET_MODEL_DIMENSIONS(model, &minDimens, &maxDimens);
+		float spawnOffY = min(5.0f, 1.3f * max(maxDimens.x - minDimens.x, maxDimens.y - minDimens.y));
+
 		FLOAT lookDir = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
-		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 5.0, 0.0);
+		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, spawnOffY, 0.0);
 		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, lookDir, 1, 0);
 
 		//		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))

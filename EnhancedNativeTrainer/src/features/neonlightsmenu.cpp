@@ -30,84 +30,166 @@ const std::vector<NeonLightsColor> NEON_COLORS{
 
 int menuIndex = 0;
 
-bool inline isThisACar(Vehicle veh) {
-	// Return true if the current vehicle is a car, as certain vehicles don't support neon lights
-	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
-
-	return !(VEHICLE::IS_THIS_MODEL_A_BIKE(et) || VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et) || VEHICLE::IS_THIS_MODEL_A_TRAIN(et) || VEHICLE::IS_THIS_MODEL_A_BICYCLE(et) || VEHICLE::IS_THIS_MODEL_A_BOAT(et));
-}
-
-void apply_neon_colors(int colorIndex) {
+void apply_neon_colors(int colorIndex)
+{
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()); // Get current vehicle
-
 	NeonLightsColor whichcolor = NEON_COLORS[colorIndex];
 	VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, whichcolor.rVal, whichcolor.gVal, whichcolor.bVal);
 }
 
-void onhighlight_neon_lights_selection(MenuItem<int> colorIndex) {
+void onhighlight_neon_lights_selection(MenuItem<int> choice)
+{
+	onconfirm_neon_lights_selection(choice);
+}
+
+bool onconfirm_neon_lights_selection(MenuItem<int> choice)
+{
 	// common variables
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 
 	if (!bPlayerExists)
-		return;
+	{
+		return true;
+	}
 
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)) {
+	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
 		set_status_text("Player isn't in a vehicle");
-		return;
+		return true;
 	}
 
-	if (colorIndex.value != 0)
-		apply_neon_colors(colorIndex.value - 1);
-}
+	apply_neon_colors(choice.value);
 
-bool onconfirm_neon_lights_selection(MenuItem<int> choice) {
 	return true;
 }
 
-bool is_neonLights(std::vector<int> extras) {
+bool is_neonLights(std::vector<int> extras)
+{
+	int loc = extras.at(0);
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 
-	for (int loc = 0; loc <= 3; loc++) {
-		if (VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, loc))
-			return true; // return as soon as we detect at least a single neon light enabled
+	if (VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, loc))
+	{
+		return true; // return as soon as we detect at least a single neon light enabled
 	}
 
 	return false;
 }
 
-void set_neonLights(bool applied, std::vector<int> extras) {
+void set_neonLights(bool applied, std::vector<int> extras)
+{
+	int loc = extras.at(0);
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 	int rCol, bCol, gCol = 0;
 	bool lightFound = false;
 
-	if (!isThisACar(veh)) {
+	if (!is_this_a_car(veh))
+	{
 		set_status_text("Can't add neon lights to this vehicle");
 		return;
 	}
 
-	if (applied) { // Turn on the neon lights
-		for (int loc = 0; loc <= 3; loc++)
-			VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, loc, true);
-
-		VEHICLE::_GET_VEHICLE_NEON_LIGHTS_COLOUR(veh, &rCol, &bCol, &gCol); // Let's check if we have existing colors defined... if not, slap on something random
-		if (!rCol && !bCol && !gCol) {
-			VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
+	if (applied) // Turn on the neon lights
+	{
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, loc, true);
+		VEHICLE::_GET_VEHICLE_NEON_LIGHTS_COLOUR(veh, &rCol, &bCol, &gCol);
+		if (!rCol && !bCol && !gCol)
+		{
+			NeonLightsColor col = NEON_COLORS.at(0);
+			VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, col.rVal, col.gVal, col.bVal);
 		}
-	} else {// Turn off the lights
+	}
+	else
+	{
+		// Turn off the lights
 		for (int loc = 0; loc <= 3; loc++)
+		{
 			VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, loc, false);
-		VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, 0, 0, 0); // Zero out any colors we had defined
+		}
 	}
 }
+
+std::string getNeonPositionLabel(int i)
+{
+	switch (i)
+	{
+	case NEON_LEFT:
+		return "Left";
+	case NEON_RIGHT:
+		return "Right";
+	case NEON_FRONT:
+		return "Front";
+	case NEON_BACK:
+		return "Back";
+	default:
+		return "Unknown";
+	}
+}
+
+bool process_neon_colour_menu()
+{
+	std::vector<MenuItem<int>*> menuItems;
+	for (int i = 0; i < NEON_COLORS.size(); i++)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = NEON_COLORS[i].colorString;
+		item->isLeaf = true;
+		item->value = i;
+		menuItems.push_back(item);
+	}
+	return draw_generic_menu<int>(menuItems, &menuIndex, "Choose Neon Lights Color", onconfirm_neon_lights_selection, onhighlight_neon_lights_selection, NULL, vehicle_menu_interrupt);
+}
+
+bool onconfirm_neon_menu(MenuItem<int> choice)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+
+	if (choice.value == -1) //toggle all
+	{
+		bool anyEnabled = false;
+		int r, g, b;
+		
+		for (int loc = 0; loc <= 3; loc++)
+		{
+			if (VEHICLE::_IS_VEHICLE_NEON_LIGHT_ENABLED(veh, loc))
+			{
+				anyEnabled = true;
+				break;
+			}
+		}
+		for (int loc = 0; loc <= 3; loc++)
+		{
+			if (r == 0 && g == 0 && b == 0)
+			{
+				VEHICLE::_GET_VEHICLE_NEON_LIGHTS_COLOUR(veh, &r, &g, &b);
+			}
+			VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, loc, !anyEnabled);
+		}
+
+		//if they have no colour, set the default
+		if (!anyEnabled && r == 0 && g == 0 && b == 0)
+		{
+			NeonLightsColor col = NEON_COLORS.at(0);
+			VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, col.rVal, col.gVal, col.bVal);
+		}
+	}
+	else if (choice.value == -2)
+	{
+		process_neon_colour_menu();
+	}
+	return false;
+}
+
 
 bool process_neon_lights_menu() {
 	// common variables
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 
-	if (!bPlayerExists) {
+	if (!bPlayerExists)
+	{
 		return false;
 	}
 
@@ -121,28 +203,36 @@ bool process_neon_lights_menu() {
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()); // Get current vehicle
 
-	if (!isThisACar(veh)) {
+	if (!is_this_a_car(veh)) {
 		set_status_text("Can't add neon lights to this vehicle");
 		return false;
 	}
 
 	std::vector<MenuItem<int>*> menuItems;
 
-	FunctionDrivenToggleMenuItem<int> *neonLightsToggle = new FunctionDrivenToggleMenuItem<int>();
-	neonLightsToggle->caption = "Toggle Neon Lights";
-	neonLightsToggle->getter_call = is_neonLights;
-	neonLightsToggle->setter_call = set_neonLights;
-	neonLightsToggle->value = 0;
-	menuItems.push_back(neonLightsToggle);
+	MenuItem<int> *allLightsToggle = new MenuItem<int>();
+	allLightsToggle->caption = "Toggle All Neon Lights";
+	allLightsToggle->value = -1;
+	allLightsToggle->isLeaf = true;
+	menuItems.push_back(allLightsToggle);
 
-
-	for (int i = 1; i < NEON_COLORS.size(); i++) {
-		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = NEON_COLORS[i-1].colorString;
-		item->isLeaf = true;
-		item->value = i;
-		menuItems.push_back(item);
+	for (int loc = 0; loc <= 3; loc++)
+	{
+		FunctionDrivenToggleMenuItem<int> *neonLightsToggle = new FunctionDrivenToggleMenuItem<int>();
+		std::ostringstream ss;
+		ss << "Enable Neons: " << getNeonPositionLabel(loc);
+		neonLightsToggle->caption = ss.str();
+		neonLightsToggle->getter_call = is_neonLights;
+		neonLightsToggle->setter_call = set_neonLights;
+		neonLightsToggle->extra_arguments.push_back(loc);
+		menuItems.push_back(neonLightsToggle);
 	}
 
-	return draw_generic_menu<int>(menuItems, &menuIndex, "Choose Neon Lights Color", onconfirm_neon_lights_selection, onhighlight_neon_lights_selection, NULL, vehicle_menu_interrupt);
+	MenuItem<int> *chooseColourAll = new MenuItem<int>();
+	chooseColourAll->caption = "Choose Colour";
+	chooseColourAll->value = -2;
+	chooseColourAll->isLeaf = false;
+	menuItems.push_back(chooseColourAll);
+
+	return draw_generic_menu<int>(menuItems, &menuIndex, "Neon Lights", onconfirm_neon_menu, NULL, NULL, vehicle_menu_interrupt);
 }

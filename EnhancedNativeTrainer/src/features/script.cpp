@@ -38,8 +38,6 @@ bool everInitialised = false;
 
 ENTDatabase* database = NULL;
 
-bool isFiveM = false;
-
 bool onlineWarningShown = false;
 
 //std::mutex db_mutex;
@@ -163,7 +161,7 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
-	if (!isFiveM && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+	if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
 	{
 		if (onlineWarningShown)
 		{
@@ -858,8 +856,6 @@ void ScriptMain()
 		set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is initialising...");
 
 		clear_log_file();
-
-		isFiveM = IsHostProcessFiveM();
 
 		write_text_to_log_file("Trying to init storage");
 		init_storage();
@@ -1571,9 +1567,4 @@ void toggle_night_vision()
 void cleanup_script()
 {
 	lastSeenPeds.clear();
-}
-
-bool is_fivem()
-{
-	return isFiveM;
 }

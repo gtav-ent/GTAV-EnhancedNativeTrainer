@@ -22,6 +22,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	switch (reason)
 	{
 	case DLL_PROCESS_ATTACH:
+		CheckIsHostProcessFiveM();
 		scriptRegister(hInstance, ScriptMain);
 		keyboardHandlerRegister(OnKeyboardMessage);
 		break;
@@ -33,3 +34,4 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	}
 	return TRUE;
 }
+

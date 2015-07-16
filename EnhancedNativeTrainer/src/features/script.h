@@ -163,5 +163,3 @@ bool get_graphics_test(std::vector<int> extras);
 void set_graphics_test(bool applied, std::vector<int> extras);
 
 void cleanup_script();
-
-bool is_fivem();

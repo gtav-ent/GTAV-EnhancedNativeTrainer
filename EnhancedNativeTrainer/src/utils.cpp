@@ -20,6 +20,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 extern "C" IMAGE_DOS_HEADER __ImageBase; // MSVC specific, with other compilers use HMODULE from DllMain
 
+bool isFiveM;
+
 std::string cachedModulePath;
 
 std::string GetCurrentModulePath()
@@ -54,7 +56,7 @@ HMODULE GetENTModuleHandle()
 	return hMod;
 }
 
-bool IsHostProcessFiveM()
+void CheckIsHostProcessFiveM()
 {
 	HMODULE hMods[1024];
 	DWORD cbNeeded;
@@ -63,7 +65,7 @@ bool IsHostProcessFiveM()
 	if (procID == NULL)
 	{
 		write_text_to_log_file("No process ID");
-		return false;
+		return;
 	}
 
 	HANDLE currentProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
@@ -73,7 +75,7 @@ bool IsHostProcessFiveM()
 	if (currentProcess == NULL)
 	{
 		write_text_to_log_file("No process");
-		return false;
+		return;
 	}
 
 	bool result = false;
@@ -101,7 +103,7 @@ bool IsHostProcessFiveM()
 
 	CloseHandle(currentProcess);
 
-	return result;
+	isFiveM = result;
 }
 
 bool does_file_exist(const char* name)
@@ -134,4 +136,9 @@ std::wstring ConvertFromUtf8ToUtf16(const std::string& str)
 	}
 
 	return convertedString;
+}
+
+bool is_fivem()
+{
+	return isFiveM;
 }
