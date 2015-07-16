@@ -277,13 +277,10 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 4: // paint
 		if (process_paint_menu()) return false;
 		break;
-	case 5: // neon lights
-		if (process_neon_lights_menu()) return false;
-		break;
-	case 6: // mods
+	case 5: // mods
 		if (process_vehmod_menu()) return false;
 		break;
-	case 14:
+	case 13:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
@@ -304,44 +301,37 @@ void process_veh_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Vehicle Spawner";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Saved Vehicles";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Fix";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Clean";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Paint Menu";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	//TODO: disable if not a car - but requires menu refresh
-	item = new MenuItem<int>();
-	item->caption = "Neon Lights Menu";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Modifications";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
@@ -392,7 +382,7 @@ void process_veh_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Door Control";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 

@@ -12,9 +12,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\ui_support\menu_functions.h"
 #include "..\io\config_io.h"
 
-const std::vector<NeonLightsColor> NEON_COLORS{
-	{ "White", NEON_COLOR_WHITE },
-	{ "Black", NEON_COLOR_BLACK },
+const std::vector<NeonLightsColor> NEON_COLORS = {
+	{ "Bright White", NEON_COLOR_WHITE },
+	{ "Dim White", NEON_COLOR_BLACK },
 	{ "Electric Blue", NEON_COLOR_ELECTRICBLUE },
 	{ "Mint Green", NEON_COLOR_MINTGREEN },
 	{ "Lime Green", NEON_COLOR_LIMEGREEN },
@@ -105,10 +105,7 @@ void set_neonLights(bool applied, std::vector<int> extras)
 	else
 	{
 		// Turn off the lights
-		for (int loc = 0; loc <= 3; loc++)
-		{
-			VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, loc, false);
-		}
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, loc, false);
 	}
 }
 
@@ -132,15 +129,36 @@ std::string getNeonPositionLabel(int i)
 bool process_neon_colour_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
+
+	int colIndex = -1;
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	int r = 0, g = 0, b = 0;
+	VEHICLE::_GET_VEHICLE_NEON_LIGHTS_COLOUR(veh, &r, &g, &b);
+
 	for (int i = 0; i < NEON_COLORS.size(); i++)
 	{
+		NeonLightsColor thisCol = NEON_COLORS[i];
+
+		//try and match the current col to a value, in order to set the menu index
+		if (colIndex == -1 && r == thisCol.rVal && g == thisCol.gVal && b == thisCol.bVal)
+		{
+			colIndex = i;
+		}
+
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = NEON_COLORS[i].colorString;
 		item->isLeaf = true;
 		item->value = i;
 		menuItems.push_back(item);
 	}
-	return draw_generic_menu<int>(menuItems, &menuIndex, "Choose Neon Lights Color", onconfirm_neon_lights_selection, onhighlight_neon_lights_selection, NULL, vehicle_menu_interrupt);
+
+	if (colIndex == -1)
+	{
+		colIndex = 0;
+	}
+
+	return draw_generic_menu<int>(menuItems, &colIndex, "Choose Neon Lights Color", onconfirm_neon_lights_selection, onhighlight_neon_lights_selection, NULL, vehicle_menu_interrupt);
 }
 
 bool onconfirm_neon_menu(MenuItem<int> choice)
@@ -150,7 +168,7 @@ bool onconfirm_neon_menu(MenuItem<int> choice)
 	if (choice.value == -1) //toggle all
 	{
 		bool anyEnabled = false;
-		int r, g, b;
+		int r = 0, g = 0, b = 0;
 		
 		for (int loc = 0; loc <= 3; loc++)
 		{
