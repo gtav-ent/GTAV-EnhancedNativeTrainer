@@ -826,6 +826,10 @@ void ScriptTidyUp()
 	setGameInputToEnabled(true, true);
 	setAirbrakeRelatedInputToBlocked(false, true);
 
+	cleanup_script();
+	cleanup_props();
+	cleanup_anims();
+
 	write_text_to_log_file("ScriptTidyUp called");
 
 	save_settings();
@@ -950,11 +954,11 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 
 	add_misc_feature_enablements(&results);
 
-	std::vector<FeatureEnabledLocalDefinition> vehResults = get_feature_enablements_vehicles();
-	results.insert(results.end(), vehResults.begin(), vehResults.end());
+	add_props_feature_enablements(&results);
 
-	std::vector<FeatureEnabledLocalDefinition> weapResults = get_feature_enablements_weapons();
-	results.insert(results.end(), weapResults.begin(), weapResults.end());
+	add_vehicle_feature_enablements(&results);
+
+	add_weapon_feature_enablements(&results);
 
 	return results;
 }
@@ -967,6 +971,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_vehicle_generic_settings(&settings);
 	add_misc_generic_settings(&settings);
 	add_hotkey_generic_settings(&settings);
+	add_props_generic_settings(&settings);
 	return settings;
 }
 
@@ -994,6 +999,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_world(&settings);
 
 	handle_generic_settings_hotkey(&settings);
+
+	handle_generic_settings_props(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)
@@ -1475,4 +1482,9 @@ void toggle_night_vision()
 {
 	featureNightVision = !featureNightVision;
 	featureNightVisionUpdated = true;
+}
+
+void cleanup_script()
+{
+	lastSeenPeds.clear();
 }

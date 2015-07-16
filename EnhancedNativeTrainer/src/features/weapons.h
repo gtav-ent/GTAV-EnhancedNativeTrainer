@@ -57,6 +57,6 @@ bool process_weapon_mod_menu_tint();
 
 bool onconfirm_weapon_mod_menu_tint(MenuItem<int> choice);
 
-std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_weapons();
+void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results);
 
 bool weapon_reequip_interrupt();

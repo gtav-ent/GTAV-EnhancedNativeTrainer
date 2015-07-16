@@ -798,20 +798,18 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 }
 
 
-std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
+void add_vehicle_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
-	std::vector<FeatureEnabledLocalDefinition> results;
-	results.push_back(FeatureEnabledLocalDefinition{ "featureNoVehFallOff", &featureNoVehFallOff, &featureNoVehFallOffUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehicleDoorInstant", &featureVehicleDoorInstant });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvincible", &featureVehInvincible, &featureVehInvincibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehNoDamage", &featureVehNoDamage, &featureVehInvincibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureMorePower", &featureMorePower, &featureMorePowerUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
-	return results;
+	results->push_back(FeatureEnabledLocalDefinition{ "featureNoVehFallOff", &featureNoVehFallOff, &featureNoVehFallOffUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehicleDoorInstant", &featureVehicleDoorInstant });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehInvincible", &featureVehInvincible, &featureVehInvincibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehNoDamage", &featureVehNoDamage, &featureVehInvincibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureMorePower", &featureMorePower, &featureMorePowerUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
 }
 
 bool spawn_saved_car(int slot, std::string caption)

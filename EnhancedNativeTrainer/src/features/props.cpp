@@ -11,6 +11,24 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 int lastSelectedCategoryIndex = 0;
 
+std::set<SpawnedPropInstance*> propsWeCreated;
+
+std::string lastCustomPropSpawn;
+
+const std::vector<std::string> ALPHA_LABELS = { "Normal", "80%", "60%", "40%", "20%" };
+const int ALPHA_VALUES[] = { 255, 204, 153, 102, 51 };
+
+bool creationParam1 = true;
+bool creationParam2 = false;
+bool creationParam3 = true;
+
+bool propCreationIsInvincible = false;
+bool propCreationIsOnFire = false;
+bool propCreationIsImmovable = false;
+bool propCreationBurnt = true;
+bool propCreationHasGravity = true;
+int propCreationAlphaIndex = 0;
+
 const std::vector<std::string> PROP_CATEGORIES =
 {
 	"Agricultural",
@@ -24,7 +42,6 @@ const std::vector<std::string> PROP_CATEGORIES =
 	"Building Infrastructure",
 	"Buildings",
 	"Cars",
-	"Seating",
 	"Clocks",
 	"Clothing",
 	"Computers",
@@ -68,6 +85,7 @@ const std::vector<std::string> PROP_CATEGORIES =
 	"Ramps",
 	"Roads",
 	"Ropes & Hooks",
+	"Seating",
 	"Shopping",
 	"Signs",
 	"Sports Equipment",
@@ -3899,34 +3917,71 @@ const std::vector<PropInfo> ALL_PROPS =
 	{ "prop_space_rifle", "Space Rifle", "Weaponry" }
 };
 
-std::set<Object> propsWeCreated;
-
-bool creationParam1 = true;
-bool creationParam2 = true;
-bool creationParam3 = true;
-
 float vectRads(float degs)
 {
 	float radialConv = degs*3.1415926536 / 180;
 	return radialConv;
 }
 
-std::string lastCustomPropSpawn;
-
 void manage_prop_set()
 {
-	std::set<Ped>::iterator it;
+	std::set<SpawnedPropInstance*>::iterator it;
 	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
 	{
-		if (!ENTITY::DOES_ENTITY_EXIST(*it))
+		SpawnedPropInstance* prop = *it;
+		if (!ENTITY::DOES_ENTITY_EXIST(prop->instance))
 		{
 			propsWeCreated.erase(it++);
+			delete prop;
 		}
 		else
 		{
 			++it;
 		}
 	}
+}
+
+/**
+* Many props don't play nicely with PLACE_OBJECT_ON_GROUND_PROPERLY.
+* Therefore we use one that is known to work properly to determine
+* the height of the ground, and therefore the position for the other 
+* prop, by spawning one and then deleting it.
+*/
+bool get_ground_height_at_position(Vector3 coords, float* result)
+{
+	Hash propHash = GAMEPLAY::GET_HASH_KEY("prop_veg_crop_03_cab");
+	STREAMING::REQUEST_MODEL(propHash);
+	DWORD now = GetTickCount();
+	while (!STREAMING::HAS_MODEL_LOADED(propHash) && GetTickCount() < now + 5000)
+	{
+		make_periodic_feature_call();
+		WAIT(0);
+	}
+
+	if (!STREAMING::HAS_MODEL_LOADED(propHash))
+	{
+		return false;
+	}
+
+	Vector3 minDimens;
+	Vector3 maxDimens;
+	GAMEPLAY::GET_MODEL_DIMENSIONS(propHash, &minDimens, &maxDimens);
+
+	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords.x, coords.y, coords.z, creationParam1, creationParam2, creationParam3);
+	ENTITY::SET_ENTITY_VISIBLE(obj, false);
+	OBJECT::PLACE_OBJECT_ON_GROUND_PROPERLY(obj);
+	Vector3 objLocation = ENTITY::GET_ENTITY_COORDS(obj, 0);
+	float objHeight = ENTITY::GET_ENTITY_HEIGHT(obj, objLocation.x, objLocation.y, objLocation.z, 1, 0);
+
+	*result = objLocation.z - objHeight;
+	if (minDimens.z < 0)
+	{
+		*result += minDimens.z;
+	}
+
+	OBJECT::DELETE_OBJECT(&obj);
+
+	return true;
 }
 
 void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
@@ -3953,6 +4008,9 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 	FLOAT lookOff = look + 90.00;
 	FLOAT vecX = 0;
 	FLOAT vecY = 0;
+	BOOL getPosParam1 = 1;
+	BOOL getPosParam2 = 1;
+	BOOL getPosParam3 = 1;
 
 	FLOAT spawnOffX = 0.0f;
 	FLOAT spawnOffY = 3.5f;
@@ -3964,29 +4022,68 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 	spawnOffY = max(3.5f, 0.3f + max(maxDimens.x, maxDimens.y));
 	spawnOffZ = 0.0f;
 
-	std::ostringstream ss;
-	ss << "Z Offset: " << spawnOffZ << " bc height: " << (maxDimens.z-minDimens.z);
-	set_status_text(ss.str());
-
 	Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(playerPed, spawnOffX, spawnOffY, spawnOffZ);
 
+	float objZBase = 0;
+	bool translatable = get_ground_height_at_position(coords, &objZBase);
+
 	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords.x, coords.y, coords.z, creationParam1, creationParam2, creationParam3);
+	ENTITY::SET_ENTITY_VELOCITY(obj, 0.0f, 0.0f, 0.0f);
+	ENTITY::SET_ENTITY_ROTATION(obj, 0, 0, 0, 0, false);
 
 	if (ENTITY::DOES_ENTITY_EXIST(obj))
 	{
 		ENTITY::SET_ENTITY_COLLISION(obj, 1, 0);
-		OBJECT::PLACE_OBJECT_ON_GROUND_PROPERLY(obj);
 		
+		//place on the ground doesn't work on half the items, so do it ourselves
 		Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(obj, 0);
-		float height = ENTITY::GET_ENTITY_HEIGHT_ABOVE_GROUND(obj);
-		ENTITY::SET_ENTITY_COORDS_NO_OFFSET(obj, curLocation.x, curLocation.y, curLocation.z-height+0.01f, 1, 1, 1);
+		if (translatable)
+		{
+			if (minDimens.z < 0)
+			{
+				objZBase -= minDimens.z;
+			}
+			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(obj, curLocation.x, curLocation.y, objZBase, 1, 1, 1);
+		}
+		else
+		{
+			//best effort in case of failure
+			OBJECT::PLACE_OBJECT_ON_GROUND_PROPERLY(obj);
+		}
 
-		ENTITY::SET_ENTITY_HAS_GRAVITY(obj, true);
-		ENTITY::FREEZE_ENTITY_POSITION(obj, false);
-		ENTITY::APPLY_FORCE_TO_ENTITY(obj, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
-		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(obj, true);
+		ENTITY::SET_ENTITY_HAS_GRAVITY(obj, propCreationHasGravity);
+
+		if (propCreationIsInvincible)
+		{
+			ENTITY::SET_ENTITY_INVINCIBLE(obj, TRUE);
+			ENTITY::SET_ENTITY_PROOFS(obj, 1, 1, 1, 1, 1, 1, 1, 1);
+			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(obj, FALSE);
+		}
+		ENTITY::FREEZE_ENTITY_POSITION(obj, propCreationIsImmovable);
+
+		if (!propCreationIsImmovable)
+		{
+			//this unfreezes it
+			ENTITY::APPLY_FORCE_TO_ENTITY(obj, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
+			OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(obj, TRUE);
+		}
+
 		ENTITY::SET_ENTITY_LOAD_COLLISION_FLAG(obj, true);
-		propsWeCreated.insert(obj);
+
+		if (propCreationIsOnFire)
+		{
+			FIRE::START_ENTITY_FIRE(obj);
+		}
+
+		ENTITY::SET_ENTITY_RENDER_SCORCHED(obj, propCreationBurnt);
+
+		ENTITY::SET_ENTITY_ALPHA(obj, ALPHA_VALUES[propCreationAlphaIndex], TRUE);
+
+		SpawnedPropInstance* record = new SpawnedPropInstance();
+		record->instance = obj;
+		record->title = title;
+		record->counter = 1; //TODO: get the max count of same models in existence, add one
+		propsWeCreated.insert(record);
 		manage_prop_set();
 	}
 	else
@@ -4197,6 +4294,68 @@ void process_props_spawn_menu()
 	draw_generic_menu<int>(menuItems, &propCategorySelection, "Object Categories", onconfirm_prop_category, NULL, NULL, NULL);
 }
 
+void onchange_spawn_alpha(int value, SelectFromListMenuItem* source)
+{
+	propCreationAlphaIndex = value;
+}
+
+int prop_spawnopt_selection = 0;
+
+bool prop_spawn_options_menu()
+{
+	/*
+	bool propCreationIsInvincible = false;
+	bool propCreationIsOnFire = false;
+	bool propCreationIsImmovable = false;
+	bool propCreationHasPhysics = true;
+	bool propCreationHasGravity = true;
+	bool propCreationHasGravity = true;
+	*/
+
+	std::vector<MenuItem<int>*> menuItems;
+
+	int i = 0;
+
+	ToggleMenuItem<int>* item = new ToggleMenuItem<int>();
+	item->toggleValue = &propCreationIsInvincible;
+	item->caption = "Invincible?";
+	menuItems.push_back(item);
+	i++;
+
+	item = new ToggleMenuItem<int>();
+	item->toggleValue = &propCreationIsImmovable;
+	item->caption = "Immovable?";
+	menuItems.push_back(item);
+	i++;
+
+	item = new ToggleMenuItem<int>();
+	item->toggleValue = &propCreationHasGravity;
+	item->caption = "Has Gravity?";
+	menuItems.push_back(item);
+	i++;
+
+	item = new ToggleMenuItem<int>();
+	item->toggleValue = &propCreationIsOnFire;
+	item->caption = "On Fire?";
+	menuItems.push_back(item);
+	i++;
+
+	item = new ToggleMenuItem<int>();
+	item->toggleValue = &propCreationBurnt;
+	item->caption = "Scorched?";
+	menuItems.push_back(item);
+	i++;
+
+	SelectFromListMenuItem* alphaItem = new SelectFromListMenuItem(ALPHA_LABELS, onchange_spawn_alpha);
+	alphaItem->value = propCreationAlphaIndex;
+	alphaItem->caption = "Alpha (Opacity)";
+	menuItems.push_back(alphaItem);
+	i++;
+
+	draw_generic_menu<int>(menuItems, &prop_spawnopt_selection, "New Object Options", NULL, NULL, NULL, NULL);
+	return false;
+}
+
 bool onconfirm_prop_menu(MenuItem<int> choice)
 {
 	if (choice.value == 0)
@@ -4206,8 +4365,9 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 	else if (choice.value == 1)
 	{
 		int count = 0;
-		for each (Object obj in propsWeCreated)
+		for each (SpawnedPropInstance* prop in propsWeCreated)
 		{
+			Object obj = prop->instance;
 			if (ENTITY::DOES_ENTITY_EXIST(obj))
 			{
 				count++;
@@ -4218,6 +4378,10 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 		std::ostringstream ss;
 		ss << count << " object" << (count != 1 ? "s" : "") << " removed";
 		set_status_text(ss.str());
+	}
+	else if (choice.value == 2)
+	{
+		prop_spawn_options_menu();
 	}
 	return false;
 }
@@ -4243,6 +4407,59 @@ void process_props_menu()
 	item->isLeaf = true;
 	menuItems.push_back(item);
 	i++;
+
+	item = new MenuItem<int>();
+	item->value = 2;
+	item->caption = "Spawn Options";
+	item->isLeaf = false;
+	menuItems.push_back(item);
+	i++;
 	
 	draw_generic_menu<int>(menuItems, &prop_menu_selection, "Objects", onconfirm_prop_menu, NULL, NULL, NULL);
+}
+
+void add_props_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
+{
+	results->push_back(FeatureEnabledLocalDefinition{ "propCreationBurnt", &propCreationBurnt });
+	results->push_back(FeatureEnabledLocalDefinition{ "propCreationHasGravity", &propCreationHasGravity });
+	results->push_back(FeatureEnabledLocalDefinition{ "propCreationIsOnFire", &propCreationIsOnFire});
+	results->push_back(FeatureEnabledLocalDefinition{ "propCreationIsImmovable", &propCreationIsImmovable });
+	results->push_back(FeatureEnabledLocalDefinition{ "propCreationIsInvincible", &propCreationIsInvincible });
+}
+
+void add_props_generic_settings(std::vector<StringPairSettingDBRow>* results)
+{
+	results->push_back(StringPairSettingDBRow{ "propCreationAlphaIndex", std::to_string(propCreationAlphaIndex)});
+	results->push_back(StringPairSettingDBRow{ "lastCustomPropSpawn", lastCustomPropSpawn });
+}
+
+void handle_generic_settings_props(std::vector<StringPairSettingDBRow>* settings)
+{
+	for (int i = 0; i < settings->size(); i++)
+	{
+		StringPairSettingDBRow setting = settings->at(i);
+		if (setting.name.compare("propCreationAlphaIndex") == 0)
+		{
+			propCreationAlphaIndex = stoi(setting.value);
+		}
+		else if (setting.name.compare("lastCustomPropSpawn") == 0)
+		{
+			lastCustomPropSpawn = setting.value;
+		}
+	}
+}
+
+void cleanup_props()
+{
+	std::set<SpawnedPropInstance*>::iterator it;
+	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
+	{
+		SpawnedPropInstance* prop = *it;
+		if (ENTITY::DOES_ENTITY_EXIST(prop->instance))
+		{
+			ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&prop->instance);
+		}
+		propsWeCreated.erase(it++);
+		delete prop;
+	}
 }
