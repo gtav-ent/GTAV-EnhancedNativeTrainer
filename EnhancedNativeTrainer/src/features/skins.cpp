@@ -578,49 +578,49 @@ bool process_skinchanger_menu()
 	item = new MenuItem<int>();
 	item->caption = "Saved Skins";
 	item->value = i++;
-	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Players";
 	item->value = i++;
-	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Animals";
 	item->value = i++;
-	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "NPCs";
 	item->value = i++;
-	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Modify Current Skin";
 	item->value = i++;
-	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Reset Current Skin";
 	item->value = i++;
-	item->isLeaf = true; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Modify Props";
 	item->value = i++;
-	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Clear Props";
 	item->value = i++;
-	item->isLeaf = true; // Reset Current Skin and Clear Crops are leafs
+	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	return draw_generic_menu<int>(menuItems, &skinMainMenuPosition, "Player Skin Options", onconfirm_skinchanger_menu, NULL, NULL);

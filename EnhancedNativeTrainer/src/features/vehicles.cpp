@@ -545,6 +545,7 @@ void reset_vehicle_globals()
 
 	featureVehInvincible =
 	featureVehSpeedBoost =
+	featureMorePower =
 	featureVehicleDoorInstant =
 	featureVehSpawnInto =
 	featureNoVehFallOff =

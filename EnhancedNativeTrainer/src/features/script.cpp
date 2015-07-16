@@ -71,7 +71,9 @@ int  frozenWantedLevel = 0;
 
 // player model control, switching on normal ped model when needed	
 
-LPCSTR player_models[] = { "player_zero", "player_one", "player_two", "mp_f_freemode_01", "mp_m_freemode_01" };
+char* player_models[] = { "player_zero", "player_one", "player_two" };
+
+char* mplayer_models[] = { "mp_f_freemode_01", "mp_m_freemode_01" };
 
 const char* CLIPSET_DRUNK = "move_m@drunk@verydrunk";
 
@@ -92,24 +94,36 @@ void check_player_model()
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	if (!ENTITY::DOES_ENTITY_EXIST(playerPed)) return;
+	if (!ENTITY::DOES_ENTITY_EXIST(playerPed))
+	{
+		return;
+	}
 
 	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death())
 	{
 		bool found = false;
-		Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
+		Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
 
-		for (int i = 0; i < (sizeof(player_models) / sizeof(player_models[0])); i++)
+		for each (char* model  in player_models)
 		{
-			if (GAMEPLAY::GET_HASH_KEY((char *)player_models[i]) == model)
+			if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
 			{
 				found = true;
 				break;
 			}
 		}
 
-		// Figure out how to handle death with MP skins later...
-		// I don't want to reset them each time, but we need to figure out a way to get them to respawn at the hospital on death
+		if (!found && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+		{
+			for each (char* model  in mplayer_models)
+			{
+				if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
+				{
+					found = true;
+					break;
+				}
+			}
+		}
 
 		if (!found)
 		{
@@ -1345,12 +1359,18 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
+	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS();
+	std::ostringstream ss;
+	ss << "Online: " << (online ? "Yes" : "No");
+	set_status_text_centre_screen(ss.str());
+	/*
 	for (int i = 0; i < graphicsTests.size(); i++)
 	{
 		GraphicsTest* gt = &graphicsTests.at(i);
 		//gt->state = applied;
 		gt->function(gt->state);
 	}
+	*/
 
 	/*
 	if (!PED::_0x784002A632822099(PLAYER::PLAYER_PED_ID())) //putting on helmet?
