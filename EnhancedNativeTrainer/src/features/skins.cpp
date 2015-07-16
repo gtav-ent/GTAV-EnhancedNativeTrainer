@@ -26,8 +26,6 @@ bool DEBUG_MODE_SKINS = false;
 int skinDetailMenuIndex = 0;
 int skinDetailMenuValue = 0;
 
-const std::vector<std::string> MENU_SKINS_TYPES_CAPTIONS{ "Saved Configs", "Players", "Animals", "NPCs", "Modify Current Skin", "Reset Current Skin", "Modify Props", "Clear Props" };
-
 int skinMainMenuPosition = 0;
 
 int skinPropsMenuPosition = 0;
@@ -44,8 +42,8 @@ bool requireRefreshOfSkinSlotMenu = false;
 
 int skinTypesMenuPositionMemory[4] = { 0, 0, 0, 0 }; //player, animals, general, test
 
-const std::vector<std::string> SKINS_PLAYER_CAPTIONS{ "Michael", "Franklin", "Trevor" };
-const std::vector<std::string> SKINS_PLAYER_VALUES{ "player_zero", "player_one", "player_two" };
+const std::vector<std::string> SKINS_PLAYER_CAPTIONS{ "Michael", "Franklin", "Trevor", "MP Female", "MP Male" };
+const std::vector<std::string> SKINS_PLAYER_VALUES{ "player_zero", "player_one", "player_two", "mp_f_freemode_01", "mp_m_freemode_01" };
 
 const std::vector<std::string> SKINS_ANIMAL_CAPTIONS{ "Boar", "Cat", "Chimp", "Chop", "Cormorant", "Cow", "Coyote", "Crow", "Deer", "Dolphin", "Fish", "German Shepherd", "Grey Whale", "Hammerhead Shark", "Hawk", "Hen", "Humpback", "Husky", "Killer Whale", "Mountain Lion", "Pig", "Pigeon", "Poodle", "Pug", "Rabbit", "Rat", "Retriever", "Rhesus", "Rottweiler", "Seagull", "Stingray", "Tiger Shark", "Westy" };
 const std::vector<std::string> SKINS_ANIMAL_VALUES{ "a_c_boar", "a_c_cat_01", "a_c_chimp", "a_c_chop", "a_c_cormorant", "a_c_cow", "a_c_coyote", "a_c_crow", "a_c_deer", "a_c_dolphin", "a_c_fish", "a_c_shepherd", "a_c_whalegrey", "a_c_sharkhammer", "a_c_chickenhawk", "a_c_hen", "a_c_humpback", "a_c_husky", "a_c_killerwhale", "a_c_mtlion", "a_c_pig", "a_c_pigeon", "a_c_poodle", "a_c_pug", "a_c_rabbit_01", "a_c_rat", "a_c_retriever", "a_c_rhesus", "a_c_rottweiler", "a_c_seagull", "a_c_stingray", "a_c_sharktiger", "a_c_westy" };
@@ -566,9 +564,6 @@ bool onconfirm_skinchanger_menu(MenuItem<int> choice)
 	case 7:
 		PED::CLEAR_ALL_PED_PROPS(playerPed);
 		break;
-	/*case 7:
-		process_skinchanger_choices_test();
-		break;*/
 	}
 	return false;
 }
@@ -577,14 +572,56 @@ bool process_skinchanger_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
 
-	for (int i = 0; i < MENU_SKINS_TYPES_CAPTIONS.size(); i++)
-	{
-		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = MENU_SKINS_TYPES_CAPTIONS[i];
-		item->value = i;
-		item->isLeaf = ( i == 5 || i == 7 );
-		menuItems.push_back(item);
-	}
+	MenuItem<int> *item;
+	int i = 0;
+
+	item = new MenuItem<int>();
+	item->caption = "Saved Skins";
+	item->value = i++;
+	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Players";
+	item->value = i++;
+	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Animals";
+	item->value = i++;
+	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "NPCs";
+	item->value = i++;
+	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Modify Current Skin";
+	item->value = i++;
+	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Reset Current Skin";
+	item->value = i++;
+	item->isLeaf = true; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Modify Props";
+	item->value = i++;
+	item->isLeaf = false; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Clear Props";
+	item->value = i++;
+	item->isLeaf = true; // Reset Current Skin and Clear Crops are leafs
+	menuItems.push_back(item);
 
 	return draw_generic_menu<int>(menuItems, &skinMainMenuPosition, "Player Skin Options", onconfirm_skinchanger_menu, NULL, NULL);
 }

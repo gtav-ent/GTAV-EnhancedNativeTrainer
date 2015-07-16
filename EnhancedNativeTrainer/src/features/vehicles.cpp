@@ -266,39 +266,24 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		if (process_carspawn_menu()) return false;
 		break;
 	case 1:
-	{
 		if (process_savedveh_menu()) return false;
 		break;
-	}
-		break;
-	case 2: //fix
+	case 2: // fix
 		fix_vehicle();
 		break;
-	case 3: //clean
+	case 3: // clean
 		clean_vehicle();
 		break;
-	case 4: //Replaced random paint with paint menu, not sure if random would still be a desired feature
+	case 4: // paint
 		if (process_paint_menu()) return false;
-		//if (bPlayerExists)
-		//{
-		//	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-		//	{
-		//		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-		//		VEHICLE::SET_VEHICLE_CUSTOM_PRIMARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
-		//		if (VEHICLE::_DOES_VEHICLE_HAVE_SECONDARY_COLOUR(veh))
-		//			VEHICLE::SET_VEHICLE_CUSTOM_SECONDARY_COLOUR(veh, rand() % 255, rand() % 255, rand() % 255);
-		//	}
-		//	else
-		//	{
-		//		set_status_text("Player isn't in a vehicle");
-		//	}
-		//}
 		break;
-
-	case 5:
+	case 5: // neon lights
+		if (process_neon_lights_menu()) return false;
+		break;
+	case 6: // mods
 		if (process_vehmod_menu()) return false;
 		break;
-	case 12:
+	case 14:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
@@ -314,29 +299,54 @@ void process_veh_menu()
 
 	std::vector<MenuItem<int>*> menuItems;
 
-	std::string menu_names[] = { "Vehicle Spawner", "Saved Vehicles", "Fix", "Clean", "Paint Menu" };
+	MenuItem<int> *item;
 	int i = 0;
-	for (; i < 5; i++)
-	{
-		MenuItem<int> *item = new MenuItem<int>();
-		item->caption = menu_names[i];
-		item->value = i;
-		item->isLeaf = (i == 3 || i == 4 );
-		item->currentMenuIndex = i;
-		menuItems.push_back(item);
-	}
 
-	i++;
-
-	MenuItem<int>* item = new MenuItem<int>();
+	item = new MenuItem<int>();
+	item->caption = "Vehicle Spawner";
+	item->value = item->currentMenuIndex = i++;
 	item->isLeaf = false;
-	item->value = i++;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Saved Vehicles";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Fix";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Clean";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Paint Menu";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Neon Lights Menu";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
 	item->caption = "Modifications";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(VEH_INVINC_MODE_CAPTIONS, onchange_veh_invincibility_mode);
 	listItem->wrap = false;
-	listItem->caption = "Invincibility";
+	listItem->caption = "Vehicle Invincibility";
 	listItem->value = get_current_veh_invincibility_mode();
 	menuItems.push_back(listItem);
 
@@ -361,15 +371,15 @@ void process_veh_menu()
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Speed Boost";
+	toggleItem->caption = "Spawn Vehicles Fully Tuned";
 	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureVehSpeedBoost;
+	toggleItem->toggleValue = &featureVehSpawnTuned;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Spawn Tuned";
+	toggleItem->caption = "Speed Boost";
 	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureVehSpawnTuned;
+	toggleItem->toggleValue = &featureVehSpeedBoost;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
@@ -380,11 +390,10 @@ void process_veh_menu()
 	menuItems.push_back(toggleItem);
 
 	item = new MenuItem<int>();
-	item->isLeaf = false;
-	item->value = i++;
 	item->caption = "Door Control";
+	item->value = item->currentMenuIndex = i++;
+	item->isLeaf = false;
 	menuItems.push_back(item);
-
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexVeh, caption, onconfirm_veh_menu, NULL, NULL);
 }
