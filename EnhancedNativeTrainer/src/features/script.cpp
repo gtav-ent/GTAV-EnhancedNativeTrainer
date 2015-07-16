@@ -703,6 +703,8 @@ void reset_globals()
 
 	reset_misc_globals();
 
+	reset_prop_globals();
+
 	activeLineIndexMain			=
 	activeLineIndexPlayer		=
 	activeLineIndexWantedFreeze	=

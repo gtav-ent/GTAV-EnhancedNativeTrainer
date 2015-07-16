@@ -38,3 +38,5 @@ void add_props_generic_settings(std::vector<StringPairSettingDBRow>* results);
 void handle_generic_settings_props(std::vector<StringPairSettingDBRow>* settings);
 
 void cleanup_props();
+
+void reset_prop_globals();

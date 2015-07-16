@@ -25,7 +25,7 @@ bool creationParam3 = true;
 bool propCreationIsInvincible = false;
 bool propCreationIsOnFire = false;
 bool propCreationIsImmovable = false;
-bool propCreationBurnt = true;
+bool propCreationBurnt = false;
 bool propCreationHasGravity = true;
 int propCreationAlphaIndex = 0;
 
@@ -3917,6 +3917,18 @@ const std::vector<PropInfo> ALL_PROPS =
 	{ "prop_space_pistol", "Space Pistol", "Weaponry" },
 	{ "prop_space_rifle", "Space Rifle", "Weaponry" }
 };
+
+void reset_prop_globals()
+{
+	lastSelectedCategoryIndex = 0;
+	propCreationIsInvincible = false;
+	propCreationIsOnFire = false;
+	propCreationIsImmovable = false;
+	propCreationBurnt = false;
+	propCreationHasGravity = true;
+	propCreationAlphaIndex = 0;
+	lastCustomPropSpawn = "";
+}
 
 float vectRads(float degs)
 {
