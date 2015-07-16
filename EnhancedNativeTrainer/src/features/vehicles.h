@@ -168,3 +168,9 @@ bool inline is_this_a_car(Vehicle veh)
 	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
 	return !(VEHICLE::IS_THIS_MODEL_A_BIKE(et) || VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et) || VEHICLE::IS_THIS_MODEL_A_TRAIN(et) || VEHICLE::IS_THIS_MODEL_A_BICYCLE(et) || VEHICLE::IS_THIS_MODEL_A_BOAT(et));
 }
+
+bool inline is_this_a_heli_or_plane(Vehicle veh)
+{
+	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
+	return VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et);
+}

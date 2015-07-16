@@ -4020,7 +4020,7 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 	Vector3 minDimens;
 	Vector3 maxDimens;
 	GAMEPLAY::GET_MODEL_DIMENSIONS(propHash, &minDimens, &maxDimens);
-	spawnOffY = min(3.5f, 1.3f * max(maxDimens.x-minDimens.x, maxDimens.y-minDimens.y));
+	spawnOffY = max(3.5f, 1.3f * max(maxDimens.x-minDimens.x, maxDimens.y-minDimens.y));
 	spawnOffZ = 0.0f;
 
 	Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(playerPed, spawnOffX, spawnOffY, spawnOffZ);

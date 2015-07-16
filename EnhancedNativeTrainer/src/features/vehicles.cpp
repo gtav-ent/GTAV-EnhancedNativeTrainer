@@ -754,16 +754,17 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 		Vector3 minDimens;
 		Vector3 maxDimens;
 		GAMEPLAY::GET_MODEL_DIMENSIONS(model, &minDimens, &maxDimens);
-		float spawnOffY = min(5.0f, 1.3f * max(maxDimens.x - minDimens.x, maxDimens.y - minDimens.y));
+		float spawnOffY = max(5.0f, 2.0f + 0.5f * (maxDimens.y - minDimens.y));
 
 		FLOAT lookDir = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
 		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, spawnOffY, 0.0);
 		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, lookDir, 1, 0);
 
-		//		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
-		//		{
-		//			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh); //returns BOOL of Vehicle on ground status.
-		//		}
+		//if we're mid-air, don't put it on the ground
+		if (!ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
+		{
+			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh);
+		}
 
 		if (featureVehSpawnTuned)
 		{
