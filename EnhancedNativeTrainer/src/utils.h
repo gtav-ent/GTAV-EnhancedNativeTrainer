@@ -19,6 +19,8 @@ std::string GetCurrentModulePath();
 
 HMODULE GetENTModuleHandle();
 
+bool IsHostProcessFiveM();
+
 bool does_file_exist(const char* name);
 
 bool StringEndsWith(const std::string& a, const std::string& b);

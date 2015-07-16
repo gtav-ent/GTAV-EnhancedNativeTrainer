@@ -22,6 +22,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "hotkeys.h"
 #include "../version.h"
+#include "../utils.h"
 
 #include <set>
 #include <iostream>
@@ -36,6 +37,10 @@ int game_frame_num = 0;
 bool everInitialised = false;
 
 ENTDatabase* database = NULL;
+
+bool isFiveM = false;
+
+bool onlineWarningShown = false;
 
 //std::mutex db_mutex;
 
@@ -158,6 +163,21 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
+	if (!isFiveM && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+	{
+		if (onlineWarningShown)
+		{
+			set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is not for use online");
+			onlineWarningShown = true;
+		}
+		WAIT(0);
+		return;
+	}
+	else
+	{
+		onlineWarningShown = false;
+	}
+
 	/*
 	std::ostringstream perfSS;
 	perfSS << "Calls this frame: " << get_calls_per_frame() << " in " << get_ticks_since_last_frame() << "ms";
@@ -838,6 +858,8 @@ void ScriptMain()
 		set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is initialising...");
 
 		clear_log_file();
+
+		isFiveM = IsHostProcessFiveM();
 
 		write_text_to_log_file("Trying to init storage");
 		init_storage();
@@ -1549,4 +1571,9 @@ void toggle_night_vision()
 void cleanup_script()
 {
 	lastSeenPeds.clear();
+}
+
+bool is_fivem()
+{
+	return isFiveM;
 }

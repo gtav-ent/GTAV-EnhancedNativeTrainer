@@ -736,6 +736,11 @@ bool draw_generic_menu(MenuParameters<T> params)
 		return false;
 	}
 
+	if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+	{
+		break;
+	}
+
 	bool result = false;
 	DWORD waitTime = 150;
 	const int totalItems = (int) params.items.size();

@@ -13,6 +13,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "src\io\keyboard.h"
 #include "src\io\config_io.h"
 #include "src\debug\debuglog.h"
+#include "src\utils.h"
 
 #include <thread>
 
