@@ -12,6 +12,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\..\inc\enums.h"
 
 #include <vector>
+#include <map>
 
 #pragma once
 
@@ -236,4 +237,8 @@ private:
 	bool has_transaction_begun = false;
 
 	sqlite3_mutex *db_mutex;
+
+	std::map<std::string, bool> featureEnablementCache;
+
+	std::map<std::string, std::string> genericSettingsCache;
 };

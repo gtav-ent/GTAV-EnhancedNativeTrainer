@@ -29,6 +29,7 @@ bool featureMiscLockRadio = false;
 bool featureMiscHideHud = false;
 bool featureMiscHideHudUpdated = false;
 
+bool featureShowVehiclePreviews = false;
 bool featureControllerIgnoreInTrainer = false;
 
 const int TRAINERCONFIG_HOTKEY_MENU = 99;
@@ -109,6 +110,11 @@ void process_misc_trainerconfig_menu()
 	toggleItem->toggleValue = &featureControllerIgnoreInTrainer;
 	menuItems.push_back(toggleItem);
 
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Show Vehicle Previews";
+	toggleItem->toggleValue = &featureShowVehiclePreviews;
+	menuItems.push_back(toggleItem);
+
 	draw_generic_menu<int>(menuItems, &activeLineIndexTrainerConfig, caption, onconfirm_trainerconfig_menu, NULL, NULL);
 }
 
@@ -156,6 +162,7 @@ void reset_misc_globals()
 		featureMiscLockRadio =
 		featureRadioAlwaysOff = false;
 
+	featureShowVehiclePreviews = true;
 	featureControllerIgnoreInTrainer = false;
 	featureBlockInputInMenu = false;
 
@@ -239,6 +246,7 @@ void add_misc_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* re
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureControllerIgnoreInTrainer", &featureControllerIgnoreInTrainer });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureBlockInputInMenu", &featureBlockInputInMenu });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureShowVehiclePreviews", &featureShowVehiclePreviews });
 }
 
 void add_misc_generic_settings(std::vector<StringPairSettingDBRow>* results)
@@ -259,6 +267,11 @@ bool is_player_reset_on_death()
 		return false;
 	}
 	return true;
+}
+
+bool is_vehicle_preview_enabled()
+{
+	return featureShowVehiclePreviews;
 }
 
 bool is_input_blocked_in_menu()
