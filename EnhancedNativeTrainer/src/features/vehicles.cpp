@@ -32,9 +32,6 @@ bool featureVehicleDoorInstant = false;
 bool featureWearHelmetOff = false;
 bool featureWearHelmetOffUpdated = false;
 
-bool featureMorePower = false;
-bool featureMorePowerUpdated = false;
-
 int activeLineIndexVeh = 0;
 int activeSavedVehicleIndex = -1;
 std::string activeSavedVehicleSlotName;
@@ -373,12 +370,11 @@ void process_veh_menu()
 	toggleItem->toggleValue = &featureVehSpeedBoost;
 	menuItems.push_back(toggleItem);
 
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Extra Power";
-	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureMorePower;
-	toggleItem->toggleValueUpdated = &featureMorePowerUpdated;
-	menuItems.push_back(toggleItem);
+	item = new RpmItem<int>();
+	item->caption = "Engine Power Override";
+	item->value = RPM;
+	item->isLeaf = false;
+	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Door Control";
@@ -493,18 +489,6 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		}
 	}
 
-	if (featureMorePower)
-	{
-		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 50.0f);
-		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
-		featureMorePowerUpdated = false;
-	}
-	else if (featureMorePowerUpdated)
-	{
-		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 0.0f);
-		featureMorePowerUpdated = false;
-	}
-
 	//Prevents player from wearing a helmet
 	if (bPlayerExists && featureWearHelmetOffUpdated)
 	{
@@ -536,7 +520,6 @@ void reset_vehicle_globals()
 
 	featureVehInvincible =
 	featureVehSpeedBoost =
-	featureMorePower =
 	featureVehicleDoorInstant =
 	featureVehSpawnInto =
 	featureNoVehFallOff =
@@ -769,11 +752,11 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 		if (featureVehSpawnTuned)
 		{
 			VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-			VEHICLE::SET_VEHICLE_MOD(veh, 11, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 11) - 1, 1); //Engine
-			VEHICLE::SET_VEHICLE_MOD(veh, 12, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 12) - 1, 1); //Brakes
-			VEHICLE::SET_VEHICLE_MOD(veh, 13, VEHICLE::GET_NUM_VEHICLE_MODS(veh, 13) - 1, 1); //Transmission
-			VEHICLE::TOGGLE_VEHICLE_MOD(veh, 18, 1); //Turbo Tuning
-			VEHICLE::TOGGLE_VEHICLE_MOD(veh, 22, 1); //Headlights
+			VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
+			VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
+			VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
+			VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
+			VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
 		}
 
 		if (featureVehSpawnInto)
@@ -814,7 +797,6 @@ void add_vehicle_feature_enablements(std::vector<FeatureEnabledLocalDefinition>*
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
-	results->push_back(FeatureEnabledLocalDefinition{ "featureMorePower", &featureMorePower, &featureMorePowerUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
 }

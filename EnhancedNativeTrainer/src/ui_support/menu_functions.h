@@ -183,7 +183,25 @@ public:
 	int GetCash() { return cash; }
 };
 
-enum MenuItemType { STANDARD, TOGGLE, CASH, WANTED };
+template<class T>
+class RpmItem : public MenuItem <T>
+{
+	virtual ~RpmItem() {}
+
+	int rpm = 0;
+	int rpmIncrement = 25;
+	int rpmMin = 0;
+	int rpmMax = 400;
+	virtual bool onConfirm();
+	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
+	virtual void handleLeftPress();
+	virtual void handleRightPress();
+
+public:
+	int GetRpm() { return rpm; }
+};
+
+enum MenuItemType { STANDARD, TOGGLE, CASH, WANTED, RPM };
 
 struct StandardOrToggleMenuDef {
 	std::string text;
@@ -522,6 +540,32 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 
 		std::stringstream ss;
 		ss << "<C>~HUD_COLOUR_GREYLIGHT~&lt;&lt; ~HUD_COLOUR_PURE_WHITE~" << std::string("$") << commaCash << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;</C>";
+		auto ssStr = ss.str();
+		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
+		UI::_DRAW_TEXT(0, textY);
+	}
+	else if (RpmItem<T>* rpmItem = dynamic_cast<RpmItem<T>*>(item))
+	{
+		UI::SET_TEXT_FONT(font);
+		UI::SET_TEXT_SCALE(0.0, text_scale);
+		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
+		UI::SET_TEXT_RIGHT_JUSTIFY(1);
+
+		UI::SET_TEXT_OUTLINE();
+
+		if (dropShadow)
+		{
+			UI::SET_TEXT_DROPSHADOW(5, 0, 78, 255, 255);
+		}
+
+		UI::SET_TEXT_EDGE(0, 0, 0, 0, 0);
+		UI::SET_TEXT_WRAP(0.0f, lineLeftScaled + lineWidthScaled - leftMarginScaled);
+		UI::_SET_TEXT_ENTRY("STRING");
+
+		std::string commaRpm = std::to_string(rpmItem->GetRpm());
+
+		std::stringstream ss;
+		ss << "<C>~HUD_COLOUR_GREYLIGHT~&lt;&lt; ~HUD_COLOUR_PURE_WHITE~" << commaRpm << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;</C>";
 		auto ssStr = ss.str();
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
