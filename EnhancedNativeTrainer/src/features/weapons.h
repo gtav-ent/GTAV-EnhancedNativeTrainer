@@ -60,3 +60,6 @@ bool onconfirm_weapon_mod_menu_tint(MenuItem<int> choice);
 void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results);
 
 bool weapon_reequip_interrupt();
+
+// weapon damage modifier
+void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source);
