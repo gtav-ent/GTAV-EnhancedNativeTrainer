@@ -277,13 +277,10 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 4: // paint
 		if (process_paint_menu()) return false;
 		break;
-	case 5: // neon lights
-		if (process_neon_lights_menu()) return false;
-		break;
-	case 6: // mods
+	case 5: // mods
 		if (process_vehmod_menu()) return false;
 		break;
-	case 14:
+	case 13:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
@@ -304,43 +301,37 @@ void process_veh_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Vehicle Spawner";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Saved Vehicles";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Fix";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Clean";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Paint Menu";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Neon Lights Menu";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Modifications";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
@@ -391,7 +382,7 @@ void process_veh_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Door Control";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
@@ -545,6 +536,7 @@ void reset_vehicle_globals()
 
 	featureVehInvincible =
 	featureVehSpeedBoost =
+	featureMorePower =
 	featureVehicleDoorInstant =
 	featureVehSpawnInto =
 	featureNoVehFallOff =
@@ -759,14 +751,20 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 			WAIT(0);
 		}
 
+		Vector3 minDimens;
+		Vector3 maxDimens;
+		GAMEPLAY::GET_MODEL_DIMENSIONS(model, &minDimens, &maxDimens);
+		float spawnOffY = max(5.0f, 2.0f + 0.5f * (maxDimens.y - minDimens.y));
+
 		FLOAT lookDir = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
-		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 5.0, 0.0);
+		Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, spawnOffY, 0.0);
 		Vehicle veh = VEHICLE::CREATE_VEHICLE(model, coords.x, coords.y, coords.z, lookDir, 1, 0);
 
-		//		if (!VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)) || !ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
-		//		{
-		//			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh); //returns BOOL of Vehicle on ground status.
-		//		}
+		//if we're mid-air, don't put it on the ground
+		if (!ENTITY::IS_ENTITY_IN_AIR(PLAYER::PLAYER_PED_ID()))
+		{
+			VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(veh);
+		}
 
 		if (featureVehSpawnTuned)
 		{
@@ -807,20 +805,18 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 }
 
 
-std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles()
+void add_vehicle_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
-	std::vector<FeatureEnabledLocalDefinition> results;
-	results.push_back(FeatureEnabledLocalDefinition{ "featureNoVehFallOff", &featureNoVehFallOff, &featureNoVehFallOffUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehicleDoorInstant", &featureVehicleDoorInstant });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvincible", &featureVehInvincible, &featureVehInvincibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehNoDamage", &featureVehNoDamage, &featureVehInvincibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureMorePower", &featureMorePower, &featureMorePowerUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
-	return results;
+	results->push_back(FeatureEnabledLocalDefinition{ "featureNoVehFallOff", &featureNoVehFallOff, &featureNoVehFallOffUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehicleDoorInstant", &featureVehicleDoorInstant });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehInvincible", &featureVehInvincible, &featureVehInvincibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehNoDamage", &featureVehNoDamage, &featureVehInvincibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureMorePower", &featureMorePower, &featureMorePowerUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
 }
 
 bool spawn_saved_car(int slot, std::string caption)

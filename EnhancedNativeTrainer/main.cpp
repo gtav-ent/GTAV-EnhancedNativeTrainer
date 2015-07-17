@@ -13,6 +13,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "src\io\keyboard.h"
 #include "src\io\config_io.h"
 #include "src\debug\debuglog.h"
+#include "src\utils.h"
 
 #include <thread>
 
@@ -21,6 +22,7 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	switch (reason)
 	{
 	case DLL_PROCESS_ATTACH:
+		CheckIsHostProcessFiveM();
 		scriptRegister(hInstance, ScriptMain);
 		keyboardHandlerRegister(OnKeyboardMessage);
 		break;
@@ -32,3 +34,4 @@ BOOL APIENTRY DllMain(HMODULE hInstance, DWORD reason, LPVOID lpReserved)
 	}
 	return TRUE;
 }
+

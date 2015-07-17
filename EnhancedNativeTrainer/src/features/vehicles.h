@@ -107,7 +107,7 @@ bool vehicle_save_menu_interrupt();
 
 bool vehicle_save_slot_menu_interrupt();
 
-std::vector<FeatureEnabledLocalDefinition> get_feature_enablements_vehicles();
+void add_vehicle_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results);
 
 void add_vehicle_generic_settings(std::vector<StringPairSettingDBRow>* results);
 
@@ -150,8 +150,6 @@ struct NeonLightsColor
 	int rVal, gVal, bVal;
 };
 
-bool inline isThisACar(Vehicle veh);
-
 void apply_neon_colors(int colorIndex);
 
 void onhighlight_neon_lights_selection(MenuItem<int> colorIndex);
@@ -163,3 +161,16 @@ bool is_neonLights(std::vector<int> extras);
 void set_neonLights(bool applied, std::vector<int> extras);
 
 bool process_neon_lights_menu();
+
+bool inline is_this_a_car(Vehicle veh)
+{
+	// Return true if the current vehicle is a car, e.g. as certain vehicles don't support neon lights
+	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
+	return !(VEHICLE::IS_THIS_MODEL_A_BIKE(et) || VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et) || VEHICLE::IS_THIS_MODEL_A_TRAIN(et) || VEHICLE::IS_THIS_MODEL_A_BICYCLE(et) || VEHICLE::IS_THIS_MODEL_A_BOAT(et));
+}
+
+bool inline is_this_a_heli_or_plane(Vehicle veh)
+{
+	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
+	return VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et);
+}

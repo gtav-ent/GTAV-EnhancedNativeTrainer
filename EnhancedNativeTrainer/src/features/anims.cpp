@@ -22412,3 +22412,31 @@ void do_play_anim(Ped playerPed, char* dict, char* anim, int mode)
 		break;
 	}
 }
+
+void cleanup_anims()
+{
+	if (rootNode != 0)
+	{
+		delete rootNode;
+	}
+
+	if (facialsNode != 0)
+	{
+		delete facialsNode;
+	}
+
+	if (movementNode != 0)
+	{
+		delete movementNode;
+	}
+
+	if (movementClipsetNode != 0)
+	{
+		delete movementClipsetNode;
+	}
+
+	if (currentMenuNode != 0)
+	{
+		delete currentMenuNode;
+	}
+}

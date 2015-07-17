@@ -19,6 +19,8 @@ std::string GetCurrentModulePath();
 
 HMODULE GetENTModuleHandle();
 
+void CheckIsHostProcessFiveM();
+
 bool does_file_exist(const char* name);
 
 bool StringEndsWith(const std::string& a, const std::string& b);
@@ -26,3 +28,5 @@ bool StringEndsWith(const std::string& a, const std::string& b);
 bool StringStartsWith(const std::string& a, const std::string& b);
 
 std::wstring ConvertFromUtf8ToUtf16(const std::string& str);
+
+bool is_fivem();

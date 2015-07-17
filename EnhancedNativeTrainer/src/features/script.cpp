@@ -22,6 +22,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "hotkeys.h"
 #include "../version.h"
+#include "../utils.h"
 
 #include <set>
 #include <iostream>
@@ -36,6 +37,8 @@ int game_frame_num = 0;
 bool everInitialised = false;
 
 ENTDatabase* database = NULL;
+
+bool onlineWarningShown = false;
 
 //std::mutex db_mutex;
 
@@ -71,7 +74,9 @@ int  frozenWantedLevel = 0;
 
 // player model control, switching on normal ped model when needed	
 
-LPCSTR player_models[] = { "player_zero", "player_one", "player_two" };
+char* player_models[] = { "player_zero", "player_one", "player_two" };
+
+char* mplayer_models[] = { "mp_f_freemode_01", "mp_m_freemode_01" };
 
 const char* CLIPSET_DRUNK = "move_m@drunk@verydrunk";
 
@@ -92,19 +97,34 @@ void check_player_model()
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	if (!ENTITY::DOES_ENTITY_EXIST(playerPed)) return;
+	if (!ENTITY::DOES_ENTITY_EXIST(playerPed))
+	{
+		return;
+	}
 
-	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death() )
+	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death())
 	{
 		bool found = false;
-		Hash model = ENTITY::GET_ENTITY_MODEL(playerPed);
+		Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
 
-		for (int i = 0; i < (sizeof(player_models) / sizeof(player_models[0])); i++)
+		for each (char* model  in player_models)
 		{
-			if (GAMEPLAY::GET_HASH_KEY((char *)player_models[i]) == model)
+			if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
 			{
 				found = true;
 				break;
+			}
+		}
+
+		if (!found && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+		{
+			for each (char* model  in mplayer_models)
+			{
+				if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
+				{
+					found = true;
+					break;
+				}
 			}
 		}
 
@@ -112,7 +132,7 @@ void check_player_model()
 		{
 			set_status_text("Resetting death state because a custom skin was used");
 			GAMEPLAY::_RESET_LOCALPLAYER_STATE();
-			
+
 			switch (last_player_slot_seen)
 			{
 			case 0:
@@ -141,6 +161,21 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
+	if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+	{
+		if (onlineWarningShown)
+		{
+			set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is not for use online");
+			onlineWarningShown = true;
+		}
+		WAIT(0);
+		return;
+	}
+	else
+	{
+		onlineWarningShown = false;
+	}
+
 	/*
 	std::ostringstream perfSS;
 	perfSS << "Calls this frame: " << get_calls_per_frame() << " in " << get_ticks_since_last_frame() << "ms";
@@ -493,10 +528,8 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 		if (process_skinchanger_menu())	return true;
 		break;
 	case 1:
-	{
 		heal_player();
-	}
-	break;
+		break;
 	case 18:
 		process_anims_menu_top();
 		break;
@@ -513,21 +546,21 @@ void process_player_menu()
 	std::string caption = "Player Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{"Player Skin", NULL, NULL, false},
-		{"Heal Player", NULL, NULL, true},
-		{"Add Cash", NULL, NULL, true, CASH},
-		{"Wanted Level", NULL, NULL, true, WANTED},
+		{ "Player Skin", NULL, NULL, false },
+		{ "Heal Player", NULL, NULL, true },
+		{ "Add Cash", NULL, NULL, true, CASH },
+		{ "Wanted Level", NULL, NULL, true, WANTED },
 		{ "Freeze Wanted Level", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated, true },
 		{ "Never Wanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated, true },
-		{"Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true},
-		{"Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
+		{ "Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true },
+		{ "Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
 		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
-		{"Unlimited Ability", &featurePlayerUnlimitedAbility, NULL, true},
-		{"Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true},
-		{"Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true},
-		{"Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true},
-		{"Super Jump", &featurePlayerSuperJump, NULL, true},
-		{"Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true},
+		{ "Unlimited Ability", &featurePlayerUnlimitedAbility, NULL, true },
+		{ "Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true },
+		{ "Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true },
+		{ "Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true },
+		{ "Super Jump", &featurePlayerSuperJump, NULL, true },
+		{ "Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true },
 		{ "Drunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated, true },
 		{ "Night Vision", &featureNightVision, &featureNightVisionUpdated, true },
 		{ "Thermal Vision", &featureThermalVision, &featureThermalVisionUpdated, true },
@@ -669,6 +702,8 @@ void reset_globals()
 	reset_world_globals();
 
 	reset_misc_globals();
+
+	reset_prop_globals();
 
 	activeLineIndexMain			=
 	activeLineIndexPlayer		=
@@ -867,6 +902,10 @@ void ScriptTidyUp()
 	setGameInputToEnabled(true, true);
 	setAirbrakeRelatedInputToBlocked(false, true);
 
+	cleanup_script();
+	cleanup_props();
+	cleanup_anims();
+
 	write_text_to_log_file("ScriptTidyUp called");
 
 	save_settings();
@@ -991,11 +1030,11 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 
 	add_misc_feature_enablements(&results);
 
-	std::vector<FeatureEnabledLocalDefinition> vehResults = get_feature_enablements_vehicles();
-	results.insert(results.end(), vehResults.begin(), vehResults.end());
+	add_props_feature_enablements(&results);
 
-	std::vector<FeatureEnabledLocalDefinition> weapResults = get_feature_enablements_weapons();
-	results.insert(results.end(), weapResults.begin(), weapResults.end());
+	add_vehicle_feature_enablements(&results);
+
+	add_weapon_feature_enablements(&results);
 
 	return results;
 }
@@ -1008,6 +1047,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_vehicle_generic_settings(&settings);
 	add_misc_generic_settings(&settings);
 	add_hotkey_generic_settings(&settings);
+	add_props_generic_settings(&settings);
 	return settings;
 }
 
@@ -1035,6 +1075,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_world(&settings);
 
 	handle_generic_settings_hotkey(&settings);
+
+	handle_generic_settings_props(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)
@@ -1337,12 +1379,18 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
+	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS();
+	std::ostringstream ss;
+	ss << "Online: " << (online ? "Yes" : "No");
+	set_status_text_centre_screen(ss.str());
+	/*
 	for (int i = 0; i < graphicsTests.size(); i++)
 	{
 		GraphicsTest* gt = &graphicsTests.at(i);
 		//gt->state = applied;
 		gt->function(gt->state);
 	}
+	*/
 
 	/*
 	if (!PED::_0x784002A632822099(PLAYER::PLAYER_PED_ID())) //putting on helmet?
@@ -1516,4 +1564,9 @@ void toggle_night_vision()
 {
 	featureNightVision = !featureNightVision;
 	featureNightVisionUpdated = true;
+}
+
+void cleanup_script()
+{
+	lastSeenPeds.clear();
 }

@@ -44,6 +44,8 @@ const static int SPECIAL_ID_FOR_TOGGLE_VARIATIONS = 95;
 
 const static int SPECIAL_ID_FOR_PLATE_TEXT = 96;
 
+const static int SPECIAL_ID_FOR_NEON_LIGHTS = 97;
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -746,6 +748,10 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		//these are toggles, do nothing
 		return false;
 
+	case SPECIAL_ID_FOR_NEON_LIGHTS:
+		process_neon_lights_menu();
+		return false;
+
 	default:
 		process_vehmod_category_menu(choice.value);
 		break;
@@ -890,6 +896,15 @@ bool process_vehmod_menu()
 		menuItems.push_back(item);
 
 		ss.str(""); ss.clear();
+	}
+
+	if (is_this_a_car(veh))
+	{
+		MenuItem<int>* item = new MenuItem<int>();
+		item->caption = "Neon Lights Menu";
+		item->value = SPECIAL_ID_FOR_NEON_LIGHTS;
+		item->isLeaf = false;
+		menuItems.push_back(item);
 	}
 
 	FunctionDrivenToggleMenuItem<int> *toggleItem;

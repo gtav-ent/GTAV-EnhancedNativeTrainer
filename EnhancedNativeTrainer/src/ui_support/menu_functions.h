@@ -20,6 +20,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\debug\debuglog.h"
 #include "..\io\io.h"
 #include "..\features\airbrake.h"
+#include "..\utils.h"
 
 #include <string>
 #include <sstream> 
@@ -733,6 +734,11 @@ bool draw_generic_menu(MenuParameters<T> params)
 	if (params.items.size() == 0)
 	{
 		set_status_text("Whoops, nothing to see here");
+		return false;
+	}
+
+	if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+	{
 		return false;
 	}
 

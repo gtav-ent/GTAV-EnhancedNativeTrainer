@@ -8,6 +8,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "airbrake.h"
 #include "..\io\keyboard.h"
 #include "..\io\config_io.h"
+#include "..\utils.h"
 #include "script.h"
 
 bool exitFlag = false;
@@ -92,6 +93,11 @@ void process_airbrake_menu()
 		else if (airbrake_switch_pressed())
 		{
 			menu_beep();
+			break;
+		}
+
+		if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+		{
 			break;
 		}
 

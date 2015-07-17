@@ -20,6 +20,7 @@ class TreeNode
 {
 public:
 	TreeNode* parent = NULL;
+
 	std::string value;
 	bool isRoot = false;
 	std::vector<TreeNode*> children;
@@ -96,3 +97,5 @@ bool process_anims_menu_top();
 void replay_last_anim();
 
 void do_play_anim(Ped playerPed, char* dict, char* anim, int mode);
+
+void cleanup_anims();

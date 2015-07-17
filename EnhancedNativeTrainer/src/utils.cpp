@@ -10,10 +10,17 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "utils.h"
 #include <windows.h>
+#include <psapi.h>
+#include <stdio.h>
 #include <sys/stat.h>
 #include <vector>
+#include <sstream>
+
+#include "debug\debuglog.h";
 
 extern "C" IMAGE_DOS_HEADER __ImageBase; // MSVC specific, with other compilers use HMODULE from DllMain
+
+bool isFiveM;
 
 std::string cachedModulePath;
 
@@ -49,6 +56,56 @@ HMODULE GetENTModuleHandle()
 	return hMod;
 }
 
+void CheckIsHostProcessFiveM()
+{
+	HMODULE hMods[1024];
+	DWORD cbNeeded;
+
+	DWORD procID = GetCurrentProcessId();
+	if (procID == NULL)
+	{
+		write_text_to_log_file("No process ID");
+		return;
+	}
+
+	HANDLE currentProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
+		PROCESS_VM_READ,
+		FALSE, GetCurrentProcessId());
+
+	if (currentProcess == NULL)
+	{
+		write_text_to_log_file("No process");
+		return;
+	}
+
+	bool result = false;
+
+	if (EnumProcessModules(currentProcess, hMods, sizeof(hMods), &cbNeeded))
+	{
+		for (int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+		{
+			TCHAR szModName[MAX_PATH];
+
+			// Get the full path to the module's file.
+
+			if (GetModuleFileNameEx(currentProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+			{
+				std::string moduleName(szModName);
+				if (StringEndsWith(moduleName, "CoreRT.dll"))
+				{
+					write_text_to_log_file("Found FiveM");
+					result = true;
+					break;
+				}
+			}
+		}
+	}
+
+	CloseHandle(currentProcess);
+
+	isFiveM = result;
+}
+
 bool does_file_exist(const char* name)
 {
 	struct stat buffer;
@@ -79,4 +136,9 @@ std::wstring ConvertFromUtf8ToUtf16(const std::string& str)
 	}
 
 	return convertedString;
+}
+
+bool is_fivem()
+{
+	return isFiveM;
 }
