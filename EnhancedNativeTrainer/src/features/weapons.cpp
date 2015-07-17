@@ -156,7 +156,7 @@ int activeLineIndexWeapon = 0;
 int lastSelectedWeaponCategory = 0;
 int lastSelectedWeapon = 0;
 
-float weapDmgModifier = 1.0;
+float weapDmgMod = 1.0;
 
 bool featureWeaponInfiniteAmmo = false;
 bool featureWeaponInfiniteParachutes = false;
@@ -500,17 +500,12 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 
 bool process_weapon_menu()
 {
-	const int lineCount = 9;
 	int i = 0;
 
 	std::string caption = "Weapon Options";
 	std::vector<MenuItem<int>*> menuItems;
 
-	MenuItem<int> *item;
-	SelectFromListMenuItem *listItem; // this is used to select through the various weapon damage modifier values
-	ToggleMenuItem<int>* toggleItem;
-
-	item = new MenuItem<int>();
+	MenuItem<int> *item = new MenuItem<int>();
 	item->caption = "Give All Weapons";
 	item->value = i++;
 	item->isLeaf = true;
@@ -522,13 +517,13 @@ bool process_weapon_menu()
 	item->isLeaf = false;
 	menuItems.push_back(item);
 	
-	listItem = new SelectFromListMenuItem(WEAP_DMG_CAPTIONS, onchange_weap_dmg_modifier);
+	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(WEAP_DMG_CAPTIONS, onchange_weap_dmg_modifier);
 	listItem->wrap = false;
 	listItem->caption = "Weapon Damage Modifier";
 	listItem->value = get_weap_dmg_modifier();
 	menuItems.push_back(listItem);
 	
-	toggleItem = new ToggleMenuItem<int>();
+	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
 	toggleItem->caption = "Infinite Ammo";
 	toggleItem->value = i++;
 	toggleItem->toggleValue = &featureWeaponInfiniteAmmo;
@@ -596,6 +591,8 @@ void reset_weapon_globals()
 {
 	activeLineIndexWeapon = 0;
 
+	weapDmgMod = 1.0;
+
 	featureWeaponInfiniteAmmo =
 		featureWeaponInfiniteParachutes =
 		featureWeaponNoReload =
@@ -609,10 +606,11 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	// weapon damage modifier
-	if (bPlayerExists && weapDmgModifier > 1.0) {
-		PLAYER::SET_PLAYER_WEAPON_DAMAGE_MODIFIER(player, weapDmgModifier);
-		PLAYER::SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER(player, weapDmgModifier);
-		PLAYER::SET_PLAYER_VEHICLE_DAMAGE_MODIFIER(player, weapDmgModifier);
+	if (bPlayerExists && weapDmgMod > 1.0) {
+		// Don't need to set this per-frame if it's at the default
+		PLAYER::SET_PLAYER_WEAPON_DAMAGE_MODIFIER(player, weapDmgMod);
+		PLAYER::SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER(player, weapDmgMod);
+		PLAYER::SET_PLAYER_VEHICLE_DAMAGE_MODIFIER(player, weapDmgMod);
 	}
 	
 	// weapon
@@ -1009,7 +1007,7 @@ void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 }
 
 int get_weap_dmg_modifier() {
-	switch (weapDmgModifier) {
+	switch (weapDmgMod) {
 		case 1.0:
 			return 0;
 		case 1.5:
@@ -1033,28 +1031,28 @@ void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source)
 {
 	switch (value) {
 		case 0:
-			weapDmgModifier = 1.0;
+			weapDmgMod = 1.0;
 			break;
 		case 1:
-			weapDmgModifier = 1.5;
+			weapDmgMod = 1.5;
 			break;
 		case 2:
-			weapDmgModifier = 2.0;
+			weapDmgMod = 2.0;
 			break;
 		case 3:
-			weapDmgModifier = 5.0;
+			weapDmgMod = 5.0;
 			break;
 		case 4:
-			weapDmgModifier = 10.0;
+			weapDmgMod = 10.0;
 			break;
 		case 5:
-			weapDmgModifier = 100.0;
+			weapDmgMod = 100.0;
 			break;
 		case 6:
-			weapDmgModifier = 1000.0;
+			weapDmgMod = 1000.0;
 			break;
 		default:
-			weapDmgModifier = 1.0
+			weapDmgMod = 1.0
 			break;
 	}
 }
