@@ -499,7 +499,7 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 	{
 		process_props_spawn_menu();
 	}
-	else if (choice.value == 1)
+	else if (choice.value == 1) //remove all
 	{
 		int count = 0;
 		for each (SpawnedPropInstance* prop in propsWeCreated)
@@ -515,7 +515,7 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 		std::ostringstream ss;
 		ss << count << " object" << (count != 1 ? "s" : "") << " removed";
 		set_status_text(ss.str());
-		return true;
+		return false;
 	}
 	else if (choice.value == 2)
 	{
@@ -544,13 +544,6 @@ void process_props_menu()
 	i++;
 
 	item = new MenuItem<int>();
-	item->value = 1;
-	item->caption = "Remove All Spawned Objects";
-	item->isLeaf = true;
-	menuItems.push_back(item);
-	i++;
-
-	item = new MenuItem<int>();
 	item->value = 2;
 	item->caption = "Spawn Options";
 	item->isLeaf = false;
@@ -561,6 +554,13 @@ void process_props_menu()
 	item->value = 3;
 	item->caption = "Edit Spawned Objects";
 	item->isLeaf = false;
+	menuItems.push_back(item);
+	i++;
+
+	item = new MenuItem<int>();
+	item->value = 1;
+	item->caption = "Remove All Spawned Objects";
+	item->isLeaf = true;
 	menuItems.push_back(item);
 	i++;
 	
