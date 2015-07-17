@@ -719,7 +719,7 @@ bool is_prop_immovable(std::vector<int> extras)
 void set_prop_immovable(bool applied, std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	ENTITY::FREEZE_ENTITY_POSITION(prop->instance, propCreationIsImmovable);
+	ENTITY::FREEZE_ENTITY_POSITION(prop->instance, applied);
 	if (!applied)
 	{
 		//this unfreezes it
