@@ -16,7 +16,7 @@ int lastSelectedPropIndex = 0;
 bool requireRefreshOfPropInstanceMenu = false;
 bool propInstanceMenuInterruptFlag = false;
 
-std::set<SpawnedPropInstance*> propsWeCreated;
+std::vector<SpawnedPropInstance*> propsWeCreated;
 
 std::string lastCustomPropSpawn;
 
@@ -52,7 +52,7 @@ float vectRads(float degs)
 
 void manage_prop_set()
 {
-	std::set<SpawnedPropInstance*>::iterator it;
+	std::vector<SpawnedPropInstance*>::iterator it;
 	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
 	{
 		SpawnedPropInstance* prop = *it;
@@ -213,7 +213,7 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 		record->isImmovable = propCreationIsImmovable;
 		record->hasGravity = propCreationHasGravity;
 
-		propsWeCreated.insert(record);
+		propsWeCreated.push_back(record);
 		manage_prop_set();
 	}
 	else
@@ -599,7 +599,7 @@ void handle_generic_settings_props(std::vector<StringPairSettingDBRow>* settings
 
 void cleanup_props()
 {
-	std::set<SpawnedPropInstance*>::iterator it;
+	std::vector<SpawnedPropInstance*>::iterator it;
 	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
 	{
 		SpawnedPropInstance* prop = *it;
@@ -615,7 +615,7 @@ void cleanup_props()
 int find_highest_instance_num_of_prop(Hash model)
 {
 	int highestFound = 0;
-	std::set<SpawnedPropInstance*>::iterator it;
+	std::vector<SpawnedPropInstance*>::iterator it;
 	for (it = propsWeCreated.begin(); it != propsWeCreated.end(); it++)
 	{
 		SpawnedPropInstance* prop = *it;
@@ -649,7 +649,7 @@ bool prop_spawned_instances_menu()
 
 		int i = 0;
 
-		std::set<SpawnedPropInstance*>::iterator it;
+		std::vector<SpawnedPropInstance*>::iterator it;
 		for (it = propsWeCreated.begin(); it != propsWeCreated.end(); it++)
 		{
 			SpawnedPropInstance* instance = *it;
@@ -691,9 +691,7 @@ SpawnedPropInstance* get_prop_at_index(int i)
 	{
 		return NULL;
 	}
-	std::set<SpawnedPropInstance*>::iterator it = propsWeCreated.begin();
-	std::advance(it, i);
-	SpawnedPropInstance* prop = *it;
+	SpawnedPropInstance* prop = propsWeCreated.at(i);
 	return prop;
 }
 
@@ -767,7 +765,7 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 	{
 		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
 		OBJECT::DELETE_OBJECT(&prop->instance);
-		propsWeCreated.erase(prop);
+		propsWeCreated.erase(propsWeCreated.begin() + lastSelectedPropIndex);
 		manage_prop_set();
 		propInstanceMenuInterruptFlag = true;
 		requireRefreshOfPropInstanceMenu = true;
