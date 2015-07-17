@@ -498,7 +498,7 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 	return false;
 }
 
-void process_weapon_menu()
+bool process_weapon_menu()
 {
 	const int lineCount = 9;
 	int i = 0;
