@@ -63,3 +63,5 @@ bool weapon_reequip_interrupt();
 
 // weapon damage modifier
 void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source);
+
+int get_weap_dmg_modifier();
