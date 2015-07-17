@@ -440,6 +440,27 @@ void ENTDatabase::close()
 
 void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefinition> values)
 {
+	bool cacheIsSame = true;
+	for each (FeatureEnabledLocalDefinition def in values)
+	{
+		if (featureEnablementCache.find(def.name) == featureEnablementCache.end())
+		{
+			cacheIsSame = false;
+			break;
+		}
+		bool enabledInCache = featureEnablementCache[def.name];
+		if ( *def.enabled != enabledInCache)
+		{
+			cacheIsSame = false;
+			break;
+		}
+	}
+
+	if (cacheIsSame)
+	{
+		return;
+	}
+
 	mutex_lock();
 	begin_transaction();
 
@@ -458,6 +479,19 @@ void ENTDatabase::store_feature_enabled_pairs(std::vector<FeatureEnabledLocalDef
 			write_text_to_log_file(zErrMsg);
 			sqlite3_free(zErrMsg);
 			break;
+		}
+	}
+
+	for each (FeatureEnabledLocalDefinition def in values)
+	{
+		if (featureEnablementCache.find(def.name) == featureEnablementCache.end())
+		{
+			std::pair<std::string, bool> pair(std::string(def.name), *def.enabled);
+			featureEnablementCache.insert(pair);
+		}
+		else
+		{
+			featureEnablementCache[def.name] = *def.enabled;
 		}
 	}
 
@@ -490,11 +524,45 @@ void ENTDatabase::load_feature_enabled_pairs(std::vector<FeatureEnabledLocalDefi
 		write_text_to_log_file("Done loading feature pairs");
 	}
 
+	for each (FeatureEnabledLocalDefinition def in values)
+	{
+		if (featureEnablementCache.find(def.name) == featureEnablementCache.end())
+		{
+			std::pair<std::string, bool> pair(std::string(def.name), *def.enabled);
+			featureEnablementCache.insert(pair);
+		}
+		else
+		{
+			featureEnablementCache[def.name] = *def.enabled;
+		}
+	}
+
 	mutex_unlock();
 }
 
 void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values)
 {
+	bool cacheIsSame = true;
+	for each (StringPairSettingDBRow row in values)
+	{
+		if (genericSettingsCache.find(row.name) == genericSettingsCache.end())
+		{
+			cacheIsSame = false;
+			break;
+		}
+		std::string valueInCache = genericSettingsCache[row.name];
+		if (valueInCache.compare(row.value) != 0)
+		{
+			cacheIsSame = false;
+			break;
+		}
+	}
+
+	if (cacheIsSame)
+	{
+		return;
+	}
+
 	mutex_lock();
 	begin_transaction();
 
@@ -541,6 +609,19 @@ void ENTDatabase::store_setting_pairs(std::vector<StringPairSettingDBRow> values
 		}
 	}
 
+	for each (StringPairSettingDBRow row in values)
+	{
+		if (genericSettingsCache.find(row.name) == genericSettingsCache.end())
+		{
+			std::pair<std::string, std::string> pair(row.name, row.value);
+			genericSettingsCache.insert(pair);
+		}
+		else
+		{
+			genericSettingsCache[row.name] = row.value;
+		}
+	}
+
 	end_transaction();
 	mutex_unlock();
 
@@ -560,6 +641,19 @@ std::vector<StringPairSettingDBRow> ENTDatabase::load_setting_pairs()
 		write_text_to_log_file("Pairs not loaded");
 		write_text_to_log_file(zErrMsg);
 		sqlite3_free(zErrMsg);
+	}
+
+	for each (StringPairSettingDBRow row in dbPairs)
+	{
+		if (genericSettingsCache.find(row.name) == genericSettingsCache.end())
+		{
+			std::pair<std::string, std::string> pair(row.name, row.value);
+			genericSettingsCache.insert(pair);
+		}
+		else
+		{
+			genericSettingsCache[row.name] = row.value;
+		}
 	}
 
 	mutex_unlock();

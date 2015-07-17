@@ -25,6 +25,9 @@ public:
 	Object instance;
 	std::string title;
 	int counter;
+	bool isInvincible;
+	bool isImmovable;
+	bool hasGravity;
 };
 
 bool onconfirm_prop_selection(MenuItem<std::string> choice);
@@ -40,3 +43,15 @@ void handle_generic_settings_props(std::vector<StringPairSettingDBRow>* settings
 void cleanup_props();
 
 void reset_prop_globals();
+
+int find_highest_instance_num_of_prop(Hash model);
+
+bool prop_spawned_instances_menu();
+
+bool onconfirm_prop_instance_menu(MenuItem<int> choice);
+
+bool prop_spawned_single_instance_menu(int index);
+
+bool prop_instance_menu_interrupt();
+
+SpawnedPropInstance* get_prop_at_index(int i);

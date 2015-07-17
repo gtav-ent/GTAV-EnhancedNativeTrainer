@@ -1413,6 +1413,11 @@ static std::vector<VehicleImage> ALL_VEH_IMAGES;
 
 MenuItemImage* vehicle_image_preview_finder(MenuItem<std::string> choice)
 {
+	if (!is_vehicle_preview_enabled())
+	{
+		return NULL;
+	}
+
 	for each (VehicleImage vimg in ALL_VEH_IMAGES)
 	{
 		if (strcmp(vimg.modelName, choice.value.c_str()) == 0)
