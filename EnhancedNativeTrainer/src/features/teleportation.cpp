@@ -320,10 +320,10 @@ void output_current_location(Entity e)
 	set_status_text_centre_screen(ss.str(), 4000UL);
 }
 
-void teleport_to_marker(Entity e)
+Vector3 get_blip_marker()
 {
+	static Vector3 zero;
 	Vector3 coords;
-	bool success = false;
 
 	bool blipFound = false;
 	// search for marker blip
@@ -339,44 +339,49 @@ void teleport_to_marker(Entity e)
 	}
 	if (blipFound)
 	{
-		// get entity to teleport
-		Entity e = PLAYER::PLAYER_PED_ID();
-		if (PED::IS_PED_IN_ANY_VEHICLE(e, 0))
-		{
-			e = PED::GET_VEHICLE_PED_IS_USING(e);
-		}
-
-		// load needed map region and check height levels for ground existence
-		bool groundFound = false;
-		static float groundCheckHeight[] = {
-			100.0, 150.0, 50.0, 0.0, 200.0, 250.0, 300.0, 350.0, 400.0,
-			450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0
-		};
-		for (int i = 0; i < sizeof(groundCheckHeight) / sizeof(float); i++)
-		{
-			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(e, coords.x, coords.y, groundCheckHeight[i], 0, 0, 1);
-			WAIT(100);
-			if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, groundCheckHeight[i], &coords.z))
-			{
-				groundFound = true;
-				coords.z += 3.0;
-				break;
-			}
-		}
-		// if ground not found then set Z in air and give player a parachute
-		if (!groundFound)
-		{
-			coords.z = 1000.0;
-			WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
-		}
-
-		//do it
-		teleport_to_coords(e, coords);
+		return coords;
 	}
-	else
+
+	set_status_text("Map marker isn't set");
+	return zero;
+}
+
+void teleport_to_marker()
+{
+	Vector3 coords = get_blip_marker();
+	
+	if (coords.x + coords.y == 0) return;
+	
+	// get entity to teleport
+	Entity e = PLAYER::PLAYER_PED_ID();
+	if (PED::IS_PED_IN_ANY_VEHICLE(e, 0))
 	{
-		set_status_text("Map marker isn't set");
+		e = PED::GET_VEHICLE_PED_IS_USING(e);
 	}
+
+	// load needed map region and check height levels for ground existence
+	bool groundFound = false;
+	static float groundCheckHeight[] = 
+	{ 100.0, 150.0, 50.0, 0.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0 };
+	for (int i = 0; i < sizeof(groundCheckHeight) / sizeof(float); i++)
+	{
+		ENTITY::SET_ENTITY_COORDS_NO_OFFSET(e, coords.x, coords.y, groundCheckHeight[i], 0, 0, 1);
+		WAIT(100);
+		if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, groundCheckHeight[i], &coords.z))
+		{
+			groundFound = true;
+			coords.z += 3.0;
+			break;
+		}
+	}
+	// if ground not found then set Z in air and give player a parachute
+	if (!groundFound)
+	{
+		coords.z = 1000.0;
+		WEAPON::GIVE_DELAYED_WEAPON_TO_PED(PLAYER::PLAYER_PED_ID(), 0xFBAB5776, 1, 0);
+	}
+	//do it
+	teleport_to_coords(e, coords);
 }
 
 void teleport_to_last_vehicle()
@@ -396,15 +401,79 @@ void teleport_to_last_vehicle()
 	}
 }
 
+void get_chauffeur_to_marker()
+{
+	Vector3 coords = get_blip_marker();
+
+	if (coords.x + coords.y == 0) return;
+
+	// get entity to teleport
+	Entity e = PLAYER::PLAYER_PED_ID();
+	if (PED::IS_PED_IN_ANY_VEHICLE(e, 0)) //kick out of current veh
+	{
+		AI::CLEAR_PED_TASKS_IMMEDIATELY(PLAYER::PLAYER_PED_ID());
+	}
+
+	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z, &coords.z);
+	coords.z += 3.0;
+
+	Hash V_hash = GAMEPLAY::GET_HASH_KEY("STRETCH");
+	Hash P_hash = GAMEPLAY::GET_HASH_KEY("A_C_CHIMP");
+	STREAMING::REQUEST_MODEL(V_hash);
+	STREAMING::REQUEST_MODEL(P_hash);
+	while ((!STREAMING::HAS_MODEL_LOADED(V_hash)) || (!STREAMING::HAS_MODEL_LOADED(P_hash))) WAIT(0);
+	Vector3 spawn_coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 5.0, 0.0);
+	FLOAT lookDir = ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID());
+	Vehicle veh = VEHICLE::CREATE_VEHICLE(V_hash, spawn_coords.x, spawn_coords.y, spawn_coords.z, lookDir, 1, 0);
+	Ped ped = PED::CREATE_PED(25, P_hash, spawn_coords.x, spawn_coords.y, spawn_coords.z, 0, false, false);
+
+	while (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(veh))
+	{
+		NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(veh);
+		WAIT(0);
+	}
+	VEHICLE::SET_VEHICLE_ENGINE_ON(veh, TRUE, TRUE);
+	VEHICLE::SET_VEHICLE_COLOURS(veh, 0, 0);
+	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENT VIP");
+
+	AI::TASK_WARP_PED_INTO_VEHICLE(ped, veh, -1);
+	for (int i = 1; i <= 8; i++)
+	{
+		if (!VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i)) continue;
+		AI::TASK_WARP_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, i); break;
+	}
+
+	//AI::TASK_VEHICLE_MISSION_COORS_TARGET(ped, veh, coords.x, coords.y, coords.z, 4, 7.0f, 0xC0027, 5.0f, -1.0f, 1);
+	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, coords.x, coords.y, coords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, 0xC00AB, -1);//DRIVING MODE 4
+	/* DRIVING MODES :
+	0 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	1 = Drives legit and does no overtakes.Drives carefully
+	2 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	3 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars
+	4 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars(fast accelerate, chase ? )
+	5 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars
+	6 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars
+	7 = Drives legit and does overtakes depending on speed ? Drives carefully
+	8 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	9 = Drives legit and does no overtakes.Drives carefully
+	10 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	*/
+}
+
 bool onconfirm_teleport_category(MenuItem<int> choice)
 {
 	Entity e = PLAYER::PLAYER_PED_ID();
 	if (choice.value == -2)
 	{
-		teleport_to_marker(e);
+		teleport_to_marker();
 		return false;
 	}
 	else if (choice.value == -3)
+	{
+		get_chauffeur_to_marker();
+		return false;
+	}
+	else if (choice.value == -4)
 	{
 		teleport_to_last_vehicle();
 		return false;
@@ -414,7 +483,7 @@ bool onconfirm_teleport_category(MenuItem<int> choice)
 		output_current_location(e);
 		return false;
 	}
-	else if (choice.value == -4)
+	else if (choice.value == -5)
 	{
 		process_toggles_menu();
 		return false;
@@ -584,8 +653,14 @@ bool process_teleport_menu(int categoryIndex)
 		menuItems.push_back(markerItem);
 
 		markerItem = new MenuItem<int>();
-		markerItem->caption = "Go To Last Vehicle";
+		markerItem->caption = "Chauffeur To Marker";
 		markerItem->value = -3;
+		markerItem->isLeaf = true;
+		menuItems.push_back(markerItem);
+
+		markerItem = new MenuItem<int>();
+		markerItem->caption = "Go To Last Vehicle";
+		markerItem->value = -4;
 		markerItem->isLeaf = true;
 		menuItems.push_back(markerItem);
 

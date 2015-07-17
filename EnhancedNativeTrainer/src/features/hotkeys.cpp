@@ -97,7 +97,7 @@ void trigger_function_for_hotkey(int hotkey)
 		reset_wanted_level();
 		break;
 	case HKEY_TELEPORT_TO_MARKER:
-		teleport_to_marker(PLAYER::PLAYER_PED_ID());
+		teleport_to_marker();
 		break;
 	case HKEY_TELEPORT_TO_VEHICLE:
 		teleport_to_last_vehicle();
