@@ -436,7 +436,8 @@ void get_chauffeur_to_marker()
 	VEHICLE::SET_VEHICLE_COLOURS(veh, 0, 0);
 	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENT VIP");
 
-	AI::TASK_WARP_PED_INTO_VEHICLE(ped, veh, -1);
+	PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
+
 	for (int i = 1; i <= 8; i++)
 	{
 		if (!VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i)) continue;
@@ -445,6 +446,7 @@ void get_chauffeur_to_marker()
 
 	//AI::TASK_VEHICLE_MISSION_COORS_TARGET(ped, veh, coords.x, coords.y, coords.z, 4, 7.0f, 0xC0027, 5.0f, -1.0f, 1);
 	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, coords.x, coords.y, coords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, 0xC00AB, -1);//DRIVING MODE 4
+
 	/* DRIVING MODES :
 	0 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
 	1 = Drives legit and does no overtakes.Drives carefully
