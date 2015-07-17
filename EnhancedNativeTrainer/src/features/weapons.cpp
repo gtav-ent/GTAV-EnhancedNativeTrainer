@@ -145,7 +145,6 @@ const std::vector<std::string> VOV_WEAPONMOD_VALUES[] = { VALUES_ATTACH_PISTOL, 
 
 //weapon damage modifier list
 const std::vector<std::string> WEAP_DMG_CAPTIONS{ "1.0x", "1.5x" "2.0x", "5.0x", "10.0x", "100.0x", "1000.0x" };
-const std::vector<float> WEAP_DMG_VALUES{ 1.0, 1.5, 2.0, 5.0, 10.0, 100.0, 1000.0 };
 
 const int PARACHUTE_ID = 0xFBAB5776;
 
@@ -156,7 +155,6 @@ const int MAX_MOD_SLOTS = 15;
 int activeLineIndexWeapon = 0;
 int lastSelectedWeaponCategory = 0;
 int lastSelectedWeapon = 0;
-//int lastSelectedIndexInIndivMenu = 0;
 
 float weapDmgModifier = 1.0;
 
@@ -179,6 +177,8 @@ bool saved_parachute = false;
 int saved_armour = 0;
 
 bool redrawWeaponMenuAfterEquipChange = false;
+
+int weapMenuIndex = 0;
 
 void onchange_knuckle_appearance(int value, SelectFromListMenuItem* source)
 {
@@ -507,8 +507,8 @@ void process_weapon_menu()
 	std::vector<MenuItem<int>*> menuItems;
 
 	MenuItem<int> *item;
-	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(VEH_INVINC_MODE_CAPTIONS, onchange_veh_invincibility_mode);
-	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
+	SelectFromListMenuItem *listItem; // this is used to select through the various weapon damage modifier values
+	ToggleMenuItem<int>* toggleItem;
 
 	item = new MenuItem<int>();
 	item->caption = "Give All Weapons";
@@ -587,10 +587,9 @@ void process_weapon_menu()
 		{ "Explosive Ammo", &featureWeaponExplosiveAmmo, NULL },
 		{ "Explosive Melee", &featureWeaponExplosiveMelee, NULL },
 		{ "Vehicle Rockets", &featureWeaponVehRockets, NULL }
-*/
 	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexWeapon, caption, onconfirm_weapon_menu);
+*/
+	return draw_generic_menu<int>(menuItems, &weapMenuIndex, caption, onconfirm_weapon_menu, NULL, NULL);
 }
 
 void reset_weapon_globals()
@@ -1007,6 +1006,27 @@ void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponInfiniteParachutes", &featureWeaponInfiniteParachutes });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponNoReload", &featureWeaponNoReload });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponVehRockets", &featureWeaponVehRockets });
+}
+
+int get_weap_dmg_modifier() {
+	switch (weapDmgModifier) {
+		case 1.0:
+			return 0;
+		case 1.5:
+			return 1;
+		case 2.0:
+			return 2;
+		case 5.0:
+			return 3;
+		case 10.0:
+			return 4;
+		case 100.0:
+			return 5;
+		case 1000.0:
+			return 6;
+		default:
+			return 0;
+	}
 }
 
 void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source)
