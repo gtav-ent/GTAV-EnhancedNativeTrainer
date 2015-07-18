@@ -143,6 +143,10 @@ const std::vector<std::string> WEAPONTYPES_MOD{ "WEAPON_PISTOL", "WEAPON_HEAVYPI
 const std::vector<std::string> VOV_WEAPONMOD_CAPTIONS[] = { CAPTIONS_ATTACH_PISTOL, CAPTIONS_ATTACH_HEAVYPISTOL, CAPTIONS_ATTACH_COMBATPISTOL, CAPTIONS_ATTACH_APPISTOL, CAPTIONS_ATTACH_PISTOL50, CAPTIONS_ATTACH_MICROSMG, CAPTIONS_ATTACH_SMG, CAPTIONS_ATTACH_ASSAULTSMG, CAPTIONS_ATTACH_ASSAULTRIFLE, CAPTIONS_ATTACH_CARBINERIFLE, CAPTIONS_ATTACH_ADVANCEDRIFLE, CAPTIONS_ATTACH_MG, CAPTIONS_ATTACH_COMBATMG, CAPTIONS_ATTACH_SAWNOFF, CAPTIONS_ATTACH_PUMPSHOTGUN, CAPTIONS_ATTACH_ASSAULTSHOTGUN, CAPTIONS_ATTACH_BULLPUPSHOTGUN, CAPTIONS_ATTACH_SNIPERRIFLE, CAPTIONS_ATTACH_HEAVYSNIPER, CAPTIONS_ATTACH_GRENADELAUNCHER, CAPTIONS_ATTACH_BULLPUPRIFLE, CAPTIONS_ATTACH_GUSENBERG, CAPTIONS_ATTACH_HEAVYSHOTGUN, CAPTIONS_ATTACH_MARKSMANRIFLE, CAPTIONS_ATTACH_SNSPISTOL, CAPTIONS_ATTACH_SPECIALCARBINE, CAPTIONS_ATTACH_VINTAGEPISTOL, CAPTIONS_ATTACH_COMBATPDW };
 const std::vector<std::string> VOV_WEAPONMOD_VALUES[] = { VALUES_ATTACH_PISTOL, VALUES_ATTACH_HEAVYPISTOL, VALUES_ATTACH_COMBATPISTOL, VALUES_ATTACH_APPISTOL, VALUES_ATTACH_PISTOL50, VALUES_ATTACH_MICROSMG, VALUES_ATTACH_SMG, VALUES_ATTACH_ASSAULTSMG, VALUES_ATTACH_ASSAULTRIFLE, VALUES_ATTACH_CARBINERIFLE, VALUES_ATTACH_ADVANCEDRIFLE, VALUES_ATTACH_MG, VALUES_ATTACH_COMBATMG, VALUES_ATTACH_SAWNOFF, VALUES_ATTACH_PUMPSHOTGUN, VALUES_ATTACH_ASSAULTSHOTGUN, VALUES_ATTACH_BULLPUPSHOTGUN, VALUES_ATTACH_SNIPERRIFLE, VALUES_ATTACH_HEAVYSNIPER, VALUES_ATTACH_GRENADELAUNCHER, VALUES_ATTACH_BULLPUPRIFLE, VALUES_ATTACH_GUSENBERG, VALUES_ATTACH_HEAVYSHOTGUN, VALUES_ATTACH_MARKSMANRIFLE, VALUES_ATTACH_SNSPISTOL, VALUES_ATTACH_SPECIALCARBINE, VALUES_ATTACH_VINTAGEPISTOL, VALUES_ATTACH_COMBATPDW };
 
+//weapon damage modifier list
+const std::vector<std::string> WEAP_DMG_CAPTIONS{ "1.0x", "1.5x", "2.0x", "5.0x", "10.0x", "50.0x", "100.0x", "1000.0x" };
+const std::vector<float> WEAP_DMG_FLOAT{ 1.0, 1.5, 2.0, 5.0, 10.0, 50.0, 100.0, 1000.0 };
+
 const int PARACHUTE_ID = 0xFBAB5776;
 
 const int TOTAL_WEAPONS_COUNT = 54;
@@ -152,7 +156,8 @@ const int MAX_MOD_SLOTS = 15;
 int activeLineIndexWeapon = 0;
 int lastSelectedWeaponCategory = 0;
 int lastSelectedWeapon = 0;
-//int lastSelectedIndexInIndivMenu = 0;
+
+int weapDmgModIndex = 0;
 
 bool featureWeaponInfiniteAmmo = false;
 bool featureWeaponInfiniteParachutes = false;
@@ -492,12 +497,80 @@ bool onconfirm_weapon_menu(MenuItem<int> choice)
 	return false;
 }
 
-void process_weapon_menu()
+bool process_weapon_menu()
 {
-	const int lineCount = 9;
+	int i = 0;
 
 	std::string caption = "Weapon Options";
+	std::vector<MenuItem<int>*> menuItems;
 
+	MenuItem<int> *item = new MenuItem<int>();
+	item->caption = "Give All Weapons";
+	item->value = i++;
+	item->isLeaf = true;
+	menuItems.push_back(item);
+	
+	item = new MenuItem<int>();
+	item->caption = "Individual Weapons";
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+	
+	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(WEAP_DMG_CAPTIONS, onchange_weap_dmg_modifier);
+	listItem->wrap = false;
+	listItem->caption = "Weapon Damage Modifier";
+	listItem->value = weapDmgModIndex;
+	menuItems.push_back(listItem);
+	
+	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Infinite Ammo";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWeaponInfiniteAmmo;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+	
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Infinite Parachutes";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWeaponInfiniteParachutes;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+	
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "No Reload";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWeaponNoReload;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+	
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Fire Ammo";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWeaponFireAmmo;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+	
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Explosive Ammo";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWeaponExplosiveAmmo;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+	
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Explosive Melee";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWeaponExplosiveMelee;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+	
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Vehicle Rockets";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureWeaponVehRockets;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+/*
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Give All Weapons", NULL, NULL, true },
 		{ "Individual Weapons", NULL, NULL, false },
@@ -509,13 +582,15 @@ void process_weapon_menu()
 		{ "Explosive Melee", &featureWeaponExplosiveMelee, NULL },
 		{ "Vehicle Rockets", &featureWeaponVehRockets, NULL }
 	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexWeapon, caption, onconfirm_weapon_menu);
+*/
+	return draw_generic_menu<int>(menuItems, &activeLineIndexWeapon, caption, onconfirm_weapon_menu, NULL, NULL);
 }
 
 void reset_weapon_globals()
 {
 	activeLineIndexWeapon = 0;
+
+	weapDmgModIndex = 0;
 
 	featureWeaponInfiniteAmmo =
 		featureWeaponInfiniteParachutes =
@@ -529,7 +604,14 @@ void reset_weapon_globals()
 void update_weapon_features(BOOL bPlayerExists, Player player)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
-
+	// weapon damage modifier
+	if (bPlayerExists) {
+		// Don't need to set this per-frame if it's at the default
+		PLAYER::SET_PLAYER_WEAPON_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
+		PLAYER::SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
+		PLAYER::SET_PLAYER_VEHICLE_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
+	}
+	
 	// weapon
 	if (featureWeaponFireAmmo)
 	{
@@ -921,4 +1003,9 @@ void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponInfiniteParachutes", &featureWeaponInfiniteParachutes });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponNoReload", &featureWeaponNoReload });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponVehRockets", &featureWeaponVehRockets });
+}
+
+void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source)
+{
+	weapDmgModIndex = value;
 }
