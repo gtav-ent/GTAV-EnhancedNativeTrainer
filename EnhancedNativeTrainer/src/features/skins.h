@@ -23,9 +23,13 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 * METHODS
 */
 
+bool applyChosenSkin();
+
 bool applyChosenSkin(std::string skinName);
 
-bool applyChosenSkin(DWORD model);
+void applyChosenModelAsSkin();
+
+void spawnChosenModelAsBodyguard();
 
 void reset_skin_globals();
 
