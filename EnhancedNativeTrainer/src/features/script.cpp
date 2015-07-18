@@ -627,13 +627,13 @@ void process_main_menu()
 	MenuItem<int> *item;
 
 	item = new MenuItem<int>();
-	item->caption = "Player";
+	item->caption = "Player / Bodyguards";
 	item->value = item->currentMenuIndex = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
-	item->caption = "Teleport";
+	item->caption = "Teleport / Chauffeur";
 	item->value = item->currentMenuIndex = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
@@ -773,7 +773,7 @@ void main()
 	// tell cout to use our new locale.
 	std::cout.imbue(comma_locale);
 	
-	set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is ready!");
+	set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT~HUD_COLOUR_WHITE~ is ready!");
 
 	while (true)
 	{
@@ -855,7 +855,7 @@ void ScriptMain()
 	{
 #endif
 
-		set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is initialising...");
+		set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT~HUD_COLOUR_WHITE~ is initializing...");
 
 		clear_log_file();
 
