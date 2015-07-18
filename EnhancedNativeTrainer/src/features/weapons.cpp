@@ -144,7 +144,8 @@ const std::vector<std::string> VOV_WEAPONMOD_CAPTIONS[] = { CAPTIONS_ATTACH_PIST
 const std::vector<std::string> VOV_WEAPONMOD_VALUES[] = { VALUES_ATTACH_PISTOL, VALUES_ATTACH_HEAVYPISTOL, VALUES_ATTACH_COMBATPISTOL, VALUES_ATTACH_APPISTOL, VALUES_ATTACH_PISTOL50, VALUES_ATTACH_MICROSMG, VALUES_ATTACH_SMG, VALUES_ATTACH_ASSAULTSMG, VALUES_ATTACH_ASSAULTRIFLE, VALUES_ATTACH_CARBINERIFLE, VALUES_ATTACH_ADVANCEDRIFLE, VALUES_ATTACH_MG, VALUES_ATTACH_COMBATMG, VALUES_ATTACH_SAWNOFF, VALUES_ATTACH_PUMPSHOTGUN, VALUES_ATTACH_ASSAULTSHOTGUN, VALUES_ATTACH_BULLPUPSHOTGUN, VALUES_ATTACH_SNIPERRIFLE, VALUES_ATTACH_HEAVYSNIPER, VALUES_ATTACH_GRENADELAUNCHER, VALUES_ATTACH_BULLPUPRIFLE, VALUES_ATTACH_GUSENBERG, VALUES_ATTACH_HEAVYSHOTGUN, VALUES_ATTACH_MARKSMANRIFLE, VALUES_ATTACH_SNSPISTOL, VALUES_ATTACH_SPECIALCARBINE, VALUES_ATTACH_VINTAGEPISTOL, VALUES_ATTACH_COMBATPDW };
 
 //weapon damage modifier list
-const std::vector<std::string> WEAP_DMG_CAPTIONS{ "1.0x", "1.5x" "2.0x", "5.0x", "10.0x", "100.0x", "1000.0x" };
+const std::vector<std::string> WEAP_DMG_CAPTIONS{ "1.0x", "1.5x", "2.0x", "5.0x", "10.0x", "50.0x", "100.0x", "1000.0x" };
+const std::vector<float> WEAP_DMG_FLOAT{ 1.0, 1.5, 2.0, 5.0, 10.0, 50.0, 100.0, 1000.0 };
 
 const int PARACHUTE_ID = 0xFBAB5776;
 
@@ -156,7 +157,7 @@ int activeLineIndexWeapon = 0;
 int lastSelectedWeaponCategory = 0;
 int lastSelectedWeapon = 0;
 
-float weapDmgMod = 1.0;
+int weapDmgModIndex = 0;
 
 bool featureWeaponInfiniteAmmo = false;
 bool featureWeaponInfiniteParachutes = false;
@@ -177,8 +178,6 @@ bool saved_parachute = false;
 int saved_armour = 0;
 
 bool redrawWeaponMenuAfterEquipChange = false;
-
-int weapMenuIndex = 0;
 
 void onchange_knuckle_appearance(int value, SelectFromListMenuItem* source)
 {
@@ -520,7 +519,7 @@ bool process_weapon_menu()
 	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(WEAP_DMG_CAPTIONS, onchange_weap_dmg_modifier);
 	listItem->wrap = false;
 	listItem->caption = "Weapon Damage Modifier";
-	listItem->value = get_weap_dmg_modifier();
+	listItem->value = weapDmgModIndex;
 	menuItems.push_back(listItem);
 	
 	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
@@ -584,14 +583,14 @@ bool process_weapon_menu()
 		{ "Vehicle Rockets", &featureWeaponVehRockets, NULL }
 	};
 */
-	return draw_generic_menu<int>(menuItems, &weapMenuIndex, caption, onconfirm_weapon_menu, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, &activeLineIndexWeapon, caption, onconfirm_weapon_menu, NULL, NULL);
 }
 
 void reset_weapon_globals()
 {
 	activeLineIndexWeapon = 0;
 
-	weapDmgMod = 1.0;
+	weapDmgModIndex = 0;
 
 	featureWeaponInfiniteAmmo =
 		featureWeaponInfiniteParachutes =
@@ -606,11 +605,11 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	// weapon damage modifier
-	if (bPlayerExists && weapDmgMod > 1.0) {
+	if (bPlayerExists) {
 		// Don't need to set this per-frame if it's at the default
-		PLAYER::SET_PLAYER_WEAPON_DAMAGE_MODIFIER(player, weapDmgMod);
-		PLAYER::SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER(player, weapDmgMod);
-		PLAYER::SET_PLAYER_VEHICLE_DAMAGE_MODIFIER(player, weapDmgMod);
+		PLAYER::SET_PLAYER_WEAPON_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
+		PLAYER::SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
+		PLAYER::SET_PLAYER_VEHICLE_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
 	}
 	
 	// weapon
@@ -1006,53 +1005,7 @@ void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponVehRockets", &featureWeaponVehRockets });
 }
 
-int get_weap_dmg_modifier() {
-	switch (weapDmgMod) {
-		case 1.0:
-			return 0;
-		case 1.5:
-			return 1;
-		case 2.0:
-			return 2;
-		case 5.0:
-			return 3;
-		case 10.0:
-			return 4;
-		case 100.0:
-			return 5;
-		case 1000.0:
-			return 6;
-		default:
-			return 0;
-	}
-}
-
 void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source)
 {
-	switch (value) {
-		case 0:
-			weapDmgMod = 1.0;
-			break;
-		case 1:
-			weapDmgMod = 1.5;
-			break;
-		case 2:
-			weapDmgMod = 2.0;
-			break;
-		case 3:
-			weapDmgMod = 5.0;
-			break;
-		case 4:
-			weapDmgMod = 10.0;
-			break;
-		case 5:
-			weapDmgMod = 100.0;
-			break;
-		case 6:
-			weapDmgMod = 1000.0;
-			break;
-		default:
-			weapDmgMod = 1.0
-			break;
-	}
+	weapDmgModIndex = value;
 }
