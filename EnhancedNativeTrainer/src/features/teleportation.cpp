@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "teleportation.h"
 #include "..\ui_support\menu_functions.h"
 #include "..\debug\debuglog.h"
+#include "..\ent-enums.h"
 
 struct tele_location {
 	std::string text;
@@ -417,7 +418,7 @@ void get_chauffeur_to_marker()
 	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z, &coords.z);
 	coords.z += 3.0;
 
-	Hash V_hash = GAMEPLAY::GET_HASH_KEY("STRETCH");
+	Hash V_hash = GAMEPLAY::GET_HASH_KEY("T20");
 	Hash P_hash = GAMEPLAY::GET_HASH_KEY("A_C_CHIMP");
 	STREAMING::REQUEST_MODEL(V_hash);
 	STREAMING::REQUEST_MODEL(P_hash);
@@ -427,6 +428,8 @@ void get_chauffeur_to_marker()
 	Vehicle veh = VEHICLE::CREATE_VEHICLE(V_hash, spawn_coords.x, spawn_coords.y, spawn_coords.z, lookDir, 1, 0);
 	Ped ped = PED::CREATE_PED(25, P_hash, spawn_coords.x, spawn_coords.y, spawn_coords.z, 0, false, false);
 
+	char* playerName = PLAYER::GET_PLAYER_NAME(PLAYER::PLAYER_ID());
+
 	while (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(veh))
 	{
 		NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(veh);
@@ -434,18 +437,28 @@ void get_chauffeur_to_marker()
 	}
 	VEHICLE::SET_VEHICLE_ENGINE_ON(veh, TRUE, TRUE);
 	VEHICLE::SET_VEHICLE_COLOURS(veh, 0, 0);
-	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENT VIP");
+	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, playerName);
+
+	// let's get this vehicle some kickass mods, after all, we're getting chauffeured!
+	VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
+	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
+	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
+	VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
+	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
+	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
 
 	PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
 
-	for (int i = 1; i <= 8; i++)
-	{
-		if (!VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i)) continue;
-		AI::TASK_WARP_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, i); break;
+	for (int i = 0; i <= 8; i++) {
+		if (VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i)) {
+			AI::TASK_WARP_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, i);
+			break;
+		}
 	}
 
 	//AI::TASK_VEHICLE_MISSION_COORS_TARGET(ped, veh, coords.x, coords.y, coords.z, 4, 7.0f, 0xC0027, 5.0f, -1.0f, 1);
-	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, coords.x, coords.y, coords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, 0xC00AB, -1);//DRIVING MODE 4
+	//AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, coords.x, coords.y, coords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, 0xC00AB, -1);//DRIVING MODE 4
+	AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, coords.x, coords.y, coords.z, 100, 5, 5);
 
 	/* DRIVING MODES :
 	0 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
