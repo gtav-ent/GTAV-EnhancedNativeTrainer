@@ -142,3 +142,10 @@ bool is_fivem()
 {
 	return isFiveM;
 }
+
+
+//Converts Radians to Degrees
+float degToRad(float degs)
+{
+	return degs*3.141592653589793 / 180;
+}

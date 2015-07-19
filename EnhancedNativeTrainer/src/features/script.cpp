@@ -21,6 +21,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "script.h"
 #include "hotkeys.h"
+#include "propplacement.h"
 #include "../version.h"
 #include "../utils.h"
 
@@ -227,9 +228,9 @@ void update_features()
 
 	check_for_hotkey_presses();
 
-	if (is_menu_showing() || is_in_airbrake_mode())
+	if (is_menu_showing() || is_in_airbrake_mode() || is_in_prop_placement_mode())
 	{
-		if (is_input_blocked_in_menu() || is_in_airbrake_mode())
+		if (is_input_blocked_in_menu() || is_in_airbrake_mode() || is_in_prop_placement_mode())
 		{
 			setGameInputToEnabled(false);
 		}

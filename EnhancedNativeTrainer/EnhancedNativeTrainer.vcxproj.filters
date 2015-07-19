@@ -122,6 +122,9 @@
     <ClInclude Include="src\datasets\data_props.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\features\propplacement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Documents\Enhanced Trainer Release Notes.rtf">
@@ -721,6 +724,9 @@
     </ClCompile>
     <ClCompile Include="src\features\neonlightsmenu.cpp">
       <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\propplacement.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

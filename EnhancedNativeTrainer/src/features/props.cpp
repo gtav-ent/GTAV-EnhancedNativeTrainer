@@ -6,6 +6,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "props.h"
 #include "script.h"
+#include "propplacement.h"
 #include "..\datasets\data_props.h"
 
 #include <set>
@@ -58,7 +59,7 @@ void manage_prop_set()
 		SpawnedPropInstance* prop = *it;
 		if (!ENTITY::DOES_ENTITY_EXIST(prop->instance))
 		{
-			propsWeCreated.erase(it++);
+			it = propsWeCreated.erase(it);
 			delete prop;
 		}
 		else
@@ -607,7 +608,7 @@ void cleanup_props()
 		{
 			ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&prop->instance);
 		}
-		propsWeCreated.erase(it++);
+		it = propsWeCreated.erase(it);
 		delete prop;
 	}
 }
@@ -774,7 +775,9 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 	}
 	else if (choice.value == 2)
 	{
-		set_status_text("Object movement not implemented yet");
+		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
+		begin_prop_placement(prop);
+		//set_status_text("Object movement not implemented yet");
 	}
 	return false;
 }

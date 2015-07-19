@@ -2396,7 +2396,7 @@ namespace CAM
 	static void _0xC819F3CBB62BF692(Any p0, Any p1, Any p2) { invoke<Void>(0xC819F3CBB62BF692, p0, p1, p2); } // 0xC819F3CBB62BF692 0xD3C08183
 	static Any CREATE_CAM(char* camName, BOOL p1) { return invoke<Any>(0xC3981DCE61D9E13F, camName, p1); } // 0xC3981DCE61D9E13F 0xE9BF2A7D
 	static Any CREATE_CAM_WITH_PARAMS(char* camName, float posX, float posY, float posZ, float rotX, float rotY, float rotZ, float fov, BOOL p8, int p9) { return invoke<Any>(0xB51194800B257161, camName, posX, posY, posZ, rotX, rotY, rotZ, fov, p8, p9); } // 0xB51194800B257161 0x23B02F15
-	static Any CREATE_CAMERA(Any p0, BOOL p1) { return invoke<Any>(0x5E3CF89C6BCCA67D, p0, p1); } // 0x5E3CF89C6BCCA67D 0x5D6739AE
+	static Camera CREATE_CAMERA(char* p0, BOOL p1) { return invoke<Camera>(0x5E3CF89C6BCCA67D, p0, p1); } // 0x5E3CF89C6BCCA67D 0x5D6739AE
 	static Any CREATE_CAMERA_WITH_PARAMS(Any p0, float p1, float p2, float p3, float p4, float p5, float p6, float p7, BOOL p8, Any p9) { return invoke<Any>(0x6ABFA3E16460F22D, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9); } // 0x6ABFA3E16460F22D 0x0688BE9A
 	static void DESTROY_CAM(Any cam, BOOL destroy) { invoke<Void>(0x865908C81A2C22E9, cam, destroy); } // 0x865908C81A2C22E9 0xC39302BD
 	static void DESTROY_ALL_CAMS(BOOL p0) { invoke<Void>(0x8E5FB15663F79120, p0); } // 0x8E5FB15663F79120 0x10C151CE

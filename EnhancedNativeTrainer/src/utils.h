@@ -30,3 +30,5 @@ bool StringStartsWith(const std::string& a, const std::string& b);
 std::wstring ConvertFromUtf8ToUtf16(const std::string& str);
 
 bool is_fivem();
+
+float degToRad(float degs);

@@ -8,6 +8,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 #include "time.h"
+#include "propplacement.h"
 
 #include <iomanip>
 
@@ -476,7 +477,7 @@ void update_time_features(Player player)
 		TIME::SET_CLOCK_TIME(t.tm_hour, t.tm_min, t.tm_sec);
 	}
 
-	if (is_in_airbrake_mode() && is_airbrake_frozen_time())
+	if ((is_in_airbrake_mode() && is_airbrake_frozen_time()) || is_in_prop_placement_mode() && is_prop_placement_frozen_time())
 	{
 		GAMEPLAY::SET_TIME_SCALE(0.0f);
 		weHaveChangedTimeScale = true;

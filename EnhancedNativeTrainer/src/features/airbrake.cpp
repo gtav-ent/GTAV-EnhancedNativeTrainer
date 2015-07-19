@@ -27,12 +27,6 @@ Vector3 curLocation;
 Vector3 curRotation;
 float curHeading;
 
-//Converts Radians to Degrees
-float degToRad(float degs)
-{
-	return degs*3.141592653589793 / 180;
-}
-
 std::string airbrakeStatusLines[15];
 
 DWORD airbrakeStatusTextDrawTicksMax;
@@ -293,8 +287,8 @@ void airbrake(bool inVehicle)
 	BOOL yBoolParam = 1;
 	BOOL zBoolParam = 1;
 
-	ENTITY::SET_ENTITY_VELOCITY(playerPed, 0.0f, 0.0f, 0.0f);
-	ENTITY::SET_ENTITY_ROTATION(playerPed, 0, 0, 0, 0, false);
+	ENTITY::SET_ENTITY_VELOCITY(target, 0.0f, 0.0f, 0.0f);
+	ENTITY::SET_ENTITY_ROTATION(target, 0, 0, 0, 0, false);
 
 	if (!inVehicle)
 	{
