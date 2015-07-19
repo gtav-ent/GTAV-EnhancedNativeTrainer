@@ -14,7 +14,11 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\ent-enums.h"
 #include "vehicles.h"//chauffeur car upgrade
 
-bool chauffeured = true;
+bool beingChauffeured = false;
+
+Vector3 blipCoords = { 0, 0, 0 };
+
+float chauffTolerance = 25.0f;
 
 struct tele_location {
 	std::string text;
@@ -304,7 +308,6 @@ std::vector<tele_location> LOCATIONS_BROKEN = {
 	//{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
 };
 
-
 std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Interiors", "Extra Exterior Scenery" };// "Test", "Toggles" };
 
 std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN };// , LOCATIONS_BROKEN };
@@ -405,24 +408,55 @@ void teleport_to_last_vehicle()
 	}
 }
 
+bool is_player_at_blip(Vector3 currentCords, Vector3 destCords, float tolerance) {
+	if (!((currentCords.x >= destCords.x - tolerance) && (currentCords.x <= destCords.x + tolerance))) {
+		// checking x coordinates first
+		return false;
+	}
+
+	if (!((currentCords.y >= destCords.y - tolerance) && (currentCords.y <= destCords.y + tolerance))) {
+		// checking y coordinates next
+		return false;
+	}
+
+	if (!((currentCords.z >= destCords.z - tolerance) && (currentCords.z <= destCords.z + tolerance))) {
+		// checking z coordinates last
+		return false;
+	}
+
+	// hey, we passed all the checks, so we've reached our destination within some tolerance
+	return true;
+}
+
 void get_chauffeur_to_marker()
 {
-	chauffeured = false;
-	Vector3 coords = get_blip_marker();
-
-	if (coords.x + coords.y == 0) return;
+	beingChauffeured = true;
 
 	// get entity to teleport
 	Entity e = PLAYER::PLAYER_PED_ID();
+
+	Vector3 playerCoords = ENTITY::GET_ENTITY_COORDS(e, 0);
+	blipCoords = get_blip_marker();
+
+	if (blipCoords.x == 0 && blipCoords.y == 0) {
+		// no blip marker set
+		return;
+	}
+
+	if (is_player_at_blip(playerCoords, blipCoords, chauffTolerance)) {
+		set_status_text("You're already at your destination");
+		return;
+	}
+
 	if (PED::IS_PED_IN_ANY_VEHICLE(e, 0)) //kick out of current veh
 	{
 		AI::CLEAR_PED_TASKS_IMMEDIATELY(PLAYER::PLAYER_PED_ID());
 	}
 
-	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z, &coords.z);
-	coords.z += 3.0;
+	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(blipCoords.x, blipCoords.y, blipCoords.z, &blipCoords.z);
+	blipCoords.z += 3.0;
 
-	Hash V_hash = GAMEPLAY::GET_HASH_KEY("T20");
+	Hash V_hash = GAMEPLAY::GET_HASH_KEY("KURUMA2"); // armored kuruma, for all your drive-by needs
 	Hash P_hash = GAMEPLAY::GET_HASH_KEY("A_C_CHIMP");
 	STREAMING::REQUEST_MODEL(V_hash);
 	STREAMING::REQUEST_MODEL(P_hash);
@@ -439,7 +473,13 @@ void get_chauffeur_to_marker()
 	}
 	
 	// let's get this vehicle some kickass mods, after all, we're getting chauffeured!
-	VEHICLE::SET_VEHICLE_COLOURS(veh, 0, 0);
+	VEHICLE::SET_VEHICLE_COLOURS(veh, 160, 160); // goldmember's favorite color
+
+	for (int i = 0; i <= 3; i++)
+		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, i, true);
+
+	VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, 255, 215, 0);
+
 	upgradeVehMaximum(veh);
 
 	PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
@@ -464,8 +504,38 @@ void get_chauffeur_to_marker()
 	9 = Drives legit and does no overtakes.Drives carefully
 	10 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	*/
-	AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, coords.x, coords.y, coords.z, 100, 5, 25.0f);
+	AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 5, chauffTolerance);
+}
 
+void cancel_chauffeur(std::string message)
+{
+	Object taskHdl;
+
+	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+		VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
+		VEHICLE::SET_VEHICLE_ENGINE_ON(veh, FALSE, true);
+		Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
+		if (ENTITY::DOES_ENTITY_EXIST(driver))
+		{
+			if (driver != PLAYER::PLAYER_PED_ID())
+			{
+				AI::CLEAR_PED_TASKS(driver);
+				AI::OPEN_SEQUENCE_TASK(&taskHdl);
+				AI::TASK_LEAVE_VEHICLE(driver, veh, 1);
+				AI::TASK_WANDER_STANDARD(driver, 100.0, 1);
+				AI::CLOSE_SEQUENCE_TASK(taskHdl);
+				AI::TASK_PERFORM_SEQUENCE(driver, taskHdl);
+				AI::CLEAR_SEQUENCE_TASK(&taskHdl);
+			}
+		}
+	}
+
+	std::ostringstream ss;
+	ss << message;
+	set_status_text(ss.str());
+	beingChauffeured = false;
 }
 
 bool onconfirm_teleport_category(MenuItem<int> choice)
@@ -478,7 +548,10 @@ bool onconfirm_teleport_category(MenuItem<int> choice)
 	}
 	else if (choice.value == -3)
 	{
-		get_chauffeur_to_marker();
+		if (beingChauffeured)
+			cancel_chauffeur("Chauffeur canceled");
+		else
+			get_chauffeur_to_marker();
 		return false;
 	}
 	else if (choice.value == -4)
@@ -661,7 +734,7 @@ bool process_teleport_menu(int categoryIndex)
 		menuItems.push_back(markerItem);
 
 		markerItem = new MenuItem<int>();
-		markerItem->caption = "Chauffeur To Marker";
+		markerItem->caption = "Call/Cancel Chauffeur To Marker";
 		markerItem->value = -3;
 		markerItem->isLeaf = true;
 		menuItems.push_back(markerItem);
@@ -717,38 +790,19 @@ bool process_teleport_menu(int categoryIndex)
 	}
 }
 
+
+
 void update_teleport_features()
 {
-	if (!chauffeured)
-	{
+	if (beingChauffeured) {
 		Entity e = PLAYER::PLAYER_PED_ID();
-		Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(e, 0);
-		Vector3 blipcoords = get_blip_marker();
-		float tolerance = 2;
-		if (blipcoords.x + blipcoords.y <= mycoords.x + mycoords.y + tolerance)
-		{
-			if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
-			{
-				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-				VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
-				VEHICLE::SET_VEHICLE_ENGINE_ON(veh, FALSE, true);
-				Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
-				if (ENTITY::DOES_ENTITY_EXIST(driver)) 
-				{
-					if (driver != PLAYER::PLAYER_PED_ID()) 
-					{
-						AI::CLEAR_PED_TASKS_IMMEDIATELY(driver);
-					}
-				}
-			}
+		Vector3 playerCoords = ENTITY::GET_ENTITY_COORDS(e, 0);
+		// Moved blipCoords to global scope... we don't want to call for new blip coords each time (we've already told mr. monkey where to go)
 
-			std::ostringstream ss;
-			ss << "Arrived at your marker";
-			set_status_text_centre_screen(ss.str(), 4000UL);
-			chauffeured = true;
+		if (is_player_at_blip(playerCoords, blipCoords, chauffTolerance)) {
+			cancel_chauffeur("Arrived at destination");
 		}
 	}
-
 }
 
 void reset_teleporter_globals()
