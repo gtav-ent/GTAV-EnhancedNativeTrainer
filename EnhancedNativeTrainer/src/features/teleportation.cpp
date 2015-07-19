@@ -655,7 +655,7 @@ bool process_teleport_menu(int categoryIndex)
 		std::vector<MenuItem<int>*> menuItems;
 
 		MenuItem<int> *markerItem = new MenuItem<int>();
-		markerItem->caption = "Go To Marker";
+		markerItem->caption = "Teleport To Marker";
 		markerItem->value = -2;
 		markerItem->isLeaf = true;
 		menuItems.push_back(markerItem);

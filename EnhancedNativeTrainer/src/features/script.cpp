@@ -629,7 +629,7 @@ void process_main_menu()
 	MenuItem<int> *item;
 
 	item = new MenuItem<int>();
-	item->caption = "Player / Bodyguards";
+	item->caption = "Player";
 	item->value = item->currentMenuIndex = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
@@ -681,13 +681,13 @@ void process_main_menu()
 	item->value = item->currentMenuIndex = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
-
+	/*
 	item = new MenuItem<int>();
 	item->caption = "*TEST*";
 	item->value = item->currentMenuIndex = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
-
+	*/
 	draw_generic_menu<int>(menuItems, &activeLineIndexMain, captionSS.str(), onconfirm_main_menu, NULL, NULL);
 }
 
@@ -744,7 +744,6 @@ void reset_globals()
 	DWORD myThreadID;
 	HANDLE myHandle = CreateThread(0, 0, save_settings_thread, 0, 0, &myThreadID);
 	CloseHandle(myHandle);
-
 }
 
 void main()
