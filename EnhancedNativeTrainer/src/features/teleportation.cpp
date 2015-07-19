@@ -18,7 +18,7 @@ bool beingChauffeured = false;
 
 Vector3 blipCoords = { 0, 0, 0 };
 
-float chauffTolerance = 25.0f;
+float chauffTolerance = 25.0;
 
 struct tele_location {
 	std::string text;
@@ -409,23 +409,15 @@ void teleport_to_last_vehicle()
 }
 
 bool is_player_at_blip(Vector3 currentCords, Vector3 destCords, float tolerance) {
-	if (!((currentCords.x >= destCords.x - tolerance) && (currentCords.x <= destCords.x + tolerance))) {
-		// checking x coordinates first
-		return false;
-	}
 
-	if (!((currentCords.y >= destCords.y - tolerance) && (currentCords.y <= destCords.y + tolerance))) {
-		// checking y coordinates next
-		return false;
-	}
+	float eucDistance;
 
-	if (!((currentCords.z >= destCords.z - tolerance) && (currentCords.z <= destCords.z + tolerance))) {
-		// checking z coordinates last
-		return false;
-	}
+	float xDiff = destCords.x - currentCords.x;
+	float yDiff = destCords.y - currentCords.y;
 
-	// hey, we passed all the checks, so we've reached our destination within some tolerance
-	return true;
+	eucDistance = sqrt(pow(xDiff, 2) + pow(yDiff, 2));
+
+	return (eucDistance <= tolerance);
 }
 
 void get_chauffeur_to_marker()
@@ -504,7 +496,8 @@ void get_chauffeur_to_marker()
 	9 = Drives legit and does no overtakes.Drives carefully
 	10 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	*/
-	AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 5, chauffTolerance);
+	//AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 5, chauffTolerance);
+	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, 0xC00AB, -1);
 }
 
 void cancel_chauffeur(std::string message)
@@ -514,9 +507,10 @@ void cancel_chauffeur(std::string message)
 	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
 	{
 		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+		Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
+
 		VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
 		VEHICLE::SET_VEHICLE_ENGINE_ON(veh, FALSE, true);
-		Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
 		if (ENTITY::DOES_ENTITY_EXIST(driver))
 		{
 			if (driver != PLAYER::PLAYER_PED_ID())
@@ -795,8 +789,7 @@ bool process_teleport_menu(int categoryIndex)
 void update_teleport_features()
 {
 	if (beingChauffeured) {
-		Entity e = PLAYER::PLAYER_PED_ID();
-		Vector3 playerCoords = ENTITY::GET_ENTITY_COORDS(e, 0);
+		Vector3 playerCoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), 0);
 		// Moved blipCoords to global scope... we don't want to call for new blip coords each time (we've already told mr. monkey where to go)
 
 		if (is_player_at_blip(playerCoords, blipCoords, chauffTolerance)) {
