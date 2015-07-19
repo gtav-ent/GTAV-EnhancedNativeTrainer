@@ -14,6 +14,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\ent-enums.h"
 #include "vehicles.h"//chauffeur car upgrade
 
+bool chauffeured = true;
+
 struct tele_location {
 	std::string text;
 	float x;
@@ -405,6 +407,7 @@ void teleport_to_last_vehicle()
 
 void get_chauffeur_to_marker()
 {
+	chauffeured = false;
 	Vector3 coords = get_blip_marker();
 
 	if (coords.x + coords.y == 0) return;
@@ -448,23 +451,21 @@ void get_chauffeur_to_marker()
 		}
 	}
 
-	//AI::TASK_VEHICLE_MISSION_COORS_TARGET(ped, veh, coords.x, coords.y, coords.z, 4, 7.0f, 0xC0027, 5.0f, -1.0f, 1);
-	//AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, coords.x, coords.y, coords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, 0xC00AB, -1);//DRIVING MODE 4
-	AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, coords.x, coords.y, coords.z, 100, 5, 5);
-
 	/* DRIVING MODES :
-	0 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	0 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	1 = Drives legit and does no overtakes.Drives carefully
-	2 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	2 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	3 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars
 	4 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars(fast accelerate, chase ? )
 	5 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars
 	6 = Drives legit and does normal overtakes.Ignores traffic lights, and avoids other cars
 	7 = Drives legit and does overtakes depending on speed ? Drives carefully
-	8 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	8 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	9 = Drives legit and does no overtakes.Drives carefully
-	10 = Normal behaviour but doesnt recognize other cars on the road, should only be used without pedcars in world.
+	10 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	*/
+	AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, coords.x, coords.y, coords.z, 100, 5, 25.0f);
+
 }
 
 bool onconfirm_teleport_category(MenuItem<int> choice)
@@ -714,6 +715,40 @@ bool process_teleport_menu(int categoryIndex)
 
 		return draw_generic_menu<int>(menuItems, &lastMenuChoiceInCategories[lastChosenCategory], "Teleport Locations", onconfirm_teleport_location, NULL, NULL);
 	}
+}
+
+void update_teleport_features()
+{
+	if (!chauffeured)
+	{
+		Entity e = PLAYER::PLAYER_PED_ID();
+		Vector3 mycoords = ENTITY::GET_ENTITY_COORDS(e, 0);
+		Vector3 blipcoords = get_blip_marker();
+		float tolerance = 2;
+		if (blipcoords.x + blipcoords.y <= mycoords.x + mycoords.y + tolerance)
+		{
+			if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+			{
+				Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+				VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
+				VEHICLE::SET_VEHICLE_ENGINE_ON(veh, FALSE, true);
+				Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
+				if (ENTITY::DOES_ENTITY_EXIST(driver)) 
+				{
+					if (driver != PLAYER::PLAYER_PED_ID()) 
+					{
+						AI::CLEAR_PED_TASKS_IMMEDIATELY(driver);
+					}
+				}
+			}
+
+			std::ostringstream ss;
+			ss << "Arrived at your marker";
+			set_status_text_centre_screen(ss.str(), 4000UL);
+			chauffeured = true;
+		}
+	}
+
 }
 
 void reset_teleporter_globals()

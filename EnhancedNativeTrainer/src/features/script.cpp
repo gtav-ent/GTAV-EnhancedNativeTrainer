@@ -480,6 +480,8 @@ void update_features()
 
 	update_time_features(player);
 
+	update_teleport_features();
+
 	//Disable airbrake on death
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
 	{
