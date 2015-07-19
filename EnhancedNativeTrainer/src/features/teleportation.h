@@ -31,6 +31,7 @@ void teleport_to_marker();
 void teleport_to_last_vehicle();
 
 void get_chauffeur_to_marker();
+void cancel_chauffeur(std::string message);
 
 void cancel_chauffeur(std::string message);
 

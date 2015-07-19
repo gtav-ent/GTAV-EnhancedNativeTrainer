@@ -538,6 +538,29 @@ void cancel_chauffeur(std::string message)
 	beingChauffeured = false;
 }
 
+void cancel_chauffeur(std::string message)
+{
+	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+	{
+		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+		VEHICLE::SET_VEHICLE_FORWARD_SPEED(veh, 0.0);
+		VEHICLE::SET_VEHICLE_ENGINE_ON(veh, FALSE, true);
+		Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
+		if (ENTITY::DOES_ENTITY_EXIST(driver))
+		{
+			if (driver != PLAYER::PLAYER_PED_ID())
+			{
+				AI::CLEAR_PED_TASKS_IMMEDIATELY(driver);
+			}
+		}
+	}
+
+	std::ostringstream ss;
+	ss << message;
+	set_status_text_centre_screen(ss.str(), 4000UL);
+	chauffeured = true;
+}
+
 bool onconfirm_teleport_category(MenuItem<int> choice)
 {
 	Entity e = PLAYER::PLAYER_PED_ID();
@@ -548,10 +571,16 @@ bool onconfirm_teleport_category(MenuItem<int> choice)
 	}
 	else if (choice.value == -3)
 	{
+<<<<<<< HEAD
 		if (beingChauffeured)
 			cancel_chauffeur("Chauffeur canceled");
 		else
 			get_chauffeur_to_marker();
+=======
+		if (!chauffeured) cancel_chauffeur("You canceled you're chauffeur request.");
+		else
+		get_chauffeur_to_marker();
+>>>>>>> origin/master
 		return false;
 	}
 	else if (choice.value == -4)
@@ -794,6 +823,7 @@ bool process_teleport_menu(int categoryIndex)
 
 void update_teleport_features()
 {
+<<<<<<< HEAD
 	if (beingChauffeured) {
 		Entity e = PLAYER::PLAYER_PED_ID();
 		Vector3 playerCoords = ENTITY::GET_ENTITY_COORDS(e, 0);
@@ -801,7 +831,35 @@ void update_teleport_features()
 
 		if (is_player_at_blip(playerCoords, blipCoords, chauffTolerance)) {
 			cancel_chauffeur("Arrived at destination");
+=======
+	if (!chauffeured)
+	{
+		if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+		{
+			bool blipFound = false;
+			// search for marker blip
+			int blipIterator = UI::_GET_BLIP_INFO_ID_ITERATOR();
+			for (Blip i = UI::GET_FIRST_BLIP_INFO_ID(blipIterator); UI::DOES_BLIP_EXIST(i) != 0; i = UI::GET_NEXT_BLIP_INFO_ID(blipIterator))
+			{
+				if (UI::GET_BLIP_INFO_ID_TYPE(i) == 4)
+				{
+					blipFound = true;
+					break;
+				}
+			}
+			if (!blipFound)
+			{
+				cancel_chauffeur("Arrived at your marker");
+			}
+>>>>>>> origin/master
 		}
+		else
+		{
+			WAIT(5000);
+			if (!PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
+			cancel_chauffeur("You exited the chauffeur vehicle, Chauffeur canceled.");
+		}
+
 	}
 }
 
