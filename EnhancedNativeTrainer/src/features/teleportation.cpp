@@ -497,7 +497,7 @@ void get_chauffeur_to_marker()
 	10 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	*/
 	//AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 5, chauffTolerance);
-	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, 0xC00AB, -1);
+	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, -1.0, -1.0);
 }
 
 void cancel_chauffeur(std::string message)
