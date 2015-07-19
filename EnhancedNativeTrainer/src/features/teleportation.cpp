@@ -12,6 +12,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\ui_support\menu_functions.h"
 #include "..\debug\debuglog.h"
 #include "..\ent-enums.h"
+#include "vehicles.h"//chauffeur car upgrade
 
 struct tele_location {
 	std::string text;
@@ -428,24 +429,15 @@ void get_chauffeur_to_marker()
 	Vehicle veh = VEHICLE::CREATE_VEHICLE(V_hash, spawn_coords.x, spawn_coords.y, spawn_coords.z, lookDir, 1, 0);
 	Ped ped = PED::CREATE_PED(25, P_hash, spawn_coords.x, spawn_coords.y, spawn_coords.z, 0, false, false);
 
-	char* playerName = PLAYER::GET_PLAYER_NAME(PLAYER::PLAYER_ID());
-
 	while (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(veh))
 	{
 		NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(veh);
 		WAIT(0);
 	}
-	VEHICLE::SET_VEHICLE_ENGINE_ON(veh, TRUE, TRUE);
-	VEHICLE::SET_VEHICLE_COLOURS(veh, 0, 0);
-	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, playerName);
-
+	
 	// let's get this vehicle some kickass mods, after all, we're getting chauffeured!
-	VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
-	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
-	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
+	VEHICLE::SET_VEHICLE_COLOURS(veh, 0, 0);
+	upgradeVehMaximum(veh);
 
 	PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
 
