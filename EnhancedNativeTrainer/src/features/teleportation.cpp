@@ -420,6 +420,16 @@ bool is_player_at_blip(Vector3 currentCords, Vector3 destCords, float tolerance)
 	return (eucDistance <= tolerance);
 }
 
+float get_euc_distance(Vector3 currentCords, Vector3 destCords) {
+	float xDiff = destCords.x - currentCords.x;
+	float yDiff = destCords.y - currentCords.y;
+	float zDiff = destCords.y - currentCords.y;
+
+	float eucDistance = sqrt(pow(xDiff, 2) + pow(yDiff, 2) + pow(zDiff, 2));
+
+	return eucDistance;
+}
+
 void get_chauffeur_to_marker()
 {
 	beingChauffeured = true;
@@ -463,7 +473,7 @@ void get_chauffeur_to_marker()
 		NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(veh);
 		WAIT(0);
 	}
-	
+
 	// let's get this vehicle some kickass mods, after all, we're getting chauffeured!
 	VEHICLE::SET_VEHICLE_COLOURS(veh, 160, 160); // goldmember's favorite color
 
@@ -497,7 +507,11 @@ void get_chauffeur_to_marker()
 	10 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	*/
 	//AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 5, chauffTolerance);
-	AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, -1.0, -1.0);
+
+	if (get_euc_distance(playerCoords, blipCoords) >= 1000.0)
+		AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 40.0, 4, chauffTolerance);
+	else
+		AI::TASK_VEHICLE_DRIVE_TO_COORD(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 40.0, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, -1.0, -1.0);
 }
 
 void cancel_chauffeur(std::string message)

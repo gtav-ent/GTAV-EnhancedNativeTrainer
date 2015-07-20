@@ -34,4 +34,6 @@ void get_chauffeur_to_marker();
 
 void cancel_chauffeur(std::string message);
 
+float get_euc_distance(Vector3 playerCoords, Vector3 blipCoords);
+
 Vector3 get_blip_marker();
