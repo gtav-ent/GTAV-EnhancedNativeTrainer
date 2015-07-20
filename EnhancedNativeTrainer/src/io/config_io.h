@@ -44,6 +44,17 @@ public:
 	static const std::string KEY_AIRBRAKE_FREEZE_TIME;
 	static const std::string KEY_AIRBRAKE_HELP;
 
+	static const std::string KEY_OBJECTPLACER_UP;
+	static const std::string KEY_OBJECTPLACER_DOWN;
+	static const std::string KEY_OBJECTPLACER_FORWARD;
+	static const std::string KEY_OBJECTPLACER_BACK;
+	static const std::string KEY_OBJECTPLACER_ROTATE_LEFT;
+	static const std::string KEY_OBJECTPLACER_ROTATE_RIGHT;
+	static const std::string KEY_OBJECTPLACER_SPEED;
+	static const std::string KEY_OBJECTPLACER_FREEZE_TIME;
+	static const std::string KEY_OBJECTPLACER_FREEZE_POSITION;
+	static const std::string KEY_OBJECTPLACER_HELP;
+
 	static const std::string KEY_HOT_AIRBRAKE_THROUGH_DOOR;
 
 	static const std::string KEY_HOT_1;

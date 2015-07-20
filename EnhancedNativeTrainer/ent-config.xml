@@ -38,7 +38,18 @@
     <key function="airbrake_speed" value="VK_SHIFT"/>
     <key function="airbrake_freeze_time" value="VK_KEY_T"/>
     <key function="airbrake_help" value="VK_KEY_H"/>
-    
+
+    <key function="objectplacer_up" value="VK_KEY_Q"/>
+    <key function="objectplacer_down" value="VK_KEY_Z"/>
+    <key function="objectplacer_forward" value="VK_KEY_W"/>
+    <key function="objectplacer_back" value="VK_KEY_S"/>
+    <key function="objectplacer_rotate_left" value="VK_KEY_A"/>
+    <key function="objectplacer_rotate_right" value="VK_KEY_D"/>
+    <key function="objectplacer_speed" value="VK_SHIFT"/>
+    <key function="objectplacer_freeze_time" value="VK_KEY_T"/>
+    <key function="objectplacer_freeze_position" value="VK_KEY_G"/>
+    <key function="objectplacer_help" value="VK_KEY_H"/>
+
     <!-- To enable your hotkeys, change VK_NOTHING to a real key, and optionally alter the other attributes-->
     <key function="hotkey_1" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
     <key function="hotkey_2" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
@@ -151,6 +162,34 @@
     </controller>
     <controller function="airbrake_freeze_time">
       <button value="BUTTON_B"/>
+    </controller>
+
+    <controller function="objectplacer_up">
+      <button value="L_TRIGGER"/>
+    </controller>
+    <controller function="objectplacer_down">
+      <button value="R_TRIGGER"/>
+    </controller>
+    <controller function="objectplacer_forward">
+      <button value="L_STICK_UP"/>
+    </controller>
+    <controller function="objectplacer_back">
+      <button value="L_STICK_DOWN"/>
+    </controller>
+    <controller function="objectplacer_rotate_left">
+      <button value="L_STICK_LEFT"/>
+    </controller>
+    <controller function="objectplacer_rotate_right">
+      <button value="L_STICK_RIGHT"/>
+    </controller>
+    <controller function="objectplacer_speed">
+      <button value="BUTTON_A"/>
+    </controller>
+    <controller function="objectplacer_freeze_time">
+      <button value="BUTTON_B"/>
+    </controller>
+    <controller function="objectplacer_freeze_position">
+      <button value="BUTTON_Y"/>
     </controller>
 
     -->

@@ -524,7 +524,16 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 	}
 	else if (choice.value == 3)
 	{
-		prop_spawned_instances_menu();
+		manage_prop_set();
+
+		if (propsWeCreated.size() == 0)
+		{
+			set_status_text("No spawned objects - create some first");
+		}
+		else
+		{
+			prop_spawned_instances_menu();
+		}
 	}
 	return false;
 }
@@ -640,12 +649,6 @@ bool prop_spawned_instances_menu()
 	{
 		manage_prop_set();
 
-		if (propsWeCreated.size() == 0)
-		{
-			set_status_text("No spawned props - create some first");
-			return false;
-		}
-
 		std::vector<MenuItem<int>*> menuItems;
 
 		int i = 0;
@@ -668,6 +671,7 @@ bool prop_spawned_instances_menu()
 		draw_generic_menu<int>(menuItems, &menu_spawned_instance_index, "Spawned Instances", onconfirm_prop_instance_menu, NULL, NULL, prop_instance_menu_interrupt);
 	}
 	while (requireRefreshOfPropInstanceMenu);
+	return false;
 }
 
 bool onconfirm_prop_instance_menu(MenuItem<int> choice)
@@ -705,7 +709,11 @@ bool is_prop_invincible(std::vector<int> extras)
 void set_prop_invincible(bool applied, std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+
 	ENTITY::SET_ENTITY_INVINCIBLE(prop->instance, applied);
+	ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, !applied);
+	ENTITY::SET_ENTITY_PROOFS(prop->instance, applied, applied, applied, applied, applied, applied, applied, applied);
+
 	prop->isInvincible = applied;
 }
 
@@ -718,12 +726,13 @@ bool is_prop_immovable(std::vector<int> extras)
 void set_prop_immovable(bool applied, std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+
+	OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(prop->instance, !applied);
 	ENTITY::FREEZE_ENTITY_POSITION(prop->instance, applied);
 	if (!applied)
 	{
 		//this unfreezes it
 		ENTITY::APPLY_FORCE_TO_ENTITY(prop->instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
-		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(prop->instance, TRUE);
 	}
 	prop->isImmovable = applied;
 }
@@ -739,11 +748,15 @@ void set_prop_on_fire(bool applied, std::vector<int> extras)
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
 	if (applied)
 	{
+		bool isInvinc = prop->isInvincible;
+		ENTITY::SET_ENTITY_PROOFS(prop->instance, isInvinc, false, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc);
 		FIRE::START_ENTITY_FIRE(prop->instance);
 	}
 	else
 	{
 		FIRE::STOP_ENTITY_FIRE(prop->instance);
+		Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
+		FIRE::STOP_FIRE_IN_RANGE(position.x, position.y, position.z, 5.0f);
 	}
 }
 
@@ -777,7 +790,12 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 	{
 		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
 		begin_prop_placement(prop);
-		//set_status_text("Object movement not implemented yet");
+	}
+	else if (choice.value == 3) //explode
+	{
+		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
+		Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
+		FIRE::ADD_EXPLOSION(position.x, position.y, position.z, 14, 3.0f, true, false, 0);
 	}
 	return false;
 }
@@ -790,21 +808,17 @@ bool prop_spawned_single_instance_menu(int index)
 
 	std::vector<MenuItem<int>*> menuItems;
 
-	int i = 1;
-
 	MenuItem<int>* item = new MenuItem<int>();
-	item->value = i;
+	item->value = 1;
 	item->caption = "Delete This Object";
 	item->isLeaf = true;
 	menuItems.push_back(item);
-	i++;
 
 	item = new MenuItem<int>();
-	item->value = i;
+	item->value = 2;
 	item->caption = "Move This Object";
 	item->isLeaf = false;
 	menuItems.push_back(item);
-	i++;
 
 	FunctionDrivenToggleMenuItem<int>* togItem = new FunctionDrivenToggleMenuItem<int>();
 	togItem->getter_call = is_prop_invincible;
@@ -812,7 +826,6 @@ bool prop_spawned_single_instance_menu(int index)
 	togItem->extra_arguments.push_back(index);
 	togItem->caption = "Invincible?";
 	menuItems.push_back(togItem);
-	i++;
 
 	togItem = new FunctionDrivenToggleMenuItem<int>();
 	togItem->getter_call = is_prop_immovable;
@@ -820,7 +833,6 @@ bool prop_spawned_single_instance_menu(int index)
 	togItem->extra_arguments.push_back(index);
 	togItem->caption = "Immovable?";
 	menuItems.push_back(togItem);
-	i++;
 
 	togItem = new FunctionDrivenToggleMenuItem<int>();
 	togItem->getter_call = is_prop_gravity_enabled;
@@ -828,7 +840,6 @@ bool prop_spawned_single_instance_menu(int index)
 	togItem->extra_arguments.push_back(index);
 	togItem->caption = "Has Gravity?";
 	menuItems.push_back(togItem);
-	i++;
 
 	togItem = new FunctionDrivenToggleMenuItem<int>();
 	togItem->getter_call = is_prop_on_fire;
@@ -836,7 +847,6 @@ bool prop_spawned_single_instance_menu(int index)
 	togItem->extra_arguments.push_back(index);
 	togItem->caption = "On Fire?";
 	menuItems.push_back(togItem);
-	i++;
 
 	SelectFromListMenuItem* alphaItem = new SelectFromListMenuItem(ALPHA_LABELS, onchange_spawn_alpha);
 	alphaItem->value = propCreationAlphaIndex;
@@ -844,7 +854,12 @@ bool prop_spawned_single_instance_menu(int index)
 	alphaItem->wrap = false;
 	alphaItem->extras.push_back(index);
 	menuItems.push_back(alphaItem);
-	i++;
+
+	item = new MenuItem<int>();
+	item->value = 3;
+	item->caption = "Explode This Object";
+	item->isLeaf = true;
+	menuItems.push_back(item);
 
 	draw_generic_menu<int>(menuItems, &singleInstanceMenuIndex, "Object Options", onconfirm_prop_single_instance_menu, NULL, NULL, NULL);
 	return false;

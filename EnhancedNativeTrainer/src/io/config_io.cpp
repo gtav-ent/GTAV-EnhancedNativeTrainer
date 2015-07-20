@@ -351,6 +351,17 @@ KeyInputConfig::KeyInputConfig()
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
 	this->keyConfigs[KeyConfig::KEY_AIRBRAKE_HELP] = new KeyConfig(VK_KEY_H);
 
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_UP] = new KeyConfig(VK_KEY_Q);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_DOWN] = new KeyConfig(VK_KEY_Z);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FORWARD] = new KeyConfig(VK_KEY_W);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_BACK] = new KeyConfig(VK_KEY_S);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT] = new KeyConfig(VK_KEY_A);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT] = new KeyConfig(VK_KEY_D);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED] = new KeyConfig(VK_SHIFT);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_HELP] = new KeyConfig(VK_KEY_H);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION] = new KeyConfig(VK_KEY_G);
+
 	this->keyConfigs[KeyConfig::KEY_HOT_1] = new KeyConfig(0);
 	this->keyConfigs[KeyConfig::KEY_HOT_2] = new KeyConfig(0);
 	this->keyConfigs[KeyConfig::KEY_HOT_3] = new KeyConfig(0);
@@ -415,6 +426,28 @@ KeyInputConfig::KeyInputConfig()
 	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_SPEED]->add_button(ControllerButtonConfig::CONTROLLER_BTN_A);
 	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME] = new ControllerButtonConfig();
 	this->controllerConfigs[KeyConfig::KEY_AIRBRAKE_FREEZE_TIME]->add_button(ControllerButtonConfig::CONTROLLER_BTN_B);
+
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_UP] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_UP]->add_button(ControllerButtonConfig::CONTROLLER_BTN_TRIGGER_L);
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_DOWN] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_DOWN]->add_button(ControllerButtonConfig::CONTROLLER_BTN_TRIGGER_R);
+
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FORWARD] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FORWARD]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_U);
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_BACK] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_BACK]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_D);
+
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_L);
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_R);
+
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED]->add_button(ControllerButtonConfig::CONTROLLER_BTN_A);
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME]->add_button(ControllerButtonConfig::CONTROLLER_BTN_B);
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION]->add_button(ControllerButtonConfig::CONTROLLER_BTN_Y);
 }
 
 KeyInputConfig::~KeyInputConfig()
@@ -481,6 +514,17 @@ const std::string KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT = std::string("airbrake_r
 const std::string KeyConfig::KEY_AIRBRAKE_SPEED = std::string("airbrake_speed");
 const std::string KeyConfig::KEY_AIRBRAKE_FREEZE_TIME = std::string("airbrake_freeze_time");
 const std::string KeyConfig::KEY_AIRBRAKE_HELP = std::string("airbrake_help");
+
+const std::string KeyConfig::KEY_OBJECTPLACER_UP = std::string("objectplacer_up");
+const std::string KeyConfig::KEY_OBJECTPLACER_DOWN = std::string("objectplacer_down");
+const std::string KeyConfig::KEY_OBJECTPLACER_FORWARD = std::string("objectplacer_forward");
+const std::string KeyConfig::KEY_OBJECTPLACER_BACK = std::string("objectplacer_back");
+const std::string KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT = std::string("objectplacer_rotate_left");
+const std::string KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT = std::string("objectplacer_rotate_right");
+const std::string KeyConfig::KEY_OBJECTPLACER_SPEED = std::string("objectplacer_speed");
+const std::string KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME = std::string("objectplacer_freeze_time");
+const std::string KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION = std::string("objectplacer_freeze_position");
+const std::string KeyConfig::KEY_OBJECTPLACER_HELP = std::string("objectplacer_help");
 
 const std::string KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR = std::string("hotkey_throughdoor");
 

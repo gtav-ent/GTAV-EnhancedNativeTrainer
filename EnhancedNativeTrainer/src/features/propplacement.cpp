@@ -24,7 +24,7 @@ Vector3 pp_cur_location;
 Vector3 pp_cur_rotation;
 float pp_cur_heading;
 
-std::string propPlacerStatusLines[15];
+std::vector<std::string> propPlacerStatusLines;
 
 DWORD propPlacerStatusTextDrawTicksMax;
 bool propPlacerStatusTextGxtEntry;
@@ -60,24 +60,36 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 	pp_cur_rotation = ENTITY::GET_ENTITY_ROTATION(prop->instance, 0);
 	pp_cur_heading = ENTITY::GET_ENTITY_HEADING(prop->instance);
 
-	propCamera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", 1);
+	//normalise the gameplay camera
+	float tempFloat = CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH();
+	CAM::SET_GAMEPLAY_CAM_RELATIVE_HEADING(0.0f);
+	CAM::SET_GAMEPLAY_CAM_RELATIVE_PITCH(tempFloat, 0.0f);
 
-	//CAM::SET_CAM_FOV(propCamera, 50.0f);
-	CAM::ATTACH_CAM_TO_ENTITY(propCamera, currentProp->instance, 0.0f, 5.0f, 1.0f, 1);
+	//work out a view distance
+	ENTITY::SET_ENTITY_ROTATION(currentProp->instance, 0, 0, 0, 0, false);
+	Hash modelHash = ENTITY::GET_ENTITY_MODEL(currentProp->instance);
+	Vector3 minDimens;
+	Vector3 maxDimens;
+	GAMEPLAY::GET_MODEL_DIMENSIONS(modelHash, &minDimens, &maxDimens);
+	float cameraDistance = max(4.0f, 1.3f * max(maxDimens.x - minDimens.x, maxDimens.y - minDimens.y));
+
+	//create and configure our object camera
+	propCamera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", 0);
+	CAM::ATTACH_CAM_TO_ENTITY(propCamera, currentProp->instance, 0.0f, -cameraDistance, 2.0f, 1);
 	CAM::POINT_CAM_AT_ENTITY(propCamera, currentProp->instance, 0.0f, 0.0f, 0.0f, 1);
-
+	Vector3 camRot = CAM::GET_CAM_ROT(propCamera, 2);
+	Vector3 camCoords = CAM::GET_CAM_COORD(propCamera);
 	CAM::SET_CAM_ACTIVE(propCamera, 1);
 	CAM::RENDER_SCRIPT_CAMS(1, 0, 3000, 1, 0);
 
+	//check it worked
 	if (!CAM::DOES_CAM_EXIST(propCamera))
 	{
 		set_status_text("Camera failure");
-	}
-	else
-	{
-		set_status_text("Created camera");
+		return;
 	}
 
+	//begin the loop
 	while (true && !pp_exit_flag)
 	{
 		in_placement_mode = true;
@@ -90,9 +102,10 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 
 		BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 		BOOL propExists = ENTITY::DOES_ENTITY_EXIST(currentProp->instance);
+		BOOL camExists = CAM::DOES_CAM_EXIST(propCamera);
 
 		//Disable on object death
-		if (ENTITY::IS_ENTITY_DEAD(playerPed) || !bPlayerExists || !propExists)
+		if (ENTITY::IS_ENTITY_DEAD(playerPed) || !bPlayerExists || !propExists || !camExists)
 		{
 			pp_exit_flag = true;
 			break;
@@ -111,6 +124,21 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 			break;
 		}
 
+		Vector3 gameCamRot = CAM::GET_GAMEPLAY_CAM_ROT(2);
+		Vector3 thisCamRot = CAM::GET_CAM_ROT(propCamera, 2);
+
+		float xVect = cameraDistance * sin(degToRad(gameCamRot.z)) * -1.0f;
+		float yVect = cameraDistance * cos(degToRad(gameCamRot.z));
+
+		CAM::ATTACH_CAM_TO_ENTITY(propCamera, currentProp->instance, xVect, yVect, 2.0f, 1);
+		CAM::POINT_CAM_AT_ENTITY(propCamera, currentProp->instance, 0.0f, 0.0f, 0.0f, 1);
+
+		/*
+		std::ostringstream ss;
+		ss << "GX: " << gameCamRot.x << ", GY: " << gameCamRot.y << ", GZ: " << gameCamRot.z;
+		set_status_text_centre_screen(ss.str());
+		*/
+
 		prop_placement();
 
 		WAIT(0);
@@ -120,8 +148,14 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 	CAM::RENDER_SCRIPT_CAMS(0, 0, 3000, 1, 0);
 	if (CAM::DOES_CAM_EXIST(propCamera))
 	{
-		set_status_text_centre_screen("Destroy Cam");
 		CAM::DESTROY_CAM(propCamera, 1);
+	}
+
+	if (!currentProp->isImmovable)
+	{
+		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(prop->instance, true);
+		ENTITY::FREEZE_ENTITY_POSITION(prop->instance, false);
+		ENTITY::APPLY_FORCE_TO_ENTITY(prop->instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
 	}
 
 	pp_exit_flag = false;
@@ -132,14 +166,14 @@ void update_prop_placement_text()
 {
 	if (GetTickCount() < propPlacerStatusTextDrawTicksMax)
 	{
-		int numLines = sizeof(propPlacerStatusLines) / sizeof(propPlacerStatusLines[0]);
+		int numLines = propPlacerStatusLines.size();
 
 		float textY = 0.1f;
 
 		int numActualLines = 0;
 		for (int i = 0; i < numLines; i++)
 		{
-			if (!pp_help_showing && i != 14)
+			if (!pp_help_showing && i < 18)
 			{
 				continue;
 			}
@@ -148,7 +182,7 @@ void update_prop_placement_text()
 
 			UI::SET_TEXT_FONT(0);
 			UI::SET_TEXT_SCALE(0.3, 0.3);
-			if (i == 0 || i == 8 || i == 14)
+			if (i == 0 || i == 9 || i >= 16)
 			{
 				UI::SET_TEXT_OUTLINE();
 				UI::SET_TEXT_COLOUR(255, 180, 0, 255);
@@ -162,12 +196,12 @@ void update_prop_placement_text()
 			UI::SET_TEXT_EDGE(1, 0, 0, 0, 305);
 			if (propPlacerStatusTextGxtEntry)
 			{
-				UI::_SET_TEXT_ENTRY((char *)propPlacerStatusLines[i].c_str());
+				UI::_SET_TEXT_ENTRY((char *)propPlacerStatusLines.at(i).c_str());
 			}
 			else
 			{
 				UI::_SET_TEXT_ENTRY("STRING");
-				UI::_ADD_TEXT_COMPONENT_STRING((char *)propPlacerStatusLines[i].c_str());
+				UI::_ADD_TEXT_COMPONENT_STRING((char *)propPlacerStatusLines.at(i).c_str());
 			}
 			UI::_DRAW_TEXT(0.01, textY);
 
@@ -212,24 +246,36 @@ void create_prop_placement_help_text()
 		break;
 	}
 
-	ss << "Current Travel Speed: ~HUD_COLOUR_WHITE~" << pp_travel_speedStr;
+	propPlacerStatusLines.clear();
 
-	int index = 0;
-	propPlacerStatusLines[index++] = "Default Object Placement Keys (change in XML):";
-	propPlacerStatusLines[index++] = "Q/Z - Move Up/Down";
-	propPlacerStatusLines[index++] = "A/D - Rotate Left/Right";
-	propPlacerStatusLines[index++] = "W/S - Move Forward/Back";
-	propPlacerStatusLines[index++] = "Shift - Toggle Move Speed";
-	propPlacerStatusLines[index++] = "T - Toggle Frozen Time";
-	propPlacerStatusLines[index++] = "H - Toggle This Help";
-	propPlacerStatusLines[index++] = " ";
-	propPlacerStatusLines[index++] = "Default Controller Input (change in XML):";
-	propPlacerStatusLines[index++] = "Triggers - Move Up/Down";
-	propPlacerStatusLines[index++] = "Left Stick - Rotate, Move Forward/Back";
-	propPlacerStatusLines[index++] = "A - Toggle Move Speed";
-	propPlacerStatusLines[index++] = "B - Toggle Frozen Time";
-	propPlacerStatusLines[index++] = " ";
-	propPlacerStatusLines[index++] = ss.str();
+	propPlacerStatusLines.push_back("Default Object Placement Keys (change in XML):");
+	propPlacerStatusLines.push_back("Q/Z - Move Up/Down");
+	propPlacerStatusLines.push_back("A/D - Rotate Left/Right");
+	propPlacerStatusLines.push_back("W/S - Move Forward/Back");
+	propPlacerStatusLines.push_back("Shift - Cycle Move Speeds");
+	propPlacerStatusLines.push_back("T - Toggle Frozen Time");
+	propPlacerStatusLines.push_back("G - Toggle Object Frozen On Exit");
+	propPlacerStatusLines.push_back("H - Toggle This Help");
+
+	propPlacerStatusLines.push_back(" ");
+	propPlacerStatusLines.push_back("Default Controller Input (change in XML):");
+	propPlacerStatusLines.push_back("Triggers - Move Up/Down");
+	propPlacerStatusLines.push_back("Left Stick - Rotate, Move Forward/Back");
+	propPlacerStatusLines.push_back("A - Cycle Move Speeds");
+	propPlacerStatusLines.push_back("B - Toggle Frozen Time");
+	propPlacerStatusLines.push_back("Y - Toggle Object Frozen On Exit");
+	propPlacerStatusLines.push_back(" ");
+
+	propPlacerStatusLines.push_back("Press 'Menu Back' to save and exit this mode");
+	propPlacerStatusLines.push_back(" ");
+
+	ss << "Current Travel Speed: ~HUD_COLOUR_WHITE~" << pp_travel_speedStr;
+	propPlacerStatusLines.push_back(ss.str());
+	ss.str(""); ss.clear();
+
+	ss << "Object Frozen On Exit: ~HUD_COLOUR_WHITE~" << (currentProp->isImmovable ? "Yes": "No");
+	propPlacerStatusLines.push_back(ss.str());
+	ss.str(""); ss.clear();
 
 	propPlacerStatusTextDrawTicksMax = GetTickCount() + 2500;
 	propPlacerStatusTextGxtEntry = false;
@@ -248,14 +294,13 @@ void prop_placement()
 	switch (pp_travel_speed)
 	{
 	case 0:
-		rotationSpeed = 0.8f;
 		forwardPush = 0.2f;
 		break;
 	case 1:
-		forwardPush = 1.8f;
+		forwardPush = 0.8f;
 		break;
 	case 2:
-		forwardPush = 3.6f;
+		forwardPush = 1.6f;
 		break;
 	}
 
@@ -264,21 +309,20 @@ void prop_placement()
 
 	KeyInputConfig* keyConfig = get_config()->get_key_config();
 
-	bool moveUpKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_UP) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_UP);
-	bool moveDownKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_DOWN) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_DOWN);
-	bool moveForwardKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_FORWARD) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_FORWARD);
-	bool moveBackKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_BACK) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_BACK);
-	bool rotateLeftKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_ROTATE_LEFT);
-	bool rotateRightKey = IsKeyDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT) || IsControllerButtonDown(KeyConfig::KEY_AIRBRAKE_ROTATE_RIGHT);
+	bool moveUpKey = IsKeyDown(KeyConfig::KEY_OBJECTPLACER_UP) || IsControllerButtonDown(KeyConfig::KEY_OBJECTPLACER_UP);
+	bool moveDownKey = IsKeyDown(KeyConfig::KEY_OBJECTPLACER_DOWN) || IsControllerButtonDown(KeyConfig::KEY_OBJECTPLACER_DOWN);
+	bool moveForwardKey = IsKeyDown(KeyConfig::KEY_OBJECTPLACER_FORWARD) || IsControllerButtonDown(KeyConfig::KEY_OBJECTPLACER_FORWARD);
+	bool moveBackKey = IsKeyDown(KeyConfig::KEY_OBJECTPLACER_BACK) || IsControllerButtonDown(KeyConfig::KEY_OBJECTPLACER_BACK);
+	bool rotateLeftKey = IsKeyDown(KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT) || IsControllerButtonDown(KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT);
+	bool rotateRightKey = IsKeyDown(KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT) || IsControllerButtonDown(KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT);
 
 	BOOL xBoolParam = 1;
 	BOOL yBoolParam = 1;
 	BOOL zBoolParam = 1;
 
 	ENTITY::SET_ENTITY_VELOCITY(currentProp->instance, 0.0f, 0.0f, 0.0f);
-	ENTITY::SET_ENTITY_ROTATION(currentProp->instance, 0, 0, 0, 0, false);
 
-	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_SPEED) || IsControllerButtonJustUp(KeyConfig::KEY_AIRBRAKE_SPEED))
+	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED))
 	{
 		pp_travel_speed++;
 		if (pp_travel_speed > 2)
@@ -287,12 +331,17 @@ void prop_placement()
 		}
 	}
 
-	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME) || IsControllerButtonJustUp(KeyConfig::KEY_AIRBRAKE_FREEZE_TIME))
+	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME))
 	{
 		pp_frozen_time = !pp_frozen_time;
 	}
 
-	if (IsKeyJustUp(KeyConfig::KEY_AIRBRAKE_HELP) || IsControllerButtonJustUp(KeyConfig::KEY_AIRBRAKE_HELP))
+	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION))
+	{
+		currentProp->isImmovable = !currentProp->isImmovable;
+	}
+
+	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_HELP) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_HELP))
 	{
 		pp_help_showing = !pp_help_showing;
 	}
