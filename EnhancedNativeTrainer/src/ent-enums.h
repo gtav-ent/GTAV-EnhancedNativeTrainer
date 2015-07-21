@@ -849,7 +849,7 @@ enum VehicleHashes
 	VEHICLE_ZTYPE = 0x2D3BD401
 };
 
-inline bool GetVehicleInfoForClanLogo(Hash vehicleModel, vector3_t& x, vector3_t& y, vector3_t& z, float& scale)
+inline bool GetVehicleInfoForClanLogo(Hash vehicleModel, Vector3& x, Vector3& y, Vector3& z, float& scale)
 {
 	switch (vehicleModel)
 	{

@@ -96,7 +96,7 @@ void setAirbrakeRelatedInputToBlocked(bool blocked, bool force)
 {
 	if (blocked || force || (!blocked && gameInputBlockedByUs))
 	{
-		void(*function)(Any x, Any y, Any z);
+		void(*function)(int index, int control, BOOL enable);
 		if (blocked)
 		{
 			function = CONTROLS::DISABLE_CONTROL_ACTION;

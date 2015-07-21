@@ -166,7 +166,7 @@ std::string getHornTitle(int index)
 	}
 	else
 	{
-		char* label = UI::GET_LABEL_TEXT(v_3);
+		char* label = UI::_GET_LABEL_TEXT(v_3);
 		if (label == NULL)
 		{
 			return "Unknown Horn";
@@ -284,7 +284,7 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 		bool foundName = false;
 		if (modItemNameChr != NULL && strlen(modItemNameChr) > 0)
 		{
-			char* modItemNameTxt = UI::GET_LABEL_TEXT(modItemNameChr);
+			char* modItemNameTxt = UI::_GET_LABEL_TEXT(modItemNameChr);
 			if (modItemNameTxt != NULL)
 			{
 				modItemNameStr = std::string(modItemNameTxt);
@@ -305,7 +305,7 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 
 void addClanLogoToVehicle(Vehicle vehicle, Ped ped)
 {
-	vector3_t x, y, z;
+	Vector3 x, y, z;
 	float scale;
 	Hash modelHash = ENTITY::GET_ENTITY_MODEL(vehicle);
 	if (GetVehicleInfoForClanLogo(modelHash, x, y, z, scale))

@@ -444,7 +444,7 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 				* vehicle as it causes glitches.
 				*/
 			
-				if (VEHICLE::_0xBCDC5017D3CE1E9E(veh) && featureVehNoDamage && featureVehInvulnIncludesCosmetic)
+				if (VEHICLE::_IS_VEHICLE_DAMAGED(veh) && featureVehNoDamage && featureVehInvulnIncludesCosmetic)
 				{
 					VEHICLE::SET_VEHICLE_FIXED(veh);
 				}

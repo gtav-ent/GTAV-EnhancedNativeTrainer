@@ -784,7 +784,7 @@ namespace PED
 	static void _0x5B6010B3CBC29095(Any p0, BOOL p1) { invoke<Void>(0x5B6010B3CBC29095, p0, p1); } // 0x5B6010B3CBC29095
 	static void _0xCEDA60A74219D064(Any p0, BOOL p1) { invoke<Void>(0xCEDA60A74219D064, p0, p1); } // 0xCEDA60A74219D064
 	static void PLAY_FACIAL_ANIM(Ped ped, char* animName, char* animDict) { invoke<Void>(0xE1E65CA8AC9C00ED, ped, animName, animDict); } // 0xE1E65CA8AC9C00ED 0x1F6CCDDE
-	static void SET_FACIAL_IDLE_ANIM_OVERRIDE(Any p0, Any* p1, Any* p2) { invoke<Void>(0xFFC24B988B938B38, p0, p1, p2); } // 0xFFC24B988B938B38 0x9BA19C13
+	static void SET_FACIAL_IDLE_ANIM_OVERRIDE(Any p0, char* p1, char* p2) { invoke<Void>(0xFFC24B988B938B38, p0, p1, p2); } // 0xFFC24B988B938B38 0x9BA19C13
 	static void CLEAR_FACIAL_IDLE_ANIM_OVERRIDE(Any p0) { invoke<Void>(0x726256CC1EEB182F, p0); } // 0x726256CC1EEB182F 0x5244F4E2
 	static void SET_PED_CAN_PLAY_GESTURE_ANIMS(Ped ped, BOOL toggle) { invoke<Void>(0xBAF20C5432058024, ped, toggle); } // 0xBAF20C5432058024 0xE131E3B3
 	static void SET_PED_CAN_PLAY_VISEME_ANIMS(Ped ped, BOOL p1, Any p2) { invoke<Void>(0xF833DDBA3B104D43, ped, p1, p2); } // 0xF833DDBA3B104D43 0xA2FDAF27
@@ -1024,8 +1024,8 @@ namespace VEHICLE
 	static void GET_VEHICLE_CUSTOM_SECONDARY_COLOUR(Vehicle vehicle, int* r, int* g, int* b) { invoke<Void>(0x8389CD56CA8072DC, vehicle, r, g, b); } // 0x8389CD56CA8072DC 0x3FF247A2
 	static void CLEAR_VEHICLE_CUSTOM_SECONDARY_COLOUR(Vehicle vehicle) { invoke<Void>(0x5FFBDEEC3E8E2009, vehicle); } // 0x5FFBDEEC3E8E2009 0x7CE00B29
 	static BOOL GET_IS_VEHICLE_SECONDARY_COLOUR_CUSTOM(Vehicle vehicle) { return invoke<BOOL>(0x910A32E7AAD2656C, vehicle); } // 0x910A32E7AAD2656C 0x288AD228
-	static void _0x3AFDC536C3D01674(Vehicle veh, float p1) { invoke<Void>(0x3AFDC536C3D01674, veh, p1); } // 0x3AFDC536C3D01674 0x8332730C
-	static float _0xA82819CAC9C4C403(Any p0) { return invoke<float>(0xA82819CAC9C4C403, p0); } // 0xA82819CAC9C4C403 0xD5F1EEE1
+	static void _SET_VEHICLE_PAINT_FADE(Vehicle veh, float p1) { invoke<Void>(0x3AFDC536C3D01674, veh, p1); } // 0x3AFDC536C3D01674 0x8332730C
+	static float _GET_VEHICLE_PAINT_FADE(Vehicle veh) { return invoke<float>(0xA82819CAC9C4C403, veh); } // 0xA82819CAC9C4C403 0xD5F1EEE1
 	static void SET_CAN_RESPRAY_VEHICLE(Vehicle vehicle, BOOL state) { invoke<Void>(0x52BBA29D5EC69356, vehicle, state); } // 0x52BBA29D5EC69356 0x37677590
 	static void _0x33506883545AC0DF(Vehicle vehicle, BOOL p1) { invoke<Void>(0x33506883545AC0DF, vehicle, p1); } // 0x33506883545AC0DF 0x54E9EE75
 	static void _JITTER_VEHICLE(Vehicle vehicle, BOOL p1, float yaw, float pitch, float roll) { invoke<Void>(0xC59872A5134879C7, vehicle, p1, yaw, pitch, roll); } // 0xC59872A5134879C7 0x4A46E814
@@ -2865,9 +2865,9 @@ namespace STREAMING
 	static void REQUEST_CLIP_SET(char* clipSet) { invoke<Void>(0xD2A71E1A77418A49, clipSet); } // 0xD2A71E1A77418A49 0x546C627A
 	static BOOL HAS_CLIP_SET_LOADED(char* clipSet) { return invoke<BOOL>(0x318234F4F3738AF3, clipSet); } // 0x318234F4F3738AF3 0x230D5455
 	static void REMOVE_CLIP_SET(char* clipSet) { invoke<Void>(0x01F73A131C18CD94, clipSet); } // 0x01F73A131C18CD94 0x1E21F7AA
-	static void REQUEST_IPL(char* iplName) { invoke<Void>(0x41B4893843BBDB74, iplName); } // 0x41B4893843BBDB74 0x3B70D1DB
-	static void REMOVE_IPL(char* iplName) { invoke<Void>(0xEE6C5AD3ECE0A82D, iplName); } // 0xEE6C5AD3ECE0A82D 0xDF7CBD36
-	static BOOL IS_IPL_ACTIVE(char* iplName) { return invoke<BOOL>(0x88A741E44A2B3495, iplName); } // 0x88A741E44A2B3495 0xB2C33714
+	static void REQUEST_IPL(const char* iplName) { invoke<Void>(0x41B4893843BBDB74, iplName); } // 0x41B4893843BBDB74 0x3B70D1DB
+	static void REMOVE_IPL(const char* iplName) { invoke<Void>(0xEE6C5AD3ECE0A82D, iplName); } // 0xEE6C5AD3ECE0A82D 0xDF7CBD36
+	static BOOL IS_IPL_ACTIVE(const char* iplName) { return invoke<BOOL>(0x88A741E44A2B3495, iplName); } // 0x88A741E44A2B3495 0xB2C33714
 	static void SET_STREAMING(BOOL toggle) { invoke<Void>(0x6E0C692677008888, toggle); } // 0x6E0C692677008888 0x27EF6CB2
 	static void SET_GAME_PAUSES_FOR_STREAMING(BOOL toggle) { invoke<Void>(0x717CD6E6FAEBBEDC, toggle); } // 0x717CD6E6FAEBBEDC 0x9211A28A
 	static void SET_REDUCE_PED_MODEL_BUDGET(BOOL toggle) { invoke<Void>(0x77B5F9A36BF96710, toggle); } // 0x77B5F9A36BF96710 0xAFCB2B86
@@ -3666,7 +3666,7 @@ namespace GRAPHICS
 	static void _0x8A35C742130C6080(Any p0, Any* p1, Any* p2) { invoke<Void>(0x8A35C742130C6080, p0, p1, p2); } // 0x8A35C742130C6080 0x335695CF
 	static void _0xB7ED70C49521A61D(Any p0) { invoke<Void>(0xB7ED70C49521A61D, p0); } // 0xB7ED70C49521A61D 0x7B786555
 	static void MOVE_VEHICLE_DECALS(Any p0, Any p1) { invoke<Void>(0x84C8D7C2D30D3280, p0, p1); } // 0x84C8D7C2D30D3280 0xCE9E6CF2
-	static BOOL _0x428BDCB9DA58DA53(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6, Any p7, Any p8, Any p9, Any p10, Any p11, Any p12, Any p13, Any p14) { return invoke<BOOL>(0x428BDCB9DA58DA53, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); } // 0x428BDCB9DA58DA53 0x12077738
+	static BOOL _ADD_CLAN_DECAL_TO_VEHICLE(Any p0, Any p1, Any p2, Any p3, Any p4, Any p5, Any p6, Any p7, Any p8, Any p9, Any p10, Any p11, Any p12, Any p13, Any p14) { return invoke<BOOL>(0x428BDCB9DA58DA53, p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14); } // 0x428BDCB9DA58DA53 0x12077738
 	static void _0xD2300034310557E4(Any p0, Any p1) { invoke<Void>(0xD2300034310557E4, p0, p1); } // 0xD2300034310557E4 0x667046A8
 	static Any _0xFE26117A5841B2FF(Any p0, Any p1) { return invoke<Any>(0xFE26117A5841B2FF, p0, p1); } // 0xFE26117A5841B2FF 0x4F4D76E8
 	static BOOL _0x060D935D3981A275(Any p0, Any p1) { return invoke<BOOL>(0x060D935D3981A275, p0, p1); } // 0x060D935D3981A275 0x6D58F73B
