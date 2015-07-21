@@ -1050,6 +1050,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_misc_generic_settings(&settings);
 	add_hotkey_generic_settings(&settings);
 	add_props_generic_settings(&settings);
+	add_weapons_generic_settings(&settings);
 	return settings;
 }
 
@@ -1079,6 +1080,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_hotkey(&settings);
 
 	handle_generic_settings_props(&settings);
+
+	handle_generic_settings_weapons(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)

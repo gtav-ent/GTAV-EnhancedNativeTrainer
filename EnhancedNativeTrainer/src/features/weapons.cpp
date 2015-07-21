@@ -1009,3 +1009,20 @@ void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source)
 {
 	weapDmgModIndex = value;
 }
+
+void add_weapons_generic_settings(std::vector<StringPairSettingDBRow>* results)
+{
+	results->push_back(StringPairSettingDBRow{ "weapDmgModIndex", std::to_string(weapDmgModIndex) });
+}
+
+void handle_generic_settings_weapons(std::vector<StringPairSettingDBRow>* settings)
+{
+	for (int i = 0; i < settings->size(); i++)
+	{
+		StringPairSettingDBRow setting = settings->at(i);
+		if (setting.name.compare("weapDmgModIndex") == 0)
+		{
+			weapDmgModIndex = stoi(setting.value);
+		}
+	}
+}
