@@ -138,7 +138,7 @@ std::string findStationName(){
 	return name;
 }
 
-int favoriteStation = 0; //I'd like to save this to the database but I'm not sure how
+int favoriteStation = 0; 
 std::vector<MenuItem<int>*> radioMenuItems; //outside the function so that we can make the title update
 bool onconfirm_radio_menu(MenuItem<int> choice)
 {
@@ -337,7 +337,7 @@ void add_misc_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* re
 
 void add_misc_generic_settings(std::vector<StringPairSettingDBRow>* results)
 {
-
+	results->push_back(StringPairSettingDBRow{ "favoriteStation", std::to_string(favoriteStation) });
 }
 
 void handle_generic_settings_misc(std::vector<StringPairSettingDBRow>* settings)
