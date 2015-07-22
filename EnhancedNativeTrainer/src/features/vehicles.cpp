@@ -515,7 +515,7 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		oldVehicleState = false; // player is NOT in a vehicle, set state to false
 	}
 
-	if (bPlayerExists && (did_player_just_enter_vehicle(playerPed) && PED::IS_PED_IN_ANY_VEHICLE(playerPed, true)) || powChanged) { // check if player entered vehicle, only need to set mults once
+	if (bPlayerExists && (did_player_just_enter_vehicle(playerPed) || powChanged)) { // check if player entered vehicle, only need to set mults once
 		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
 		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, VEH_ENG_POW_VALUES[engPowMultIndex]);
 		powChanged = false;
