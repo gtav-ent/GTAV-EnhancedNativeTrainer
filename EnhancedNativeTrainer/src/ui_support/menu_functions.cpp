@@ -202,13 +202,6 @@ void draw_menu_from_struct_def(StandardOrToggleMenuDef defs[], int lineCount, in
 			item->value = i;
 			menuItems.push_back(item);
 		}
-		else if (defs[i].itemType != NULL && defs[i].itemType == RPM)
-		{
-			RpmItem<int> *item = new RpmItem<int>();
-			item->caption = defs[i].text;
-			item->value = i;
-			menuItems.push_back(item);
-		}
 		else if (defs[i].itemType != NULL && defs[i].itemType == WANTED)
 		{
 			WantedSymbolItem *item = new WantedSymbolItem();
@@ -360,38 +353,6 @@ void CashItem<T>::handleRightPress()
 
 	if (cash > max)
 		cash = min;
-}
-
-template<class T>
-bool RpmItem<T>::onConfirm()
-{
-	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
-	{
-		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
-		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, rpm);
-	}
-	set_status_text("Engine Power Modified");
-	return true;
-}
-
-template<class T>
-void RpmItem<T>::handleLeftPress()
-{
-	rpm -= rpmIncrement;
-
-	if (rpm < rpmMin)
-		rpm = rpmMax;
-}
-
-template<class T>
-void RpmItem<T>::handleRightPress()
-{
-	rpm += rpmIncrement;
-
-	if (rpm > rpmMax)
-		rpm = rpmMin;
 }
 
 int WantedSymbolItem::get_wanted_value()
