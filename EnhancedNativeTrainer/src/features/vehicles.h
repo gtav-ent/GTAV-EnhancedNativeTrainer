@@ -123,6 +123,12 @@ int get_current_veh_invincibility_mode();
 
 void onchange_veh_invincibility_mode(int value, SelectFromListMenuItem* source);
 
+int get_current_veh_eng_pow_index();
+
+void onchange_veh_eng_pow_index(int value, SelectFromListMenuItem* source);
+
+void set_old_vehicle_state(bool updatedState);
+
 MenuItemImage* vehicle_image_preview_finder(MenuItem<std::string> choice);
 
 void init_vehicle_feature();
@@ -180,3 +186,5 @@ bool inline is_this_a_heli_or_plane(Vehicle veh)
 	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
 	return VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et);
 }
+
+bool did_player_just_enter_vehicle(Ped playerPed);

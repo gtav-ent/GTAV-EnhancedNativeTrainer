@@ -46,6 +46,15 @@ const int PED_FLAG_THROUGH_WINDSCREEN = 32;
 const std::vector<std::string> VEH_INVINC_MODE_CAPTIONS{ "Off", "Mech. Only", "Mech + Visual", "Mech + Vis + Cosmetic" };
 const std::vector<int> VEH_INVINC_MODE_VALUES{ 0, 1, 2, 3 };
 
+// engine power stuff
+const std::vector<std::string> VEH_ENG_POW_CAPTIONS{ "Off", "5x", "10x", "25x", "50x", "75x", "100x", "125x", "150x", "175x", "200x", "225x", "250x", "275x", "300x", "325x", "350x", "375x", "400x" };
+const std::vector<int> VEH_ENG_POW_VALUES{ 0, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400 };
+int engPowMultIndex = 0;
+bool powChanged = true;
+
+// player in vehicle state... assume true initially since our quicksave might have us in a vehicle already, in which case we can't check if we just got into one
+bool oldVehicleState = true;
+
 //Door Options list + struct
 struct struct_door_options {
 	std::string text;
@@ -294,6 +303,8 @@ void process_veh_menu()
 	std::vector<MenuItem<int>*> menuItems;
 
 	MenuItem<int> *item;
+	SelectFromListMenuItem *listItem;
+
 	int i = 0;
 
 	item = new MenuItem<int>();
@@ -332,7 +343,7 @@ void process_veh_menu()
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
-	SelectFromListMenuItem *listItem = new SelectFromListMenuItem(VEH_INVINC_MODE_CAPTIONS, onchange_veh_invincibility_mode);
+	listItem = new SelectFromListMenuItem(VEH_INVINC_MODE_CAPTIONS, onchange_veh_invincibility_mode);
 	listItem->wrap = false;
 	listItem->caption = "Vehicle Invincibility";
 	listItem->value = get_current_veh_invincibility_mode();
@@ -370,11 +381,11 @@ void process_veh_menu()
 	toggleItem->toggleValue = &featureVehSpeedBoost;
 	menuItems.push_back(toggleItem);
 
-	item = new RpmItem<int>();
-	item->caption = "Engine Power Override";
-	item->value = RPM;
-	item->isLeaf = false;
-	menuItems.push_back(item);
+	listItem = new SelectFromListMenuItem(VEH_ENG_POW_CAPTIONS, onchange_veh_eng_pow_index);
+	listItem->wrap = false;
+	listItem->caption = "Engine Power Multiplier";
+	listItem->value = engPowMultIndex;
+	menuItems.push_back(listItem);
 
 	item = new MenuItem<int>();
 	item->caption = "Door Control";
@@ -500,18 +511,27 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		featureWearHelmetOffUpdated = false;
 	}
 
-	/*
-	if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
-	{
-		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-		int primary, secondary, pearl, wheel;
-		VEHICLE::GET_VEHICLE_COLOURS(veh, &primary, &secondary);
-		VEHICLE::GET_VEHICLE_EXTRA_COLOURS(veh, &pearl, &wheel);
-		std::ostringstream ss;
-		ss << "P: " << primary << ", S: " << secondary << ", Pe: " << pearl << ", Wh: " << wheel;
-		set_status_text_centre_screen(ss.str());
+	if (bPlayerExists && !PED::IS_PED_IN_ANY_VEHICLE(playerPed, true)) {
+		oldVehicleState = false; // player is NOT in a vehicle, set state to false
 	}
-	*/
+
+	if (bPlayerExists && (did_player_just_enter_vehicle(playerPed) && PED::IS_PED_IN_ANY_VEHICLE(playerPed, true)) || powChanged) { // check if player entered vehicle, only need to set mults once
+		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
+		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, VEH_ENG_POW_VALUES[engPowMultIndex]);
+		powChanged = false;
+	}
+}
+
+bool did_player_just_enter_vehicle(Ped playerPed) {
+	if (oldVehicleState == false && PED::IS_PED_IN_ANY_VEHICLE(playerPed, true)) { // if we weren't in a car before, but we are now...
+		oldVehicleState = true;
+		return true;
+	}
+	return false;
+}
+
+void set_old_vehicle_state(bool updatedState) { // used by other functions, like teleporting into cars
+	oldVehicleState = updatedState;
 }
 
 void reset_vehicle_globals()
@@ -762,6 +782,8 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 		if (featureVehSpawnInto)
 		{
 			PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
+			oldVehicleState = false; // set old vehicle state to false since we changed cars but didn't actually exit the last one
+
 			if (VEHICLE::IS_THIS_MODEL_A_HELI(ENTITY::GET_ENTITY_MODEL(veh)) || VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)))
 			{
 				VEHICLE::SET_HELI_BLADES_FULL_SPEED(PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()));
@@ -1131,6 +1153,7 @@ bool vehicle_save_slot_menu_interrupt()
 void add_vehicle_generic_settings(std::vector<StringPairSettingDBRow>* results)
 {
 	results->push_back(StringPairSettingDBRow{ "lastCustomVehicleSpawn", lastCustomVehicleSpawn });
+	results->push_back(StringPairSettingDBRow{ "engPowMultIndex", std::to_string(engPowMultIndex) });
 }
 
 void handle_generic_settings_vehicle(std::vector<StringPairSettingDBRow>* settings)
@@ -1141,6 +1164,9 @@ void handle_generic_settings_vehicle(std::vector<StringPairSettingDBRow>* settin
 		if (setting.name.compare("lastCustomVehicleSpawn") == 0)
 		{
 			lastCustomVehicleSpawn = setting.value;
+		} else if (setting.name.compare("engPowMultIndex") == 0)
+		{
+			engPowMultIndex = stoi(setting.value);
 		}
 	}
 }
@@ -1169,6 +1195,15 @@ void onchange_veh_invincibility_mode(int value, SelectFromListMenuItem* source)
 	featureVehInvulnIncludesCosmetic = (value > 2);
 
 	featureVehInvincibleUpdated = true;
+}
+
+int get_current_veh_eng_pow_index(){
+	return engPowMultIndex;
+}
+
+void onchange_veh_eng_pow_index(int value, SelectFromListMenuItem* source) {
+	engPowMultIndex = value;
+	powChanged = true;
 }
 
 struct VehicleImage
