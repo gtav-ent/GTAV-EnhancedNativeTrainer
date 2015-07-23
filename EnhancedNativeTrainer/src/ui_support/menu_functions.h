@@ -145,9 +145,9 @@ public:
 
 	virtual ~SelectFromListMenuItem() {}
 
-	virtual bool onConfirm() { return true; };
+	virtual bool onConfirm();
 
-	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
+	virtual bool isAbsorbingLeftAndRightEvents();
 
 	virtual void handleLeftPress();
 
@@ -160,6 +160,8 @@ public:
 	void(*onValueChangeCallback)(int index, SelectFromListMenuItem* source);
 
 	bool wrap = true;
+
+	bool locked = false;
 
 	std::vector<int> extras;
 };
@@ -547,7 +549,8 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		std::string caption = selectFromListItem->getCurrentCaption();
 
 		std::stringstream ss;
-		if (selectFromListItem->wrap || selectFromListItem->value > 0)
+
+		if ((selectFromListItem->wrap || selectFromListItem->value > 0) && selectFromListItem->locked)
 		{
 			ss << "&lt;&lt; ";
 		}
@@ -555,8 +558,13 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		{
 			ss << "";
 		}
-		ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
-		if (selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1)
+
+		if (selectFromListItem->locked)
+			ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
+		else
+			ss << "~HUD_COLOUR_GREYLIGHT~" << caption;
+		
+		if ((selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1) && selectFromListItem->locked)
 		{
 			ss << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;";
 		}

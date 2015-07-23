@@ -61,8 +61,6 @@ void draw_menu_line(std::string caption, float lineWidth, float lineHeight, floa
 		rect_col[2] = 0;
 		rect_col[3] = 200.0f;
 
-		//outline = true;
-
 		if (rescaleText) text_scale = 0.40;
 	}
 	else if (title)
@@ -414,6 +412,16 @@ void WantedSymbolItem::handleRightPress()
 		}
 		set_status_text(ss.str());
 	}
+}
+
+bool SelectFromListMenuItem::onConfirm() {
+	locked = !locked; // toggle whether we're "locked in" to the setting
+	// change menu item color to signify it's locked in
+	return locked;
+}
+
+bool SelectFromListMenuItem::isAbsorbingLeftAndRightEvents() {
+	return locked;
 }
 
 void SelectFromListMenuItem::handleLeftPress()
