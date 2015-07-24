@@ -288,7 +288,7 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 5:
 		clean_vehicle();
 		break;		
-	case 13:
+	case 11:
 		if (process_veh_door_menu()) return false;
 		break;
 		// switchable features
