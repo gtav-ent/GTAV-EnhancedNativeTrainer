@@ -730,7 +730,7 @@ void process_vehicle_management()
 	const int lineCount = 8;
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Saved Vehicles", NULL, NULL, true },
+		{ "Saved Vehicles", NULL, NULL, false },
 		{ "Set Current Vehicle As Owned", NULL, NULL, true },
 		{ "Clear Owned Vehicle", NULL, NULL, true },
 		{ "Lock Owned Vehicle", NULL, NULL, true },
