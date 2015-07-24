@@ -855,7 +855,7 @@ bool draw_generic_menu(MenuParameters<T> params)
 				float lineWidth = 350.0f;
 				float lineHeight = 35.0f;
 
-				float lineTop = 75.0 + (i * (lineHeight + lineSpacingY));
+				float lineTop = 73.0 + (i * (lineHeight + lineSpacingY));
 				float lineLeft = 35.0f;
 				float textOffset = 10.0f;
 
