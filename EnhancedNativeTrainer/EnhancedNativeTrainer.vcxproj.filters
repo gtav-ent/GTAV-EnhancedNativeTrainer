@@ -125,6 +125,9 @@
     <ClInclude Include="src\features\propplacement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\features\bodyguards.h">
+      <Filter>Header Files\src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Documents\Enhanced Trainer Release Notes.rtf">
@@ -727,6 +730,9 @@
     </ClCompile>
     <ClCompile Include="src\features\propplacement.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\bodyguards.cpp">
+      <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,12 +9,12 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 /*
-	F4					activate
-	NUM2/8/4/6			navigate thru the menus and lists (numlock must be on)
-	NUM5 				select
-	NUM0/BACKSPACE/F4 	back
-	NUM9/3 				use vehicle boost when active
-	NUM+ 				use vehicle rockets when active
+F4					activate
+NUM2/8/4/6			navigate thru the menus and lists (numlock must be on)
+NUM5 				select
+NUM0/BACKSPACE/F4 	back
+NUM9/3 				use vehicle boost when active
+NUM+ 				use vehicle rockets when active
 */
 
 #pragma comment(lib, "Shlwapi.lib")
@@ -213,12 +213,12 @@ void update_features()
 	int* gp = NULL;
 	switch (getGameVersion())
 	{
-		case VER_1_0_372_2_STEAM:
-		case VER_1_0_372_2_NOSTEAM:
-			gp = reinterpret_cast<int *>(getGlobalPtr(0x3839));
-			break;
+	case VER_1_0_372_2_STEAM:
+	case VER_1_0_372_2_NOSTEAM:
+		gp = reinterpret_cast<int *>(getGlobalPtr(0x3839));
+		break;
 	}
-	
+
 	if (gp != NULL && *gp >= 0 && *gp <= 2)
 	{
 		last_player_slot_seen = *gp;
@@ -265,7 +265,7 @@ void update_features()
 
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();	
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
 	//PLAYER::DISABLE_PLAYER_FIRING(playerPed, TRUE);
@@ -283,7 +283,7 @@ void update_features()
 			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
-	
+
 	//Wanted Level Frozen - prevents stars increasing/decreasing
 	if (featureWantedLevelFrozen)
 	{
@@ -324,8 +324,8 @@ void update_features()
 		}
 		featureWantedLevelFrozenUpdated = false;
 	}
-	
-	
+
+
 	// player never wanted
 	if (featurePlayerNeverWanted)
 	{
@@ -481,6 +481,8 @@ void update_features()
 
 	update_time_features(player);
 
+	update_bodyguard_features();
+
 	//Disable airbrake on death
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
 	{
@@ -488,7 +490,7 @@ void update_features()
 	}
 
 	//----Hotkeys----
-	
+
 	//Move through door (use '-key)
 	//Pushes player through solid door objects.
 	if (bPlayerExists)
@@ -543,7 +545,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 void process_player_menu()
 {
 	const int lineCount = 19;
-	
+
 	std::string caption = "Player Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
@@ -592,25 +594,25 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_weapon_menu();
 		break;
 	case 3:
-		process_veh_menu();
+		process_bodyguard_menu();
 		break;
 	case 4:
-		process_world_menu();
+		process_veh_menu();
 		break;
 	case 5:
-		process_time_menu();
+		process_world_menu();
 		break;
 	case 6:
-		process_props_menu();
+		process_time_menu();
 		break;
 	case 7:
-		process_misc_menu();
+		process_props_menu();
 		break;
 	case 8:
-		reset_globals();
+		process_misc_menu();
 		break;
 	case 9:
-		process_test_menu();
+		reset_globals();
 		break;
 	}
 	return false;
@@ -629,64 +631,64 @@ void process_main_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Player";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Teleport / Chauffeur";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Weapons";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Bodyguards";
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Vehicles";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "World";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Time";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Objects";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Miscellaneous";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Reset All Settings";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
-	/*
-	item = new MenuItem<int>();
-	item->caption = "*TEST*";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-	*/
+
 	draw_generic_menu<int>(menuItems, &activeLineIndexMain, captionSS.str(), onconfirm_main_menu, NULL, NULL);
 }
 
@@ -706,37 +708,37 @@ void reset_globals()
 
 	reset_prop_globals();
 
-	activeLineIndexMain			=
-	activeLineIndexPlayer		=
-	activeLineIndexWantedFreeze	=
-	frozenWantedLevel			=	0;
+	activeLineIndexMain =
+		activeLineIndexPlayer =
+		activeLineIndexWantedFreeze =
+		frozenWantedLevel = 0;
 
 	featurePlayerDrunk =
-	featurePlayerInvincible			=
-	featurePlayerNeverWanted		=
-	featurePlayerIgnoredByPolice			=
-	featurePlayerIgnoredByAll =
-	featurePlayerUnlimitedAbility	=
-	featurePlayerNoNoise			=
-	featurePlayerFastSwim			=
-	featurePlayerFastRun			=
-	featurePlayerSuperJump			=
-	featurePlayerInvisible			=
-	featureNightVision =
-	featureThermalVision =
-	featureWantedLevelFrozen		=	false;
+		featurePlayerInvincible =
+		featurePlayerNeverWanted =
+		featurePlayerIgnoredByPolice =
+		featurePlayerIgnoredByAll =
+		featurePlayerUnlimitedAbility =
+		featurePlayerNoNoise =
+		featurePlayerFastSwim =
+		featurePlayerFastRun =
+		featurePlayerSuperJump =
+		featurePlayerInvisible =
+		featureNightVision =
+		featureThermalVision =
+		featureWantedLevelFrozen = false;
 
 	featurePlayerInvincibleUpdated =
-	featurePlayerNeverWantedUpdated =
-	featurePlayerIgnoredByPoliceUpdated =
-	featurePlayerIgnoredByAllUpdated =
-	featurePlayerNoNoiseUpdated =
-	featurePlayerFastSwimUpdated =
-	featurePlayerFastRunUpdated =
-	featurePlayerDrunkUpdated =
-	featureNightVisionUpdated =
-	featureThermalVisionUpdated =
-	featurePlayerInvisibleUpdated = true;
+		featurePlayerNeverWantedUpdated =
+		featurePlayerIgnoredByPoliceUpdated =
+		featurePlayerIgnoredByAllUpdated =
+		featurePlayerNoNoiseUpdated =
+		featurePlayerFastSwimUpdated =
+		featurePlayerFastRunUpdated =
+		featurePlayerDrunkUpdated =
+		featureNightVisionUpdated =
+		featureThermalVisionUpdated =
+		featurePlayerInvisibleUpdated = true;
 
 	set_status_text("Reset All Settings");
 
@@ -746,7 +748,7 @@ void reset_globals()
 }
 
 void main()
-{	
+{
 	//reset_globals();
 
 	setGameInputToEnabled(true, true);
@@ -772,7 +774,7 @@ void main()
 
 	// tell cout to use our new locale.
 	std::cout.imbue(comma_locale);
-	
+
 	set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT~HUD_COLOUR_WHITE~ is ready!");
 
 	while (true)
@@ -850,7 +852,7 @@ int filterException(int code, PEXCEPTION_POINTERS ex)
 
 void ScriptMain()
 {
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	__try
 	{
 #endif
@@ -868,7 +870,7 @@ void ScriptMain()
 		write_text_to_log_file("Init XINPUT complete");
 
 		database = new ENTDatabase();
-		if (!database->open() )
+		if (!database->open())
 		{
 			write_text_to_log_file("Failed to open database");
 			set_status_text("ENT couldn't open its database - sorry, exiting");
@@ -975,54 +977,37 @@ void set_all_nearby_peds_to_calm()
 {
 	for each (Ped xped in lastSeenPeds)
 	{
-		PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
-		PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
-		PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
-
-		/*
-		PED::SET_PED_DIES_WHEN_INJURED(xped, false);
-		PED::SET_PED_MAX_HEALTH(xped, 10000);
-		ENTITY::SET_ENTITY_HEALTH(xped, 10000);
-		PED::SET_PED_SUFFERS_CRITICAL_HITS(xped, false);
-		WEAPON::GIVE_WEAPON_TO_PED(xped, GAMEPLAY::GET_HASH_KEY("WEAPON_MG"), 1000, true, true);
-
-		PED::SET_PED_COMBAT_ABILITY(xped, 1);
-		//PED::SET_PED_
-		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(xped, false);
-
-		PED::SET_PED_AS_ENEMY(xped, true);
-		
-		if (PED::_IS_PED_DEAD(xped, 1))
-		{
-			set_status_text("Trying to resurrect");
-			PED::RESURRECT_PED(xped);
+		// Only calm down peds if they're NOT in our group (keeps our bodyguards from chilling out and being lazy)
+		if (!PED::IS_PED_GROUP_MEMBER(xped, PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_PED_ID()))) {
+			PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
+			PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
+			PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
 		}
-		else if (PED::IS_PED_INJURED(xped))
-		{
-			set_status_text("Trying to heal");
-			PED::REVIVE_INJURED_PED(xped);
-		}
-		*/
 	}
+}
+
+void add_player_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
+{
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerNeverWanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByPolice", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerUnlimitedAbility", &featurePlayerUnlimitedAbility });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerNoNoise", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun, &featurePlayerFastRunUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureNightVision", &featureNightVision, &featureNightVisionUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureThermalVision", &featureThermalVision, &featureThermalVisionUpdated });
 }
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 {
 	std::vector<FeatureEnabledLocalDefinition> results;
 
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerNeverWanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByPolice", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerUnlimitedAbility", &featurePlayerUnlimitedAbility });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerNoNoise", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun, &featurePlayerFastRunUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureNightVision", &featureNightVision, &featureNightVisionUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureThermalVision", &featureThermalVision, &featureThermalVisionUpdated });
+	add_player_feature_enablements(&results);
 
 	add_world_feature_enablements(&results);
 
@@ -1035,6 +1020,8 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	add_vehicle_feature_enablements(&results);
 
 	add_weapon_feature_enablements(&results);
+
+	add_bodyguards_feature_enablements(&results);
 
 	return results;
 }
@@ -1049,22 +1036,12 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_hotkey_generic_settings(&settings);
 	add_props_generic_settings(&settings);
 	add_weapons_generic_settings(&settings);
+	add_bodyguards_generic_settings(&settings);
 	return settings;
 }
 
 void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 {
-	/*
-	for (int i = 0; i < settings.size(); i++)
-	{
-		StringPairSettingDBRow setting = settings.at(i);
-		if (setting.name.compare("timeSpeedIndexWhileAiming") == 0)
-		{
-			timeSpeedIndexWhileAiming = stoi(setting.value);
-		}
-	}
-	*/
-
 	//pass to anyone else, vehicles, weapons etc
 
 	handle_generic_settings_time(&settings);
@@ -1080,6 +1057,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_props(&settings);
 
 	handle_generic_settings_weapons(&settings);
+
+	handle_generic_settings_bodyguards(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)
@@ -1100,8 +1079,8 @@ void save_settings()
 	/*
 	if (!db_mutex.try_lock())
 	{
-		write_text_to_log_file("Couldn't get lock, aborting");
-		return;
+	write_text_to_log_file("Couldn't get lock, aborting");
+	return;
 	}
 	*/
 
@@ -1167,7 +1146,7 @@ WCHAR* get_temp_dir_path()
 {
 	WCHAR s[MAX_PATH];
 	GetTempPathW(MAX_PATH, s);
-	
+
 	WCHAR combined[MAX_PATH];
 	PathCombineW(combined, s, L"GTAV Enhanced Native Trainer");
 
@@ -1241,7 +1220,7 @@ ENTDatabase* get_database()
 
 struct GraphicsTest
 {
-	void (*function)(BOOL);
+	void(*function)(BOOL);
 	bool state;
 };
 
@@ -1389,127 +1368,127 @@ void debug_native_investigation()
 	/*
 	for (int i = 0; i < graphicsTests.size(); i++)
 	{
-		GraphicsTest* gt = &graphicsTests.at(i);
-		//gt->state = applied;
-		gt->function(gt->state);
+	GraphicsTest* gt = &graphicsTests.at(i);
+	//gt->state = applied;
+	gt->function(gt->state);
 	}
 	*/
 
 	/*
 	if (!PED::_0x784002A632822099(PLAYER::PLAYER_PED_ID())) //putting on helmet?
 	{
-		set_status_text_centre_screen("0x784... false");
+	set_status_text_centre_screen("0x784... false");
 	}
 
 	if (!PED::_0x66680A92700F43DF(PLAYER::PLAYER_PED_ID())) //getting in plane?
 	{
-		set_status_text_centre_screen("0x666... false");
+	set_status_text_centre_screen("0x666... false");
 	}
 
 	if (PED::_0x0525A2C2562F3CD4(PLAYER::PLAYER_PED_ID()))
 	{
-		set_status_text_centre_screen("0x0525... true");
+	set_status_text_centre_screen("0x0525... true");
 	}
 	if (PED::_0xE0D36E5D9E99CC21(PLAYER::PLAYER_PED_ID()))
 	{
-		set_status_text_centre_screen("0xE0D... true");
+	set_status_text_centre_screen("0xE0D... true");
 	}
 	if (PED::_0x604E810189EE3A59(PLAYER::PLAYER_PED_ID()))
 	{
-		set_status_text_centre_screen("0x604... true");
+	set_status_text_centre_screen("0x604... true");
 	}
 
 	if (PED::_0x3E802F11FBE27674(PLAYER::PLAYER_PED_ID()))
 	{
-		set_status_text_centre_screen("0x3e80... true");
+	set_status_text_centre_screen("0x3e80... true");
 	}
 	if (PED::_0xF41B5D290C99A3D6(PLAYER::PLAYER_PED_ID()))
 	{
-		set_status_text_centre_screen("0x3e80... true");
+	set_status_text_centre_screen("0x3e80... true");
 	}
 
 	if (PED::_0x604E810189EE3A59(PLAYER::PLAYER_PED_ID()))
 	{
-		set_status_text_centre_screen("0x604... true");
+	set_status_text_centre_screen("0x604... true");
 	}
 	*/
 
 	/*
 	if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
 	{
-		Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
 
-		int primary, secondary;
-		VEHICLE::GET_VEHICLE_COLOURS(veh, &primary, &secondary);
+	int primary, secondary;
+	VEHICLE::GET_VEHICLE_COLOURS(veh, &primary, &secondary);
 
-		std::ostringstream ss;
-		ss << "Primary: " << primary << ", sec: " << secondary;
-		set_status_text_centre_screen(ss.str());*/
+	std::ostringstream ss;
+	ss << "Primary: " << primary << ", sec: " << secondary;
+	set_status_text_centre_screen(ss.str());*/
 
-		/*if (!VEHICLE::_0x8D474C8FAEFF6CDE(veh))
-		{
-			set_status_text_centre_screen("0x8D474... false");
-		}
-		else if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
-		{
-			set_status_text_centre_screen("0xAE3F... true");
-		}
-		else if (VEHICLE::_0x26C10ECBDA5D043B(veh))
-		{
-			set_status_text_centre_screen("0x26C10... true");
-		}
-		else if (VEHICLE::_0xB5CC40FBCB586380(veh)) //possibly is_vehicle_strong
-		{
-			set_status_text_centre_screen("0xB5CCC... true");
-		}
-		else if (VEHICLE::_0x62CA17B74C435651(veh))
-		{
-			set_status_text_centre_screen("0x62CA1... true");
-		}
-		else if (VEHICLE::_0x634148744F385576(veh))
-		{
-			set_status_text_centre_screen("0x634... true");
-		}
-		else if (VEHICLE::_0x1033371FC8E842A7(veh))
-		{
-			set_status_text_centre_screen("0x10333... true");
-		}
-		else if (!VEHICLE::_0x9A83F5F9963775EF(veh))
-		{
-			set_status_text_centre_screen("0x9a8... false");
-		}
-		else if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
-		{
-			set_status_text_centre_screen("0xAE3Fee... true");
-		}
-		else if (VEHICLE::_0x291E373D483E7EE7(veh))
-		{
-			set_status_text_centre_screen("0x291... true");
-		}
-		else if (VEHICLE::_0x4198AB0022B15F87(veh))
-		{
-			set_status_text_centre_screen("0x419... true");
-		}
-		else if (VEHICLE::_0x755D6D5267CBBD7E(veh))
-		{
-			set_status_text_centre_screen("0x755... true");
-		}
-		else if (VEHICLE::_0x5991A01434CE9677(veh))
-		{
-			set_status_text_centre_screen("0x599... true");
-		}
-		else if (VEHICLE::_0x1821D91AD4B56108(veh))
-		{
-			set_status_text_centre_screen("0x182... true");
-		}
-		else if (VEHICLE::_0x6E08BF5B3722BAC9(veh))
-		{
-			set_status_text_centre_screen("0x6E0... true");
-		}
-		else if (VEHICLE::_0xD4C4642CB7F50B5D(veh))
-		{
-			set_status_text_centre_screen("0xD4C... true");
-		}
+	/*if (!VEHICLE::_0x8D474C8FAEFF6CDE(veh))
+	{
+	set_status_text_centre_screen("0x8D474... false");
+	}
+	else if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
+	{
+	set_status_text_centre_screen("0xAE3F... true");
+	}
+	else if (VEHICLE::_0x26C10ECBDA5D043B(veh))
+	{
+	set_status_text_centre_screen("0x26C10... true");
+	}
+	else if (VEHICLE::_0xB5CC40FBCB586380(veh)) //possibly is_vehicle_strong
+	{
+	set_status_text_centre_screen("0xB5CCC... true");
+	}
+	else if (VEHICLE::_0x62CA17B74C435651(veh))
+	{
+	set_status_text_centre_screen("0x62CA1... true");
+	}
+	else if (VEHICLE::_0x634148744F385576(veh))
+	{
+	set_status_text_centre_screen("0x634... true");
+	}
+	else if (VEHICLE::_0x1033371FC8E842A7(veh))
+	{
+	set_status_text_centre_screen("0x10333... true");
+	}
+	else if (!VEHICLE::_0x9A83F5F9963775EF(veh))
+	{
+	set_status_text_centre_screen("0x9a8... false");
+	}
+	else if (VEHICLE::_0xAE3FEE8709B39DCB(veh))
+	{
+	set_status_text_centre_screen("0xAE3Fee... true");
+	}
+	else if (VEHICLE::_0x291E373D483E7EE7(veh))
+	{
+	set_status_text_centre_screen("0x291... true");
+	}
+	else if (VEHICLE::_0x4198AB0022B15F87(veh))
+	{
+	set_status_text_centre_screen("0x419... true");
+	}
+	else if (VEHICLE::_0x755D6D5267CBBD7E(veh))
+	{
+	set_status_text_centre_screen("0x755... true");
+	}
+	else if (VEHICLE::_0x5991A01434CE9677(veh))
+	{
+	set_status_text_centre_screen("0x599... true");
+	}
+	else if (VEHICLE::_0x1821D91AD4B56108(veh))
+	{
+	set_status_text_centre_screen("0x182... true");
+	}
+	else if (VEHICLE::_0x6E08BF5B3722BAC9(veh))
+	{
+	set_status_text_centre_screen("0x6E0... true");
+	}
+	else if (VEHICLE::_0xD4C4642CB7F50B5D(veh))
+	{
+	set_status_text_centre_screen("0xD4C... true");
+	}
 	}*/
 }
 
