@@ -16,7 +16,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/
-const int DATABASE_VERSION = 6;
+const int DATABASE_VERSION = 7;
 
 static int singleIntResultCallback(void *data, int count, char **rows, char **azColName)
 {
@@ -303,6 +303,55 @@ void ENTDatabase::handle_version(int oldVersion)
 				write_text_to_log_file("Couldn't add v6 vehicle column");
 				sqlite3_free(zErrMsg);
 			}
+		}
+	}
+
+	if (oldVersion < 7)
+	{
+		write_text_to_log_file("Props sets table not found, so creating it");
+		char* CREATE_PROP_SETS_TABLE_QUERY = "CREATE TABLE ENT_PROP_SETS ( \
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+			name TEXT NOT NULL)";
+
+		int propSetRC = sqlite3_exec(db, CREATE_PROP_SETS_TABLE_QUERY, NULL, 0, &zErrMsg);
+		if (propSetRC != SQLITE_OK)
+		{
+			write_text_to_log_file("Prop set table creation problem");
+			sqlite3_free(zErrMsg);
+		}
+		else
+		{
+			write_text_to_log_file("Prop set table creation problem");
+		}
+
+		write_text_to_log_file("Props instances table not found, so creating it");
+		char* CREATE_PROP_INSTANCES_TABLE_QUERY = "CREATE TABLE ENT_PROP_INSTANCES ( \
+			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
+			parentId INTEGER NOT NULL, \
+			modelHash TEXT NOT NULL, \
+			title TEXT NOT NULL, \
+			counter INTEGER NOT NULL, \
+			posX REAL NOT NULL, \
+			posY REAL NOT NULL, \
+			posZ REAL NOT NULL, \
+			pitch REAL NOT NULL, \
+			roll REAL NOT NULL, \
+			yaw REAL NOT NULL, \
+			isImmovable INT NOT NULL, \
+			isInvincible INT NOT NULL, \
+			hasGravity INT NOT NULL, \
+			alpha REAL NOT NULL, \
+			FOREIGN KEY (parentId) REFERENCES ENT_PROP_SETS(id) ON DELETE CASCADE)";
+
+		int propInstanceRC = sqlite3_exec(db, CREATE_PROP_INSTANCES_TABLE_QUERY, NULL, 0, &zErrMsg);
+		if (propInstanceRC != SQLITE_OK)
+		{
+			write_text_to_log_file("Prop instance table creation problem");
+			sqlite3_free(zErrMsg);
+		}
+		else
+		{
+			write_text_to_log_file("Prop instance table creation problem");
 		}
 	}
 }

@@ -21,6 +21,8 @@ std::vector<SpawnedPropInstance*> propsWeCreated;
 
 std::string lastCustomPropSpawn;
 
+SpawnedPropInstance* lastHighlightedProp = NULL;
+
 const std::vector<std::string> ALPHA_LABELS = { "Normal", "80%", "60%", "40%", "20%" };
 const int ALPHA_VALUES[] = { 255, 204, 153, 102, 51 };
 
@@ -61,6 +63,10 @@ void manage_prop_set()
 		{
 			it = propsWeCreated.erase(it);
 			delete prop;
+			if (prop == currentProp)
+			{
+				currentProp = NULL;
+			}
 		}
 		else
 		{
@@ -619,6 +625,10 @@ void cleanup_props()
 		}
 		it = propsWeCreated.erase(it);
 		delete prop;
+		if (prop == currentProp)
+		{
+			currentProp = NULL;
+		}
 	}
 }
 
@@ -647,6 +657,8 @@ bool prop_spawned_instances_menu()
 
 	do
 	{
+		requireRefreshOfPropInstanceMenu = false;
+
 		manage_prop_set();
 
 		std::vector<MenuItem<int>*> menuItems;
@@ -669,6 +681,8 @@ bool prop_spawned_instances_menu()
 		}
 
 		draw_generic_menu<int>(menuItems, &menu_spawned_instance_index, "Spawned Instances", onconfirm_prop_instance_menu, NULL, NULL, prop_instance_menu_interrupt);
+
+		WAIT(0);
 	}
 	while (requireRefreshOfPropInstanceMenu);
 	return false;
@@ -773,8 +787,21 @@ void set_prop_gravity_enabled(bool applied, std::vector<int> extras)
 	prop->hasGravity = applied;
 }
 
+void onhighlight_prop_single_instance_menu(MenuItem<int> choice)
+{
+	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+	{
+		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+	}
+
+	SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
+	lastHighlightedProp = prop;
+}
+
 bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 {
+	clear_menu_per_frame_call();
+
 	if (choice.value == 1) //delete item
 	{
 		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
@@ -797,10 +824,28 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 		Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
 		FIRE::ADD_EXPLOSION(position.x, position.y, position.z, 14, 3.0f, true, false, 0);
 	}
+
+	set_menu_per_frame_call(flash_prop_callback);
 	return false;
 }
 
 int singleInstanceMenuIndex = 0;
+
+void flash_prop_callback()
+{
+	if (lastHighlightedProp != NULL)
+	{
+		int frame = get_frame_number() % 60;
+		if (frame == 0)
+		{
+			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, FALSE);
+		}
+		else if (frame == 30)
+		{
+			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+		}
+	}
+}
 
 bool prop_spawned_single_instance_menu(int index)
 {
@@ -861,6 +906,16 @@ bool prop_spawned_single_instance_menu(int index)
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
-	draw_generic_menu<int>(menuItems, &singleInstanceMenuIndex, "Object Options", onconfirm_prop_single_instance_menu, NULL, NULL, NULL);
+	set_menu_per_frame_call(flash_prop_callback);
+
+	draw_generic_menu<int>(menuItems, &singleInstanceMenuIndex, "Object Options", onconfirm_prop_single_instance_menu, onhighlight_prop_single_instance_menu, NULL, NULL);
+
+	clear_menu_per_frame_call();
+
+	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+	{
+		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+	}
+
 	return false;
 }

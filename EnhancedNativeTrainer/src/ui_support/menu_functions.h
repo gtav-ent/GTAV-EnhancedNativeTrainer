@@ -34,6 +34,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 extern void(*periodic_feature_call)(void);
 
+extern void(*menu_per_frame_call)(void);
+
 static const char* LOCAL_TEXTURE_DICT = "LOCALTEXTURES";
 
 template<class T>
@@ -279,6 +281,10 @@ void set_periodic_feature_call(void method(void));
 
 /**Make the periodic feature call. For example it updates the status text etc. - look at existing menus to see where this is done.*/
 void make_periodic_feature_call();
+
+void set_menu_per_frame_call(void method(void));
+
+void clear_menu_per_frame_call();
 
 void set_menu_showing(bool showing);
 
@@ -813,6 +819,11 @@ bool draw_generic_menu(MenuParameters<T> params)
 	if (params.onHighlight != NULL)
 	{
 		params.onHighlight(*params.items[currentSelectionIndex]);
+	}
+
+	if (menu_per_frame_call != NULL)
+	{
+		menu_per_frame_call();
 	}
 
 	MenuItemImage* image = NULL;

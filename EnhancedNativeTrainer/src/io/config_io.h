@@ -54,6 +54,7 @@ public:
 	static const std::string KEY_OBJECTPLACER_FREEZE_TIME;
 	static const std::string KEY_OBJECTPLACER_FREEZE_POSITION;
 	static const std::string KEY_OBJECTPLACER_HELP;
+	static const std::string KeyConfig::KEY_OBJECTPLACER_ALT_MOVE;
 
 	static const std::string KEY_HOT_AIRBRAKE_THROUGH_DOOR;
 

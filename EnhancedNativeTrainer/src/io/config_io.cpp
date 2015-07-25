@@ -361,6 +361,7 @@ KeyInputConfig::KeyInputConfig()
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_HELP] = new KeyConfig(VK_KEY_H);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION] = new KeyConfig(VK_KEY_G);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_ALT_MOVE] = new KeyConfig(VK_SHIFT);
 
 	this->keyConfigs[KeyConfig::KEY_HOT_1] = new KeyConfig(0);
 	this->keyConfigs[KeyConfig::KEY_HOT_2] = new KeyConfig(0);
@@ -525,6 +526,7 @@ const std::string KeyConfig::KEY_OBJECTPLACER_SPEED = std::string("objectplacer_
 const std::string KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME = std::string("objectplacer_freeze_time");
 const std::string KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION = std::string("objectplacer_freeze_position");
 const std::string KeyConfig::KEY_OBJECTPLACER_HELP = std::string("objectplacer_help");
+const std::string KeyConfig::KEY_OBJECTPLACER_ALT_MOVE = std::string("objectplacer_alt_move");
 
 const std::string KeyConfig::KEY_HOT_AIRBRAKE_THROUGH_DOOR = std::string("hotkey_throughdoor");
 

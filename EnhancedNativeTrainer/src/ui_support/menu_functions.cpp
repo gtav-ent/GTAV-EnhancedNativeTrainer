@@ -19,6 +19,8 @@ bool menu_showing = false;
 
 void(*periodic_feature_call)(void) = NULL;
 
+void(*menu_per_frame_call)(void) = NULL;
+
 void set_periodic_feature_call(void method(void))
 {
 	periodic_feature_call = method;
@@ -27,6 +29,16 @@ void set_periodic_feature_call(void method(void))
 void make_periodic_feature_call()
 {
 	periodic_feature_call();
+}
+
+void set_menu_per_frame_call(void method(void))
+{
+	menu_per_frame_call = method;
+}
+
+void clear_menu_per_frame_call()
+{
+	menu_per_frame_call = NULL;
 }
 
 void set_menu_showing(bool showing)
