@@ -83,39 +83,7 @@ void manage_prop_set()
 */
 bool get_ground_height_at_position(Vector3 coords, float* result)
 {
-	Hash propHash = GAMEPLAY::GET_HASH_KEY("prop_veg_crop_03_cab");
-	STREAMING::REQUEST_MODEL(propHash);
-	DWORD now = GetTickCount();
-	while (!STREAMING::HAS_MODEL_LOADED(propHash) && GetTickCount() < now + 5000)
-	{
-		make_periodic_feature_call();
-		WAIT(0);
-	}
-
-	if (!STREAMING::HAS_MODEL_LOADED(propHash))
-	{
-		return false;
-	}
-
-	Vector3 minDimens;
-	Vector3 maxDimens;
-	GAMEPLAY::GET_MODEL_DIMENSIONS(propHash, &minDimens, &maxDimens);
-
-	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords.x, coords.y, coords.z, creationParam1, creationParam2, creationParam3);
-	ENTITY::SET_ENTITY_VISIBLE(obj, false);
-	OBJECT::PLACE_OBJECT_ON_GROUND_PROPERLY(obj);
-	Vector3 objLocation = ENTITY::GET_ENTITY_COORDS(obj, 0);
-	float objHeight = ENTITY::GET_ENTITY_HEIGHT(obj, objLocation.x, objLocation.y, objLocation.z, 1, 0);
-
-	*result = objLocation.z - objHeight;
-	if (minDimens.z < 0)
-	{
-		*result += minDimens.z;
-	}
-
-	OBJECT::DELETE_OBJECT(&obj);
-
-	return true;
+	return GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z, result);
 }
 
 void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
@@ -153,7 +121,7 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 	Vector3 minDimens;
 	Vector3 maxDimens;
 	GAMEPLAY::GET_MODEL_DIMENSIONS(propHash, &minDimens, &maxDimens);
-	spawnOffY = max(3.5f, 1.3f * max(maxDimens.x-minDimens.x, maxDimens.y-minDimens.y));
+	spawnOffY = max(3.5f, 2.0f + 0.5f * (maxDimens.y - minDimens.y));
 	spawnOffZ = 0.0f;
 
 	Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(playerPed, spawnOffX, spawnOffY, spawnOffZ);
@@ -671,7 +639,7 @@ bool prop_spawned_instances_menu()
 			SpawnedPropInstance* instance = *it;
 
 			MenuItem<int>* item = new MenuItem<int>();
-			item->value = 0;
+			item->value = i;
 			std::ostringstream ss;
 			ss << instance->title << "~HUD_COLOUR_MENU_YELLOW~ #" << instance->counter;
 			item->caption = ss.str();
@@ -717,12 +685,22 @@ SpawnedPropInstance* get_prop_at_index(int i)
 bool is_prop_invincible(std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label A");
+		return false;
+	}
 	return prop->isInvincible;
 }
 
 void set_prop_invincible(bool applied, std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label B");
+		return;
+	}
 
 	ENTITY::SET_ENTITY_INVINCIBLE(prop->instance, applied);
 	ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, !applied);
@@ -734,12 +712,22 @@ void set_prop_invincible(bool applied, std::vector<int> extras)
 bool is_prop_immovable(std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label C");
+		return false;
+	}
 	return prop->isImmovable;
 }
 
 void set_prop_immovable(bool applied, std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label D");
+		return;
+	}
 
 	OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(prop->instance, !applied);
 	ENTITY::FREEZE_ENTITY_POSITION(prop->instance, applied);
@@ -754,12 +742,22 @@ void set_prop_immovable(bool applied, std::vector<int> extras)
 bool is_prop_on_fire(std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label E");
+		return false;
+	}
 	return FIRE::IS_ENTITY_ON_FIRE(prop->instance);
 }
 
 void set_prop_on_fire(bool applied, std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label F");
+		return;
+	}
 	if (applied)
 	{
 		bool isInvinc = prop->isInvincible;
@@ -777,12 +775,22 @@ void set_prop_on_fire(bool applied, std::vector<int> extras)
 bool is_prop_gravity_enabled(std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label G");
+		return false;
+	}
 	return prop->hasGravity;
 }
 
 void set_prop_gravity_enabled(bool applied, std::vector<int> extras)
 {
 	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label H");
+		return;
+	}
 	ENTITY::SET_ENTITY_HAS_GRAVITY(prop->instance, applied);
 	prop->hasGravity = applied;
 }
@@ -795,6 +803,11 @@ void onhighlight_prop_single_instance_menu(MenuItem<int> choice)
 	}
 
 	SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label J");
+		return;
+	}
 	lastHighlightedProp = prop;
 }
 
@@ -802,9 +815,15 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 {
 	clear_menu_per_frame_call();
 
+	SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label K");
+		return true;
+	}
+
 	if (choice.value == 1) //delete item
 	{
-		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
 		OBJECT::DELETE_OBJECT(&prop->instance);
 		propsWeCreated.erase(propsWeCreated.begin() + lastSelectedPropIndex);
 		manage_prop_set();
@@ -815,12 +834,10 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 	}
 	else if (choice.value == 2)
 	{
-		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
 		begin_prop_placement(prop);
 	}
 	else if (choice.value == 3) //explode
 	{
-		SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
 		Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
 		FIRE::ADD_EXPLOSION(position.x, position.y, position.z, 14, 3.0f, true, false, 0);
 	}

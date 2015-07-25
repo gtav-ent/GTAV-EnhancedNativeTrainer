@@ -538,7 +538,22 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 	{
 		UI::SET_TEXT_FONT(font);
 		UI::SET_TEXT_SCALE(0.0, text_scale);
-		UI::SET_TEXT_COLOUR(205, 205, 205, 255);
+
+		//disable any items that aren't active
+		if (!active && selectFromListItem->locked)
+		{
+			selectFromListItem->locked = false;
+		}
+
+		if (selectFromListItem->locked)
+		{
+			UI::SET_TEXT_COLOUR(205, 205, 205, 255);
+		}
+		else
+		{
+			UI::SET_TEXT_COLOUR(155, 155, 155, 255);
+		}
+
 		UI::SET_TEXT_RIGHT_JUSTIFY(1);
 
 		UI::SET_TEXT_OUTLINE();
@@ -556,7 +571,7 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 
 		std::stringstream ss;
 
-		if ((selectFromListItem->wrap || selectFromListItem->value > 0) && selectFromListItem->locked)
+		if (selectFromListItem->wrap || selectFromListItem->value > 0)
 		{
 			ss << "&lt;&lt; ";
 		}
@@ -566,13 +581,24 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		}
 
 		if (selectFromListItem->locked)
-			ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
-		else
-			ss << "~HUD_COLOUR_GREYLIGHT~" << caption;
-		
-		if ((selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1) && selectFromListItem->locked)
 		{
-			ss << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;";
+			ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
+		}
+		else
+		{
+			ss << "~HUD_COLOUR_GREYLIGHT~" << caption;
+		}
+		
+		if (selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1)
+		{
+			if (selectFromListItem->locked)
+			{
+				ss << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;";
+			}
+			else
+			{
+				ss << " ~HUD_COLOUR_GREY~&gt;&gt;";
+			}
 		}
 		else
 		{
@@ -802,6 +828,8 @@ bool draw_generic_menu(MenuParameters<T> params)
 		params.items[i]->currentMenuIndex = i;
 	}
 
+	MenuItem<T> *choice = NULL;
+
 	while (true)
 	{
 		if (trainer_switch_pressed())
@@ -902,7 +930,7 @@ bool draw_generic_menu(MenuParameters<T> params)
 		bool bSelect, bBack, bUp, bDown, bLeft, bRight;
 		get_button_state(&bSelect, &bBack, &bUp, &bDown, &bLeft, &bRight);
 
-		MenuItem<T> *choice = params.items[currentSelectionIndex];
+		choice = params.items[currentSelectionIndex];
 
 		if (bSelect)
 		{
@@ -1034,6 +1062,15 @@ bool draw_generic_menu(MenuParameters<T> params)
 	if (params.onExit != NULL)
 	{
 		params.onExit(result);
+	}
+
+	//unlock any current item
+	if (choice != NULL)
+	{
+		if (SelectFromListMenuItem* selectFromListItem = dynamic_cast<SelectFromListMenuItem*>(choice))
+		{
+			selectFromListItem->locked = false;
+		}
 	}
 
 	// wait before exit

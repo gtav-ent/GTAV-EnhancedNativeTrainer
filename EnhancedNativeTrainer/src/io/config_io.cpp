@@ -361,7 +361,7 @@ KeyInputConfig::KeyInputConfig()
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_HELP] = new KeyConfig(VK_KEY_H);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION] = new KeyConfig(VK_KEY_G);
-	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_ALT_MOVE] = new KeyConfig(VK_SHIFT);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_ALT_MOVE] = new KeyConfig(VK_MENU);
 
 	this->keyConfigs[KeyConfig::KEY_HOT_1] = new KeyConfig(0);
 	this->keyConfigs[KeyConfig::KEY_HOT_2] = new KeyConfig(0);

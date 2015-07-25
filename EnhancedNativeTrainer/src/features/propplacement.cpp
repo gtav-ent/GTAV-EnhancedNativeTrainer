@@ -212,7 +212,7 @@ void update_prop_placement_text()
 
 			UI::SET_TEXT_FONT(0);
 			UI::SET_TEXT_SCALE(0.3, 0.3);
-			if (i == 0 || i == 9 || i >= 16)
+			if (i == 0 || i == 10 || i >= 17)
 			{
 				UI::SET_TEXT_OUTLINE();
 				UI::SET_TEXT_COLOUR(255, 180, 0, 255);
@@ -280,8 +280,9 @@ void create_prop_placement_help_text()
 
 	propPlacerStatusLines.push_back("Default Object Placement Keys (change in XML):");
 	propPlacerStatusLines.push_back("Q/Z - Move Up/Down");
-	propPlacerStatusLines.push_back("A/D - Rotate Left/Right");
-	propPlacerStatusLines.push_back("W/S - Move Forward/Back");
+	propPlacerStatusLines.push_back("A/D - Rotate Left/Right (Alt: Tilt)");
+	propPlacerStatusLines.push_back("W/S - Move Forward/Back (Alt: Tilt)");
+	propPlacerStatusLines.push_back("Alt - Alternate Movement");
 	propPlacerStatusLines.push_back("Shift - Cycle Move Speeds");
 	propPlacerStatusLines.push_back("T - Toggle Frozen Time");
 	propPlacerStatusLines.push_back("G - Toggle Object Frozen On Exit");
@@ -400,20 +401,20 @@ void prop_placement()
 
 		if (moveForwardKey)
 		{
-			pp_cur_pitch += rotationSpeed;
+			pp_cur_pitch -= rotationSpeed;
 		}
 		else if (moveBackKey)
 		{
-			pp_cur_pitch -= rotationSpeed;
+			pp_cur_pitch += rotationSpeed;
 		}
 
 		if (rotateLeftKey)
 		{
-			pp_cur_roll += rotationSpeed;
+			pp_cur_roll -= rotationSpeed;
 		}
 		else if (rotateRightKey)
 		{
-			pp_cur_roll -= rotationSpeed;
+			pp_cur_roll += rotationSpeed;
 		}
 
 		//ENTITY::SET_ENTITY_QUATERNION(currentProp->instance, qx, qy, qz, qw);
