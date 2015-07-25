@@ -1056,19 +1056,19 @@ bool process_savedskin_slot_menu(int slot)
 		menuItems.push_back(item);
 
 		item = new MenuItem<int>();
-		item->isLeaf = false;
+		item->isLeaf = true;
 		item->value = 2;
 		item->caption = "Overwrite With Current";
 		menuItems.push_back(item);
 
 		item = new MenuItem<int>();
-		item->isLeaf = false;
+		item->isLeaf = true;
 		item->value = 3;
 		item->caption = "Rename";
 		menuItems.push_back(item);
 
 		item = new MenuItem<int>();
-		item->isLeaf = false;
+		item->isLeaf = true;
 		item->value = 4;
 		item->caption = "Delete";
 		menuItems.push_back(item);
