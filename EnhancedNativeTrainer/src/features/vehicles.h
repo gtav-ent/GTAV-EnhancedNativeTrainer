@@ -33,10 +33,6 @@ bool process_savedveh_menu();
 
 bool process_savedveh_slot_menu(int slot);
 
-void process_vehicle_management();
-
-bool onconfirm_vehicle_management(MenuItem<int> choice);
-
 bool process_vehmod_menu();
 
 bool process_carspawn_menu();

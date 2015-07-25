@@ -16,8 +16,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\io\config_io.h"
 #include "..\debug\debuglog.h"
 
-Vehicle ownedveh;
-bool ownedvehlocked = false;
 bool featureVehInvincible = false;
 bool featureVehInvincibleUpdated = false;
 
@@ -271,23 +269,23 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	switch (activeLineIndexVeh)
 	{
 	case 0:
-		process_vehicle_management();
-		break;
-	case 1:
 		if (process_carspawn_menu()) return false;
 		break;
-	case 2:
-		if (process_vehmod_menu()) return false;
+	case 1:
+		if (process_savedveh_menu()) return false;
 		break;
-	case 3:
-		if (process_paint_menu()) return false;
-		break;
-	case 4:
+	case 2: // fix
 		fix_vehicle();
 		break;
-	case 5:
+	case 3: // clean
 		clean_vehicle();
-		break;		
+		break;
+	case 4: // paint
+		if (process_paint_menu()) return false;
+		break;
+	case 5: // mods
+		if (process_vehmod_menu()) return false;
+		break;
 	case 13:
 		if (process_veh_door_menu()) return false;
 		break;
@@ -310,25 +308,13 @@ void process_veh_menu()
 	int i = 0;
 
 	item = new MenuItem<int>();
-	item->caption = "Management";
+	item->caption = "Vehicle Spawner";
 	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
-	item->caption = "Spawning";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Modifications";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Respray";
+	item->caption = "Saved Vehicles";
 	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
@@ -343,6 +329,18 @@ void process_veh_menu()
 	item->caption = "Clean";
 	item->value = i++;
 	item->isLeaf = true;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Paint Menu";
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Modifications";
+	item->value = i++;
+	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	listItem = new SelectFromListMenuItem(VEH_INVINC_MODE_CAPTIONS, onchange_veh_invincibility_mode);
@@ -363,6 +361,18 @@ void process_veh_menu()
 	toggleItem->value = i++;
 	toggleItem->toggleValue = &featureWearHelmetOff;
 	toggleItem->toggleValueUpdated = &featureWearHelmetOffUpdated;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Spawn Into Vehicle";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureVehSpawnInto;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Spawn Vehicles Fully Tuned";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureVehSpawnTuned;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
@@ -544,205 +554,6 @@ void reset_vehicle_globals()
 	featureVehInvulnIncludesCosmetic = false;
 }
 
-//Vehicle Management
-int activeLineIndexVehManagement = 0;
-
-bool onconfirm_vehicle_management(MenuItem<int> choice)
-{
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	switch (activeLineIndexVehManagement)
-	{
-	case 0:
-		if (process_savedveh_menu()) return false;
-		break;
-	case 1:
-		if (ownedveh != NULL && ENTITY::DOES_ENTITY_EXIST(ownedveh)) {
-			set_status_text("You already have an owned vehicle, please clear it first.");
-		}
-		else if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 1))
-		{
-			ownedveh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-			if (VEHICLE::GET_PED_IN_VEHICLE_SEAT(ownedveh, -1) == playerPed) {
-				ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ownedveh, 1, 1);
-				AUDIO::SET_VEHICLE_RADIO_LOUD(ownedveh, 1);
-				ownedvehlocked = false;
-				set_status_text("Your current vehicle has been set as owned.");
-			}
-			else {
-				ownedveh = NULL;
-				ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ownedveh);
-				set_status_text("You can't own a vehicle you're not driving.");
-			}
-		}
-		else
-			set_status_text("Not in a vehicle.");
-		break;
-	case 2:
-		if (ownedveh != NULL && ENTITY::DOES_ENTITY_EXIST(ownedveh))
-		{
-			VEHICLE::SET_VEHICLE_DOORS_LOCKED_FOR_ALL_PLAYERS(ownedveh, 0);
-			VEHICLE::SET_VEHICLE_ALARM(ownedveh, 0);
-			ownedveh = NULL;
-			set_status_text("Cleared previously owned vehicle.");
-		}
-		else
-			set_status_text("Owned vehicle not found.");
-		break;
-	case 3:
-		if (ownedveh != NULL && ENTITY::DOES_ENTITY_EXIST(ownedveh))
-		{
-			if (!ownedvehlocked)
-			{
-				VEHICLE::SET_VEHICLE_DOORS_LOCKED_FOR_ALL_PLAYERS(ownedveh, 1);
-				VEHICLE::SET_VEHICLE_DOORS_LOCKED_FOR_PLAYER(ownedveh, PLAYER::PLAYER_ID(), 0);
-				VEHICLE::SET_VEHICLE_ALARM(ownedveh, 1);
-				ownedvehlocked = true;
-				if (VEHICLE::IS_VEHICLE_SEAT_FREE(ownedveh, -1)) {
-					if (VEHICLE::IS_VEHICLE_A_CONVERTIBLE(ownedveh, 0)) {
-						int rstate = VEHICLE::GET_CONVERTIBLE_ROOF_STATE(ownedveh);
-						if (rstate != 0 && rstate != 3)
-							VEHICLE::RAISE_CONVERTIBLE_ROOF(ownedveh, 0);
-					}
-					set_status_text("Owned vehicle locked for other players.");
-
-					VEHICLE::START_VEHICLE_ALARM(ownedveh);
-					WAIT(2000);
-					VEHICLE::SET_VEHICLE_ALARM(ownedveh, 0);
-					VEHICLE::SET_VEHICLE_ALARM(ownedveh, 1);
-				}
-				else
-					set_status_text("Owned vehicle will be locked as soon as the driver gets out.");
-			}
-			else
-				set_status_text("Owned vehicle already locked.");
-		}
-		else
-			set_status_text("Owned vehicle not found.");
-		break;
-	case 4:
-		if (ownedveh != NULL && ENTITY::DOES_ENTITY_EXIST(ownedveh))
-		{
-			if (ownedvehlocked) {
-				VEHICLE::SET_VEHICLE_DOORS_LOCKED_FOR_ALL_PLAYERS(ownedveh, 0);
-				set_status_text("Owned vehicle unlocked.");
-				if (VEHICLE::IS_VEHICLE_SEAT_FREE(ownedveh, -1)) {
-					VEHICLE::SET_VEHICLE_ALARM(ownedveh, 1);
-					VEHICLE::START_VEHICLE_ALARM(ownedveh);
-					WAIT(1000);
-				}
-				VEHICLE::SET_VEHICLE_ALARM(ownedveh, 0);
-				ownedvehlocked = false;
-			}
-			else
-				set_status_text("Owned vehicle already unlocked.");
-		}
-		else
-			set_status_text("Owned vehicle not found.");
-		break;
-	case 5:
-		if (ownedveh != NULL && ENTITY::DOES_ENTITY_EXIST(ownedveh))
-		{
-			Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(ownedveh, -1);
-			if (ENTITY::DOES_ENTITY_EXIST(driver)) {
-				if (driver == playerPed)
-					set_status_text("Really now?");
-				else {
-					AI::CLEAR_PED_TASKS_IMMEDIATELY(driver);
-					set_status_text("Your vehicle's driver was kicked.");
-				}
-			}
-			else
-				set_status_text("No driver was found.");
-		}
-		else
-			set_status_text("Owned vehicle not found.");
-		break;
-	case 6:
-		if (ownedveh != NULL && ENTITY::DOES_ENTITY_EXIST(ownedveh)) {
-			Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(ownedveh, -1);
-			if (ENTITY::DOES_ENTITY_EXIST(driver)) {
-				if (driver == playerPed) {
-					set_status_text("You are already driving your vehicle.");
-					return false;
-				}
-				AI::CLEAR_PED_TASKS_IMMEDIATELY(driver);
-			}
-			Vector3 mypos = ENTITY::GET_ENTITY_COORDS(playerPed, 0);
-			AI::CLEAR_PED_TASKS_IMMEDIATELY(playerPed);
-			int tick = 0;
-			while (tick < 500 && !PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)) {
-				AI::TASK_WARP_PED_INTO_VEHICLE(playerPed, ownedveh, -1);
-				WAIT(0);
-				tick++;
-			}
-			if (tick == 500)
-				write_text_to_log_file("DEBUG: Failed to warp to vehicle.");
-			NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(ownedveh);
-			tick = 0;
-			while (tick < 500 && !NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(ownedveh)) {
-				WAIT(0);
-				tick++;
-			}
-			if (tick == 500)
-				write_text_to_log_file("DEBUG: Failed to obtain control of entity.");
-			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(ownedveh, mypos.x, mypos.y, mypos.z, 0, 0, 1);
-			VEHICLE::SET_VEHICLE_FIXED(ownedveh);
-			set_status_text("Your vehicle was retrieved and fixed.");
-		}
-		else
-			set_status_text("Owned vehicle not found.");
-		break;
-	case 7:
-		if (ownedveh != NULL && ENTITY::DOES_ENTITY_EXIST(ownedveh))
-		{
-			Ped driver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(ownedveh, -1);
-			if (ENTITY::DOES_ENTITY_EXIST(driver)) {
-				if (driver == playerPed) {
-					set_status_text("You cannot explode the vehicle your currently driving.");
-					return false;
-				}
-				AI::CLEAR_PED_TASKS_IMMEDIATELY(driver);
-			}
-			NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(ownedveh);
-			int tick = 0;
-			while (tick < 500 && !NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(ownedveh)) {
-				WAIT(0);
-				tick++;
-			}
-			if (tick == 500)
-				write_text_to_log_file("DEBUG: Failed to obtain control of entity.");
-			ENTITY::SET_ENTITY_INVINCIBLE(ownedveh, 0);
-			NETWORK::NETWORK_EXPLODE_VEHICLE(ownedveh, 1, 0, 0);
-			ownedveh = NULL;
-			set_status_text("Exploded previously owned vehicle.");
-		}
-		else
-			set_status_text("Owned vehicle not found.");
-		break;
-	}
-	return false;
-}
-
-void process_vehicle_management()
-{
-	std::string caption = "VEHICLE MANAGEMENT";
-
-	const int lineCount = 8;
-
-	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Saved Vehicles", NULL, NULL, false },
-		{ "Set Current Vehicle As Owned", NULL, NULL, true },
-		{ "Clear Owned Vehicle", NULL, NULL, true },
-		{ "Lock Owned Vehicle", NULL, NULL, true },
-		{ "Unlock Owned Vehicle", NULL, NULL, true },
-		{ "Kick Owned Vehicle's Current Driver", NULL, NULL, true },
-		{ "Retrieve Owned Vehicle", NULL, NULL, true },
-		{ "Explode Owned Vehicle", NULL, NULL, true }
-	};
-
-	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexVehManagement, caption, onconfirm_vehicle_management);
-}
-
 bool onconfirm_carspawn_menu(MenuItem<int> choice)
 {
 	if (choice.value == MENU_VEHICLE_CATEGORIES.size() - 1) //custom spawn
@@ -802,18 +613,6 @@ bool process_carspawn_menu()
 	item->isLeaf = false;
 	menuItems.push_back(item);
 	*/
-	ToggleMenuItem<int>* toggleItem = new ToggleMenuItem<int>();
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Spawn Into Vehicle";
-	toggleItem->value = -2;
-	toggleItem->toggleValue = &featureVehSpawnInto;
-	menuItems.push_back(toggleItem);
-
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Spawn Vehicles Fully Tuned";
-	toggleItem->value = -3;
-	toggleItem->toggleValue = &featureVehSpawnTuned;
-	menuItems.push_back(toggleItem);
 
 	return draw_generic_menu<int>(menuItems, 0, "Vehicle Categories", onconfirm_carspawn_menu, NULL, NULL);
 }
@@ -1200,25 +999,25 @@ bool process_savedveh_slot_menu(int slot)
 		std::vector<MenuItem<int>*> menuItems;
 
 		MenuItem<int> *item = new MenuItem<int>();
-		item->isLeaf = true;
+		item->isLeaf = false;
 		item->value = 1;
 		item->caption = "Spawn";
 		menuItems.push_back(item);
 
 		item = new MenuItem<int>();
-		item->isLeaf = true;
+		item->isLeaf = false;
 		item->value = 2;
 		item->caption = "Overwrite With Current";
 		menuItems.push_back(item);
 
 		item = new MenuItem<int>();
-		item->isLeaf = true;
+		item->isLeaf = false;
 		item->value = 3;
 		item->caption = "Rename";
 		menuItems.push_back(item);
 
 		item = new MenuItem<int>();
-		item->isLeaf = true;
+		item->isLeaf = false;
 		item->value = 4;
 		item->caption = "Delete";
 		menuItems.push_back(item);
