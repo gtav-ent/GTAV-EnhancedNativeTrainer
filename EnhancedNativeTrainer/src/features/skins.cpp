@@ -21,8 +21,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 //std::string chosenSkinName = "";
 
-DWORD mModelHash;
-
 bool DEBUG_MODE_SKINS = false;
 
 int skinDetailMenuIndex = 0;
@@ -69,62 +67,19 @@ void reset_skin_globals()
 * WORKER METHODS
 * =================
 */
-int activeLineIndexModel = 0;
-
-bool onconfirm_model_actions_menu(MenuItem<int> choice)
-{
-
-	switch (activeLineIndexModel)
-	{
-	case 0:
-		applyChosenModelAsSkin();
-		break;
-	case 1:
-		spawnChosenModelAsBodyguard();
-		break;
-
-	default:
-		break;
-	}
-	return false;
-}
 
 bool applyChosenSkin(std::string skinName)
 {
-	mModelHash = GAMEPLAY::GET_HASH_KEY((char *)skinName.c_str());
-	return applyChosenSkin();
+	DWORD model = GAMEPLAY::GET_HASH_KEY((char *)skinName.c_str());
+	return applyChosenSkin(model);
 }
 
-bool applyChosenSkin()
+bool applyChosenSkin(DWORD model)
 {
-	std::string caption = "Player Model Options";
-
-	std::vector<MenuItem<int>*> menuItems;
-
-	MenuItem<int> *item;
-	int i = 0;
-
-	item = new MenuItem<int>();
-	item->caption = "Set Model As Skin";
-	item->value = i++;
-	item->isLeaf = true;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Spawn Model As Bodyguard";
-	item->value = i++;
-	item->isLeaf = true;
-	menuItems.push_back(item);
-
-	return draw_generic_menu<int>(menuItems, &activeLineIndexModel, caption, onconfirm_model_actions_menu, NULL, NULL);
-}
-
-void applyChosenModelAsSkin()
-{
-	if (STREAMING::IS_MODEL_IN_CDIMAGE(mModelHash) && STREAMING::IS_MODEL_VALID(mModelHash))
+	if (STREAMING::IS_MODEL_IN_CDIMAGE(model) && STREAMING::IS_MODEL_VALID(model))
 	{
-		STREAMING::REQUEST_MODEL(mModelHash);
-		while (!STREAMING::HAS_MODEL_LOADED(mModelHash))
+		STREAMING::REQUEST_MODEL(model);
+		while (!STREAMING::HAS_MODEL_LOADED(model))
 		{
 			make_periodic_feature_call();
 			WAIT(0);
@@ -139,7 +94,7 @@ void applyChosenModelAsSkin()
 
 		save_player_weapons();
 
-		PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), mModelHash);
+		PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), model);
 		//PED::SET_PED_RANDOM_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID(), FALSE);
 		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID());
 		WAIT(0);
@@ -156,91 +111,13 @@ void applyChosenModelAsSkin()
 		skinDetailMenuValue = 0;
 
 		WAIT(100);
-		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(mModelHash);
+		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);
 
 		//chosenSkinName = skinName;
 
+		return true;
 	}
-
-	return;
-}
-
-void spawnChosenModelAsBodyguard()
-{
-	if (STREAMING::IS_MODEL_IN_CDIMAGE(mModelHash) && STREAMING::IS_MODEL_VALID(mModelHash))
-	{
-		STREAMING::REQUEST_MODEL(mModelHash);
-		while (!STREAMING::HAS_MODEL_LOADED(mModelHash))
-		{
-			make_periodic_feature_call();
-			WAIT(0);
-		}
-
-		int my_group = PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_PED_ID());
-		Vector3 spawn_coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 2.0, 2.0, 0.0);
-		Ped ped = PED::CREATE_PED(25, mModelHash, spawn_coords.x, spawn_coords.y, spawn_coords.z, 0, false, false);
-
-		Vehicle veh = NULL;
-		if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
-		{
-			veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-		}
-
-		PED::SET_PED_AS_GROUP_LEADER(PLAYER::PLAYER_PED_ID(), my_group);
-		PED::SET_PED_AS_GROUP_MEMBER(ped, my_group);
-		PED::SET_PED_NEVER_LEAVES_GROUP(ped, my_group);
-		ENTITY::SET_ENTITY_INVINCIBLE(ped, true);
-		PED::SET_PED_COMBAT_ABILITY(ped, 100);
-		//weapons
-		static Hash weaponList[] = { WEAPON_ADVANCEDRIFLE, WEAPON_APPISTOL, WEAPON_ASSAULTRIFLE, WEAPON_ASSAULTSHOTGUN, WEAPON_ASSAULTSMG, WEAPON_BALL, WEAPON_BAT, WEAPON_BOTTLE, WEAPON_BULLPUPSHOTGUN, WEAPON_CARBINERIFLE, WEAPON_COMBATMG, WEAPON_COMBATPDW, WEAPON_COMBATPISTOL, WEAPON_CROWBAR, WEAPON_DAGGER, WEAPON_FIREEXTINGUISHER, WEAPON_FIREWORK, WEAPON_FLAREGUN, WEAPON_GOLFCLUB, WEAPON_GRENADE, WEAPON_GRENADELAUNCHER, WEAPON_GUSENBERG, WEAPON_HAMMER, WEAPON_HEAVYPISTOL, WEAPON_HEAVYSHOTGUN, WEAPON_HEAVYSNIPER, WEAPON_HOMINGLAUNCHER, WEAPON_KNIFE, WEAPON_KNUCKLE, WEAPON_MARKSMANPISTOL, WEAPON_MARKSMANRIFLE, WEAPON_MG, WEAPON_MICROSMG, WEAPON_MOLOTOV, WEAPON_MUSKET, WEAPON_NIGHTSTICK, WEAPON_PETROLCAN, WEAPON_PISTOL, WEAPON_PISTOL50, WEAPON_PROXMINE, WEAPON_PUMPSHOTGUN, WEAPON_RPG, WEAPON_SAWNOFFSHOTGUN, WEAPON_SMG, WEAPON_SMOKEGRENADE, WEAPON_SNIPERRIFLE, WEAPON_SNOWBALL, WEAPON_SNSPISTOL, WEAPON_SPECIALCARBINE, WEAPON_STICKYBOMB, WEAPON_STUNGUN, WEAPON_VINTAGEPISTOL, WEAPON_MINIGUN };
-		for each (Hash weapon in weaponList)
-		{
-			int maxAmmo;
-			if (WEAPON::HAS_PED_GOT_WEAPON(ped, weapon, FALSE) == FALSE)
-			{
-				WEAPON::GIVE_WEAPON_TO_PED(ped, weapon, (WEAPON::GET_MAX_AMMO(ped, weapon, &maxAmmo) == TRUE) ? maxAmmo : 9999, FALSE, TRUE);
-				WEAPON::SET_PED_WEAPON_TINT_INDEX(ped, weapon, ((weapon == WEAPON_MINIGUN) || (weapon == WEAPON_SPECIALCARBINE)) ? WEAPONTINT_PLATINUM : WEAPONTINT_LSPD);
-			}
-			if (WEAPON::GET_WEAPONTYPE_GROUP(weapon) == WEAPON_TYPE_GROUP_THROWABLE)
-			{
-				WEAPON::REMOVE_WEAPON_FROM_PED(ped, weapon);
-				WEAPON::GIVE_WEAPON_TO_PED(ped, weapon, (WEAPON::GET_MAX_AMMO(ped, weapon, &maxAmmo) == TRUE) ? maxAmmo : 9999, FALSE, TRUE);
-			}
-		}
-
-		PED::SET_PED_CAN_SWITCH_WEAPON(ped, true);
-		/*  -- Note : Group Formations
-		0 : Nothing
-		1 : Circle Around Leader
-		2 : Alternative Circle Around Leader
-		3 : Line, with Leader at center. --  */
-		int val = 1;
-		PED::SET_GROUP_FORMATION(my_group, val);
-
-		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(ped);
-		WAIT(0);
-
-		if (veh != NULL)
-		{
-			for (int i = 1; i <= 8; i++)
-			{
-				if (!VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i)) continue;
-				AI::TASK_WARP_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, i); break;
-				PED::SET_PED_INTO_VEHICLE(ped, veh, i);
-			}
-		}
-
-		//reset the skin detail choice
-		skinDetailMenuIndex = 0;
-		skinDetailMenuValue = 0;
-
-		WAIT(100);
-		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(mModelHash);
-
-		//chosenSkinName = skinName;
-	}
-
-	return;
+	return false;
 }
 
 std::string getSkinDetailAttribDescription(int i)
@@ -699,7 +576,7 @@ bool process_skinchanger_menu()
 	int i = 0;
 
 	item = new MenuItem<int>();
-	item->caption = "Saved Models";
+	item->caption = "Saved Skins";
 	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
@@ -746,7 +623,7 @@ bool process_skinchanger_menu()
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
-	return draw_generic_menu<int>(menuItems, &skinMainMenuPosition, "Player Model Options", onconfirm_skinchanger_menu, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, &skinMainMenuPosition, "Player Skin Options", onconfirm_skinchanger_menu, NULL, NULL);
 }
 
 /**
@@ -1016,7 +893,7 @@ bool process_savedskin_menu()
 		MenuItem<int> *item = new MenuItem<int>();
 		item->isLeaf = false;
 		item->value = -1;
-		item->caption = "Create New Model Save";
+		item->caption = "Create New Skin Save";
 		menuItems.push_back(item);
 
 		for each (SavedSkinDBRow *sv in savedSkins)
@@ -1052,7 +929,7 @@ bool process_savedskin_slot_menu(int slot)
 		MenuItem<int> *item = new MenuItem<int>();
 		item->isLeaf = false;
 		item->value = 1;
-		item->caption = "Model Options";
+		item->caption = "Apply To Player";
 		menuItems.push_back(item);
 
 		item = new MenuItem<int>();
@@ -1087,9 +964,7 @@ bool spawn_saved_skin(int slot, std::string caption)
 	SavedSkinDBRow* savedSkin = savedSkins.at(0);
 	database->populate_saved_skin(savedSkin);
 
-	mModelHash = savedSkin->model;
-
-	applyChosenSkin();
+	applyChosenSkin(savedSkin->model);
 
 	Ped ped = PLAYER::PLAYER_PED_ID();
 

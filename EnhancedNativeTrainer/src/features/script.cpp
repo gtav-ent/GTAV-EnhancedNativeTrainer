@@ -547,7 +547,7 @@ void process_player_menu()
 	std::string caption = "Player Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Player Models", NULL, NULL, false },
+		{ "Player Skin", NULL, NULL, false },
 		{ "Heal Player", NULL, NULL, true },
 		{ "Add Cash", NULL, NULL, true, CASH },
 		{ "Wanted Level", NULL, NULL, true, WANTED },
