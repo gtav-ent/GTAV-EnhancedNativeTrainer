@@ -73,8 +73,6 @@ void draw_menu_line(std::string caption, float lineWidth, float lineHeight, floa
 		rect_col[2] = 0;
 		rect_col[3] = 200.0f;
 
-		//outline = true;
-
 		if (rescaleText) text_scale = 0.40;
 	}
 	else if (title)
@@ -210,13 +208,6 @@ void draw_menu_from_struct_def(StandardOrToggleMenuDef defs[], int lineCount, in
 		else if (defs[i].itemType != NULL && defs[i].itemType == CASH)
 		{
 			CashItem<int> *item = new CashItem<int>();
-			item->caption = defs[i].text;
-			item->value = i;
-			menuItems.push_back(item);
-		}
-		else if (defs[i].itemType != NULL && defs[i].itemType == RPM)
-		{
-			RpmItem<int> *item = new RpmItem<int>();
 			item->caption = defs[i].text;
 			item->value = i;
 			menuItems.push_back(item);
@@ -374,38 +365,6 @@ void CashItem<T>::handleRightPress()
 		cash = min;
 }
 
-template<class T>
-bool RpmItem<T>::onConfirm()
-{
-	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), true))
-	{
-		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
-		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, rpm);
-	}
-	set_status_text("Engine Power Modified");
-	return true;
-}
-
-template<class T>
-void RpmItem<T>::handleLeftPress()
-{
-	rpm -= rpmIncrement;
-
-	if (rpm < rpmMin)
-		rpm = rpmMax;
-}
-
-template<class T>
-void RpmItem<T>::handleRightPress()
-{
-	rpm += rpmIncrement;
-
-	if (rpm > rpmMax)
-		rpm = rpmMin;
-}
-
 int WantedSymbolItem::get_wanted_value()
 {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
@@ -465,6 +424,16 @@ void WantedSymbolItem::handleRightPress()
 		}
 		set_status_text(ss.str());
 	}
+}
+
+bool SelectFromListMenuItem::onConfirm() {
+	locked = !locked; // toggle whether we're "locked in" to the setting
+	// change menu item color to signify it's locked in
+	return locked;
+}
+
+bool SelectFromListMenuItem::isAbsorbingLeftAndRightEvents() {
+	return locked;
 }
 
 void SelectFromListMenuItem::handleLeftPress()

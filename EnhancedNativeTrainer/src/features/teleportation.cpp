@@ -397,6 +397,7 @@ void teleport_to_last_vehicle()
 	if (ENTITY::DOES_ENTITY_EXIST(veh))
 	{
 		PED::SET_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, -1);
+		set_old_vehicle_state(false); // set old vehicle state to false since we changed cars but didn't actually exit the last one
 		if (VEHICLE::IS_THIS_MODEL_A_HELI(ENTITY::GET_ENTITY_MODEL(veh)) || VEHICLE::IS_THIS_MODEL_A_PLANE(ENTITY::GET_ENTITY_MODEL(veh)))
 		{
 			VEHICLE::SET_HELI_BLADES_FULL_SPEED(PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()));
@@ -485,6 +486,7 @@ void get_chauffeur_to_marker()
 	upgradeVehMaximum(veh);
 
 	PED::SET_PED_INTO_VEHICLE(ped, veh, -1);
+	set_old_vehicle_state(false); // set old vehicle state to false since we changed cars but didn't actually exit the last one
 
 	for (int i = 0; i <= 8; i++) {
 		if (VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i)) {

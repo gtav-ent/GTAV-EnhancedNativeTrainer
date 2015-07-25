@@ -147,9 +147,9 @@ public:
 
 	virtual ~SelectFromListMenuItem() {}
 
-	virtual bool onConfirm() { return true; };
+	virtual bool onConfirm();
 
-	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
+	virtual bool isAbsorbingLeftAndRightEvents();
 
 	virtual void handleLeftPress();
 
@@ -162,6 +162,8 @@ public:
 	void(*onValueChangeCallback)(int index, SelectFromListMenuItem* source);
 
 	bool wrap = true;
+
+	bool locked = false;
 
 	std::vector<int> extras;
 };
@@ -185,25 +187,7 @@ public:
 	int GetCash() { return cash; }
 };
 
-template<class T>
-class RpmItem : public MenuItem <T>
-{
-	virtual ~RpmItem() {}
-
-	int rpm = 0;
-	int rpmIncrement = 25;
-	int rpmMin = 0;
-	int rpmMax = 400;
-	virtual bool onConfirm();
-	virtual bool isAbsorbingLeftAndRightEvents() { return true; };
-	virtual void handleLeftPress();
-	virtual void handleRightPress();
-
-public:
-	int GetRpm() { return rpm; }
-};
-
-enum MenuItemType { STANDARD, TOGGLE, CASH, WANTED, RPM };
+enum MenuItemType { STANDARD, TOGGLE, CASH, WANTED };
 
 struct StandardOrToggleMenuDef {
 	std::string text;
@@ -550,32 +534,6 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
 	}
-	else if (RpmItem<T>* rpmItem = dynamic_cast<RpmItem<T>*>(item))
-	{
-		UI::SET_TEXT_FONT(font);
-		UI::SET_TEXT_SCALE(0.0, text_scale);
-		UI::SET_TEXT_COLOUR(255, 255, 255, 255);
-		UI::SET_TEXT_RIGHT_JUSTIFY(1);
-
-		UI::SET_TEXT_OUTLINE();
-
-		if (dropShadow)
-		{
-			UI::SET_TEXT_DROPSHADOW(5, 0, 78, 255, 255);
-		}
-
-		UI::SET_TEXT_EDGE(0, 0, 0, 0, 0);
-		UI::SET_TEXT_WRAP(0.0f, lineLeftScaled + lineWidthScaled - leftMarginScaled);
-		UI::_SET_TEXT_ENTRY("STRING");
-
-		std::string commaRpm = std::to_string(rpmItem->GetRpm());
-
-		std::stringstream ss;
-		ss << "<C>~HUD_COLOUR_GREYLIGHT~&lt;&lt; ~HUD_COLOUR_PURE_WHITE~" << commaRpm << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;</C>";
-		auto ssStr = ss.str();
-		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
-		UI::_DRAW_TEXT(0, textY);
-	}
 	else if (SelectFromListMenuItem* selectFromListItem = dynamic_cast<SelectFromListMenuItem*>(item))
 	{
 		UI::SET_TEXT_FONT(font);
@@ -597,7 +555,8 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		std::string caption = selectFromListItem->getCurrentCaption();
 
 		std::stringstream ss;
-		if (selectFromListItem->wrap || selectFromListItem->value > 0)
+
+		if ((selectFromListItem->wrap || selectFromListItem->value > 0) && selectFromListItem->locked)
 		{
 			ss << "&lt;&lt; ";
 		}
@@ -605,8 +564,13 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		{
 			ss << "";
 		}
-		ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
-		if (selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1)
+
+		if (selectFromListItem->locked)
+			ss << "~HUD_COLOUR_PURE_WHITE~" << caption;
+		else
+			ss << "~HUD_COLOUR_GREYLIGHT~" << caption;
+		
+		if ((selectFromListItem->wrap || selectFromListItem->value < selectFromListItem->itemCaptions.size() - 1) && selectFromListItem->locked)
 		{
 			ss << " ~HUD_COLOUR_GREYLIGHT~&gt;&gt;";
 		}
@@ -795,7 +759,7 @@ bool draw_generic_menu(MenuParameters<T> params)
 	bool result = false;
 	DWORD waitTime = 150;
 	const int totalItems = (int) params.items.size();
-	const int itemsPerLine = 10;
+	const int itemsPerLine = 12;
 	const int lineCount = (int)(ceil((double)totalItems / (double)itemsPerLine));
 
 	int currentSelectionIndex;
@@ -897,12 +861,12 @@ bool draw_generic_menu(MenuParameters<T> params)
 
 			for (int i = 0; i < itemsOnThisLine; i++)
 			{
-				float lineSpacingY = 10.0f;
+				float lineSpacingY = 8.0f;
 
 				float lineWidth = 350.0f;
 				float lineHeight = 35.0f;
 
-				float lineTop = 75.0 + (i * (lineHeight + lineSpacingY));
+				float lineTop = 73.0 + (i * (lineHeight + lineSpacingY));
 				float lineLeft = 35.0f;
 				float textOffset = 10.0f;
 
