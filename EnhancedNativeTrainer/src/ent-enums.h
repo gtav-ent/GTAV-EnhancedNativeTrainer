@@ -1845,34 +1845,10 @@ inline bool GetVehicleInfoForClanLogo(Hash vehicleModel, Vector3& x, Vector3& y,
 		scale = 0.55f;
 		return true;
 	case VEHICLE_T20:
-		x = { -1.0f, 0.4f, -0.12f };
+		x = { -1.0f, 0.35f, -0.11f };
 		y = { 1.0f, 0.0f, 0.0f };
 		z = { 0.0f, -1.0f, 0.0f };
 		scale = 0.2f;
-		return true;
-	case VEHICLE_BRAWLER:
-		x = { -1.0f, 0.21f, 0.0f };
-		y = { 1.0f, 0.0f, 0.0f };
-		z = { 0.0f, -1.0f, 0.0f };
-		scale = 0.45f;
-		return true;
-	case VEHICLE_CHINO:
-		x = { 1.05f, 0.0f, 0.075f };
-		y = { 1.0f, 0.0f, 0.0f };
-		z = { 0.0f, -1.0f, 0.0f };
-		scale = 0.45f;
-		return true;
-	case VEHICLE_COQUETTE3:
-		x = { -1.0f, 0.1775f, 0.195f };
-		y = { 1.0f, 0.0f, 0.0f };
-		z = { 0.0f, -1.0f, 0.0f };
-		scale = 0.35f;
-		return true;
-	case VEHICLE_VINDICATOR:
-		x = { -1.0f, 0.21f, 0.24f };
-		y = { 1.0f, 0.0f, 0.0f };
-		z = { 0.0f, -1.0f, 0.0f };
-		scale = 0.3f;
 		return true;
 	default:
 		return false;
