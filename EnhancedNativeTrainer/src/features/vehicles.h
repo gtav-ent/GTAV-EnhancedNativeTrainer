@@ -137,12 +137,6 @@ void fix_vehicle();
 
 void clean_vehicle();
 
-void upgradeVehArmour(Vehicle veh);
-
-void upgradeVehPerformance(Vehicle veh);
-
-void upgradeVehMaximum(Vehicle veh);
-
 struct PaintColour
 {
 	std::string name;
