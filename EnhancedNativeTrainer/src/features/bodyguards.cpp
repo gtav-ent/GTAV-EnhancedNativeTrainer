@@ -143,7 +143,7 @@ void do_spawn_bodyguard() {
 		}
 
 		int myGroup = PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_PED_ID());
-		Vector3 spawnCoords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 0.0, 2.0, 2.0);
+		Vector3 spawnCoords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 2.5, 2.5, 0.0);
 		Ped bodyGuard = PED::CREATE_PED(25, bodyGuardModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0, 0, 0);
 
 		spawnedBodyguards.push_back(bodyGuard); // save the current bodyguard
