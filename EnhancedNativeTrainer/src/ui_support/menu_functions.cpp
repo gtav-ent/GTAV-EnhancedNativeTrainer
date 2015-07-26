@@ -17,6 +17,8 @@ bool centreScreenStatusTextGxtEntry;
 
 bool menu_showing = false;
 
+bool wantedLevelUpdated = false;
+
 void(*periodic_feature_call)(void) = NULL;
 
 void(*menu_per_frame_call)(void) = NULL;
@@ -374,55 +376,64 @@ int WantedSymbolItem::get_wanted_value()
 
 void WantedSymbolItem::handleLeftPress()
 {
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	Player player = PLAYER::PLAYER_ID();
-	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
-	if (bPlayerExists && currentLevel > 0)
-	{
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, --currentLevel, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		setFrozenWantedLvl(currentLevel);
-		std::stringstream ss;
-		if (currentLevel > 0)
+	if (!getFrozenWantedFeature()) {
+		BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+		Player player = PLAYER::PLAYER_ID();
+		int currentWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+		if (bPlayerExists && currentWantedLevel > 0)
 		{
-			ss << "Wanted Level: " << currentLevel << " Star";
-			if (currentLevel > 1)
-			{
-				ss << "s"; //plural
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, --currentWantedLevel, 0);
+
+			if (currentWantedLevel == 0) {
+				PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
 			}
-		}
-		else
-		{
-			ss << "Wanted Level Cleared";
-			PLAYER::SET_MAX_WANTED_LEVEL(5);
-			if (getFrozenWantedFeature())
-			{
-				setFrozenWantedFeature(false);
-				set_status_text("Wanted level unfrozen");
+			else {
+				PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 			}
+
+			std::stringstream ss;
+			if (currentWantedLevel > 0)
+			{
+				ss << "Wanted level: " << currentWantedLevel << " star";
+				if (currentWantedLevel != 1)
+				{
+					ss << "s"; //plural
+				}
+			}
+			else
+			{
+				ss << "Wanted level cleared";
+			}
+			set_status_text(ss.str());
 		}
-		set_status_text(ss.str());
+	}
+	else {
+		set_status_text("Unfreeze wanted level to change it");
 	}
 }
 
 void WantedSymbolItem::handleRightPress()
 {
-	turn_off_never_wanted();
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
-	Player player = PLAYER::PLAYER_ID();
-	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
-	if (bPlayerExists && currentLevel < 5)
-	{
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, ++currentLevel, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		setFrozenWantedLvl(currentLevel);
-		std::stringstream ss;
-		ss << "Wanted Level: " << currentLevel << " Star";
-		if (currentLevel > 1)
+	if (!getFrozenWantedFeature()) {
+		BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+		Player player = PLAYER::PLAYER_ID();
+		int currentWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+		if (bPlayerExists && currentWantedLevel < 5)
 		{
-			ss << "s"; //plural
+			PLAYER::SET_PLAYER_WANTED_LEVEL(player, ++currentWantedLevel, 0);
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+
+			std::stringstream ss;
+			ss << "Wanted level: " << currentWantedLevel << " star";
+			if (currentWantedLevel != 1)
+			{
+				ss << "s"; //plural
+			}
+			set_status_text(ss.str());
 		}
-		set_status_text(ss.str());
+	}
+	else {
+		set_status_text("Unfreeze wanted level to change it");
 	}
 }
 

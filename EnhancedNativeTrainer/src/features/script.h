@@ -117,13 +117,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings();
 
 void handle_generic_settings(std::vector<StringPairSettingDBRow> settings);
 
-int getFrozenWantedLvl();
-void setFrozenWantedLvl(int level);
 bool getFrozenWantedFeature();
-void setFrozenWantedFeature(bool b);
-
-
-void turn_off_never_wanted();
 
 void load_settings();
 

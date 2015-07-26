@@ -46,8 +46,6 @@ bool onlineWarningShown = false;
 // features
 bool featurePlayerInvincible = false;
 bool featurePlayerInvincibleUpdated = false;
-bool featurePlayerNeverWanted = false;
-bool featurePlayerNeverWantedUpdated = false;
 bool featurePlayerIgnoredByPolice = false;
 bool featurePlayerIgnoredByPoliceUpdated = false;
 bool featurePlayerIgnoredByAll = false;
@@ -68,7 +66,6 @@ bool featureNightVision = false;
 bool featureNightVisionUpdated = false;
 bool featureThermalVision = false;
 bool featureThermalVisionUpdated = false;
-
 bool featureWantedLevelFrozen = false;
 bool featureWantedLevelFrozenUpdated = false;
 int  frozenWantedLevel = 0;
@@ -277,67 +274,27 @@ void update_features()
 			PLAYER::SET_PLAYER_INVINCIBLE(player, FALSE);
 		featurePlayerInvincibleUpdated = false;
 	}
-	if (featurePlayerInvincible)
+
+	if (featurePlayerInvincible && bPlayerExists)
 	{
-		if (bPlayerExists)
-			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
+		PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
-
-	//Wanted Level Frozen - prevents stars increasing/decreasing
-	if (featureWantedLevelFrozen)
-	{
-		if (featureWantedLevelFrozenUpdated)
-		{
+	if (featureWantedLevelFrozen) {
+		if (featureWantedLevelFrozenUpdated) {
 			frozenWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
 			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
-			featureWantedLevelFrozenUpdated = false;
 
-			if (frozenWantedLevel > 0)
-			{
-				std::stringstream ss;
-				ss << "Wanted Level Frozen at: " << frozenWantedLevel << " Star";
-				if (frozenWantedLevel > 1){ ss << "s"; }
-				set_status_text(ss.str());
-			}
+			featureWantedLevelFrozenUpdated = false;
 		}
-		if (frozenWantedLevel > 0)
-		{
-			if (bPlayerExists)
-			{
-				PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-				PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-			}
-		}
-		else
-		{
-			featureWantedLevelFrozen = false;
-			set_status_text("You must have a wanted level first.");
-		}
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 	}
-	if (featureWantedLevelFrozenUpdated)
-	{
-		if (!featureWantedLevelFrozen)
-		{
-			set_status_text("Wanted level unfrozen");
+
+	if (featureWantedLevelFrozenUpdated) {
+		if (!featureWantedLevelFrozen) {
 			PLAYER::SET_MAX_WANTED_LEVEL(5);
 		}
-		featureWantedLevelFrozenUpdated = false;
-	}
-
-
-	// player never wanted
-	if (featurePlayerNeverWanted)
-	{
-		if (bPlayerExists)
-		{
-			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
-			PLAYER::SET_MAX_WANTED_LEVEL(0);
-		}
-	}
-	else if (featurePlayerNeverWantedUpdated)
-	{
-		PLAYER::SET_MAX_WANTED_LEVEL(5);
 	}
 
 	// police ignore player
@@ -506,19 +463,14 @@ void update_features()
 
 int activeLineIndexWantedFreeze = 0;
 
-const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF/Clear" };
+const std::vector<std::string> MENU_WANTED_LEVELS{ "1 star", "2 stars", "3 stars", "4 stars", "5 stars", "OFF/Clear" };
 
-
-int getFrozenWantedLvl(){ return frozenWantedLevel; }
-void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
-void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
 bool getFrozenWantedFeature(){ return featureWantedLevelFrozen; }
 
 int activeLineIndexPlayer = 0;
 
 bool onconfirm_player_menu(MenuItem<int> choice)
 {
-
 	// common variables
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
@@ -554,7 +506,6 @@ void process_player_menu()
 		{ "Add Cash", NULL, NULL, true, CASH },
 		{ "Wanted Level", NULL, NULL, true, WANTED },
 		{ "Freeze Wanted Level", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated, true },
-		{ "Never Wanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated, true },
 		{ "Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true },
 		{ "Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
 		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
@@ -715,7 +666,6 @@ void reset_globals()
 
 	featurePlayerDrunk =
 		featurePlayerInvincible =
-		featurePlayerNeverWanted =
 		featurePlayerIgnoredByPolice =
 		featurePlayerIgnoredByAll =
 		featurePlayerUnlimitedAbility =
@@ -729,7 +679,6 @@ void reset_globals()
 		featureWantedLevelFrozen = false;
 
 	featurePlayerInvincibleUpdated =
-		featurePlayerNeverWantedUpdated =
 		featurePlayerIgnoredByPoliceUpdated =
 		featurePlayerIgnoredByAllUpdated =
 		featurePlayerNoNoiseUpdated =
@@ -738,7 +687,8 @@ void reset_globals()
 		featurePlayerDrunkUpdated =
 		featureNightVisionUpdated =
 		featureThermalVisionUpdated =
-		featurePlayerInvisibleUpdated = true;
+		featurePlayerInvisibleUpdated = 
+		featureWantedLevelFrozenUpdated = true;
 
 	set_status_text("Reset all settings");
 
@@ -923,13 +873,6 @@ void ScriptTidyUp()
 	write_text_to_log_file("ScriptTidyUp done");
 }
 
-void turn_off_never_wanted()
-{
-	featurePlayerNeverWanted = false;
-	featurePlayerNeverWantedUpdated = false;
-	PLAYER::SET_MAX_WANTED_LEVEL(5);
-}
-
 void update_nearby_peds(Ped playerPed, int count)
 {
 	const int numElements = count;
@@ -989,7 +932,7 @@ void set_all_nearby_peds_to_calm()
 void add_player_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated });
-	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerNeverWanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWantedLevelFrozen", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByPolice", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerUnlimitedAbility", &featurePlayerUnlimitedAbility });
