@@ -103,51 +103,52 @@ void check_player_model()
 		return;
 	}
 
-	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death())
-	{
-		bool found = false;
-		Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
+	//find out whether we're a default player model
 
-		for each (char* model  in player_models)
+	bool found = false;
+	Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
+	int playerSlot = 0;
+
+	for each (char* model  in player_models)
+	{
+		if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
+		{
+			last_player_slot_seen = playerSlot;
+			found = true;
+			break;
+		}
+		playerSlot++;
+	}
+
+	if (!found && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+	{
+		for each (char* model  in mplayer_models)
 		{
 			if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
 			{
+				last_player_slot_seen = playerSlot;
 				found = true;
 				break;
 			}
+			playerSlot++;
 		}
+	}
 
-		if (!found && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
-		{
-			for each (char* model  in mplayer_models)
-			{
-				if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
-				{
-					found = true;
-					break;
-				}
-			}
-		}
-
+	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death())
+	{
 		if (!found)
 		{
 			set_status_text("Resetting death state because a custom skin was used");
 			GAMEPLAY::_RESET_LOCALPLAYER_STATE();
 
-			switch (last_player_slot_seen)
+			int spPlayerCount = sizeof(player_models) / sizeof(player_models[0]);
+			if (last_player_slot_seen < spPlayerCount)
 			{
-			case 0:
-				applyChosenSkin("player_zero");
-				break;
-			case 1:
-				applyChosenSkin("player_one");
-				break;
-			case 2:
-				applyChosenSkin("player_two");
-				break;
-			default:
-				applyChosenSkin("player_zero");
-				break;
+				applyChosenSkin(player_models[last_player_slot_seen]);
+			}
+			else
+			{
+				applyChosenSkin(mplayer_models[last_player_slot_seen - spPlayerCount]);
 			}
 		}
 
@@ -208,20 +209,6 @@ void update_features()
 		DWORD myThreadID;
 		HANDLE myHandle = CreateThread(0, 0, save_settings_thread, 0, 0, &myThreadID);
 		CloseHandle(myHandle);
-	}
-
-	int* gp = NULL;
-	switch (getGameVersion())
-	{
-		case VER_1_0_372_2_STEAM:
-		case VER_1_0_372_2_NOSTEAM:
-			gp = reinterpret_cast<int *>(getGlobalPtr(0x3839));
-			break;
-	}
-	
-	if (gp != NULL && *gp >= 0 && *gp <= 2)
-	{
-		last_player_slot_seen = *gp;
 	}
 
 	UpdateXInputControlState();
