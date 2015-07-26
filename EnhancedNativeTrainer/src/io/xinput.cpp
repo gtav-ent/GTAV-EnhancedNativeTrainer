@@ -62,7 +62,7 @@ bool IsControllerButtonDown(std::string btnName)
 		}
 		else
 		{
-			pressedNow = ((bool)state.Gamepad.wButtons & code);
+			pressedNow = (state.Gamepad.wButtons & code);
 		}
 
 		if (!pressedNow)
@@ -245,4 +245,5 @@ bool IsAnalogControlPressed(int ourID, XINPUT_STATE state)
 			state.Gamepad.sThumbRY > -ENT_XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
 			state.Gamepad.sThumbRY < ENT_XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 	}
+	return false;
 }

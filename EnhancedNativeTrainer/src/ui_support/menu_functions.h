@@ -973,73 +973,70 @@ bool draw_generic_menu(MenuParameters<T> params)
 					}
 					waitTime = 150;
 				}
-				else
-					if (bUp)
+				else if (bUp)
+				{
+					menu_beep();
+					currentSelectionIndex--;
+					if (currentSelectionIndex < 0 || (currentSelectionIndex < lineStartPosition))
 					{
-						menu_beep();
-						currentSelectionIndex--;
-						if (currentSelectionIndex < 0 || (currentSelectionIndex < lineStartPosition))
-						{
-							currentSelectionIndex = lineStartPosition + itemsOnThisLine - 1;
-						}
-						waitTime = 150;
+						currentSelectionIndex = lineStartPosition + itemsOnThisLine - 1;
 					}
-					else
-						if (bLeft)
-						{
-							menu_beep();
+					waitTime = 150;
+				}
+				else if (bLeft)
+				{
+					menu_beep();
 
-							if (choice->isAbsorbingLeftAndRightEvents())
+					if (choice->isAbsorbingLeftAndRightEvents())
+					{
+						choice->handleLeftPress();
+					}
+					else if (lineCount > 1)
+					{
+						int mod = currentSelectionIndex % itemsPerLine;
+						currentSelectionIndex -= itemsPerLine;
+						if (currentSelectionIndex < 0)
+						{
+							currentSelectionIndex = mod + ((lineCount - 1) * itemsPerLine);
+							if (currentSelectionIndex >= totalItems)
 							{
-								choice->handleLeftPress();
+								currentSelectionIndex = totalItems - 1;
 							}
-							else if (lineCount > 1)
+						}
+					}
+					waitTime = 200;
+				}
+				else if (bRight)
+				{
+					menu_beep();
+
+					if (choice->isAbsorbingLeftAndRightEvents())
+					{
+						choice->handleRightPress();
+					}
+					else if (lineCount > 1)
+					{
+						//if we're already at the end, restart
+						if (currentLine == lineCount - 1)
+						{
+							currentSelectionIndex = currentSelectionIndex % itemsPerLine;
+							if (currentSelectionIndex >= totalItems)
 							{
-								int mod = currentSelectionIndex % itemsPerLine;
-								currentSelectionIndex -= itemsPerLine;
-								if (currentSelectionIndex < 0)
-								{
-									currentSelectionIndex = mod + ((lineCount-1) * itemsPerLine);
-									if (currentSelectionIndex >= totalItems)
-									{
-										currentSelectionIndex = totalItems - 1;
-									}
-								}
+								currentSelectionIndex = totalItems - 1;
 							}
-							waitTime = 200;
 						}
 						else
-							if (bRight)
+						{
+							currentSelectionIndex += itemsPerLine;
+							if (currentSelectionIndex >= totalItems)
 							{
-								menu_beep();
-
-								if (choice->isAbsorbingLeftAndRightEvents())
-								{
-									choice->handleRightPress();
-								}
-								else if (lineCount > 1)
-								{
-									//if we're already at the end, restart
-									if (currentLine == lineCount - 1)
-									{
-										currentSelectionIndex = currentSelectionIndex % itemsPerLine;
-										if (currentSelectionIndex >= totalItems)
-										{
-											currentSelectionIndex = totalItems - 1;
-										}
-									}
-									else
-									{
-										currentSelectionIndex += itemsPerLine;
-										if (currentSelectionIndex >= totalItems)
-										{
-											currentSelectionIndex = totalItems - 1;
-										}
-									}
-								}
-								
-								waitTime = 200;
+								currentSelectionIndex = totalItems - 1;
 							}
+						}
+					}
+
+					waitTime = 200;
+				}
 
 				if (params.onHighlight != NULL && originalIndex != currentSelectionIndex)
 				{
