@@ -23,8 +23,8 @@ bool featureBodyguardInfAmmo = false;
 
 int skinTypesBodyguardMenuPositionMemory[2] = { 0, 0 };
 
-Hash bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)SKINS_GENERAL_VALUES[0].c_str()); // store the chosen bodyguard's Hash
-Hash bodyGuardWeapon;
+Hash bodyGuardModel = NULL;
+Hash bodyGuardWeapon = NULL;
 
 std::vector<Ped> spawnedBodyguards;
 std::string chosenSkin(SKINS_GENERAL_CAPTIONS[0]); // default bodyguard
@@ -138,6 +138,10 @@ void dismiss_bodyguards() {
 }
 
 void do_spawn_bodyguard() {
+
+	if (bodyGuardModel == NULL)
+		bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)SKINS_GENERAL_VALUES[0].c_str()); // store the chosen bodyguard's Hash
+
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(bodyGuardModel) && STREAMING::IS_MODEL_VALID(bodyGuardModel))
 	{
 		STREAMING::REQUEST_MODEL(bodyGuardModel);

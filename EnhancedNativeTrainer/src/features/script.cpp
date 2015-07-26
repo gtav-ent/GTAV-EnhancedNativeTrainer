@@ -312,14 +312,14 @@ void update_features()
 		else
 		{
 			featureWantedLevelFrozen = false;
-			set_status_text("You must have a Wanted Level first.");
+			set_status_text("You must have a wanted level first.");
 		}
 	}
 	if (featureWantedLevelFrozenUpdated)
 	{
 		if (!featureWantedLevelFrozen)
 		{
-			set_status_text("Wanted Level Unfrozen");
+			set_status_text("Wanted level unfrozen");
 			PLAYER::SET_MAX_WANTED_LEVEL(5);
 		}
 		featureWantedLevelFrozenUpdated = false;
@@ -740,7 +740,7 @@ void reset_globals()
 		featureThermalVisionUpdated =
 		featurePlayerInvisibleUpdated = true;
 
-	set_status_text("Reset All Settings");
+	set_status_text("Reset all settings");
 
 	DWORD myThreadID;
 	HANDLE myHandle = CreateThread(0, 0, save_settings_thread, 0, 0, &myThreadID);
@@ -1508,7 +1508,7 @@ void heal_player()
 		if (ENTITY::DOES_ENTITY_EXIST(playerVeh) && !ENTITY::IS_ENTITY_DEAD(playerVeh))
 			VEHICLE::SET_VEHICLE_FIXED(playerVeh);
 	}
-	set_status_text("Player Healed");
+	set_status_text("Player healed");
 }
 
 void toggle_invisibility()
@@ -1528,7 +1528,7 @@ void toggle_invisibility()
 void reset_wanted_level()
 {
 	PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
-	set_status_text("Wanted Level cleared");
+	set_status_text("Wanted level cleared");
 }
 
 int get_frame_number()

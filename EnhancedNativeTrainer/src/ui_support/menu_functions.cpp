@@ -343,7 +343,7 @@ bool CashItem<T>::onConfirm()
 			newAmount = INT_MAX;
 		STATS::STAT_SET_INT(hash, newAmount, 1);
 	}
-	set_status_text("Cash Added");
+	set_status_text("Cash added");
 	return true;
 }
 
@@ -398,7 +398,7 @@ void WantedSymbolItem::handleLeftPress()
 			if (getFrozenWantedFeature())
 			{
 				setFrozenWantedFeature(false);
-				set_status_text("Wanted Level Unfrozen");
+				set_status_text("Wanted level unfrozen");
 			}
 		}
 		set_status_text(ss.str());

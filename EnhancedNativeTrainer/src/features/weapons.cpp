@@ -780,12 +780,12 @@ void give_weapon_clip(MenuItem<int> choice)
 
 	if (curClipAmmo < maxClipAmmo)
 	{
-		set_status_text("Clip Filled");
+		set_status_text("Clip filled");
 		WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
 	}
 	else
 	{
-		set_status_text("Extra Clip Added");
+		set_status_text("Extra clip added");
 		WEAPON::SET_PED_AMMO(playerPed, weapHash, curAmmo+maxClipAmmo);
 	}
 }
@@ -804,7 +804,7 @@ void fill_weapon_ammo(MenuItem<int> choice)
 	WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
 	WEAPON::SET_PED_AMMO(playerPed, weapHash, maxAmmo);
 
-	set_status_text("Ammo Filled");
+	set_status_text("Ammo filled");
 }
 
 void onhighlight_weapon_mod_menu_tint(MenuItem<int> choice)
