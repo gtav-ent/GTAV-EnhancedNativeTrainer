@@ -527,24 +527,9 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 	}
 
 	// weapon no reload
-	if (bPlayerExists && featureWeaponNoReload)
+	if (bPlayerExists)
 	{
-		Hash cur;
-		if (WEAPON::GET_CURRENT_PED_WEAPON(playerPed, &cur, 1))
-		{
-			if (WEAPON::IS_WEAPON_VALID(cur))
-			{
-				int maxAmmo;
-				if (WEAPON::GET_MAX_AMMO(playerPed, cur, &maxAmmo))
-				{
-					WEAPON::SET_PED_AMMO(playerPed, cur, maxAmmo);
-
-					maxAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, cur, 1);
-					if (maxAmmo > 0)
-						WEAPON::SET_AMMO_IN_CLIP(playerPed, cur, maxAmmo);
-				}
-			}
-		}
+		WEAPON::SET_PED_INFINITE_AMMO_CLIP(playerPed, featureWeaponNoReload);
 	}
 }
 
