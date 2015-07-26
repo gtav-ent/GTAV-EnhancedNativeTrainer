@@ -14,6 +14,7 @@
     <ClCompile Include="inc\xinput\CXBOXController.cpp" />
     <ClCompile Include="src\features\airbrake.cpp" />
     <ClCompile Include="src\features\anims.cpp" />
+    <ClCompile Include="src\features\bodyguards.cpp" />
     <ClCompile Include="src\features\hotkeys.cpp" />
     <ClCompile Include="src\features\misc.cpp" />
     <ClCompile Include="src\features\neonlightsmenu.cpp" />
@@ -45,6 +46,7 @@
     <ClInclude Include="src\ent-enums.h" />
     <ClInclude Include="src\features\airbrake.h" />
     <ClInclude Include="src\features\anims.h" />
+    <ClInclude Include="src\features\bodyguards.h" />
     <ClInclude Include="src\features\propplacement.h" />
     <ClInclude Include="src\features\props.h" />
     <ClInclude Include="src\features\hotkeys.h" />

@@ -34,6 +34,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "world.h"
 #include "time.h"
 #include "props.h"
+#include "bodyguards.h"
 //#include "crash_handler.h"
 
 #include <DbgHelp.h>
@@ -116,13 +117,9 @@ std::vector<StringPairSettingDBRow> get_generic_settings();
 
 void handle_generic_settings(std::vector<StringPairSettingDBRow> settings);
 
-int getFrozenWantedLvl();
-void setFrozenWantedLvl(int level);
 bool getFrozenWantedFeature();
-void setFrozenWantedFeature(bool b);
 
-
-void turn_off_never_wanted();
+void updateFrozenWantedFeature(int level);
 
 void load_settings();
 

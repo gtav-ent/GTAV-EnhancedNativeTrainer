@@ -21,17 +21,18 @@ std::vector<SpawnedPropInstance*> propsWeCreated;
 
 std::string lastCustomPropSpawn;
 
+int explosionID = 0;
+
 SpawnedPropInstance* lastHighlightedProp = NULL;
 
 const std::vector<std::string> ALPHA_LABELS = { "Normal", "80%", "60%", "40%", "20%" };
 const int ALPHA_VALUES[] = { 255, 204, 153, 102, 51 };
 
 bool creationParam1 = true;
-bool creationParam2 = false;
-bool creationParam3 = true;
+bool creationParam2 = true;
+bool creationParam3 = false;
 
 bool propCreationIsInvincible = false;
-bool propCreationIsOnFire = false;
 bool propCreationIsImmovable = false;
 bool propCreationHasGravity = true;
 int propCreationAlphaIndex = 0;
@@ -40,7 +41,6 @@ void reset_prop_globals()
 {
 	lastSelectedCategoryIndex = 0;
 	propCreationIsInvincible = false;
-	propCreationIsOnFire = false;
 	propCreationIsImmovable = false;
 	propCreationHasGravity = true;
 	propCreationAlphaIndex = 0;
@@ -62,11 +62,11 @@ void manage_prop_set()
 		if (!ENTITY::DOES_ENTITY_EXIST(prop->instance))
 		{
 			it = propsWeCreated.erase(it);
-			delete prop;
 			if (prop == currentProp)
 			{
 				currentProp = NULL;
 			}
+			delete prop;
 		}
 		else
 		{
@@ -145,6 +145,11 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 			{
 				objZBase -= minDimens.z;
 			}
+
+			std::ostringstream ss;
+			ss << "Spawn - MinZ: " << minDimens.z << ", MaxZ: " << maxDimens.z;
+			set_status_text_centre_screen(ss.str());
+
 			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(obj, curLocation.x, curLocation.y, objZBase, 1, 1, 1);
 		}
 		else
@@ -155,12 +160,6 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 
 		ENTITY::SET_ENTITY_HAS_GRAVITY(obj, propCreationHasGravity);
 
-		if (propCreationIsInvincible)
-		{
-			ENTITY::SET_ENTITY_INVINCIBLE(obj, TRUE);
-			ENTITY::SET_ENTITY_PROOFS(obj, 1, 1, 1, 1, 1, 1, 1, 1);
-			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(obj, FALSE);
-		}
 		ENTITY::FREEZE_ENTITY_POSITION(obj, propCreationIsImmovable);
 
 		if (!propCreationIsImmovable)
@@ -170,12 +169,14 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 			OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(obj, TRUE);
 		}
 
-		ENTITY::SET_ENTITY_LOAD_COLLISION_FLAG(obj, true);
-
-		if (propCreationIsOnFire)
+		if (propCreationIsInvincible)
 		{
-			FIRE::START_ENTITY_FIRE(obj);
+			//ENTITY::SET_ENTITY_INVINCIBLE(obj, TRUE);
+			//ENTITY::SET_ENTITY_PROOFS(obj, 1, 1, 1, 1, 1, 1, 1, 1);
+			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(obj, FALSE);
 		}
+
+		ENTITY::SET_ENTITY_LOAD_COLLISION_FLAG(obj, true);
 
 		ENTITY::SET_ENTITY_ALPHA(obj, ALPHA_VALUES[propCreationAlphaIndex], false);
 
@@ -554,7 +555,6 @@ void process_props_menu()
 void add_props_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
 	results->push_back(FeatureEnabledLocalDefinition{ "propCreationHasGravity", &propCreationHasGravity });
-	results->push_back(FeatureEnabledLocalDefinition{ "propCreationIsOnFire", &propCreationIsOnFire});
 	results->push_back(FeatureEnabledLocalDefinition{ "propCreationIsImmovable", &propCreationIsImmovable });
 	results->push_back(FeatureEnabledLocalDefinition{ "propCreationIsInvincible", &propCreationIsInvincible });
 }
@@ -592,11 +592,11 @@ void cleanup_props()
 			ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&prop->instance);
 		}
 		it = propsWeCreated.erase(it);
-		delete prop;
 		if (prop == currentProp)
 		{
 			currentProp = NULL;
 		}
+		delete prop;
 	}
 }
 
@@ -648,7 +648,15 @@ bool prop_spawned_instances_menu()
 			i++;
 		}
 
-		draw_generic_menu<int>(menuItems, &menu_spawned_instance_index, "Spawned Instances", onconfirm_prop_instance_menu, NULL, NULL, prop_instance_menu_interrupt);
+		set_menu_per_frame_call(flash_prop_callback);
+
+		draw_generic_menu<int>(menuItems, &menu_spawned_instance_index, "Spawned Instances", onconfirm_prop_instance_menu, onhighlight_prop_instance_menu, NULL, prop_instance_menu_interrupt);
+
+		clear_menu_per_frame_call();
+		if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+		{
+			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+		}
 
 		WAIT(0);
 	}
@@ -656,9 +664,32 @@ bool prop_spawned_instances_menu()
 	return false;
 }
 
+void onhighlight_prop_instance_menu(MenuItem<int> choice)
+{
+	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+	{
+		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+	}
+
+	SpawnedPropInstance* prop = get_prop_at_index(choice.value);
+	if (prop == NULL)
+	{
+		set_status_text_centre_screen("Null prop - label J");
+		return;
+	}
+	lastHighlightedProp = prop;
+}
+
+
 bool onconfirm_prop_instance_menu(MenuItem<int> choice)
 {
+	clear_menu_per_frame_call();
+	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+	{
+		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+	}
 	prop_spawned_single_instance_menu(choice.value);
+	set_menu_per_frame_call(flash_prop_callback);
 	return false;
 }
 
@@ -702,9 +733,9 @@ void set_prop_invincible(bool applied, std::vector<int> extras)
 		return;
 	}
 
-	ENTITY::SET_ENTITY_INVINCIBLE(prop->instance, applied);
+	//ENTITY::SET_ENTITY_INVINCIBLE(prop->instance, applied);
 	ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, !applied);
-	ENTITY::SET_ENTITY_PROOFS(prop->instance, applied, applied, applied, applied, applied, applied, applied, applied);
+	//ENTITY::SET_ENTITY_PROOFS(prop->instance, applied, applied, applied, applied, applied, applied, applied, applied);
 
 	prop->isInvincible = applied;
 }
@@ -734,7 +765,9 @@ void set_prop_immovable(bool applied, std::vector<int> extras)
 	if (!applied)
 	{
 		//this unfreezes it
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, FALSE);
 		ENTITY::APPLY_FORCE_TO_ENTITY(prop->instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, !prop->isInvincible);
 	}
 	prop->isImmovable = applied;
 }
@@ -761,8 +794,9 @@ void set_prop_on_fire(bool applied, std::vector<int> extras)
 	if (applied)
 	{
 		bool isInvinc = prop->isInvincible;
-		ENTITY::SET_ENTITY_PROOFS(prop->instance, isInvinc, false, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc);
-		FIRE::START_ENTITY_FIRE(prop->instance);
+		//ENTITY::SET_ENTITY_PROOFS(prop->instance, isInvinc, false, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc);
+		Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(prop->instance, 0);
+		FIRE::ADD_EXPLOSION(curLocation.x, curLocation.y, curLocation.z, 14, 3.0f, true, false, 0); //starts gas fire
 	}
 	else
 	{
@@ -795,26 +829,85 @@ void set_prop_gravity_enabled(bool applied, std::vector<int> extras)
 	prop->hasGravity = applied;
 }
 
-void onhighlight_prop_single_instance_menu(MenuItem<int> choice)
+std::string get_explosion_name(int id)
 {
-	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+	switch (id)
 	{
-		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+	case EXPLOSION_DEFAULT:
+		return "Default";
+	case EXPLOSION_MOLOTOV:
+		return "Molotov";
+	case EXPLOSION_WATER_SPRAY_SHORT:
+		return "Water Jet (Short)";
+	case EXPLOSION_GAS_JET_BRIEF:
+		return "Gas Jet (Brief)";
+	case EXPLOSION_WATER_SPRAY_TALL:
+		return "Water Jet (Tall)";
+	case EXPLOSION_GAS_JET_PROLONGED:
+		return "Gas Jet (Prolonged)";
+	case EXPLOSION_GRENADE:
+		return "Grenade";
+	case EXPLOSION_SMOKE:
+		return "Smoke Bomb";
+	case EXPLOSION_CS_GAS_1:
+		return "CS Gas 1";
+	case EXPLOSION_CS_GAS_2:
+		return "CS Gas 2";
+	case EXPLOSION_FLARE:
+		return "Flare";
+	case EXPLOSION_MINE:
+		return "Mine";
+	case EXPLOSION_WATER_SPRAY_BRIEF:
+		return "Water Jet (Brief)";
+	case EXPLOSION_BLIMP:
+		return "Blimp Explosion";
+	case EXPLOSION_MINI:
+		return "Mini Detonation";
+	case EXPLOSION_FIREBALL_SMALL_W_RING:
+		return "Small Fireball With Radius";
+	case EXPLOSION_FIREBALL_SMALL_1:
+		return "Small Fireball #1";
+	case EXPLOSION_FIREBALL_SMALL_2:
+		return "Small Fireball #2";
+	case EXPLOSION_FIREBALL_SMALL_3:
+		return "Small Fireball #3";
+	case EXPLOSION_FIREBALL_MEDIUM_1:
+		return "Medium Fireball #1";
+	case EXPLOSION_FIREBALL_MEDIUM_2:
+		return "Medium Fireball #2";
+	case EXPLOSION_FIREBALL_MEDIUM_3:
+		return "Medium Fireball #3";
+	case EXPLOSION_FIREBALL_LARGE_1:
+		return "Large Fireball #1";
+	case EXPLOSION_FIREBALL_LARGE_2:
+		return "Large Fireball #2";
+	case EXPLOSION_FIREBALL_LARGE_3:
+		return "Large Fireball #3";
+	case EXPLOSION_FIREBALL_LARGE_4:
+		return "Large Fireball #4";
+	default:
+		{
+		std::ostringstream ss;
+		ss << "Unknown Explosion ID " << id;
+		auto result = ss.str();
+		return result;
+		}
 	}
+}
 
+void explode_last_prop(int explosionID)
+{
 	SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
-	if (prop == NULL)
+	if (explosionID == -1)
 	{
-		set_status_text_centre_screen("Null prop - label J");
-		return;
+		explosionID = 0; //default
 	}
-	lastHighlightedProp = prop;
+	Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
+	FIRE::ADD_EXPLOSION(position.x, position.y, position.z, explosionID, 3.0f, true, false, 0);
 }
 
 bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 {
-	clear_menu_per_frame_call();
-
 	SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
 	if (prop == NULL)
 	{
@@ -836,13 +929,14 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 	{
 		begin_prop_placement(prop);
 	}
-	else if (choice.value == 3) //explode
+	else if (choice.value == 3) //default explode
 	{
-		Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
-		FIRE::ADD_EXPLOSION(position.x, position.y, position.z, 14, 3.0f, true, false, 0);
+		explode_last_prop(-1);
 	}
-
-	set_menu_per_frame_call(flash_prop_callback);
+	else if (choice.value == 4) //custom explode
+	{
+		process_prop_explosion_choices();
+	}
 	return false;
 }
 
@@ -850,14 +944,18 @@ int singleInstanceMenuIndex = 0;
 
 void flash_prop_callback()
 {
+	std::ostringstream ss;
+	ss << "Flash callback, frame " << get_frame_number();
+	set_status_text_centre_screen(ss.str());
+
 	if (lastHighlightedProp != NULL)
 	{
-		int frame = get_frame_number() % 60;
+		int frame = get_frame_number() % 30;
 		if (frame == 0)
 		{
 			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, FALSE);
 		}
-		else if (frame == 30)
+		else if (frame == 10)
 		{
 			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
 		}
@@ -919,20 +1017,42 @@ bool prop_spawned_single_instance_menu(int index)
 
 	item = new MenuItem<int>();
 	item->value = 3;
-	item->caption = "Explode This Object";
+	item->caption = "Explode This Object (Default)";
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
-	set_menu_per_frame_call(flash_prop_callback);
-
-	draw_generic_menu<int>(menuItems, &singleInstanceMenuIndex, "Object Options", onconfirm_prop_single_instance_menu, onhighlight_prop_single_instance_menu, NULL, NULL);
-
-	clear_menu_per_frame_call();
-
-	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
-	{
-		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
-	}
+	item = new MenuItem<int>();
+	item->value = 4;
+	item->caption = "Custom Explosions";
+	item->isLeaf = false;
+	menuItems.push_back(item);
+	
+	draw_generic_menu<int>(menuItems, &singleInstanceMenuIndex, "Object Options", onconfirm_prop_single_instance_menu, NULL, NULL, NULL);
 
 	return false;
+}
+
+
+bool onconfirm_prop_explosion(MenuItem<int> choice)
+{
+	explode_last_prop(choice.value);
+	return false;
+}
+
+int explosionSelection;
+
+void process_prop_explosion_choices()
+{
+	std::vector<MenuItem<int>*> menuItems;
+
+	for each (int var in OrderedExplosions)
+	{
+		MenuItem<int>* item = new MenuItem<int>();
+		item->value = var;
+		item->caption = get_explosion_name(var);
+		item->isLeaf = true;
+		menuItems.push_back(item);
+	}
+
+	draw_generic_menu<int>(menuItems, &explosionSelection, "Explosions", onconfirm_prop_explosion, NULL, NULL, NULL);
 }

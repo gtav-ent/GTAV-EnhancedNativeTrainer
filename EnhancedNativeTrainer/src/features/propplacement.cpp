@@ -183,9 +183,12 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 
 	if (!currentProp->isImmovable)
 	{
-		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(prop->instance, true);
-		ENTITY::FREEZE_ENTITY_POSITION(prop->instance, false);
-		ENTITY::APPLY_FORCE_TO_ENTITY(prop->instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
+		set_status_text("Freed prop");
+		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(currentProp->instance, true);
+		ENTITY::FREEZE_ENTITY_POSITION(currentProp->instance, false);
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(currentProp->instance, false);
+		ENTITY::APPLY_FORCE_TO_ENTITY(currentProp->instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(currentProp->instance, !currentProp->isInvincible);
 	}
 
 	pp_exit_flag = false;

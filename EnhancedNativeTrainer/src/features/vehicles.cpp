@@ -504,10 +504,6 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 	if (bPlayerExists && featureWearHelmetOffUpdated)
 	{
 		PED::SET_PED_HELMET(playerPed, !featureWearHelmetOff);
-		/*
-		std::string wearState = featureWearHelmetOff ? "On" : "Off";
-		set_status_text("Don't Wear Helmet: "+wearState);
-		*/
 		featureWearHelmetOffUpdated = false;
 	}
 
@@ -1738,7 +1734,7 @@ void fix_vehicle()
 
 			VEHICLE::SET_VEHICLE_ENGINE_ON(veh, true, true);
 
-			set_status_text("Vehicle Repaired");
+			set_status_text("Vehicle repaired");
 		}
 		else
 		{
@@ -1758,7 +1754,7 @@ void clean_vehicle()
 		{
 			VEHICLE::SET_VEHICLE_DIRT_LEVEL(PED::GET_VEHICLE_PED_IS_USING(playerPed), 0);
 
-			set_status_text("Vehicle Cleaned");
+			set_status_text("Vehicle cleaned");
 
 		}
 		else

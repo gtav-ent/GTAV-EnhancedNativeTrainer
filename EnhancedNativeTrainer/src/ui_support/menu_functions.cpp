@@ -17,6 +17,8 @@ bool centreScreenStatusTextGxtEntry;
 
 bool menu_showing = false;
 
+bool wantedLevelUpdated = false;
+
 void(*periodic_feature_call)(void) = NULL;
 
 void(*menu_per_frame_call)(void) = NULL;
@@ -376,17 +378,25 @@ void WantedSymbolItem::handleLeftPress()
 {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
-	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
-	if (bPlayerExists && currentLevel > 0)
+	int currentWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+	if (bPlayerExists && currentWantedLevel > 0)
 	{
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, --currentLevel, 0);
-		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		setFrozenWantedLvl(currentLevel);
-		std::stringstream ss;
-		if (currentLevel > 0)
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, --currentWantedLevel, 0);
+
+		if (currentWantedLevel == 0)
 		{
-			ss << "Wanted Level: " << currentLevel << " Star";
-			if (currentLevel > 1)
+			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
+		}
+		else
+		{
+			PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
+		}
+
+		std::stringstream ss;
+		if (currentWantedLevel > 0)
+		{
+			ss << "Wanted Level: " << currentWantedLevel << " Star";
+			if (currentWantedLevel != 1)
 			{
 				ss << "s"; //plural
 			}
@@ -394,35 +404,38 @@ void WantedSymbolItem::handleLeftPress()
 		else
 		{
 			ss << "Wanted Level Cleared";
-			PLAYER::SET_MAX_WANTED_LEVEL(5);
-			if (getFrozenWantedFeature())
-			{
-				setFrozenWantedFeature(false);
-				set_status_text("Wanted Level Unfrozen");
-			}
 		}
 		set_status_text(ss.str());
+	}
+
+	if (getFrozenWantedFeature())
+	{
+		updateFrozenWantedFeature(currentWantedLevel);
 	}
 }
 
 void WantedSymbolItem::handleRightPress()
 {
-	turn_off_never_wanted();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
-	int currentLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
-	if (bPlayerExists && currentLevel < 5)
+	int currentWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
+	if (bPlayerExists && currentWantedLevel < 5)
 	{
-		PLAYER::SET_PLAYER_WANTED_LEVEL(player, ++currentLevel, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, ++currentWantedLevel, 0);
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-		setFrozenWantedLvl(currentLevel);
+
 		std::stringstream ss;
-		ss << "Wanted Level: " << currentLevel << " Star";
-		if (currentLevel > 1)
+		ss << "Wanted Level: " << currentWantedLevel << " Star";
+		if (currentWantedLevel != 1)
 		{
 			ss << "s"; //plural
 		}
 		set_status_text(ss.str());
+	}
+
+	if (getFrozenWantedFeature())
+	{
+		updateFrozenWantedFeature(currentWantedLevel);
 	}
 }
 

@@ -46,8 +46,6 @@ bool onlineWarningShown = false;
 // features
 bool featurePlayerInvincible = false;
 bool featurePlayerInvincibleUpdated = false;
-bool featurePlayerNeverWanted = false;
-bool featurePlayerNeverWantedUpdated = false;
 bool featurePlayerIgnoredByPolice = false;
 bool featurePlayerIgnoredByPoliceUpdated = false;
 bool featurePlayerIgnoredByAll = false;
@@ -68,7 +66,6 @@ bool featureNightVision = false;
 bool featureNightVisionUpdated = false;
 bool featureThermalVision = false;
 bool featureThermalVisionUpdated = false;
-
 bool featureWantedLevelFrozen = false;
 bool featureWantedLevelFrozenUpdated = false;
 int  frozenWantedLevel = 0;
@@ -105,34 +102,34 @@ void check_player_model()
 
 	//find out whether we're a default player model
 
-	bool found = false;
-	Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
+		bool found = false;
+		Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
 	int playerSlot = 0;
 
-	for each (char* model  in player_models)
-	{
-		if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
-		{
-			last_player_slot_seen = playerSlot;
-			found = true;
-			break;
-		}
-		playerSlot++;
-	}
-
-	if (!found && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
-	{
-		for each (char* model  in mplayer_models)
+		for each (char* model  in player_models)
 		{
 			if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
 			{
-				last_player_slot_seen = playerSlot;
+			last_player_slot_seen = playerSlot;
 				found = true;
 				break;
 			}
-			playerSlot++;
+		playerSlot++;
 		}
-	}
+
+		if (!found && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+		{
+			for each (char* model  in mplayer_models)
+			{
+				if (GAMEPLAY::GET_HASH_KEY(model) == playerModel)
+				{
+				last_player_slot_seen = playerSlot;
+					found = true;
+					break;
+				}
+			playerSlot++;
+			}
+		}
 
 	if (ENTITY::IS_ENTITY_DEAD(playerPed) && is_player_reset_on_death())
 	{
@@ -264,69 +261,30 @@ void update_features()
 			PLAYER::SET_PLAYER_INVINCIBLE(player, FALSE);
 		featurePlayerInvincibleUpdated = false;
 	}
-	if (featurePlayerInvincible)
+
+	if (featurePlayerInvincible && bPlayerExists)
 	{
-		if (bPlayerExists)
 			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
-	
-	//Wanted Level Frozen - prevents stars increasing/decreasing
 	if (featureWantedLevelFrozen)
 	{
 		if (featureWantedLevelFrozenUpdated)
 		{
 			frozenWantedLevel = PLAYER::GET_PLAYER_WANTED_LEVEL(player);
-			PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
 			featureWantedLevelFrozenUpdated = false;
-
-			if (frozenWantedLevel > 0)
-			{
-				std::stringstream ss;
-				ss << "Wanted Level Frozen at: " << frozenWantedLevel << " Star";
-				if (frozenWantedLevel > 1){ ss << "s"; }
-				set_status_text(ss.str());
-			}
 		}
-		if (frozenWantedLevel > 0)
-		{
-			if (bPlayerExists)
-			{
-				PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
-				PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
-			}
-		}
-		else
-		{
-			featureWantedLevelFrozen = false;
-			set_status_text("You must have a Wanted Level first.");
-		}
+		PLAYER::SET_MAX_WANTED_LEVEL(frozenWantedLevel);
+		PLAYER::SET_PLAYER_WANTED_LEVEL(player, frozenWantedLevel, 0);
+		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 	}
-	if (featureWantedLevelFrozenUpdated)
+
+	if (featureWantedLevelFrozenUpdated && !featureWantedLevelFrozen)
 	{
-		if (!featureWantedLevelFrozen)
-		{
-			set_status_text("Wanted Level Unfrozen");
-			PLAYER::SET_MAX_WANTED_LEVEL(5);
-		}
+		PLAYER::SET_MAX_WANTED_LEVEL(5);
 		featureWantedLevelFrozenUpdated = false;
 	}
 	
-	
-	// player never wanted
-	if (featurePlayerNeverWanted)
-	{
-		if (bPlayerExists)
-		{
-			PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player);
-			PLAYER::SET_MAX_WANTED_LEVEL(0);
-		}
-	}
-	else if (featurePlayerNeverWantedUpdated)
-	{
-		PLAYER::SET_MAX_WANTED_LEVEL(5);
-	}
-
 	// police ignore player
 	if (featurePlayerIgnoredByPolice)
 	{
@@ -468,6 +426,8 @@ void update_features()
 
 	update_time_features(player);
 
+	update_bodyguard_features();
+
 	//Disable airbrake on death
 	if (ENTITY::IS_ENTITY_DEAD(playerPed))
 	{
@@ -491,19 +451,18 @@ void update_features()
 
 int activeLineIndexWantedFreeze = 0;
 
-const std::vector<std::string> MENU_WANTED_LEVELS{ "1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars", "OFF/Clear" };
-
-
-int getFrozenWantedLvl(){ return frozenWantedLevel; }
-void setFrozenWantedLvl(int level){ frozenWantedLevel = level; }
-void setFrozenWantedFeature(bool b){ featureWantedLevelFrozen = b; }
 bool getFrozenWantedFeature(){ return featureWantedLevelFrozen; }
+
+void updateFrozenWantedFeature(int level)
+{
+	frozenWantedLevel = level; 
+	featureWantedLevelFrozenUpdated = true;
+}
 
 int activeLineIndexPlayer = 0;
 
 bool onconfirm_player_menu(MenuItem<int> choice)
 {
-
 	// common variables
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Player player = PLAYER::PLAYER_ID();
@@ -529,7 +488,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 19;
+	const int lineCount = 18;
 	
 	std::string caption = "Player Options";
 
@@ -539,7 +498,6 @@ void process_player_menu()
 		{ "Add Cash", NULL, NULL, true, CASH },
 		{ "Wanted Level", NULL, NULL, true, WANTED },
 		{ "Freeze Wanted Level", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated, true },
-		{ "Never Wanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated, true },
 		{ "Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true },
 		{ "Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
 		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
@@ -579,25 +537,25 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_weapon_menu();
 		break;
 	case 3:
-		process_veh_menu();
+		process_bodyguard_menu();
 		break;
 	case 4:
-		process_world_menu();
+		process_veh_menu();
 		break;
 	case 5:
-		process_time_menu();
+		process_world_menu();
 		break;
 	case 6:
-		process_props_menu();
+		process_time_menu();
 		break;
 	case 7:
-		process_misc_menu();
+		process_props_menu();
 		break;
 	case 8:
-		reset_globals();
+		process_misc_menu();
 		break;
 	case 9:
-		process_test_menu();
+		reset_globals();
 		break;
 	}
 	return false;
@@ -616,64 +574,64 @@ void process_main_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Player";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
-	item->caption = "Teleport / Chauffeur";
-	item->value = item->currentMenuIndex = i++;
+	item->caption = "Locations";
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Weapons";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Bodyguards";
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Vehicles";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "World";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Time";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Objects";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Miscellaneous";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Reset All Settings";
-	item->value = item->currentMenuIndex = i++;
+	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
-	/*
-	item = new MenuItem<int>();
-	item->caption = "*TEST*";
-	item->value = item->currentMenuIndex = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-	*/
+
 	draw_generic_menu<int>(menuItems, &activeLineIndexMain, captionSS.str(), onconfirm_main_menu, NULL, NULL);
 }
 
@@ -693,28 +651,26 @@ void reset_globals()
 
 	reset_prop_globals();
 
-	activeLineIndexMain			=
-	activeLineIndexPlayer		=
-	activeLineIndexWantedFreeze	=
-	frozenWantedLevel			=	0;
+	activeLineIndexMain =
+		activeLineIndexPlayer =
+		activeLineIndexWantedFreeze =
+		frozenWantedLevel = 0;
 
 	featurePlayerDrunk =
-	featurePlayerInvincible			=
-	featurePlayerNeverWanted		=
-	featurePlayerIgnoredByPolice			=
+		featurePlayerInvincible =
+		featurePlayerIgnoredByPolice =
 	featurePlayerIgnoredByAll =
-	featurePlayerUnlimitedAbility	=
-	featurePlayerNoNoise			=
-	featurePlayerFastSwim			=
-	featurePlayerFastRun			=
-	featurePlayerSuperJump			=
-	featurePlayerInvisible			=
+		featurePlayerUnlimitedAbility =
+		featurePlayerNoNoise =
+		featurePlayerFastSwim =
+		featurePlayerFastRun =
+		featurePlayerSuperJump =
+		featurePlayerInvisible =
 	featureNightVision =
 	featureThermalVision =
-	featureWantedLevelFrozen		=	false;
+		featureWantedLevelFrozen = false;
 
 	featurePlayerInvincibleUpdated =
-	featurePlayerNeverWantedUpdated =
 	featurePlayerIgnoredByPoliceUpdated =
 	featurePlayerIgnoredByAllUpdated =
 	featurePlayerNoNoiseUpdated =
@@ -723,7 +679,8 @@ void reset_globals()
 	featurePlayerDrunkUpdated =
 	featureNightVisionUpdated =
 	featureThermalVisionUpdated =
-	featurePlayerInvisibleUpdated = true;
+		featurePlayerInvisibleUpdated = 
+		featureWantedLevelFrozenUpdated = true;
 
 	set_status_text("Reset All Settings");
 
@@ -855,7 +812,7 @@ void ScriptMain()
 		write_text_to_log_file("Init XINPUT complete");
 
 		database = new ENTDatabase();
-		if (!database->open() )
+		if (!database->open())
 		{
 			write_text_to_log_file("Failed to open database");
 			set_status_text("ENT couldn't open its database - sorry, exiting");
@@ -908,13 +865,6 @@ void ScriptTidyUp()
 	write_text_to_log_file("ScriptTidyUp done");
 }
 
-void turn_off_never_wanted()
-{
-	featurePlayerNeverWanted = false;
-	featurePlayerNeverWantedUpdated = false;
-	PLAYER::SET_MAX_WANTED_LEVEL(5);
-}
-
 void update_nearby_peds(Ped playerPed, int count)
 {
 	const int numElements = count;
@@ -962,54 +912,54 @@ void set_all_nearby_peds_to_calm()
 {
 	for each (Ped xped in lastSeenPeds)
 	{
-		PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
-		PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
-		PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
-
-		/*
-		PED::SET_PED_DIES_WHEN_INJURED(xped, false);
-		PED::SET_PED_MAX_HEALTH(xped, 10000);
-		ENTITY::SET_ENTITY_HEALTH(xped, 10000);
-		PED::SET_PED_SUFFERS_CRITICAL_HITS(xped, false);
-		WEAPON::GIVE_WEAPON_TO_PED(xped, GAMEPLAY::GET_HASH_KEY("WEAPON_MG"), 1000, true, true);
-
-		PED::SET_PED_COMBAT_ABILITY(xped, 1);
-		//PED::SET_PED_
-		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(xped, false);
-
-		PED::SET_PED_AS_ENEMY(xped, true);
-		
-		if (PED::_IS_PED_DEAD(xped, 1))
+		// Only calm down peds if they're NOT in our group (keeps our bodyguards from chilling out and being lazy)
+		if (!PED::IS_PED_GROUP_MEMBER(xped, PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_PED_ID())))
 		{
-			set_status_text("Trying to resurrect");
-			PED::RESURRECT_PED(xped);
+			PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
+			PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
+			PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
+
+			//this commented-out code lives here because it will be used for something else in future
+
+			/*
+			PED::SET_PED_DIES_WHEN_INJURED(xped, false);
+			PED::SET_PED_MAX_HEALTH(xped, 10000);
+			ENTITY::SET_ENTITY_HEALTH(xped, 10000);
+			PED::SET_PED_SUFFERS_CRITICAL_HITS(xped, false);
+			WEAPON::GIVE_WEAPON_TO_PED(xped, GAMEPLAY::GET_HASH_KEY("WEAPON_MG"), 1000, true, true);
+
+			PED::SET_PED_COMBAT_ABILITY(xped, 1);
+			//PED::SET_PED_
+			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(xped, false);
+
+			PED::SET_PED_AS_ENEMY(xped, true);
+			*/
 		}
-		else if (PED::IS_PED_INJURED(xped))
-		{
-			set_status_text("Trying to heal");
-			PED::REVIVE_INJURED_PED(xped);
-		}
-		*/
 	}
+}
+
+void add_player_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
+{
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWantedLevelFrozen", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByPolice", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerUnlimitedAbility", &featurePlayerUnlimitedAbility });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerNoNoise", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun, &featurePlayerFastRunUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureNightVision", &featureNightVision, &featureNightVisionUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureThermalVision", &featureThermalVision, &featureThermalVisionUpdated });
 }
 
 std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 {
 	std::vector<FeatureEnabledLocalDefinition> results;
 
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerNeverWanted", &featurePlayerNeverWanted, &featurePlayerNeverWantedUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByPolice", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerUnlimitedAbility", &featurePlayerUnlimitedAbility });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerNoNoise", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun, &featurePlayerFastRunUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureNightVision", &featureNightVision, &featureNightVisionUpdated });
-	results.push_back(FeatureEnabledLocalDefinition{ "featureThermalVision", &featureThermalVision, &featureThermalVisionUpdated });
+	add_player_feature_enablements(&results);
 
 	add_world_feature_enablements(&results);
 
@@ -1022,6 +972,8 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 	add_vehicle_feature_enablements(&results);
 
 	add_weapon_feature_enablements(&results);
+
+	add_bodyguards_feature_enablements(&results);
 
 	return results;
 }
@@ -1036,21 +988,23 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_hotkey_generic_settings(&settings);
 	add_props_generic_settings(&settings);
 	add_weapons_generic_settings(&settings);
+	add_bodyguards_generic_settings(&settings);
+
+	settings.push_back(StringPairSettingDBRow{ "frozenWantedLevel", std::to_string(frozenWantedLevel) });
+
 	return settings;
 }
 
 void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 {
-	/*
 	for (int i = 0; i < settings.size(); i++)
 	{
 		StringPairSettingDBRow setting = settings.at(i);
-		if (setting.name.compare("timeSpeedIndexWhileAiming") == 0)
+		if (setting.name.compare("frozenWantedLevel") == 0)
 		{
-			timeSpeedIndexWhileAiming = stoi(setting.value);
+			frozenWantedLevel = stoi(setting.value);
 		}
 	}
-	*/
 
 	//pass to anyone else, vehicles, weapons etc
 
@@ -1067,6 +1021,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_props(&settings);
 
 	handle_generic_settings_weapons(&settings);
+
+	handle_generic_settings_bodyguards(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)
@@ -1228,7 +1184,7 @@ ENTDatabase* get_database()
 
 struct GraphicsTest
 {
-	void (*function)(BOOL);
+	void(*function)(BOOL);
 	bool state;
 };
 

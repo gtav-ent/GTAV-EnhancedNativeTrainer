@@ -75,7 +75,7 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		}
 		else
 		{
-			set_status_text("Please Set A Weather Value First");
+			set_status_text("Please set a weather value first");
 			featureWeatherFreeze = false;
 		}
 		break;

@@ -811,11 +811,6 @@ bool draw_generic_menu(MenuParameters<T> params)
 		params.onHighlight(*params.items[currentSelectionIndex]);
 	}
 
-	if (menu_per_frame_call != NULL)
-	{
-		menu_per_frame_call();
-	}
-
 	MenuItemImage* image = NULL;
 	if (params.lineImageProvider != NULL)
 	{
@@ -861,6 +856,11 @@ bool draw_generic_menu(MenuParameters<T> params)
 			continue;
 		}
 
+		if (menu_per_frame_call != NULL)
+		{
+			menu_per_frame_call();
+		}
+		
 		const int currentLine = floor((double)currentSelectionIndex / (double)itemsPerLine);
 
 		const int originalIndex = currentSelectionIndex;
