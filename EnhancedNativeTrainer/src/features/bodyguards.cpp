@@ -23,10 +23,11 @@ bool featureBodyguardInfAmmo = false;
 
 int skinTypesBodyguardMenuPositionMemory[2] = { 0, 0 };
 
-Hash bodyGuardModel = GAMEPLAY::GET_HASH_KEY("s_m_y_blackops_01"); // store the chosen bodyguard's Hash
+Hash bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)SKINS_GENERAL_VALUES[0].c_str()); // store the chosen bodyguard's Hash
 Hash bodyGuardWeapon;
 
 std::vector<Ped> spawnedBodyguards;
+std::string chosenSkin(SKINS_GENERAL_CAPTIONS[0]); // default bodyguard
 
 bool process_bodyguard_skins_menu() {
 	std::vector<MenuItem<int>*> menuItems;
@@ -67,6 +68,8 @@ bool onconfirm_bodyguards_skins_players(MenuItem<std::string> choice)
 	skinTypesBodyguardMenuPositionMemory[0] = choice.currentMenuIndex;
 	bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)(choice.value).c_str());
 
+	chosenSkin = SKINS_PLAYER_CAPTIONS[choice.currentMenuIndex];
+
 	process_bodyguard_menu(); // bring us back to the main bodyguard menu
 	return true;
 }
@@ -75,6 +78,8 @@ bool onconfirm_bodyguards_skins_npcs(MenuItem<std::string> choice)
 {
 	skinTypesBodyguardMenuPositionMemory[1] = choice.currentMenuIndex;
 	bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)(choice.value).c_str());
+
+	chosenSkin = SKINS_GENERAL_CAPTIONS[choice.currentMenuIndex];
 
 	process_bodyguard_menu(); // bring us back to the main bodyguard menu
 	return true;
@@ -206,13 +211,17 @@ bool process_bodyguard_menu()
 	int i = 0;
 
 	std::string caption = "Bodyguard Options";
+
+	std::string spawnCaption = "Spawn Bodyguard: ";
+	spawnCaption += chosenSkin;
+
 	std::vector<MenuItem<int>*> menuItems;
 
 	MenuItem<int> *item;
 	ToggleMenuItem<int>* toggleItem;
 
 	item = new MenuItem<int>();
-	item->caption = "Spawn Bodyguard";
+	item->caption = spawnCaption;
 	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
