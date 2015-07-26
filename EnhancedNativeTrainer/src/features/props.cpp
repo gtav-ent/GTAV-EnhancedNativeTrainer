@@ -146,10 +146,6 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 				objZBase -= minDimens.z;
 			}
 
-			std::ostringstream ss;
-			ss << "Spawn - MinZ: " << minDimens.z << ", MaxZ: " << maxDimens.z;
-			set_status_text_centre_screen(ss.str());
-
 			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(obj, curLocation.x, curLocation.y, objZBase, 1, 1, 1);
 		}
 		else
@@ -944,10 +940,6 @@ int singleInstanceMenuIndex = 0;
 
 void flash_prop_callback()
 {
-	std::ostringstream ss;
-	ss << "Flash callback, frame " << get_frame_number();
-	set_status_text_centre_screen(ss.str());
-
 	if (lastHighlightedProp != NULL)
 	{
 		int frame = get_frame_number() % 30;
