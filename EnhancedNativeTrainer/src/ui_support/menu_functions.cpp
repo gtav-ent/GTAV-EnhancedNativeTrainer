@@ -319,7 +319,7 @@ bool ToggleMenuItem<T>::onConfirm()
 	if (toggleValue != NULL)
 	{
 		*toggleValue = !*toggleValue;
-		//set_status_text(*toggleValue ? "Now ON" : "Now OFF");
+
 		if (toggleValueUpdated != NULL)
 		{
 			*toggleValueUpdated = true;
@@ -345,7 +345,7 @@ bool CashItem<T>::onConfirm()
 			newAmount = INT_MAX;
 		STATS::STAT_SET_INT(hash, newAmount, 1);
 	}
-	set_status_text("Cash Added");
+	set_status_text("Cash added");
 	return true;
 }
 

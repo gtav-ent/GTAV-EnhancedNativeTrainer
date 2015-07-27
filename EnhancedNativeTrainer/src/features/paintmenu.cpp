@@ -405,7 +405,7 @@ bool process_paint_menu_fades()
 		return false;
 	}
 
-	set_status_text("Note: paint fade is only relevant on certain vehicles");
+	set_status_text("Paint fade is only applicable to certain vehicles");
 
 	std::vector<MenuItem<float>*> menuItems;
 

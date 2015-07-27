@@ -682,7 +682,7 @@ void reset_globals()
 		featurePlayerInvisibleUpdated = 
 		featureWantedLevelFrozenUpdated = true;
 
-	set_status_text("Reset All Settings");
+	set_status_text("All settings reset to defaults");
 
 	DWORD myThreadID;
 	HANDLE myHandle = CreateThread(0, 0, save_settings_thread, 0, 0, &myThreadID);
@@ -1489,7 +1489,7 @@ void heal_player()
 		if (ENTITY::DOES_ENTITY_EXIST(playerVeh) && !ENTITY::IS_ENTITY_DEAD(playerVeh))
 			VEHICLE::SET_VEHICLE_FIXED(playerVeh);
 	}
-	set_status_text("Player Healed");
+	set_status_text("Player healed");
 }
 
 void toggle_invisibility()

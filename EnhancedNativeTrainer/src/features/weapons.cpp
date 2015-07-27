@@ -527,24 +527,9 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 	}
 
 	// weapon no reload
-	if (bPlayerExists && featureWeaponNoReload)
+	if (bPlayerExists)
 	{
-		Hash cur;
-		if (WEAPON::GET_CURRENT_PED_WEAPON(playerPed, &cur, 1))
-		{
-			if (WEAPON::IS_WEAPON_VALID(cur))
-			{
-				int maxAmmo;
-				if (WEAPON::GET_MAX_AMMO(playerPed, cur, &maxAmmo))
-				{
-					WEAPON::SET_PED_AMMO(playerPed, cur, maxAmmo);
-
-					maxAmmo = WEAPON::GET_MAX_AMMO_IN_CLIP(playerPed, cur, 1);
-					if (maxAmmo > 0)
-						WEAPON::SET_AMMO_IN_CLIP(playerPed, cur, maxAmmo);
-				}
-			}
-		}
+		WEAPON::SET_PED_INFINITE_AMMO_CLIP(playerPed, featureWeaponNoReload);
 	}
 }
 
@@ -780,12 +765,12 @@ void give_weapon_clip(MenuItem<int> choice)
 
 	if (curClipAmmo < maxClipAmmo)
 	{
-		set_status_text("Clip Filled");
+		set_status_text("clip filled");
 		WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
 	}
 	else
 	{
-		set_status_text("Extra Clip Added");
+		set_status_text("Extra clip added");
 		WEAPON::SET_PED_AMMO(playerPed, weapHash, curAmmo+maxClipAmmo);
 	}
 }
@@ -804,7 +789,7 @@ void fill_weapon_ammo(MenuItem<int> choice)
 	WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
 	WEAPON::SET_PED_AMMO(playerPed, weapHash, maxAmmo);
 
-	set_status_text("Ammo Filled");
+	set_status_text("Ammo filled");
 }
 
 void onhighlight_weapon_mod_menu_tint(MenuItem<int> choice)

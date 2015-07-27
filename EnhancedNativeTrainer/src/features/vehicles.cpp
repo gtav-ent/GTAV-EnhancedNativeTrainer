@@ -43,11 +43,11 @@ bool requireRefreshOfSlotMenu = false;
 
 const int PED_FLAG_THROUGH_WINDSCREEN = 32;
 
-const std::vector<std::string> VEH_INVINC_MODE_CAPTIONS{ "Off", "Mech. Only", "Mech + Visual", "Mech + Vis + Cosmetic" };
+const std::vector<std::string> VEH_INVINC_MODE_CAPTIONS{ "OFF", "Mech. Only", "Mech. + Visual", "Mech. + Vis. + Cosmetic" };
 const std::vector<int> VEH_INVINC_MODE_VALUES{ 0, 1, 2, 3 };
 
 // engine power stuff
-const std::vector<std::string> VEH_ENG_POW_CAPTIONS{ "Off", "5x", "10x", "25x", "50x", "75x", "100x", "125x", "150x", "175x", "200x", "225x", "250x", "275x", "300x", "325x", "350x", "375x", "400x" };
+const std::vector<std::string> VEH_ENG_POW_CAPTIONS{ "1x", "5x", "10x", "25x", "50x", "75x", "100x", "125x", "150x", "175x", "200x", "225x", "250x", "275x", "300x", "325x", "350x", "375x", "400x" };
 const std::vector<int> VEH_ENG_POW_VALUES{ 0, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400 };
 int engPowMultIndex = 0;
 bool powChanged = true;
