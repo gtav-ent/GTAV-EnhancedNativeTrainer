@@ -66,12 +66,12 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 
 		if (featureWeatherFreeze && !lastWeather.empty())
 		{
-			std::stringstream ss; ss << "Weather Frozen at: " << lastWeatherName;
+			std::stringstream ss; ss << "Weather frozen at: " << lastWeatherName;
 			set_status_text(ss.str());
 		}
 		else if (!featureWeatherFreeze)
 		{
-			set_status_text("Weather Freeze Disabled");
+			set_status_text("Weather freeze disabled");
 		}
 		else
 		{

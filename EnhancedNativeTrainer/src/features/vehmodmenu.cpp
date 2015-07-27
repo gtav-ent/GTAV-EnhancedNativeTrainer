@@ -396,7 +396,7 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 	{
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, choice.value); //Start from beginning
-		set_status_text("Changed Window Tint");
+		set_status_text("Changed window tint");
 		/*
 		std::ostringstream ss;
 		ss << "Set tint value " << choice.value;
@@ -410,7 +410,7 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 		int plateCount = VEHICLE::GET_NUMBER_OF_VEHICLE_NUMBER_PLATES();
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, choice.value); //Start from beginning
-		set_status_text("Changed License Plate");
+		set_status_text("Changed license plate");
 	}
 	break;
 
@@ -419,7 +419,7 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 		VEHICLE::SET_VEHICLE_WHEEL_TYPE(veh, choice.value); //Increment ModValue
 		VEHICLE::SET_VEHICLE_MOD(veh, 23, 0, 0);
-		set_status_text("Changed Wheel Category");
+		set_status_text("Changed wheel category");
 	}
 	break;
 
@@ -428,7 +428,7 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 		VEHICLE::SET_VEHICLE_MOD(veh, 23, choice.value, 0); //Remove mod and start from beginning
 		VEHICLE::SET_VEHICLE_MOD(veh, 24, choice.value, 0); //Remove mod and start from beginning (For bike rear wheels if they exist)
-		set_status_text("Changed Wheels");
+		set_status_text("Changed wheels");
 	}
 	break;
 	}
@@ -674,7 +674,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
 		VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
 		VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
-		set_status_text("Added All Performance Upgrades");
+		set_status_text("Added all performance upgrades");
 		break;
 
 	case -2: //Upgrade Armor and Tires
@@ -682,7 +682,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //Armor
 		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 0); //Bulletproof Tires
-		set_status_text("Added All Armor Upgrades and Bulletproof Tires");
+		set_status_text("Added all armor upgrades and bulletproof tires");
 		break;
 
 	case -3: //Add All Mods Pimp My Ride
@@ -730,7 +730,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		addClanLogoToVehicle(veh, playerPed);
 		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENHANCED");
 
-		set_status_text("Added All Available Upgrades");
+		set_status_text("Added all available upgrades");
 		break;
 
 	case -4: //Remove All Mods
@@ -741,7 +741,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		}
 		VEHICLE::SET_VEHICLE_WINDOW_TINT(veh, 0);
 		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(veh, 1);
-		set_status_text("Removed All Upgrades");
+		set_status_text("Removed all upgrades");
 		break;
 
 	case  SPECIAL_ID_FOR_TOGGLE_VARIATIONS:
@@ -1015,7 +1015,7 @@ void set_custom_tyres(bool applied, std::vector<int> extras)
 	int currmod = VEHICLE::GET_VEHICLE_MOD(veh, 23);
 	VEHICLE::SET_VEHICLE_MOD(veh, 23, currmod, applied); //Add Custom Tires
 	VEHICLE::SET_VEHICLE_MOD(veh, 24, currmod, applied); //Add Custom Tires (For bike rear wheels if they exist)
-	set_status_text("Changed Tires");
+	set_status_text("Changed tires");
 }
 
 bool is_turbocharged(std::vector<int> extras)
