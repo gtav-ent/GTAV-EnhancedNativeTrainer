@@ -152,43 +152,34 @@ void begin_prop_placement(SpawnedPropInstance prop)
 			break;
 		}
 
-		Vector3 gameCamRot = CAM::GET_GAMEPLAY_CAM_ROT(2);
-		Vector3 thisCamRot = CAM::GET_CAM_ROT(propCamera, 2);
-		float camPitch = CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH();
-
+		/*
 		std::ostringstream ss;
-		ss << "X: " << gameCamRot.x << ", Y: " << gameCamRot.y << ", Z: " << gameCamRot.z << ", Pitch: " << CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH()
-			<< ", Heading:" << CAM::GET_GAMEPLAY_CAM_RELATIVE_HEADING();
+		ss << "Pitch: " << CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH() << ", Heading:" << CAM::GET_GAMEPLAY_CAM_RELATIVE_HEADING();
 		set_status_text_centre_screen(ss.str());
-
-		float xVect = cameraDistance * sin(degToRad(gameCamRot.z)) * -1.0f;
-		float yVect = cameraDistance * cos(degToRad(gameCamRot.z));
-
-		float distanceCamToProp = sqrt(pow(xVect, 2) + pow(yVect, 2));
-		float zVect = distanceCamToProp * tan(degToRad(camPitch));
+		*/
 
 		prop_placement();
 
 		Vector3 entityCoords = ENTITY::GET_ENTITY_COORDS(currentProp.instance, 1);
-		float newCamX = entityCoords.x + xVect;
-		float newCamY = entityCoords.y + yVect;
-		float newCamZ = entityCoords.z + zVect;
+
+		float camPitch = CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH();
+		float camHeading = CAM::GET_GAMEPLAY_CAM_RELATIVE_HEADING();
+
+		CAM::_CLAMP_GAMEPLAY_CAM_PITCH(-90.0f, 90.0f);
+
+		SimpleVector3 newCamCoords = get_camera_coords(entityCoords, cameraDistance, camPitch, camHeading);
 
 		float groundZ;
 		float aboveGroundMargin = 0.15f;
-		bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(newCamX, newCamY, entityCoords.z, &groundZ);
-		if (groundFound && groundZ > newCamZ - aboveGroundMargin)
+		bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(newCamCoords.x, newCamCoords.y, entityCoords.z + 3.0f, &groundZ);
+		if (groundFound && groundZ > newCamCoords.z - aboveGroundMargin)
 		{
-			float limitedCamAngle = radToDeg(tan((entityCoords.z - newCamZ) / distanceCamToProp));
-			newCamZ = groundZ + aboveGroundMargin;
+			float limitedCamAngle = radToDeg(asin((newCamCoords.z - entityCoords.z) / cameraDistance));
+			newCamCoords = get_camera_coords(entityCoords, cameraDistance, limitedCamAngle, camHeading);
 			CAM::_CLAMP_GAMEPLAY_CAM_PITCH(limitedCamAngle, 90.0f);
 		}
-		else
-		{
-			CAM::_CLAMP_GAMEPLAY_CAM_PITCH(-90.0f, 90.0f);
-		}
 
-		CAM::SET_CAM_COORD(propCamera, newCamX, newCamY, newCamZ);
+		CAM::SET_CAM_COORD(propCamera, newCamCoords.x, newCamCoords.y, newCamCoords.z);
 		CAM::POINT_CAM_AT_ENTITY(propCamera, currentProp.instance, 0.0f, 0.0f, 0.0f, 1);
 
 		WAIT(0);
@@ -212,6 +203,19 @@ void begin_prop_placement(SpawnedPropInstance prop)
 
 	pp_exit_flag = false;
 	in_placement_mode = false;
+}
+
+SimpleVector3 get_camera_coords(Vector3 entityCoords, float cameraDistance, float camPitch, float camHeading)
+{
+	float xVect = cameraDistance * sin(degToRad(camHeading)) * cos(degToRad(camPitch));
+	float yVect = cameraDistance * cos(degToRad(camHeading)) * cos(degToRad(camPitch));
+	float zVect = cameraDistance * sin(degToRad(camPitch));
+
+	float newCamX = entityCoords.x + xVect;
+	float newCamY = entityCoords.y + yVect;
+	float newCamZ = entityCoords.z + zVect;
+
+	return SimpleVector3{ newCamX, newCamY, newCamZ };
 }
 
 void update_prop_placement_text()

@@ -9,6 +9,13 @@ http://dev-c.com
 #include "..\inc\main.h"
 #include "..\inc\types.h"
 
+struct SimpleVector3
+{
+	float x;
+	float y;
+	float z;
+};
+
 enum ExplosionTypes
 {
 	EXPLOSION_DEFAULT = 0,

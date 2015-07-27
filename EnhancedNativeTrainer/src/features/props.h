@@ -9,6 +9,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "../ui_support/menu_functions.h"
 #include "../storage/database.h"
+#include "../ent-enums.h"
 
 #pragma once
 
@@ -69,3 +70,5 @@ SpawnedPropInstance get_prop_at_index(int i);
 void flash_prop_callback();
 
 void process_prop_explosion_choices();
+
+SimpleVector3 get_camera_coords(Vector3 entityCoords, float cameraDistance, float camPitch, float camHeading);
