@@ -32,3 +32,5 @@ std::wstring ConvertFromUtf8ToUtf16(const std::string& str);
 bool is_fivem();
 
 float degToRad(float degs);
+
+float radToDeg(float rads);

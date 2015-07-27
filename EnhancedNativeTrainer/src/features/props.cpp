@@ -17,7 +17,7 @@ int lastSelectedPropIndex = 0;
 bool requireRefreshOfPropInstanceMenu = false;
 bool propInstanceMenuInterruptFlag = false;
 
-std::vector<SpawnedPropInstance> propsWeCreated;
+static std::vector<SpawnedPropInstance> propsWeCreated;
 
 std::string lastCustomPropSpawn;
 
@@ -59,15 +59,14 @@ void manage_prop_set()
 	std::vector<SpawnedPropInstance>::iterator it;
 	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
 	{
-		SpawnedPropInstance prop = *it;
-		if (!ENTITY::DOES_ENTITY_EXIST(prop.instance))
+		if (!ENTITY::DOES_ENTITY_EXIST((*it).instance))
 		{
 			write_text_to_log_file("manage_prop_set deleting a prop");
-			it = propsWeCreated.erase(it);
-			if (prop == currentProp)
+			if ((*it) == currentProp)
 			{
 				currentProp = SpawnedPropInstance();
 			}
+			it = propsWeCreated.erase(it);
 		}
 		else
 		{
@@ -595,10 +594,8 @@ void cleanup_props()
 int find_highest_instance_num_of_prop(Hash model)
 {
 	int highestFound = 0;
-	std::vector<SpawnedPropInstance>::iterator it;
-	for (it = propsWeCreated.begin(); it != propsWeCreated.end(); it++)
+	for each (SpawnedPropInstance prop in propsWeCreated)
 	{
-		SpawnedPropInstance prop = *it;
 		Hash entryModel = ENTITY::GET_ENTITY_MODEL(prop.instance);
 		if (model == entryModel && prop.counter > highestFound)
 		{
@@ -625,15 +622,12 @@ bool prop_spawned_instances_menu()
 
 		int i = 0;
 
-		std::vector<SpawnedPropInstance>::iterator it;
-		for (it = propsWeCreated.begin(); it != propsWeCreated.end(); it++)
+		for each(SpawnedPropInstance prop in propsWeCreated)
 		{
-			SpawnedPropInstance instance = *it;
-
 			MenuItem<int>* item = new MenuItem<int>();
 			item->value = i;
 			std::ostringstream ss;
-			ss << instance.title << "~HUD_COLOUR_MENU_YELLOW~ #" << instance.counter;
+			ss << prop.title << "~HUD_COLOUR_MENU_YELLOW~ #" << prop.counter;
 			item->caption = ss.str();
 			item->isLeaf = false;
 			menuItems.push_back(item);
@@ -664,7 +658,7 @@ void onhighlight_prop_instance_menu(MenuItem<int> choice)
 	}
 
 	SpawnedPropInstance prop = get_prop_at_index(choice.value);
-	if (lastHighlightedProp.isEmpty())
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label J");
 		return;

@@ -149,3 +149,9 @@ float degToRad(float degs)
 {
 	return degs*3.141592653589793 / 180;
 }
+
+//Converts Degrees to Radians
+float radToDeg(float rads)
+{
+	return rads * (180 / 3.141592653589793);
+}
