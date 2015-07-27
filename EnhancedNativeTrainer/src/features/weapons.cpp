@@ -765,7 +765,7 @@ void give_weapon_clip(MenuItem<int> choice)
 
 	if (curClipAmmo < maxClipAmmo)
 	{
-		set_status_text("clip filled");
+		set_status_text("Clip filled");
 		WEAPON::SET_AMMO_IN_CLIP(playerPed, weapHash, maxClipAmmo);
 	}
 	else
