@@ -283,3 +283,14 @@ bool is_controller_ignored_in_trainer()
 {
 	return featureControllerIgnoreInTrainer;
 }
+
+bool is_hud_hidden()
+{
+	return featureMiscHideHud;
+}
+
+void set_hud_hidden(bool hidden)
+{
+	featureMiscHideHud = hidden;
+	featureMiscHideHudUpdated = true;
+}

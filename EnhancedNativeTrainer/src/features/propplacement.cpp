@@ -43,6 +43,8 @@ void exit_prop_placer_if_showing()
 void begin_prop_placement(SpawnedPropInstance prop)
 {
 	setGameInputToEnabled(false);
+	bool wasHudHidden = is_hud_hidden();
+	set_hud_hidden(true);
 
 	pp_exit_flag = false;
 	currentProp = prop;
@@ -186,6 +188,9 @@ void begin_prop_placement(SpawnedPropInstance prop)
 	}
 
 	setGameInputToEnabled(true);
+
+	set_hud_hidden(wasHudHidden);
+
 	CAM::RENDER_SCRIPT_CAMS(0, 0, 3000, 1, 0);
 	if (CAM::DOES_CAM_EXIST(propCamera))
 	{

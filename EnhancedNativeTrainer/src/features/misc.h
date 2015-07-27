@@ -39,3 +39,7 @@ bool is_input_blocked_in_menu();
 bool is_vehicle_preview_enabled();
 
 bool is_controller_ignored_in_trainer();
+
+bool is_hud_hidden();
+
+void set_hud_hidden(bool hidden);
