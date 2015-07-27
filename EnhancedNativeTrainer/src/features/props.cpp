@@ -17,13 +17,13 @@ int lastSelectedPropIndex = 0;
 bool requireRefreshOfPropInstanceMenu = false;
 bool propInstanceMenuInterruptFlag = false;
 
-std::vector<SpawnedPropInstance*> propsWeCreated;
+std::vector<SpawnedPropInstance> propsWeCreated;
 
 std::string lastCustomPropSpawn;
 
 int explosionID = 0;
 
-SpawnedPropInstance* lastHighlightedProp = NULL;
+SpawnedPropInstance lastHighlightedProp;
 
 const std::vector<std::string> ALPHA_LABELS = { "Normal", "80%", "60%", "40%", "20%" };
 const int ALPHA_VALUES[] = { 255, 204, 153, 102, 51 };
@@ -55,18 +55,19 @@ float vectRads(float degs)
 
 void manage_prop_set()
 {
-	std::vector<SpawnedPropInstance*>::iterator it;
+	write_text_to_log_file("manage_prop_set called");
+	std::vector<SpawnedPropInstance>::iterator it;
 	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
 	{
-		SpawnedPropInstance* prop = *it;
-		if (!ENTITY::DOES_ENTITY_EXIST(prop->instance))
+		SpawnedPropInstance prop = *it;
+		if (!ENTITY::DOES_ENTITY_EXIST(prop.instance))
 		{
+			write_text_to_log_file("manage_prop_set deleting a prop");
 			it = propsWeCreated.erase(it);
 			if (prop == currentProp)
 			{
-				currentProp = NULL;
+				currentProp = SpawnedPropInstance();
 			}
-			delete prop;
 		}
 		else
 		{
@@ -176,14 +177,14 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 
 		ENTITY::SET_ENTITY_ALPHA(obj, ALPHA_VALUES[propCreationAlphaIndex], false);
 
-		SpawnedPropInstance* record = new SpawnedPropInstance();
-		record->instance = obj;
+		SpawnedPropInstance record;
+		record.instance = obj;
 
-		record->title = title;
-		record->counter = find_highest_instance_num_of_prop(propHash) + 1;
-		record->isInvincible = propCreationIsInvincible;
-		record->isImmovable = propCreationIsImmovable;
-		record->hasGravity = propCreationHasGravity;
+		record.title = title;
+		record.counter = find_highest_instance_num_of_prop(propHash) + 1;
+		record.isInvincible = propCreationIsInvincible;
+		record.isImmovable = propCreationIsImmovable;
+		record.hasGravity = propCreationHasGravity;
 
 		propsWeCreated.push_back(record);
 		manage_prop_set();
@@ -401,8 +402,8 @@ void onchange_spawn_alpha(int value, SelectFromListMenuItem* source)
 	//if we've been supplied with an extra, we're applying this to an instance
 	if (source->extras.size() > 0)
 	{
-		SpawnedPropInstance* prop = get_prop_at_index(source->extras.at(0));
-		ENTITY::SET_ENTITY_ALPHA(prop->instance, ALPHA_VALUES[value], false);
+		SpawnedPropInstance prop = get_prop_at_index(source->extras.at(0));
+		ENTITY::SET_ENTITY_ALPHA(prop.instance, ALPHA_VALUES[value], false);
 	}
 	//otherwise we're changing the new spawn option
 	else
@@ -474,9 +475,9 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 	else if (choice.value == 1) //remove all
 	{
 		int count = 0;
-		for each (SpawnedPropInstance* prop in propsWeCreated)
+		for each (SpawnedPropInstance prop in propsWeCreated)
 		{
-			Object obj = prop->instance;
+			Object obj = prop.instance;
 			if (ENTITY::DOES_ENTITY_EXIST(obj))
 			{
 				count++;
@@ -579,34 +580,29 @@ void handle_generic_settings_props(std::vector<StringPairSettingDBRow>* settings
 
 void cleanup_props()
 {
-	std::vector<SpawnedPropInstance*>::iterator it;
-	for (it = propsWeCreated.begin(); it != propsWeCreated.end();)
+	write_text_to_log_file("cleanup_props called");
+	for each (SpawnedPropInstance prop in propsWeCreated)
 	{
-		SpawnedPropInstance* prop = *it;
-		if (ENTITY::DOES_ENTITY_EXIST(prop->instance))
+		write_text_to_log_file("cleanup_props deleting a prop");
+		if (ENTITY::DOES_ENTITY_EXIST(prop.instance))
 		{
-			ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&prop->instance);
+			ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&prop.instance);
 		}
-		it = propsWeCreated.erase(it);
-		if (prop == currentProp)
-		{
-			currentProp = NULL;
-		}
-		delete prop;
 	}
+	propsWeCreated.clear();
 }
 
 int find_highest_instance_num_of_prop(Hash model)
 {
 	int highestFound = 0;
-	std::vector<SpawnedPropInstance*>::iterator it;
+	std::vector<SpawnedPropInstance>::iterator it;
 	for (it = propsWeCreated.begin(); it != propsWeCreated.end(); it++)
 	{
-		SpawnedPropInstance* prop = *it;
-		Hash entryModel = ENTITY::GET_ENTITY_MODEL(prop->instance);
-		if (model == entryModel && prop->counter > highestFound)
+		SpawnedPropInstance prop = *it;
+		Hash entryModel = ENTITY::GET_ENTITY_MODEL(prop.instance);
+		if (model == entryModel && prop.counter > highestFound)
 		{
-			highestFound = prop->counter;
+			highestFound = prop.counter;
 		}
 	}
 	return highestFound;
@@ -629,15 +625,15 @@ bool prop_spawned_instances_menu()
 
 		int i = 0;
 
-		std::vector<SpawnedPropInstance*>::iterator it;
+		std::vector<SpawnedPropInstance>::iterator it;
 		for (it = propsWeCreated.begin(); it != propsWeCreated.end(); it++)
 		{
-			SpawnedPropInstance* instance = *it;
+			SpawnedPropInstance instance = *it;
 
 			MenuItem<int>* item = new MenuItem<int>();
 			item->value = i;
 			std::ostringstream ss;
-			ss << instance->title << "~HUD_COLOUR_MENU_YELLOW~ #" << instance->counter;
+			ss << instance.title << "~HUD_COLOUR_MENU_YELLOW~ #" << instance.counter;
 			item->caption = ss.str();
 			item->isLeaf = false;
 			menuItems.push_back(item);
@@ -649,9 +645,9 @@ bool prop_spawned_instances_menu()
 		draw_generic_menu<int>(menuItems, &menu_spawned_instance_index, "Spawned Instances", onconfirm_prop_instance_menu, onhighlight_prop_instance_menu, NULL, prop_instance_menu_interrupt);
 
 		clear_menu_per_frame_call();
-		if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+		if (!lastHighlightedProp.isEmpty() && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp.instance))
 		{
-			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp.instance, TRUE);
 		}
 
 		WAIT(0);
@@ -662,13 +658,13 @@ bool prop_spawned_instances_menu()
 
 void onhighlight_prop_instance_menu(MenuItem<int> choice)
 {
-	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+	if (!lastHighlightedProp.isEmpty() && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp.instance))
 	{
-		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp.instance, TRUE);
 	}
 
-	SpawnedPropInstance* prop = get_prop_at_index(choice.value);
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(choice.value);
+	if (lastHighlightedProp.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label J");
 		return;
@@ -680,9 +676,9 @@ void onhighlight_prop_instance_menu(MenuItem<int> choice)
 bool onconfirm_prop_instance_menu(MenuItem<int> choice)
 {
 	clear_menu_per_frame_call();
-	if (lastHighlightedProp != NULL && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp->instance))
+	if (!lastHighlightedProp.isEmpty() && ENTITY::DOES_ENTITY_EXIST(lastHighlightedProp.instance))
 	{
-		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+		ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp.instance, TRUE);
 	}
 	prop_spawned_single_instance_menu(choice.value);
 	set_menu_per_frame_call(flash_prop_callback);
@@ -699,130 +695,130 @@ bool prop_instance_menu_interrupt()
 	return false;
 }
 
-SpawnedPropInstance* get_prop_at_index(int i)
+SpawnedPropInstance get_prop_at_index(int i)
 {
 	if (i < 0 || i > propsWeCreated.size() - 1)
 	{
-		return NULL;
+		return SpawnedPropInstance();
 	}
-	SpawnedPropInstance* prop = propsWeCreated.at(i);
+	SpawnedPropInstance prop = propsWeCreated.at(i);
 	return prop;
 }
 
 bool is_prop_invincible(std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label A");
 		return false;
 	}
-	return prop->isInvincible;
+	return prop.isInvincible;
 }
 
 void set_prop_invincible(bool applied, std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label B");
 		return;
 	}
 
-	//ENTITY::SET_ENTITY_INVINCIBLE(prop->instance, applied);
-	ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, !applied);
-	//ENTITY::SET_ENTITY_PROOFS(prop->instance, applied, applied, applied, applied, applied, applied, applied, applied);
+	//ENTITY::SET_ENTITY_INVINCIBLE(prop.instance, applied);
+	ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop.instance, !applied);
+	//ENTITY::SET_ENTITY_PROOFS(prop.instance, applied, applied, applied, applied, applied, applied, applied, applied);
 
-	prop->isInvincible = applied;
+	prop.isInvincible = applied;
 }
 
 bool is_prop_immovable(std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label C");
 		return false;
 	}
-	return prop->isImmovable;
+	return prop.isImmovable;
 }
 
 void set_prop_immovable(bool applied, std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label D");
 		return;
 	}
 
-	OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(prop->instance, !applied);
-	ENTITY::FREEZE_ENTITY_POSITION(prop->instance, applied);
+	OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(prop.instance, !applied);
+	ENTITY::FREEZE_ENTITY_POSITION(prop.instance, applied);
 	if (!applied)
 	{
 		//this unfreezes it
-		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, FALSE);
-		ENTITY::APPLY_FORCE_TO_ENTITY(prop->instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
-		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop->instance, !prop->isInvincible);
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop.instance, FALSE);
+		ENTITY::APPLY_FORCE_TO_ENTITY(prop.instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(prop.instance, !prop.isInvincible);
 	}
-	prop->isImmovable = applied;
+	prop.isImmovable = applied;
 }
 
 bool is_prop_on_fire(std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label E");
 		return false;
 	}
-	return FIRE::IS_ENTITY_ON_FIRE(prop->instance);
+	return FIRE::IS_ENTITY_ON_FIRE(prop.instance);
 }
 
 void set_prop_on_fire(bool applied, std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label F");
 		return;
 	}
 	if (applied)
 	{
-		bool isInvinc = prop->isInvincible;
-		//ENTITY::SET_ENTITY_PROOFS(prop->instance, isInvinc, false, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc);
-		Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(prop->instance, 0);
+		bool isInvinc = prop.isInvincible;
+		//ENTITY::SET_ENTITY_PROOFS(prop.instance, isInvinc, false, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc, isInvinc);
+		Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(prop.instance, 0);
 		FIRE::ADD_EXPLOSION(curLocation.x, curLocation.y, curLocation.z, 14, 3.0f, true, false, 0); //starts gas fire
 	}
 	else
 	{
-		FIRE::STOP_ENTITY_FIRE(prop->instance);
-		Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
+		FIRE::STOP_ENTITY_FIRE(prop.instance);
+		Vector3 position = ENTITY::GET_ENTITY_COORDS(prop.instance, TRUE);
 		FIRE::STOP_FIRE_IN_RANGE(position.x, position.y, position.z, 5.0f);
 	}
 }
 
 bool is_prop_gravity_enabled(std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label G");
 		return false;
 	}
-	return prop->hasGravity;
+	return prop.hasGravity;
 }
 
 void set_prop_gravity_enabled(bool applied, std::vector<int> extras)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(extras.at(0));
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(extras.at(0));
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label H");
 		return;
 	}
-	ENTITY::SET_ENTITY_HAS_GRAVITY(prop->instance, applied);
-	prop->hasGravity = applied;
+	ENTITY::SET_ENTITY_HAS_GRAVITY(prop.instance, applied);
+	prop.hasGravity = applied;
 }
 
 std::string get_explosion_name(int id)
@@ -893,19 +889,19 @@ std::string get_explosion_name(int id)
 
 void explode_last_prop(int explosionID)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
+	SpawnedPropInstance prop = get_prop_at_index(lastSelectedPropIndex);
 	if (explosionID == -1)
 	{
 		explosionID = 0; //default
 	}
-	Vector3 position = ENTITY::GET_ENTITY_COORDS(prop->instance, TRUE);
+	Vector3 position = ENTITY::GET_ENTITY_COORDS(prop.instance, TRUE);
 	FIRE::ADD_EXPLOSION(position.x, position.y, position.z, explosionID, 3.0f, true, false, 0);
 }
 
 bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 {
-	SpawnedPropInstance* prop = get_prop_at_index(lastSelectedPropIndex);
-	if (prop == NULL)
+	SpawnedPropInstance prop = get_prop_at_index(lastSelectedPropIndex);
+	if (prop.isEmpty())
 	{
 		set_status_text_centre_screen("Null prop - label K");
 		return true;
@@ -913,8 +909,7 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 
 	if (choice.value == 1) //delete item
 	{
-		OBJECT::DELETE_OBJECT(&prop->instance);
-		propsWeCreated.erase(propsWeCreated.begin() + lastSelectedPropIndex);
+		OBJECT::DELETE_OBJECT(&prop.instance);
 		manage_prop_set();
 		propInstanceMenuInterruptFlag = true;
 		requireRefreshOfPropInstanceMenu = true;
@@ -940,16 +935,16 @@ int singleInstanceMenuIndex = 0;
 
 void flash_prop_callback()
 {
-	if (lastHighlightedProp != NULL)
+	if (!lastHighlightedProp.isEmpty())
 	{
 		int frame = get_frame_number() % 30;
 		if (frame == 0)
 		{
-			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, FALSE);
+			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp.instance, FALSE);
 		}
 		else if (frame == 10)
 		{
-			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp->instance, TRUE);
+			ENTITY::SET_ENTITY_VISIBLE(lastHighlightedProp.instance, TRUE);
 		}
 	}
 }

@@ -31,7 +31,7 @@ std::vector<std::string> propPlacerStatusLines;
 DWORD propPlacerStatusTextDrawTicksMax;
 bool propPlacerStatusTextGxtEntry;
 
-SpawnedPropInstance* currentProp;
+SpawnedPropInstance currentProp;
 
 Camera propCamera;
 
@@ -40,7 +40,7 @@ void exit_prop_placer_if_showing()
 	pp_exit_flag = true;
 }
 
-void begin_prop_placement(SpawnedPropInstance* prop)
+void begin_prop_placement(SpawnedPropInstance prop)
 {
 	setGameInputToEnabled(false);
 
@@ -56,14 +56,14 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	if (currentProp == NULL)
+	if (&currentProp == NULL)
 	{
 		pp_exit_flag = true;
 		return;
 	}
 
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
-	BOOL propExists = ENTITY::DOES_ENTITY_EXIST(currentProp->instance);
+	BOOL propExists = ENTITY::DOES_ENTITY_EXIST(currentProp.instance);
 
 	//Disable on object death
 	if (ENTITY::IS_ENTITY_DEAD(playerPed) || !bPlayerExists || !propExists)
@@ -73,9 +73,9 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 	
 	pp_frozen_time = false;
 
-	pp_cur_location = ENTITY::GET_ENTITY_COORDS(prop->instance, 0);
-	pp_cur_rotation = ENTITY::GET_ENTITY_ROTATION(prop->instance, 0);
-	pp_cur_heading = ENTITY::GET_ENTITY_HEADING(prop->instance);
+	pp_cur_location = ENTITY::GET_ENTITY_COORDS(prop.instance, 0);
+	pp_cur_rotation = ENTITY::GET_ENTITY_ROTATION(prop.instance, 0);
+	pp_cur_heading = ENTITY::GET_ENTITY_HEADING(prop.instance);
 
 	//normalise the gameplay camera
 	float tempFloat = CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH();
@@ -83,8 +83,8 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 	CAM::SET_GAMEPLAY_CAM_RELATIVE_PITCH(tempFloat, 0.0f);
 
 	//work out a view distance
-	ENTITY::SET_ENTITY_ROTATION(currentProp->instance, 0, 0, 0, 0, false);
-	Hash modelHash = ENTITY::GET_ENTITY_MODEL(currentProp->instance);
+	ENTITY::SET_ENTITY_ROTATION(currentProp.instance, 0, 0, 0, 0, false);
+	Hash modelHash = ENTITY::GET_ENTITY_MODEL(currentProp.instance);
 	Vector3 minDimens;
 	Vector3 maxDimens;
 	GAMEPLAY::GET_MODEL_DIMENSIONS(modelHash, &minDimens, &maxDimens);
@@ -92,10 +92,10 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 
 	//create and configure our object camera
 	propCamera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", 0);
-	//CAM::ATTACH_CAM_TO_ENTITY(propCamera, currentProp->instance, 0.0f, -cameraDistance, 2.0f, 1);
-	Vector3 worldCamCoords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(currentProp->instance, 0.0f, -cameraDistance, 2.0f);
+	//CAM::ATTACH_CAM_TO_ENTITY(propCamera, currentProp.instance, 0.0f, -cameraDistance, 2.0f, 1);
+	Vector3 worldCamCoords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(currentProp.instance, 0.0f, -cameraDistance, 2.0f);
 	CAM::SET_CAM_COORD(propCamera, worldCamCoords.x, worldCamCoords.y, worldCamCoords.z);
-	CAM::POINT_CAM_AT_ENTITY(propCamera, currentProp->instance, 0.0f, 0.0f, 0.0f, 1);
+	CAM::POINT_CAM_AT_ENTITY(propCamera, currentProp.instance, 0.0f, 0.0f, 0.0f, 1);
 	
 	Vector3 camRot = CAM::GET_CAM_ROT(propCamera, 2);
 	Vector3 camCoords = CAM::GET_CAM_COORD(propCamera);
@@ -109,7 +109,7 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 		return;
 	}
 
-	ENTITY::SET_ENTITY_QUATERNION(currentProp->instance, 0.0f, 0.0f, 0.0f, 0.0f);
+	ENTITY::SET_ENTITY_QUATERNION(currentProp.instance, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	//begin the loop
 	while (true && !pp_exit_flag)
@@ -122,14 +122,14 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 
 		make_periodic_feature_call();
 
-		if (currentProp == NULL)
+		if (&currentProp == NULL)
 		{
 			pp_exit_flag = true;
 			break;
 		}
 
 		bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
-		propExists = ENTITY::DOES_ENTITY_EXIST(currentProp->instance);
+		propExists = ENTITY::DOES_ENTITY_EXIST(currentProp.instance);
 		BOOL camExists = CAM::DOES_CAM_EXIST(propCamera);
 
 		//Disable on object death
@@ -154,10 +154,20 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 
 		Vector3 gameCamRot = CAM::GET_GAMEPLAY_CAM_ROT(2);
 		Vector3 thisCamRot = CAM::GET_CAM_ROT(propCamera, 2);
+		float camPitch = CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH();
+
+		/*
+		std::ostringstream ss;
+		ss << "X: " << gameCamRot.x << ", Y: " << gameCamRot.y << ", Z: " << gameCamRot.z << ", Pitch: " << CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH()
+			<< ", Heading:" << CAM::GET_GAMEPLAY_CAM_RELATIVE_HEADING();
+		set_status_text_centre_screen(ss.str());
+		*/
 
 		float xVect = cameraDistance * sin(degToRad(gameCamRot.z)) * -1.0f;
 		float yVect = cameraDistance * cos(degToRad(gameCamRot.z));
 
+		float distanceCamToProp = sqrt(pow(xVect, 2) + pow(yVect, 2));
+		float zVect = distanceCamToProp * tan(degToRad(camPitch));
 		
 		/*
 		std::ostringstream ss;
@@ -167,9 +177,9 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 
 		prop_placement();
 
-		Vector3 entityCoords = ENTITY::GET_ENTITY_COORDS(currentProp->instance, 1);
-		CAM::SET_CAM_COORD(propCamera, entityCoords.x + xVect, entityCoords.y + yVect, entityCoords.z + 2.0f);
-		CAM::POINT_CAM_AT_ENTITY(propCamera, currentProp->instance, 0.0f, 0.0f, 0.0f, 1);
+		Vector3 entityCoords = ENTITY::GET_ENTITY_COORDS(currentProp.instance, 1);
+		CAM::SET_CAM_COORD(propCamera, entityCoords.x + xVect, entityCoords.y + yVect, entityCoords.z + zVect);
+		CAM::POINT_CAM_AT_ENTITY(propCamera, currentProp.instance, 0.0f, 0.0f, 0.0f, 1);
 
 		WAIT(0);
 	}
@@ -181,14 +191,13 @@ void begin_prop_placement(SpawnedPropInstance* prop)
 		CAM::DESTROY_CAM(propCamera, 1);
 	}
 
-	if (!currentProp->isImmovable)
+	if (!currentProp.isImmovable)
 	{
-		set_status_text("Freed prop");
-		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(currentProp->instance, true);
-		ENTITY::FREEZE_ENTITY_POSITION(currentProp->instance, false);
-		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(currentProp->instance, false);
-		ENTITY::APPLY_FORCE_TO_ENTITY(currentProp->instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
-		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(currentProp->instance, !currentProp->isInvincible);
+		OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(currentProp.instance, true);
+		ENTITY::FREEZE_ENTITY_POSITION(currentProp.instance, false);
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(currentProp.instance, false);
+		ENTITY::APPLY_FORCE_TO_ENTITY(currentProp.instance, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
+		ENTITY::SET_ENTITY_CAN_BE_DAMAGED(currentProp.instance, !currentProp.isInvincible);
 	}
 
 	pp_exit_flag = false;
@@ -307,7 +316,7 @@ void create_prop_placement_help_text()
 	propPlacerStatusLines.push_back(ss.str());
 	ss.str(""); ss.clear();
 
-	ss << "Object Frozen On Exit: ~HUD_COLOUR_WHITE~" << (currentProp->isImmovable ? "Yes": "No");
+	ss << "Object Frozen On Exit: ~HUD_COLOUR_WHITE~" << (currentProp.isImmovable ? "Yes": "No");
 	propPlacerStatusLines.push_back(ss.str());
 	ss.str(""); ss.clear();
 
@@ -356,7 +365,7 @@ void prop_placement()
 	BOOL yBoolParam = 1;
 	BOOL zBoolParam = 1;
 
-	ENTITY::SET_ENTITY_VELOCITY(currentProp->instance, 0.0f, 0.0f, 0.0f);
+	ENTITY::SET_ENTITY_VELOCITY(currentProp.instance, 0.0f, 0.0f, 0.0f);
 
 	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED))
 	{
@@ -374,7 +383,7 @@ void prop_placement()
 
 	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION))
 	{
-		currentProp->isImmovable = !currentProp->isImmovable;
+		currentProp.isImmovable = !currentProp.isImmovable;
 	}
 
 	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_HELP) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_HELP))
@@ -387,11 +396,11 @@ void prop_placement()
 
 	if (secondaryMove)
 	{
-		/*float roll = ENTITY::GET_ENTITY_ROLL(currentProp->instance);
-		float pitch = ENTITY::GET_ENTITY_PITCH(currentProp->instance);
+		/*float roll = ENTITY::GET_ENTITY_ROLL(currentProp.instance);
+		float pitch = ENTITY::GET_ENTITY_PITCH(currentProp.instance);
 
 		float qx, qy, qz, qw;
-		ENTITY::GET_ENTITY_QUATERNION(currentProp->instance, &qx, &qy, &qz, &qw);
+		ENTITY::GET_ENTITY_QUATERNION(currentProp.instance, &qx, &qy, &qz, &qw);
 
 		float mouseX = CONTROLS::GET_CONTROL_NORMAL(2, 239);
 		float mouseY = CONTROLS::GET_CONTROL_NORMAL(2, 240);
@@ -420,7 +429,7 @@ void prop_placement()
 			pp_cur_roll += rotationSpeed;
 		}
 
-		//ENTITY::SET_ENTITY_QUATERNION(currentProp->instance, qx, qy, qz, qw);
+		//ENTITY::SET_ENTITY_QUATERNION(currentProp.instance, qx, qy, qz, qw);
 	}
 	else
 	{
@@ -454,8 +463,8 @@ void prop_placement()
 		}
 	}
 
-	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(currentProp->instance, pp_cur_location.x, pp_cur_location.y, pp_cur_location.z, xBoolParam, yBoolParam, zBoolParam);
-	ENTITY::SET_ENTITY_ROTATION(currentProp->instance, pp_cur_pitch, pp_cur_roll, pp_cur_heading, 2, 1);
+	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(currentProp.instance, pp_cur_location.x, pp_cur_location.y, pp_cur_location.z, xBoolParam, yBoolParam, zBoolParam);
+	ENTITY::SET_ENTITY_ROTATION(currentProp.instance, pp_cur_pitch, pp_cur_roll, pp_cur_heading, 2, 1);
 }
 
 bool is_in_prop_placement_mode()

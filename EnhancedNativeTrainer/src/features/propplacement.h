@@ -16,7 +16,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 
-void begin_prop_placement(SpawnedPropInstance* prop);
+void begin_prop_placement(SpawnedPropInstance prop);
 
 void exit_prop_placer_if_showing();
 

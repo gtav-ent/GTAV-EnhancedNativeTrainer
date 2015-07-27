@@ -605,9 +605,6 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 			ss << "";
 		}
 		auto ssStr = ss.str();
-
-		write_text_to_log_file(ssStr);
-
 		UI::_ADD_TEXT_COMPONENT_STRING((char *)ssStr.c_str());
 		UI::_DRAW_TEXT(0, textY);
 

@@ -22,15 +22,21 @@ struct PropInfo
 class SpawnedPropInstance
 {
 public:
-	Object instance;
+	const bool isEmpty() { return instance == -1; };
+	virtual inline SpawnedPropInstance::~SpawnedPropInstance() {};
+	Object instance = -1;
 	std::string title;
 	int counter;
 	bool isInvincible;
 	bool isImmovable;
 	bool hasGravity;
+	bool inline operator==(SpawnedPropInstance rhs)const
+	{
+		return rhs.instance == instance;
+	}
 };
 
-extern SpawnedPropInstance* currentProp;
+extern SpawnedPropInstance currentProp;
 
 bool onconfirm_prop_selection(MenuItem<std::string> choice);
 
@@ -58,7 +64,7 @@ bool prop_spawned_single_instance_menu(int index);
 
 bool prop_instance_menu_interrupt();
 
-SpawnedPropInstance* get_prop_at_index(int i);
+SpawnedPropInstance get_prop_at_index(int i);
 
 void flash_prop_callback();
 

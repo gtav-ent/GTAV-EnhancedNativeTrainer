@@ -228,7 +228,7 @@ void update_features()
 		setGameInputToEnabled(true);
 	}
 
-	if (is_in_airbrake_mode())
+	if (is_in_airbrake_mode() || is_in_prop_placement_mode())
 	{
 		setAirbrakeRelatedInputToBlocked(true);
 	}
@@ -843,26 +843,46 @@ void ScriptMain()
 
 void ScriptTidyUp()
 {
+#ifdef _DEBUG
+	__try
+	{
+#endif
+
+	write_text_to_log_file("ScriptTidyUp called");
+
 	setGameInputToEnabled(true, true);
 	setAirbrakeRelatedInputToBlocked(false, true);
 
 	cleanup_script();
+	write_text_to_log_file("Cleaned up script");
+	WAIT(0);
 	cleanup_props();
+	write_text_to_log_file("Cleaned up props");
+	WAIT(0);
 	cleanup_anims();
-
-	write_text_to_log_file("ScriptTidyUp called");
+	write_text_to_log_file("Cleaned up anims");
 
 	save_settings();
+	write_text_to_log_file("Saved settings");
 
 	end_xinput();
+	write_text_to_log_file("XInput terminated");
 
 	if (database != NULL)
 	{
 		database->close();
 		delete database;
+		write_text_to_log_file("Database killed");
 	}
 
 	write_text_to_log_file("ScriptTidyUp done");
+#ifdef _DEBUG
+	}
+	__except (filterException(GetExceptionCode(), GetExceptionInformation()))
+	{
+
+	}
+#endif
 }
 
 void update_nearby_peds(Ped playerPed, int count)
@@ -1120,9 +1140,6 @@ WCHAR* get_temp_dir_path()
 
 	std::wstring ws(result);
 	std::string folderSS(ws.begin(), ws.end());
-
-	write_text_to_log_file("Temp directory is:");
-	write_text_to_log_file(folderSS);
 
 	return result;
 }
