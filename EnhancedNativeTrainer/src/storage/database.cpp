@@ -1785,7 +1785,7 @@ std::vector<SavedPropDBRow*> ENTDatabase::get_saved_prop_instances(int parentId)
 	return results;
 }
 
-std::vector<SavedPropSet*> ENTDatabase::get_saved_prop_sets(int index = -1)
+std::vector<SavedPropSet*> ENTDatabase::get_saved_prop_sets(int index)
 {
 	write_text_to_log_file("Asked to load saved prop sets");
 
@@ -1847,7 +1847,7 @@ void ENTDatabase::populate_saved_prop_set(SavedPropSet *entry)
 	entry->items = instances;
 }
 
-bool ENTDatabase::save_props(std::vector<SavedPropDBRow*> props, std::string saveName, sqlite3_int64 slot = -1)
+bool ENTDatabase::save_props(std::vector<SavedPropDBRow*> props, std::string saveName, sqlite3_int64 slot)
 {
 	mutex_lock();
 	begin_transaction();

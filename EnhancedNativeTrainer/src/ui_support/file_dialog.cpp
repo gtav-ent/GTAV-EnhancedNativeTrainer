@@ -8,7 +8,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
-#include "mfc_dialog.h"
+#include "file_dialog.h"
 #include <Windows.h>
 #include <commdlg.h>
 
