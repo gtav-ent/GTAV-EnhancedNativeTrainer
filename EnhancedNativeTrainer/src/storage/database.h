@@ -28,6 +28,60 @@ struct StringPairSettingDBRow
 	std::string value;
 };
 
+class SavedPropDBRow
+{
+public:
+
+	int rowID;
+	int parentID;
+	DWORD model;
+	std::string title;
+	int counter;
+	float posX;
+	float posY;
+	float posZ;
+	float pitch;
+	float roll;
+	float yaw;
+	int isImmovable;
+	int isInvincible;
+	int hasGravity;
+	float alpha;
+
+	inline ~SavedPropDBRow() {};
+
+	inline SavedPropDBRow()
+	{
+
+	}
+};
+
+class SavedPropSet
+{
+public:
+	std::vector<SavedPropDBRow*> items;
+	int rowID;
+	std::string saveName;
+
+	inline SavedPropSet()
+	{
+
+	}
+
+	inline ~SavedPropSet()
+	{
+		for (std::vector<SavedPropDBRow*>::iterator it = items.begin(); it != items.end(); ++it)
+		{
+			delete (*it);
+		}
+	}
+
+	inline int size()
+	{
+		return items.size();
+	}
+};
+
 class SavedVehicleModDBRow
 {
 public:
@@ -186,11 +240,19 @@ public:
 
 	bool save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 slot = -1);
 
+	bool save_props(std::vector<SavedPropDBRow*> props, std::string saveName, sqlite3_int64 slot = -1);
+
 	bool save_skin(Ped ped, std::string saveName, sqlite3_int64 slot = -1);
 
 	std::vector<SavedVehicleDBRow*> get_saved_vehicles(int index=-1);
 
 	std::vector<SavedSkinDBRow*> get_saved_skins(int index = -1);
+
+	std::vector<SavedPropSet*> get_saved_prop_sets(int index = -1);
+
+	std::vector<SavedPropDBRow*> get_saved_prop_instances(int parentId);
+
+	void populate_saved_prop_set(SavedPropSet *entry);
 
 	void populate_saved_vehicle(SavedVehicleDBRow *entry);
 
@@ -203,6 +265,10 @@ public:
 	void delete_saved_skin(sqlite3_int64 slot);
 
 	void delete_saved_skin_children(sqlite3_int64 slot);
+
+	void delete_saved_propset(sqlite3_int64 slot);
+
+	void delete_saved_propset_children(sqlite3_int64 slot);
 
 	void rename_saved_vehicle(std::string name, sqlite3_int64 slot);
 

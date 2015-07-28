@@ -932,7 +932,7 @@ bool ENTDatabase::save_skin(Ped ped, std::string saveName, sqlite3_int64 slot)
 	//if we're updating, delete any pre-existing children
 	if (slot != -1)
 	{
-		delete_saved_skin_children(newRowID);
+		delete_saved_skin_children(slot);
 	}
 
 	save_skin_components(ped, newRowID);
@@ -1119,7 +1119,7 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 		//if we're updating, delete any pre-existing children
 		if (slot != -1)
 		{
-			delete_saved_vehicle_children(newRowID);
+			delete_saved_vehicle_children(slot);
 		}
 
 		save_vehicle_extras(veh, newRowID);
@@ -1545,7 +1545,7 @@ void ENTDatabase::delete_saved_vehicle_children(sqlite3_int64 slot)
 
 	sqlite3_stmt *stmt;
 	const char *pzTest;
-	auto qStr = "DELETE FROM ENT_VEHICLE_EXTRAS WHERE id=?";
+	auto qStr = "DELETE FROM ENT_VEHICLE_EXTRAS WHERE parentId=?";
 	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
 
 	if (rc == SQLITE_OK)
@@ -1592,7 +1592,7 @@ void ENTDatabase::delete_saved_skin_children(sqlite3_int64 slot)
 
 	sqlite3_stmt *stmt;
 	const char *pzTest;
-	auto qStr = "DELETE FROM ENT_SKIN_COMPONENTS WHERE id=?";
+	auto qStr = "DELETE FROM ENT_SKIN_COMPONENTS WHERE parentId=?";
 	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
 
 	if (rc == SQLITE_OK)
@@ -1658,4 +1658,302 @@ void ENTDatabase::mutex_lock()
 void ENTDatabase::mutex_unlock()
 {
 	sqlite3_mutex_leave(db_mutex);
+}
+
+void ENTDatabase::delete_saved_propset(sqlite3_int64 slot)
+{
+	mutex_lock();
+
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "DELETE FROM ENT_PROP_SETS WHERE id=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int64(stmt, 1, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved propset");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	mutex_unlock();
+}
+
+void ENTDatabase::delete_saved_propset_children(sqlite3_int64 slot)
+{
+	mutex_lock();
+
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "DELETE FROM ENT_PROP_INSTANCES WHERE parentId=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_int64(stmt, 1, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to delete saved prop instances");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	mutex_unlock();
+}
+
+std::vector<SavedPropDBRow*> ENTDatabase::get_saved_prop_instances(int parentId)
+{
+	write_text_to_log_file("Asked to load saved prop instances");
+
+	mutex_lock();
+
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+
+	std::stringstream ss;
+	ss << "select * from ENT_PROP_INSTANCES";
+	if (parentId != -1)
+	{
+		ss << " WHERE parentId = ? ";
+	}
+	auto qStr = ss.str();
+	int rc = sqlite3_prepare_v2(db, qStr.c_str(), qStr.length(), &stmt, &pzTest);
+
+	std::vector<SavedPropDBRow*> results;
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		if (parentId != -1)
+		{
+			sqlite3_bind_int(stmt, 1, parentId);
+		}
+
+		int r = sqlite3_step(stmt);
+		while (r == SQLITE_ROW)
+		{
+			write_text_to_log_file("Prop row found");
+
+			SavedPropDBRow *prop = new SavedPropDBRow();
+
+			int index = 0;
+			prop->rowID = sqlite3_column_int(stmt, index++);
+			prop->parentID = sqlite3_column_int(stmt, index++);
+			prop->title = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, index++)));
+			prop->counter = sqlite3_column_int(stmt, index++);
+
+			prop->posX = sqlite3_column_double(stmt, index++);
+			prop->posY = sqlite3_column_double(stmt, index++);
+			prop->posZ = sqlite3_column_double(stmt, index++);
+			prop->pitch = sqlite3_column_double(stmt, index++);
+			prop->roll = sqlite3_column_double(stmt, index++);
+			prop->yaw = sqlite3_column_double(stmt, index++);
+			
+			prop->isImmovable = sqlite3_column_int(stmt, index++);
+			prop->isInvincible = sqlite3_column_int(stmt, index++);
+			prop->hasGravity = sqlite3_column_int(stmt, index++);
+
+			prop->alpha = sqlite3_column_double(stmt, index++);
+
+			results.push_back(prop);
+
+			r = sqlite3_step(stmt);
+		}
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to fetch saved props");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	mutex_unlock();
+
+	return results;
+}
+
+std::vector<SavedPropSet*> ENTDatabase::get_saved_prop_sets(int index = -1)
+{
+	write_text_to_log_file("Asked to load saved prop sets");
+
+	mutex_lock();
+
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+
+	std::stringstream ss;
+	ss << "select * from ENT_PROP_SETS";
+	if (index != -1)
+	{
+		ss << " WHERE id = ? ";
+	}
+	auto qStr = ss.str();
+	int rc = sqlite3_prepare_v2(db, qStr.c_str(), qStr.length(), &stmt, &pzTest);
+
+	std::vector<SavedPropSet*> results;
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		if (index != -1)
+		{
+			sqlite3_bind_int(stmt, 1, index);
+		}
+
+		int r = sqlite3_step(stmt);
+		while (r == SQLITE_ROW)
+		{
+			write_text_to_log_file("Prop set found");
+
+			SavedPropSet *set = new SavedPropSet();
+
+			int index = 0;
+			set->rowID = sqlite3_column_int(stmt, index++);
+			set->saveName = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, index++)));
+
+			results.push_back(set);
+
+			r = sqlite3_step(stmt);
+		}
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to fetch saved prop sets");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	mutex_unlock();
+
+	return results;
+}
+
+void ENTDatabase::populate_saved_prop_set(SavedPropSet *entry)
+{
+	std::vector<SavedPropDBRow*> instances = get_saved_prop_instances(entry->rowID);
+	entry->items = instances;
+}
+
+bool ENTDatabase::save_props(std::vector<SavedPropDBRow*> props, std::string saveName, sqlite3_int64 slot = -1)
+{
+	mutex_lock();
+	begin_transaction();
+
+	std::stringstream ss_set;
+	ss_set << "INSERT OR REPLACE INTO ENT_PROP_SETS VALUES (?, ?);";
+	sqlite3_stmt *set_stmt;
+	const char *pzTest;
+	auto ss_set_str = ss_set.str();
+	int set_rc = sqlite3_prepare_v2(db, ss_set_str.c_str(), ss_set_str.length(), &set_stmt, &pzTest);
+
+	bool result = true;
+	sqlite3_int64 newRowID;
+
+	if (set_rc != SQLITE_OK)
+	{
+		write_text_to_log_file("Prop set save failed");
+		write_text_to_log_file(sqlite3_errmsg(db));
+		result = false;
+	}
+	else
+	{
+		int index = 1;
+		if (slot == -1)
+		{
+			sqlite3_bind_null(set_stmt, index++);
+		}
+		else
+		{
+			sqlite3_bind_int64(set_stmt, index++, slot);
+		}
+
+		sqlite3_bind_text(set_stmt, index++, saveName.c_str(), saveName.length(), 0); //save name
+		
+		// commit
+		sqlite3_step(set_stmt);
+		sqlite3_finalize(set_stmt);
+
+		newRowID = sqlite3_last_insert_rowid(db);
+
+		//if we're updating, delete any pre-existing children
+		if (slot != -1)
+		{
+			delete_saved_propset_children(slot);
+		}
+	}
+
+	if (result)
+	{
+		for each (SavedPropDBRow* prop in props)
+		{
+			std::stringstream ss_inst;
+			ss_inst << "INSERT OR REPLACE INTO ENT_PROP_INSTANCES VALUES (";
+			for (int i = 0; i < 15; i++)
+			{
+				if (i > 0)
+				{
+					ss_inst << ", ";
+				}
+				ss_inst << "?";
+			}
+			ss_inst << ");";
+
+			sqlite3_stmt *inst_stmt;
+			const char *pzTest;
+			auto ss_instance_str = ss_inst.str();
+			int inst_rc = sqlite3_prepare_v2(db, ss_instance_str.c_str(), ss_instance_str.length(), &inst_stmt, &pzTest);;
+
+			if (inst_rc != SQLITE_OK)
+			{
+				write_text_to_log_file("Prop instance save failed");
+				write_text_to_log_file(sqlite3_errmsg(db));
+				result = false;
+			}
+			else
+			{
+				int index = 0;
+
+				sqlite3_bind_null(inst_stmt, index++);
+				sqlite3_bind_int64(inst_stmt, index++, newRowID); //parent id
+				sqlite3_bind_int(inst_stmt, index++, prop->model);
+				auto propTitle = prop->title;
+				sqlite3_bind_text(inst_stmt, index++, (char*)propTitle.c_str(), propTitle.length(), 0);
+				sqlite3_bind_int(inst_stmt, index++, prop->counter);
+				sqlite3_bind_double(inst_stmt, index++, prop->posX);
+				sqlite3_bind_double(inst_stmt, index++, prop->posY);
+				sqlite3_bind_double(inst_stmt, index++, prop->posZ);
+				sqlite3_bind_double(inst_stmt, index++, prop->pitch);
+				sqlite3_bind_double(inst_stmt, index++, prop->roll);
+				sqlite3_bind_double(inst_stmt, index++, prop->yaw);
+				sqlite3_bind_int(inst_stmt, index++, prop->isImmovable);
+				sqlite3_bind_int(inst_stmt, index++, prop->isInvincible);
+				sqlite3_bind_int(inst_stmt, index++, prop->hasGravity);
+				sqlite3_bind_double(inst_stmt, index++, prop->alpha);
+
+				sqlite3_step(inst_stmt);
+				sqlite3_finalize(inst_stmt);
+			}
+		}	
+	}
+
+	end_transaction();
+
+	mutex_unlock();
+
+	return result;
+
+	return false;
 }

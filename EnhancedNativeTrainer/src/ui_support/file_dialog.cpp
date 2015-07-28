@@ -19,7 +19,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
 
-HWND parentWindow = 0;
+static HWND parentWindow = 0;
 
 void find_parent_window()
 {
@@ -34,7 +34,7 @@ void show_file_open_dialog(std::string title)
 	}
 
 	OPENFILENAME ofn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
+	char szFile[MAX_PATH];       // buffer for file name
 	HANDLE hf;              // file handle
 
 	DWORD procID = GetCurrentProcessId();
@@ -78,7 +78,7 @@ void show_file_save_dialog(std::string title)
 	}
 
 	OPENFILENAME sfn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
+	char szFile[MAX_PATH];       // buffer for file name
 	HANDLE hf;              // file handle
 
 	DWORD procID = GetCurrentProcessId();
