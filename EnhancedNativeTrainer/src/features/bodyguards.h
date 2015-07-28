@@ -49,6 +49,4 @@ void add_bodyguards_generic_settings(std::vector<StringPairSettingDBRow>* result
 
 void handle_generic_settings_bodyguards(std::vector<StringPairSettingDBRow>* settings);
 
-
-
-
+bool bodyguards_main_menu_interrupt();

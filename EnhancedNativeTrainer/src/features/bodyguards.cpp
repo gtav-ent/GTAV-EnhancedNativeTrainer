@@ -21,6 +21,8 @@ bool featureBodyguardInvincibleUpdated = false;
 bool featureBodyguardHelmet = false;
 bool featureBodyguardInfAmmo = false;
 
+bool requireRefreshOfBodyguardMainMenu = false;
+
 int skinTypesBodyguardMenuPositionMemory[2] = { 0, 0 };
 
 Hash bodyGuardModel = NULL;
@@ -29,7 +31,8 @@ Hash bodyGuardWeapon = NULL;
 std::vector<Ped> spawnedBodyguards;
 std::string chosenSkin(SKINS_GENERAL_CAPTIONS[0]); // default bodyguard
 
-bool process_bodyguard_skins_menu() {
+bool process_bodyguard_skins_menu()
+{
 	std::vector<MenuItem<int>*> menuItems;
 	MenuItem<int> *item;
 
@@ -48,15 +51,14 @@ bool process_bodyguard_skins_menu() {
 	return draw_generic_menu<int>(menuItems, &activeLineIndexBodyguardsType, "Bodyguard Skins", onconfirm_bodyguard_skins_menu, NULL, NULL);
 }
 
-bool onconfirm_bodyguard_skins_menu(MenuItem<int> choice) {
+bool onconfirm_bodyguard_skins_menu(MenuItem<int> choice)
+{
 	switch (activeLineIndexBodyguardsType)
 	{
 	case 0:
-		process_player_skins_menu();
-		break;
+		return process_player_skins_menu();
 	case 1:
-		process_npc_skins_menu();
-		break;
+		return process_npc_skins_menu();
 	default:
 		break;
 	}
@@ -70,7 +72,8 @@ bool onconfirm_bodyguards_skins_players(MenuItem<std::string> choice)
 
 	chosenSkin = SKINS_PLAYER_CAPTIONS[choice.currentMenuIndex];
 
-	process_bodyguard_menu(); // bring us back to the main bodyguard menu
+	requireRefreshOfBodyguardMainMenu = true;
+
 	return true;
 }
 
@@ -81,11 +84,13 @@ bool onconfirm_bodyguards_skins_npcs(MenuItem<std::string> choice)
 
 	chosenSkin = SKINS_GENERAL_CAPTIONS[choice.currentMenuIndex];
 
-	process_bodyguard_menu(); // bring us back to the main bodyguard menu
+	requireRefreshOfBodyguardMainMenu = true;
+
 	return true;
 }
 
-bool process_player_skins_menu() {
+bool process_player_skins_menu()
+{
 	std::vector<MenuItem<std::string>*> menuItems;
 	for (int i = 0; i < SKINS_PLAYER_CAPTIONS.size(); i++)
 	{
@@ -99,7 +104,8 @@ bool process_player_skins_menu() {
 	return draw_generic_menu<std::string>(menuItems, &skinTypesBodyguardMenuPositionMemory[0], "Player Skins", onconfirm_bodyguards_skins_players, NULL, NULL);
 }
 
-bool process_npc_skins_menu() {
+bool process_npc_skins_menu()
+{
 	std::vector<MenuItem<std::string>*> menuItems;
 	for (int i = 0; i < SKINS_GENERAL_CAPTIONS.size(); i++)
 	{
@@ -113,7 +119,8 @@ bool process_npc_skins_menu() {
 	return draw_generic_menu<std::string>(menuItems, &skinTypesBodyguardMenuPositionMemory[1], "NPC Skins", onconfirm_bodyguards_skins_npcs, NULL, NULL);
 }
 
-bool process_bodyguard_weapons_menu() {
+bool process_bodyguard_weapons_menu()
+{
 	// For now we'll just give every weapon to the bodyguards
 	// Maybe down the road we can allow a player to choose one or more weapons to give to a bodyguard
 	return false;
@@ -126,7 +133,8 @@ void dismiss_bodyguards() {
 		return;
 	}
 
-	for (int i = 0; i < spawnedBodyguards.size(); i++) {
+	for (int i = 0; i < spawnedBodyguards.size(); i++)
+	{
 		ENTITY::SET_ENTITY_INVINCIBLE(spawnedBodyguards[i], false);
 		PED::REMOVE_PED_FROM_GROUP(spawnedBodyguards[i]);
 		AI::CLEAR_PED_TASKS(spawnedBodyguards[i]);
@@ -162,10 +170,14 @@ void do_spawn_bodyguard() {
 		PED::SET_PED_NEVER_LEAVES_GROUP(bodyGuard, true);
 
 		if (featureBodyguardInvincible)
+		{
 			ENTITY::SET_ENTITY_INVINCIBLE(bodyGuard, true);
+		}
 
 		if (featureBodyguardHelmet)
+		{
 			PED::GIVE_PED_HELMET(bodyGuard, 1, 4096, -1);
+		}
 
 		PED::SET_PED_COMBAT_ABILITY(bodyGuard, 2);
 		PED::SET_PED_COMBAT_RANGE(bodyGuard, 2);
@@ -174,18 +186,23 @@ void do_spawn_bodyguard() {
 		// throw every weapon at the bodyguards
 		static Hash weaponList[] = { WEAPON_ADVANCEDRIFLE, WEAPON_APPISTOL, WEAPON_ASSAULTRIFLE, WEAPON_ASSAULTSHOTGUN, WEAPON_ASSAULTSMG, WEAPON_BALL, WEAPON_BAT, WEAPON_BOTTLE, WEAPON_BULLPUPSHOTGUN, WEAPON_CARBINERIFLE, WEAPON_COMBATMG, WEAPON_COMBATPDW, WEAPON_COMBATPISTOL, WEAPON_CROWBAR, WEAPON_DAGGER, WEAPON_FIREEXTINGUISHER, WEAPON_FIREWORK, WEAPON_FLAREGUN, WEAPON_GOLFCLUB, WEAPON_GRENADE, WEAPON_GRENADELAUNCHER, WEAPON_GUSENBERG, WEAPON_HAMMER, WEAPON_HEAVYPISTOL, WEAPON_HEAVYSHOTGUN, WEAPON_HEAVYSNIPER, WEAPON_HOMINGLAUNCHER, WEAPON_KNIFE, WEAPON_KNUCKLE, WEAPON_MARKSMANPISTOL, WEAPON_MARKSMANRIFLE, WEAPON_MG, WEAPON_MICROSMG, WEAPON_MOLOTOV, WEAPON_MUSKET, WEAPON_NIGHTSTICK, WEAPON_PETROLCAN, WEAPON_PISTOL, WEAPON_PISTOL50, WEAPON_PROXMINE, WEAPON_PUMPSHOTGUN, WEAPON_RPG, WEAPON_SAWNOFFSHOTGUN, WEAPON_SMG, WEAPON_SMOKEGRENADE, WEAPON_SNIPERRIFLE, WEAPON_SNOWBALL, WEAPON_SNSPISTOL, WEAPON_SPECIALCARBINE, WEAPON_STICKYBOMB, WEAPON_STUNGUN, WEAPON_VINTAGEPISTOL, WEAPON_MINIGUN, WEAPON_RAILGUN };
 		
-		for (int i = 0; i < sizeof(weaponList) / sizeof(Hash); i++) {
-			if (WEAPON::HAS_PED_GOT_WEAPON(bodyGuard, weaponList[i], FALSE) == FALSE) {
+		for (int i = 0; i < sizeof(weaponList) / sizeof(Hash); i++)
+		{
+			if (WEAPON::HAS_PED_GOT_WEAPON(bodyGuard, weaponList[i], FALSE) == FALSE)
+			{
 				WEAPON::GIVE_WEAPON_TO_PED(bodyGuard, weaponList[i], 9999, FALSE, TRUE);
 			}
-			if (WEAPON::GET_WEAPONTYPE_GROUP(weaponList[i]) == WEAPON_TYPE_GROUP_THROWABLE) {
+			if (WEAPON::GET_WEAPONTYPE_GROUP(weaponList[i]) == WEAPON_TYPE_GROUP_THROWABLE)
+			{
 				WEAPON::REMOVE_WEAPON_FROM_PED(bodyGuard, weaponList[i]);
 				WEAPON::GIVE_WEAPON_TO_PED(bodyGuard, weaponList[i], 9999, FALSE, TRUE);
 			}
 		}
 
 		if (featureBodyguardInfAmmo)
+		{
 			WEAPON::SET_PED_INFINITE_AMMO_CLIP(bodyGuard, true);
+		}
 
 		PED::SET_PED_CAN_SWITCH_WEAPON(bodyGuard, true);
 		PED::SET_GROUP_FORMATION(myGroup, 1);
@@ -212,64 +229,68 @@ void do_spawn_bodyguard() {
 
 bool process_bodyguard_menu()
 {
-	int i = 0;
+	do
+	{
+		requireRefreshOfBodyguardMainMenu = false;
+		int i = 0;
 
-	std::string caption = "Bodyguard Options";
+		std::string caption = "Bodyguard Options";
 
-	std::string spawnCaption = "Spawn Bodyguard: ";
-	spawnCaption += chosenSkin;
+		std::vector<MenuItem<int>*> menuItems;
+		MenuItem<int> *item;
+		ToggleMenuItem<int>* toggleItem;
 
-	std::vector<MenuItem<int>*> menuItems;
+		item = new MenuItem<int>();
+		std::ostringstream ss;
+		ss << "Spawn Bodyguard: " << chosenSkin;
+		item->caption = ss.str();
+		item->value = i++;
+		item->isLeaf = true;
+		menuItems.push_back(item);
 
-	MenuItem<int> *item;
-	ToggleMenuItem<int>* toggleItem;
+		item = new MenuItem<int>();
+		item->caption = "Dismiss All Bodyguards";
+		item->value = i++;
+		item->isLeaf = true;
+		menuItems.push_back(item);
 
-	item = new MenuItem<int>();
-	item->caption = spawnCaption;
-	item->value = i++;
-	item->isLeaf = true;
-	menuItems.push_back(item);
+		item = new MenuItem<int>();
+		item->caption = "Choose Model";
+		item->value = i++;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+		/*
+		item = new MenuItem<int>();
+		item->caption = "Choose Weapon";
+		item->value = i++;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+		*/
+		toggleItem = new ToggleMenuItem<int>();
+		toggleItem->caption = "Invincible";
+		toggleItem->value = i++;
+		toggleItem->toggleValue = &featureBodyguardInvincible;
+		toggleItem->toggleValueUpdated = &featureBodyguardInvincibleUpdated;
+		menuItems.push_back(toggleItem);
 
-	item = new MenuItem<int>();
-	item->caption = "Dismiss All Bodyguards";
-	item->value = i++;
-	item->isLeaf = true;
-	menuItems.push_back(item);
-	
-	item = new MenuItem<int>();
-	item->caption = "Choose Model";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-	/*
-	item = new MenuItem<int>();
-	item->caption = "Choose Weapon";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-	*/
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Invincible";
-	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureBodyguardInvincible;
-	toggleItem->toggleValueUpdated = &featureBodyguardInvincibleUpdated;
-	menuItems.push_back(toggleItem);
+		toggleItem = new ToggleMenuItem<int>();
+		toggleItem->caption = "Infinite Ammo";
+		toggleItem->value = i++;
+		toggleItem->toggleValue = &featureBodyguardInfAmmo;
+		toggleItem->toggleValueUpdated = NULL;
+		menuItems.push_back(toggleItem);
 
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Infinite Ammo";
-	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureBodyguardInfAmmo;
-	toggleItem->toggleValueUpdated = NULL;
-	menuItems.push_back(toggleItem);
+		toggleItem = new ToggleMenuItem<int>();
+		toggleItem->caption = "Spawn With Helmet";
+		toggleItem->value = i++;
+		toggleItem->toggleValue = &featureBodyguardHelmet;
+		toggleItem->toggleValueUpdated = NULL;
+		menuItems.push_back(toggleItem);
 
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Spawn With Helmet";
-	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureBodyguardHelmet;
-	toggleItem->toggleValueUpdated = NULL;
-	menuItems.push_back(toggleItem);
-
-	return draw_generic_menu<int>(menuItems, &activeLineIndexBodyguards, caption, onconfirm_bodyguard_menu, NULL, NULL);
+		draw_generic_menu<int>(menuItems, &activeLineIndexBodyguards, caption, onconfirm_bodyguard_menu, NULL, NULL, bodyguards_main_menu_interrupt);
+	}
+	while (requireRefreshOfBodyguardMainMenu);
+	return false;
 }
 
 bool onconfirm_bodyguard_menu(MenuItem<int> choice)
@@ -299,9 +320,12 @@ bool onconfirm_bodyguard_menu(MenuItem<int> choice)
 	return false;
 }
 
-void update_bodyguard_features() {
-	if (featureBodyguardInvincibleUpdated) {
-		for (int i = 0; i < spawnedBodyguards.size(); i++) {
+void update_bodyguard_features()
+{
+	if (featureBodyguardInvincibleUpdated)
+	{
+		for (int i = 0; i < spawnedBodyguards.size(); i++)
+		{
 			ENTITY::SET_ENTITY_INVINCIBLE(spawnedBodyguards[i], featureBodyguardInvincible);
 		}
 	}
@@ -316,9 +340,9 @@ void add_bodyguards_feature_enablements(std::vector<FeatureEnabledLocalDefinitio
 
 void add_bodyguards_generic_settings(std::vector<StringPairSettingDBRow>* results)
 {
-	results->push_back(StringPairSettingDBRow{ "featureBodyguardInvincible", std::to_string(featureBodyguardInvincible) });
-	results->push_back(StringPairSettingDBRow{ "featureBodyguardHelmet", std::to_string(featureBodyguardHelmet) });
-	results->push_back(StringPairSettingDBRow{ "featureBodyguardInfAmmo", std::to_string(featureBodyguardInfAmmo) });
+	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuPositionMemory0", std::to_string(skinTypesBodyguardMenuPositionMemory[0]) });
+	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuPositionMemory1", std::to_string(skinTypesBodyguardMenuPositionMemory[1]) });
+	results->push_back(StringPairSettingDBRow{ "bodyguardsChosenSkin", chosenSkin });
 }
 
 void handle_generic_settings_bodyguards(std::vector<StringPairSettingDBRow>* settings)
@@ -326,19 +350,26 @@ void handle_generic_settings_bodyguards(std::vector<StringPairSettingDBRow>* set
 	for (int i = 0; i < settings->size(); i++)
 	{
 		StringPairSettingDBRow setting = settings->at(i);
-		if (setting.name.compare("featureBodyguardInvincible") == 0)
+		if (setting.name.compare("skinTypesBodyguardMenuPositionMemory0") == 0)
 		{
-			featureBodyguardInvincible = stoi(setting.value);
+			skinTypesBodyguardMenuPositionMemory[0] = stoi(setting.value);
 		}
-
-		if (setting.name.compare("featureBodyguardHelmet") == 0)
+		else if (setting.name.compare("skinTypesBodyguardMenuPositionMemory1") == 0)
 		{
-			featureBodyguardInvincible = stoi(setting.value);
+			skinTypesBodyguardMenuPositionMemory[1] = stoi(setting.value);
 		}
-
-		if (setting.name.compare("featureBodyguardInfAmmo") == 0)
+		else if (setting.name.compare("bodyguardsChosenSkin") == 0)
 		{
-			featureBodyguardInfAmmo = stoi(setting.value);
+			chosenSkin = setting.value;
 		}
 	}
+}
+
+bool bodyguards_main_menu_interrupt()
+{
+	if (requireRefreshOfBodyguardMainMenu)
+	{
+		return true;
+	}
+	return false;
 }
