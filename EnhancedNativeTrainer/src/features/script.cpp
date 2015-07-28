@@ -24,6 +24,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "propplacement.h"
 #include "../version.h"
 #include "../utils.h"
+#include "../ui_support/file_dialog.h"
 
 #include <set>
 #include <iostream>
@@ -1043,6 +1044,12 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_weapons(&settings);
 
 	handle_generic_settings_bodyguards(&settings);
+}
+
+DWORD WINAPI show_dialog_thread(LPVOID lpParameter)
+{
+	show_file_open_dialog("Open ENT File");
+	return 0;
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)

@@ -25,6 +25,11 @@
     <ClCompile Include="src\utils.cpp" />
     <ClCompile Include="src\features\misc.cpp" />
     <ClCompile Include="src\features\hotkeys.cpp" />
+    <ClCompile Include="src\features\bodyguards.cpp" />
+    <ClCompile Include="src\features\neonlightsmenu.cpp" />
+    <ClCompile Include="src\features\propplacement.cpp" />
+    <ClCompile Include="src\features\props.cpp" />
+    <ClCompile Include="src\ui_support\file_dialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\main.h" />
@@ -50,14 +55,16 @@
     <ClInclude Include="src\io\xinput.h" />
     <ClInclude Include="inc\xinput\CXBOXController.h" />
     <ClInclude Include="src\version.h" />
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\types.h" />
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\enums.h" />
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\main.h" />
-    <ClInclude Include="\\rob-pc\Shared\Shook\ScriptHookV_SDK_1.0.372.2a\inc\nativeCaller.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\features\misc.h" />
     <ClInclude Include="src\features\hotkeys.h" />
+    <ClInclude Include="src\datasets\data_props.h" />
+    <ClInclude Include="src\ent-enums.h" />
+    <ClInclude Include="src\features\bodyguards.h" />
+    <ClInclude Include="src\features\propplacement.h" />
+    <ClInclude Include="src\features\props.h" />
+    <ClInclude Include="src\ui_support\file_dialog.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />

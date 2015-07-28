@@ -38,6 +38,7 @@
     <ClCompile Include="src\features\vehmodmenu.cpp" />
     <ClCompile Include="src\features\weapons.cpp" />
     <ClCompile Include="src\features\world.cpp" />
+    <ClCompile Include="src\ui_support\file_dialog.cpp" />
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +72,7 @@
     <ClInclude Include="src\features\vehicles.h" />
     <ClInclude Include="src\features\weapons.h" />
     <ClInclude Include="src\features\world.h" />
+    <ClInclude Include="src\ui_support\file_dialog.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\version.h" />
   </ItemGroup>
@@ -317,7 +319,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalOptions>lib\ScriptHookV.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>lib\ScriptHookV.lib comdlg32.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
