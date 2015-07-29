@@ -38,8 +38,8 @@ std::string activeSavedVehicleSlotName;
 int lastKnownSavedVehicleCount = 0;
 bool vehSaveMenuInterrupt = false;
 bool vehSaveSlotMenuInterrupt = false;
-bool requireRefreshOfSaveSlots = false;
-bool requireRefreshOfSlotMenu = false;
+bool requireRefreshOfVehSaveSlots = false;
+bool requireRefreshOfVehSlotMenu = false;
 
 const int PED_FLAG_THROUGH_WINDSCREEN = 32;
 
@@ -948,8 +948,8 @@ bool onconfirm_savedveh_slot_menu(MenuItem<int> choice)
 	case 2: //overwrite
 		{
 			save_current_vehicle(activeSavedVehicleIndex);
-			requireRefreshOfSaveSlots = true;
-			requireRefreshOfSlotMenu = true;
+			requireRefreshOfVehSaveSlots = true;
+			requireRefreshOfVehSlotMenu = true;
 			vehSaveSlotMenuInterrupt = true;
 			vehSaveMenuInterrupt = true;
 		}
@@ -964,8 +964,8 @@ bool onconfirm_savedveh_slot_menu(MenuItem<int> choice)
 
 				activeSavedVehicleSlotName = result;
 			}
-			requireRefreshOfSaveSlots = true;
-			requireRefreshOfSlotMenu = true;
+			requireRefreshOfVehSaveSlots = true;
+			requireRefreshOfVehSlotMenu = true;
 			vehSaveSlotMenuInterrupt = true;
 			vehSaveMenuInterrupt = true;
 		}
@@ -975,8 +975,8 @@ bool onconfirm_savedveh_slot_menu(MenuItem<int> choice)
 			ENTDatabase* database = get_database();
 			database->delete_saved_vehicle(activeSavedVehicleIndex);
 
-			requireRefreshOfSlotMenu = false;
-			requireRefreshOfSaveSlots = true;
+			requireRefreshOfVehSlotMenu = false;
+			requireRefreshOfVehSaveSlots = true;
 			vehSaveSlotMenuInterrupt = true;
 			vehSaveMenuInterrupt = true;
 		}
@@ -990,7 +990,7 @@ bool process_savedveh_slot_menu(int slot)
 	do
 	{
 		vehSaveSlotMenuInterrupt = false;
-		requireRefreshOfSlotMenu = false;
+		requireRefreshOfVehSlotMenu = false;
 
 		std::vector<MenuItem<int>*> menuItems;
 
@@ -1019,7 +1019,7 @@ bool process_savedveh_slot_menu(int slot)
 		menuItems.push_back(item);
 
 		draw_generic_menu<int>(menuItems, 0, activeSavedVehicleSlotName, onconfirm_savedveh_slot_menu, NULL, NULL, vehicle_save_slot_menu_interrupt);
-	} while (requireRefreshOfSlotMenu);
+	} while (requireRefreshOfVehSlotMenu);
 	return false;
 }
 
@@ -1073,7 +1073,7 @@ bool onconfirm_savedveh_menu(MenuItem<int> choice)
 	if ( choice.value == -1 )
 	{
 		save_current_vehicle(-1);
-		requireRefreshOfSaveSlots = true;
+		requireRefreshOfVehSaveSlots = true;
 		vehSaveMenuInterrupt = true;
 		return false;
 	}
@@ -1088,8 +1088,8 @@ bool process_savedveh_menu()
 	do
 	{
 		vehSaveMenuInterrupt = false;
-		requireRefreshOfSlotMenu = false;
-		requireRefreshOfSaveSlots = false;
+		requireRefreshOfVehSlotMenu = false;
+		requireRefreshOfVehSaveSlots = false;
 
 		ENTDatabase* database = get_database();
 		std::vector<SavedVehicleDBRow*> savedVehs = database->get_saved_vehicles();
@@ -1121,7 +1121,7 @@ bool process_savedveh_menu()
 		}
 		savedVehs.clear();
 	}
-	while (requireRefreshOfSaveSlots);
+	while (requireRefreshOfVehSaveSlots);
 
 	return false;
 }

@@ -274,6 +274,8 @@ public:
 
 	void rename_saved_skin(std::string name, sqlite3_int64 slot);
 
+	void rename_saved_propset(std::string name, sqlite3_int64 slot);
+
 private:
 
 	void save_vehicle_extras(Vehicle veh, sqlite3_int64 rowID);

@@ -72,3 +72,14 @@ void flash_prop_callback();
 void process_prop_explosion_choices();
 
 SimpleVector3 get_camera_coords(Vector3 entityCoords, float cameraDistance, float camPitch, float camHeading);
+
+void do_spawn_model_by_player(Hash propHash, char* model, std::string title, bool silent);
+
+void do_spawn_model(Hash propHash, char* model, std::string title, SimpleVector3* coords, float pitch, float roll, float heading,
+	bool invincible, bool immovable, bool gravity, float alpha, bool silent);
+
+bool props_individual_slot_menu_interrupt();
+
+bool props_save_slots_menu_interrupt();
+
+bool process_savedprops_menu();
