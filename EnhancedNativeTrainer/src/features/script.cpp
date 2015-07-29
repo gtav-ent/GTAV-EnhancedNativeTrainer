@@ -246,6 +246,8 @@ void update_features()
 
 	check_player_model();
 
+	maintain_bodyguards();
+
 	//debug_native_investigation();
 
 	// common variables
@@ -1516,7 +1518,7 @@ void toggle_invisibility()
 void reset_wanted_level()
 {
 	PLAYER::CLEAR_PLAYER_WANTED_LEVEL(PLAYER::PLAYER_ID());
-	set_status_text("Wanted Level cleared");
+	set_status_text("Wanted level cleared");
 }
 
 int get_frame_number()

@@ -403,7 +403,7 @@ void WantedSymbolItem::handleLeftPress()
 		}
 		else
 		{
-			ss << "Wanted Level Cleared";
+			ss << "Wanted level cleared";
 		}
 		set_status_text(ss.str());
 	}

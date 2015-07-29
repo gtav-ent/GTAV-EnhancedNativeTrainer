@@ -170,11 +170,20 @@ void dismiss_bodyguards() {
 	}
 
 	spawnedBodyguards.clear();
+	requireRefreshOfBodyguardMainMenu = true;
 
 	set_status_text("Bodyguards dismissed");
 }
 
 void do_spawn_bodyguard() {
+
+	requireRefreshOfBodyguardMainMenu = true;
+
+	if (spawnedBodyguards.size() >= 7)
+	{
+		set_status_text("Cannot spawn any more bodyguards");
+		return;
+	}
 
 	DWORD bodyGuardModel = get_current_model_hash();
 
@@ -188,6 +197,7 @@ void do_spawn_bodyguard() {
 		}
 
 		int myGroup = PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_PED_ID());
+
 		Vector3 spawnCoords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER::PLAYER_PED_ID(), 2.5, 2.5, 0.0);
 		Ped bodyGuard = PED::CREATE_PED(25, bodyGuardModel, spawnCoords.x, spawnCoords.y, spawnCoords.z, 0, 0, 0);
 
@@ -253,6 +263,25 @@ void do_spawn_bodyguard() {
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(bodyGuardModel);
 	}
 	return;
+}
+
+void maintain_bodyguards()
+{
+	std::vector<Ped>::iterator iter = spawnedBodyguards.begin();
+
+	while (iter != spawnedBodyguards.end())
+	{
+		if (PED::_IS_PED_DEAD(*iter, true))
+		{
+			// clean up PED stuff, for now let's assume the game handles everything and we just worry about our vector
+			iter = spawnedBodyguards.erase(iter);
+			requireRefreshOfBodyguardMainMenu = true;
+		}
+		else
+		{
+			++iter;
+		}
+	}
 }
 
 bool process_bodyguard_menu()
