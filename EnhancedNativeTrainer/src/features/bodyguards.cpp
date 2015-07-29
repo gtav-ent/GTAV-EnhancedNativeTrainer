@@ -141,6 +141,7 @@ void dismiss_bodyguards() {
 	}
 
 	spawnedBodyguards.clear();
+	requireRefreshOfBodyguardMainMenu = true;
 
 	set_status_text("Bodyguards dismissed");
 }
