@@ -1327,7 +1327,11 @@ bool onconfirm_savedprops_menu(MenuItem<int> choice)
 		return false;
 	}
 
-	activeSavedPropSlotName = choice.caption;
+	ENTDatabase* database = get_database();
+	std::vector<SavedPropSet*> savedSets = database->get_saved_prop_sets(choice.value);
+	SavedPropSet* savedSet = savedSets.at(0);
+
+	activeSavedPropSlotName = savedSet->saveName;
 	activeSavedPropSetIndex = choice.value;
 	return process_savedprops_slot_menu(choice.value);
 }
