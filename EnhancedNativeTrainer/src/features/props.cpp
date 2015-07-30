@@ -934,13 +934,14 @@ void teleport_to_last_prop()
 	}
 
 	GAMEPLAY::GET_MODEL_DIMENSIONS(playerModel, &minDimens, &maxDimens);
-	coords.z += (maxDimens.z - minDimens.z);
+	coords.z += ((maxDimens.z - minDimens.z) / 2.0f);
 	if (minDimens.z < 0);
 	{
 		coords.z -= minDimens.z;
 	}
 
 	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, coords.x, coords.y, coords.z, 0, 0, 1);
+	ENTITY::SET_ENTITY_HEADING(playerPed, 0.0f);
 	WAIT(0);
 	set_status_text("Teleported");
 }
