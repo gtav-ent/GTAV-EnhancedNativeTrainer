@@ -914,6 +914,37 @@ std::string get_explosion_name(int id)
 	}
 }
 
+void teleport_to_last_prop()
+{
+	SpawnedPropInstance prop = get_prop_at_index(lastSelectedPropIndex);
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vector3 coords = ENTITY::GET_ENTITY_COORDS(prop.instance, 1);
+	Hash objModel = ENTITY::GET_ENTITY_MODEL(prop.instance);
+	Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
+
+	Vector3 minDimens, maxDimens;
+	GAMEPLAY::GET_MODEL_DIMENSIONS(objModel, &minDimens, &maxDimens);
+	coords.y -= max(3.5f, 2.0f + 0.5f * (maxDimens.y - minDimens.y));
+
+	float newZ;
+	if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z + 3.0f, &newZ))
+	{
+		coords.z = newZ;
+	}
+
+	GAMEPLAY::GET_MODEL_DIMENSIONS(playerModel, &minDimens, &maxDimens);
+	coords.z += (maxDimens.z - minDimens.z);
+	if (minDimens.z < 0);
+	{
+		coords.z -= minDimens.z;
+	}
+
+	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, coords.x, coords.y, coords.z, 0, 0, 1);
+	WAIT(0);
+	set_status_text("Teleported");
+}
+
 void explode_last_prop(int explosionID)
 {
 	SpawnedPropInstance prop = get_prop_at_index(lastSelectedPropIndex);
@@ -955,6 +986,10 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 	{
 		process_prop_explosion_choices();
 	}
+	else if (choice.value == 5) //teleport there
+	{
+		teleport_to_last_prop();
+	}
 	return false;
 }
 
@@ -992,6 +1027,12 @@ bool prop_spawned_single_instance_menu(int index)
 	item->value = 2;
 	item->caption = "Move This Object";
 	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->value = 5;
+	item->caption = "Teleport To Object";
+	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	FunctionDrivenToggleMenuItem<int>* togItem = new FunctionDrivenToggleMenuItem<int>();
