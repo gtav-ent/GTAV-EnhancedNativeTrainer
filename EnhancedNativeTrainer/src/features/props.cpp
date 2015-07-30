@@ -207,7 +207,6 @@ void do_spawn_model(Hash propHash, char* model, std::string title, SimpleVector3
 		record.hasGravity = gravity;
 
 		propsWeCreated.push_back(record);
-		manage_prop_set();
 	}
 	else
 	{
@@ -270,7 +269,7 @@ bool onconfirm_prop_selection(MenuItem<int> choice)
 		}
 	}
 
-	if (choice.value == -1)
+	if (choice.value == -1) //spawn all in category
 	{
 		int i = 0;
 		for each (PropInfo prop  in filtered)
@@ -282,11 +281,13 @@ bool onconfirm_prop_selection(MenuItem<int> choice)
 
 			do_spawn_model_by_player(prop, true);
 		}
+		manage_prop_set();
 		return false;
 	}
 
 	PropInfo prop = filtered.at(choice.value);
 	do_spawn_model_by_player(prop, false);
+	manage_prop_set();
 
 	return false;
 }
@@ -1089,6 +1090,8 @@ bool spawn_saved_props(int slot, std::string caption)
 
 	ENTDatabase* database = get_database();
 
+	manage_prop_set();
+
 	std::vector<SavedPropSet*> saveProps = database->get_saved_prop_sets(slot);
 	SavedPropSet* savedSet = saveProps.at(0);
 	database->populate_saved_prop_set(savedSet);
@@ -1102,6 +1105,8 @@ bool spawn_saved_props(int slot, std::string caption)
 		WAIT(0);
 		make_periodic_feature_call();
 	}
+
+	manage_prop_set();
 
 	delete savedSet;
 
@@ -1307,7 +1312,7 @@ bool process_savedprops_menu()
 		for each (SavedPropSet *sv in savedSets)
 		{
 			std::ostringstream ss;
-			ss << sv->saveName << " (" << sv->size() << ")";
+			ss << sv->saveName << " (" << sv->dbSize << ")";
 			MenuItem<int> *item = new MenuItem<int>();
 			item->isLeaf = false;
 			item->value = sv->rowID;

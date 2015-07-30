@@ -1845,11 +1845,13 @@ std::vector<SavedPropSet*> ENTDatabase::get_saved_prop_sets(int index)
 	const char *pzTest;
 
 	std::stringstream ss;
-	ss << "select * from ENT_PROP_SETS";
+	ss << "SELECT s.id, s.name, COUNT(i.id) AS size FROM ENT_PROP_SETS s LEFT JOIN ENT_PROP_INSTANCES i ON s.id = i.parentId ";
 	if (index != -1)
 	{
-		ss << " WHERE id = ? ";
+		ss << " WHERE s.id = ? ";
 	}
+	ss << " GROUP BY i.parentId ORDER BY s.id";
+
 	auto qStr = ss.str();
 	int rc = sqlite3_prepare_v2(db, qStr.c_str(), qStr.length(), &stmt, &pzTest);
 
@@ -1873,6 +1875,7 @@ std::vector<SavedPropSet*> ENTDatabase::get_saved_prop_sets(int index)
 			int index = 0;
 			set->rowID = sqlite3_column_int(stmt, index++);
 			set->saveName = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, index++)));
+			set->dbSize = sqlite3_column_int(stmt, index++);;
 
 			results.push_back(set);
 
@@ -1997,13 +2000,8 @@ bool ENTDatabase::save_props(std::vector<SavedPropDBRow*> props, std::string sav
 				sqlite3_bind_int(inst_stmt, index++, prop->hasGravity);
 				sqlite3_bind_int(inst_stmt, index++, prop->alpha);
 
-				int stepOK = sqlite3_step(inst_stmt);
-				if (stepOK != SQLITE_OK)
-				{
-					write_text_to_log_file("Prop instance save failed (step)");
-					write_text_to_log_file(sqlite3_errmsg(db));
-					result = false;
-				}
+				sqlite3_step(inst_stmt);
+				
 				int finalOK = sqlite3_finalize(inst_stmt);
 				if (finalOK != SQLITE_OK)
 				{

@@ -61,6 +61,7 @@ class SavedPropSet
 public:
 	std::vector<SavedPropDBRow*> items;
 	int rowID;
+	int dbSize; //size as returned by database
 	std::string saveName;
 
 	inline SavedPropSet()
