@@ -530,7 +530,7 @@ int activeLineIndexMain = 0;
 
 bool onconfirm_main_menu(MenuItem<int> choice)
 {
-	switch (activeLineIndexMain)
+	switch (choice.value)
 	{
 	case 0:
 		process_player_menu();
