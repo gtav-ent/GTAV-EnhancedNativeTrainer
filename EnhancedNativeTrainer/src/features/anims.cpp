@@ -12,6 +12,14 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <sstream>
 #include <vector>
 
+const std::vector<std::string> SCENARIOS_ANIMAL_VALUES = { "PROP_BIRD_IN_TREE", "PROP_BIRD_TELEGRAPH_POLE", "WORLD_BOAR_GRAZING", "WORLD_CAT_SLEEPING_GROUND", "WORLD_CAT_SLEEPING_LEDGE", "WORLD_CHICKENHAWK_FEEDING", "WORLD_CHICKENHAWK_STANDING", "WORLD_CORMORANT_STANDING", "WORLD_COW_GRAZING", "WORLD_COYOTE_HOWL", "WORLD_COYOTE_REST", "WORLD_COYOTE_WANDER", "WORLD_CROW_FEEDING", "WORLD_CROW_STANDING", "WORLD_DEER_GRAZING", "WORLD_FISH_IDLE", "WORLD_DOG_BARKING_SHEPHERD", "WORLD_DOG_SITTING_SHEPHERD", "WORLD_GULL_FEEDING", "WORLD_GULL_STANDING", "WORLD_HEN_PECKING", "WORLD_HEN_STANDING", "WORLD_MOUNTAIN_LION_REST", "WORLD_MOUNTAIN_LION_WANDER", "WORLD_PIG_GRAZING", "WORLD_PIGEON_FEEDING", "WORLD_PIGEON_STANDING", "WORLD_RABBIT_EATING", "WORLD_RATS_EATING", "WORLD_DOG_BARKING_RETRIEVER", "WORLD_DOG_SITTING_RETRIEVER", "WORLD_DOG_BARKING_ROTTWEILER", "WORLD_DOG_SITTING_ROTTWEILER", "WORLD_SHARK_SWIM", "WORLD_DOG_BARKING_SMALL", "WORLD_DOG_SITTING_SMALL" };
+const std::vector<std::string> SCENARIOS_ANIMAL_CAPTIONS = { "Bird In Tree", "Bird On Telegraph Pole", "Boar Grazing", "Cat Sleeping On Ground", "Cat Sleeping On Ledge", "Chickenhawk Feeding", "Chickenhawk Standing", "Cormorant Standing", "Cow Grazing", "Coyote Howling", "Coyote Resting", "Coyote Wandering", "Crow Feeding", "Crow Standing", "Deer Grazing", "Fish Idle", "German Shepherd: Barking", "German Shepherd: Sitting", "Gull Feeding", "Gull Standing", "Hen Pecking", "Hen Standing", "Lion Resting", "Lion Wandering", "Pig Grazing", "Pigeon Feeding", "Pigeon Standing", "Rabbit Eating", "Rats Eating", "Retriever: Barking", "Retriever: Sitting", "Rottweiler: Barking", "Rottweiler: Sitting", "Shark Swimming", "Small Dog: Barking", "Small Dog: Sitting" };
+
+const std::vector<std::string> SCENARIOS_NORMAL_VALUES = { "PROP_HUMAN_BBQ", "PROP_HUMAN_BUM_BIN", "WORLD_HUMAN_BUM_FREEWAY", "PROP_HUMAN_BUM_SHOPPING_CART", "WORLD_HUMAN_BUM_SLUMPED", "WORLD_HUMAN_BUM_STANDING", "WORLD_HUMAN_BUM_WASH", "WORLD_HUMAN_CAR_PARK_ATTENDANT", "WORLD_HUMAN_CHEERING", "WORLD_HUMAN_MAID_CLEAN", "CODE_HUMAN_POLICE_CROWD_CONTROL", "WORLD_HUMAN_COP_IDLES", "CODE_HUMAN_POLICE_INVESTIGATE", "CODE_HUMAN_COWER", "CODE_HUMAN_STAND_COWER", "WORLD_HUMAN_CONST_DRILL", "WORLD_HUMAN_DRINKING", "WORLD_HUMAN_AA_COFFEE", "WORLD_HUMAN_DRUG_DEALER", "WORLD_HUMAN_DRUG_DEALER_HARD", "PROP_HUMAN_SEAT_MUSCLE_BENCH_PRESS", "PROP_HUMAN_SEAT_MUSCLE_BENCH_PRESS_PRISON", "PROP_HUMAN_MUSCLE_CHIN_UPS", "PROP_HUMAN_MUSCLE_CHIN_UPS_ARMY", "PROP_HUMAN_MUSCLE_CHIN_UPS_PRISON", "WORLD_HUMAN_MUSCLE_FLEX", "WORLD_HUMAN_MUSCLE_FREE_WEIGHTS", "WORLD_HUMAN_PUSH_UPS", "WORLD_HUMAN_SIT_UPS", "WORLD_HUMAN_MOBILE_FILM_SHOCKING", "WORLD_HUMAN_STAND_FISHING", "WORLD_HUMAN_GARDENER_LEAF_BLOWER", "WORLD_HUMAN_GARDENER_PLANT", "WORLD_HUMAN_GOLF_PLAYER", "WORLD_HUMAN_GUARD_PATROL", "WORLD_HUMAN_SECURITY_SHINE_TORCH", "WORLD_HUMAN_GUARD_STAND", "WORLD_HUMAN_GUARD_STAND_ARMY", "WORLD_HUMAN_HAMMERING", "WORLD_HUMAN_HANG_OUT_STREET", "WORLD_HUMAN_HIKER_STANDING", "WORLD_HUMAN_CLIPBOARD", "WORLD_HUMAN_HUMAN_STATUE", "WORLD_HUMAN_JANITOR", "WORLD_HUMAN_JOG_STANDING", "WORLD_HUMAN_LEANING", "WORLD_HUMAN_BINOCULARS", "CODE_HUMAN_MEDIC_TIME_OF_DEATH", "CODE_HUMAN_MEDIC_KNEEL", "CODE_HUMAN_MEDIC_TEND_TO_DEAD", "PROP_HUMAN_MOVIE_BULB", "PROP_HUMAN_MOVIE_STUDIO_LIGHT", "WORLD_HUMAN_MUSICIAN", "WORLD_HUMAN_PAPARAZZI", "CODE_HUMAN_PARK_CAR", "WORLD_HUMAN_PARTYING", "WORLD_HUMAN_PICNIC", "WORLD_HUMAN_PROSTITUTE_HIGH_CLASS", "WORLD_HUMAN_PROSTITUTE_LOW_CLASS", "PROP_HUMAN_SEAT_ARMCHAIR", "PROP_HUMAN_SEAT_BAR", "PROP_HUMAN_SEAT_COMPUTER", "PROP_HUMAN_SEAT_BENCH", "PROP_HUMAN_SEAT_BENCH_DRINK", "PROP_HUMAN_SEAT_BENCH_DRINK_BEER", "PROP_HUMAN_SEAT_BENCH_FOOD", "PROP_HUMAN_SEAT_CHAIR", "PROP_HUMAN_SEAT_CHAIR_DRINK", "PROP_HUMAN_SEAT_CHAIR_DRINK_BEER", "PROP_HUMAN_SEAT_CHAIR_FOOD", "PROP_HUMAN_SEAT_CHAIR_UPRIGHT", "PROP_HUMAN_SEAT_DECKCHAIR", "PROP_HUMAN_SEAT_DECKCHAIR_DRINK", "PROP_HUMAN_SEAT_CHAIR_MP_PLAYER", "WORLD_HUMAN_SEAT_LEDGE", "WORLD_HUMAN_SEAT_LEDGE_EATING", "WORLD_HUMAN_SEAT_STEPS", "WORLD_HUMAN_SEAT_WALL", "WORLD_HUMAN_SEAT_WALL_EATING", "WORLD_HUMAN_SEAT_WALL_TABLET", "PROP_HUMAN_SEAT_SEWING", "PROP_HUMAN_SEAT_SUNLOUNGER", "PROP_HUMAN_SEAT_STRIP_WATCH", "PROP_HUMAN_SEAT_BUS_STOP_WAIT", "WORLD_HUMAN_SMOKING", "WORLD_HUMAN_AA_SMOKE", "WORLD_HUMAN_SMOKING_POT", "WORLD_HUMAN_STAND_FIRE", "PROP_HUMAN_STAND_IMPATIENT", "WORLD_HUMAN_STAND_IMPATIENT", "WORLD_HUMAN_STAND_IMPATIENT_UPRIGHT", "WORLD_HUMAN_STAND_MOBILE", "WORLD_HUMAN_STAND_MOBILE_UPRIGHT", "WORLD_HUMAN_STRIP_WATCH_STAND", "WORLD_HUMAN_STUPOR", "WORLD_HUMAN_SUNBATHE", "WORLD_HUMAN_SUNBATHE_BACK", "WORLD_HUMAN_SUPERHERO", "WORLD_HUMAN_SWIMMING", "WORLD_HUMAN_TENNIS_PLAYER", "EAR_TO_TEXT", "EAR_TO_TEXT_FAT", "WORLD_HUMAN_TOURIST_MAP", "WORLD_HUMAN_TOURIST_MOBILE", "PROP_HUMAN_ATM", "PROP_HUMAN_PARKING_METER", "WORLD_HUMAN_VEHICLE_MECHANIC", "CODE_HUMAN_CROSS_ROAD_WAIT", "WORLD_HUMAN_WELDING", "WORLD_HUMAN_WINDOW_SHOP_BROWSE", "WORLD_HUMAN_YOGA" };
+const std::vector<std::string> SCENARIOS_NORMAL_CAPTIONS = { "BBQ", "Bum: Bin", "Bum: On Freeway", "Bum: Shopping Cart", "Bum: Slumped", "Bum: Standing", "Bum: Washing", "Car Park Attendant", "Cheering", "Cleaning Maid", "Cop: Crowd Control", "Cop: Idle", "Cop: Investigating", "Cowering", "Cowering (Standing)", "Drilling", "Drinking", "Drinking Coffee", "Drug Dealer", "Drug Dealer (Hard)", "Exercise: Bench Press", "Exercise: Bench Press (Prison)", "Exercise: Chin Ups", "Exercise: Chin Ups (Army)", "Exercise: Chin Ups (Prison)", "Exercise: Flexing Muscles", "Exercise: Lifting Weights", "Exercise: Push Ups", "Exercise: Sit Ups", "Filming Shocking Event", "Fishing (Standing)", "Gardener: Leaf Blower", "Gardener: Planting", "Golfer", "Guard: Patrolling", "Guard: Shining Torch", "Guard: Standing", "Guard: Standing, Army", "Hammering", "Hanging Out", "Hiker: Standing", "Holding Clipboard", "Human Statue", "Janitor", "Jogger: Standing", "Leaning", "Looking Through Binoculars", "Medic: Declaring Death", "Medic: Kneeling", "Medic: Tending To Injured", "Movie Bulb", "Movie Studio Lighting", "Musician", "Paparazzi", "Parking Car", "Partying", "Picnicking", "Prostitute: High Class", "Prostitute: Low Class", "Sitting: Armchair", "Sitting: At Bar", "Sitting: At Computer", "Sitting: Bench", "Sitting: Bench, Drinking", "Sitting: Bench, Drinking Beer", "Sitting: Bench, Eating", "Sitting: Chair", "Sitting: Chair, Drinking", "Sitting: Chair, Drinking Beer", "Sitting: Chair, Eating", "Sitting: Chair, Upright", "Sitting: Deckchair", "Sitting: Deckchair, Drinking", "Sitting: MP Player", "Sitting: On Ledge", "Sitting: On Ledge, Eating", "Sitting: On Steps", "Sitting: On Wall", "Sitting: On Wall, Eating", "Sitting: On Wall, Tablet", "Sitting: Sewing", "Sitting: Sun Lounger", "Sitting: Watching Stripper", "Sitting; At Bus Stop", "Smoking Cigarette 1", "Smoking Cigarette 2", "Smoking Pot", "Standing: By Fire", "Standing: Impatient 1", "Standing: Impatient 2", "Standing: Impatient, Upright", "Standing: On Mobile", "Standing: On Mobile, Upright", "Standing: Watching Stripper", "Stupor", "Sunbathing", "Sunbathing On Back", "Superhero", "Swimming", "Tennis Player", "Texting 1", "Texting 2", "Tourist: Looking At Map", "Tourist: On Mobile", "Using ATM", "Using Parking Meter", "Vehicle Mechanic", "Waiting To Cross Road", "Welding", "Window Shopping", "Yoga" };
+
+int activeScenarioLineIndex[2] { 0, 0 };
+
 TreeNode *rootNode;
 
 TreeNode *facialsNode;
@@ -35,6 +43,7 @@ const int CATEGORY_MOVE_RUN = 93;
 const int CATEGORY_MOVE_CLIPSET = 96;
 const int CATEGORY_FACIAL_NOW = 94;
 const int CATEGORY_GENERAL_NOW = 95;
+const int CATEGORY_SCENARIOS = 96;
 
 bool loaded = false;
 
@@ -22310,8 +22319,15 @@ bool process_anims_menu()
 
 bool onconfirm_anim_top_menu(MenuItem<int> choice)
 {
-	currentAnimMenuMode = choice.value;
-	process_anims_menu();
+	if (choice.value == CATEGORY_SCENARIOS)
+	{
+		process_scenarios_menu_l1();
+	}
+	else
+	{
+		currentAnimMenuMode = choice.value;
+		process_anims_menu();
+	}
 	return false;
 }
 
@@ -22322,6 +22338,12 @@ bool process_anims_menu_top()
 	int i = 0;
 
 	MenuItem<int> *item = new MenuItem<int>();
+	item->isLeaf = false;
+	item->caption = "Scenarios";
+	item->value = CATEGORY_SCENARIOS;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
 	item->isLeaf = false;
 	item->caption = "Facial Anims: Immediate Play";
 	item->value = CATEGORY_FACIAL_NOW;
@@ -22363,7 +22385,7 @@ bool process_anims_menu_top()
 	item->value = CATEGORY_GENERAL_NOW;
 	menuItems.push_back(item);
 
-	draw_generic_menu<int>(menuItems, 0, "Anim Types", onconfirm_anim_top_menu, NULL, NULL, NULL);
+	draw_generic_menu<int>(menuItems, 0, "Animation Types", onconfirm_anim_top_menu, NULL, NULL, NULL);
 
 	return false;
 }
@@ -22439,4 +22461,98 @@ void cleanup_anims()
 	{
 		delete currentMenuNode;
 	}
+}
+
+bool onconfirm_scenarios_menu_l2(MenuItem<int> choice)
+{
+	activeScenarioLineIndex[1] = choice.value;
+
+	std::vector<MenuItem<int>*> menuItems;
+	std::string value;
+	std::string caption;
+	if (activeScenarioLineIndex[0] == 0)
+	{
+		value = SCENARIOS_NORMAL_VALUES[activeScenarioLineIndex[1]];
+	}
+	else
+	{
+		value = SCENARIOS_ANIMAL_VALUES[activeScenarioLineIndex[1]]; 
+	}
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	AI::CLEAR_PED_TASKS(playerPed);
+	set_status_text("Press Menu Back to stop this scenario");
+	AI::TASK_START_SCENARIO_IN_PLACE(playerPed, (char*) value.c_str(), 0, true);
+
+	while (true)
+	{
+		if (IsKeyJustUp(KeyConfig::KEY_MENU_BACK) || IsControllerButtonJustUp(KeyConfig::KEY_MENU_BACK))
+		{
+			break;
+		}
+		WAIT(0);
+		make_periodic_feature_call();
+	}
+
+	AI::CLEAR_PED_TASKS(playerPed);
+
+	return false;
+}
+
+bool process_scenarios_menu_l2(int set)
+{
+	std::vector<MenuItem<int>*> menuItems;
+	std::vector<std::string> captions;
+	std::string menuCaption;
+	if (set == 0)
+	{
+		menuCaption = "Human Scenarios";
+		captions = SCENARIOS_NORMAL_CAPTIONS;
+	}
+	else
+	{
+		menuCaption = "Animal Scenarios";
+		captions = SCENARIOS_ANIMAL_CAPTIONS;
+	}
+
+	int i = 0;
+	for each (std::string scenario in captions)
+	{
+		MenuItem<int> *item = new MenuItem<int>();
+		item->caption = scenario;
+		item->value = i++;
+		menuItems.push_back(item);
+	}
+
+	bool result = draw_generic_menu<int>(menuItems, &activeScenarioLineIndex[1], menuCaption, onconfirm_scenarios_menu_l2, NULL, NULL, NULL);
+	return result;
+}
+
+bool onconfirm_scenarios_menu_l1(MenuItem<int> choice)
+{
+	if (activeScenarioLineIndex[0] != choice.value)
+	{
+		activeScenarioLineIndex[0] = choice.value;
+		activeScenarioLineIndex[1] = 0;
+	}
+	return process_scenarios_menu_l2(choice.value);
+}
+
+bool process_scenarios_menu_l1()
+{
+	std::vector<MenuItem<int>*> menuItems;
+	int i = 0;
+		
+	MenuItem<int> *item = new MenuItem<int>();
+	item->caption = "Human Scenarios";
+	item->value = 0;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Animal Scenarios";
+	item->value = 1;
+	menuItems.push_back(item);
+
+	bool result = draw_generic_menu<int>(menuItems, &activeScenarioLineIndex[0], "Scenarios", onconfirm_scenarios_menu_l1, NULL, NULL, NULL);
+	return false;
 }

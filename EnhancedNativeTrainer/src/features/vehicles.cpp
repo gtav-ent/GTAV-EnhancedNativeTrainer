@@ -526,7 +526,8 @@ bool did_player_just_enter_vehicle(Ped playerPed) {
 	return false;
 }
 
-void set_old_vehicle_state(bool updatedState) { // used by other functions, like teleporting into cars
+void set_old_vehicle_state(bool updatedState)
+{ // used by other functions, like teleporting into cars
 	oldVehicleState = updatedState;
 }
 
