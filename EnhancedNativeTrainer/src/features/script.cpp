@@ -637,7 +637,12 @@ void process_main_menu()
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
-	draw_generic_menu<int>(menuItems, &activeLineIndexMain, captionSS.str(), onconfirm_main_menu, NULL, NULL);
+	MenuParameters<int> params(menuItems, captionSS.str());
+	params.menuSelectionPtr = &activeLineIndexMain;
+	params.onConfirmation = onconfirm_main_menu;
+	params.sanitiseHeaderText = false;
+
+	draw_generic_menu<int>(params);
 }
 
 void reset_globals()

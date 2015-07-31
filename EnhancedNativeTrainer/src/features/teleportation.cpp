@@ -461,6 +461,13 @@ void get_chauffeur_to_marker()
 	if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
 		veh = PED::GET_VEHICLE_PED_IS_IN(playerPed, 0);
+
+		if (is_this_a_heli_or_plane(veh))
+		{
+			set_status_text("Aircraft chauffeuring not supported yet");
+			return;
+		}
+
 		if (!VEHICLE::IS_VEHICLE_SEAT_FREE(veh, -1))
 		{
 			Ped oldDriver = VEHICLE::GET_PED_IN_VEHICLE_SEAT(veh, -1);
@@ -503,7 +510,15 @@ void get_chauffeur_to_marker()
 	GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(blipCoords.x, blipCoords.y, blipCoords.z, &blipCoords.z);
 	blipCoords.z += 3.0;
 
-	Hash driverPedHash = GAMEPLAY::GET_HASH_KEY("A_C_CHIMP");	
+	Hash driverPedHash;
+	if (is_this_a_heli_or_plane(veh))
+	{
+		driverPedHash = GAMEPLAY::GET_HASH_KEY("s_m_y_pilot_01");
+	}
+	else
+	{
+		driverPedHash = GAMEPLAY::GET_HASH_KEY("A_C_CHIMP");
+	}
 	STREAMING::REQUEST_MODEL(driverPedHash);
 	while (!STREAMING::HAS_MODEL_LOADED(driverPedHash))
 	{
@@ -537,15 +552,6 @@ void get_chauffeur_to_marker()
 	PED::SET_PED_INTO_VEHICLE(driver, veh, -1);
 	set_old_vehicle_state(false); // set old vehicle state to false since we changed cars but didn't actually exit the last one
 
-	for (int i = 0; i <= 8; i++)
-	{
-		if (VEHICLE::IS_VEHICLE_SEAT_FREE(veh, i))
-		{
-			AI::TASK_WARP_PED_INTO_VEHICLE(PLAYER::PLAYER_PED_ID(), veh, i);
-			break;
-		}
-	}
-
 	/* DRIVING MODES :
 	0 = Normal behaviour but doesn't recognize other cars on the road, should only be used without ped cars in world.
 	1 = Drives legit and does no overtakes.Drives carefully
@@ -561,13 +567,20 @@ void get_chauffeur_to_marker()
 	*/
 	//AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(ped, veh, blipCoords.x, blipCoords.y, blipCoords.z, 100, 5, chauffTolerance);
 
-	if (get_euc_distance(playerCoords, blipCoords) >= 1000.0)
+	if (is_this_a_heli_or_plane(veh))
 	{
-		AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(driver, veh, blipCoords.x, blipCoords.y, blipCoords.z, 40.0, 4, chauffTolerance);
+		//TODO
 	}
 	else
 	{
-		AI::TASK_VEHICLE_DRIVE_TO_COORD(driver, veh, blipCoords.x, blipCoords.y, blipCoords.z, 40.0, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, -1.0, -1.0);
+		if (get_euc_distance(playerCoords, blipCoords) >= 1000.0)
+		{
+			AI::TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE(driver, veh, blipCoords.x, blipCoords.y, blipCoords.z, 40.0, 4, chauffTolerance);
+		}
+		else
+		{
+			AI::TASK_VEHICLE_DRIVE_TO_COORD(driver, veh, blipCoords.x, blipCoords.y, blipCoords.z, 40.0, 1, ENTITY::GET_ENTITY_MODEL(veh), 4, -1.0, -1.0);
+		}
 	}
 }
 
