@@ -782,7 +782,7 @@ bool draw_generic_menu(MenuParameters<T> params)
 	bool result = false;
 	DWORD waitTime = 150;
 	const int totalItems = (int) params.items.size();
-	const int itemsPerLine = 10;
+	const int itemsPerLine = 12;
 	const int lineCount = (int)(ceil((double)totalItems / (double)itemsPerLine));
 
 	int currentSelectionIndex;
@@ -886,10 +886,10 @@ bool draw_generic_menu(MenuParameters<T> params)
 
 			for (int i = 0; i < itemsOnThisLine; i++)
 			{
-				float lineSpacingY = 10.0f;
+				float lineSpacingY = 8.0f;
 
 				float lineWidth = 350.0f;
-				float lineHeight = 35.0f;
+				float lineHeight = 31.0f;
 
 				float lineTop = 75.0 + (i * (lineHeight + lineSpacingY));
 				float lineLeft = 35.0f;
