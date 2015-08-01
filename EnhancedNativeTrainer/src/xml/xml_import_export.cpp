@@ -6,6 +6,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "xml_import_export.h"
 #include "..\version.h"
+#include "..\features\script.h"
 
 #include "..\debug\debuglog.h"
 
@@ -67,9 +68,9 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile)
 		objectNode->setAttribute(L"pitch", _variant_t(row->pitch));
 		objectNode->setAttribute(L"yaw", _variant_t(row->yaw));
 
-		objectNode->setAttribute(L"isImmovable", _variant_t((bool)(row->isImmovable == 1)));
-		objectNode->setAttribute(L"isInvincible", _variant_t((bool)(row->isInvincible == 1)));
-		objectNode->setAttribute(L"hasGravity", _variant_t((bool)(row->hasGravity == 1)));
+		objectNode->setAttribute(L"isImmovable", _variant_t(row->isImmovable));
+		objectNode->setAttribute(L"isInvincible", _variant_t(row->isInvincible));
+		objectNode->setAttribute(L"hasGravity", _variant_t(row->hasGravity));
 
 		objectNode->setAttribute(L"alpha", _variant_t(row->alpha));
 		objectNode->setAttribute(L"counter", _variant_t(row->counter));
@@ -100,18 +101,175 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile)
 	}
 }
 
-SavedPropSet* parse_xml_for_propset(HANDLE inputFile)
+bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 {
 	CoInitialize(NULL);
 
 	//read XML
 	MSXML2::IXMLDOMDocumentPtr spXMLDoc;
 	spXMLDoc.CreateInstance(__uuidof(MSXML2::DOMDocument60));
-	if (!spXMLDoc->load(inputFile))
+	if (!spXMLDoc->load(inputFile.c_str()))
 	{
-		write_text_to_log_file("No config found, using defaults");
+		write_text_to_log_file("No XML file found");
+		return false;
 	}
-	return false;
+
+	IXMLDOMNodeListPtr topNodes = spXMLDoc->selectNodes(L"//object-set");
+	{
+		IXMLDOMNode *node;
+		topNodes->get_item(0, &node);
+
+		IXMLDOMNamedNodeMap *attribs;
+		node->get_attributes(&attribs);
+		long length_attribs;
+		attribs->get_length(&length_attribs);
+
+		for (long j = 0; j < length_attribs; j++)
+		{
+			IXMLDOMNode *attribNode;
+			attribs->get_item(j, &attribNode);
+			attribNode->get_nodeName(&xmlParser_bstr);
+			if (wcscmp(xmlParser_bstr, L"set-name") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				set->saveName = _com_util::ConvertBSTRToString(V_BSTR(&var));
+			}
+
+			SysFreeString(xmlParser_bstr);
+			attribNode->Release();
+		}
+
+		attribs->Release();
+		node->Release();
+	}
+
+	IXMLDOMNodeListPtr nodes = spXMLDoc->selectNodes(L"//object-set/object");
+	long length;
+	nodes->get_length(&length);
+	for (int i = 0; i < length; i++)
+	{
+		WAIT(0);
+		make_periodic_feature_call();
+
+		IXMLDOMNode *node;
+		nodes->get_item(i, &node);
+		IXMLDOMNamedNodeMap *attribs;
+		node->get_attributes(&attribs);
+
+		SavedPropDBRow* row = new SavedPropDBRow();
+
+		long length_attribs;
+		attribs->get_length(&length_attribs);
+
+		for (long j = 0; j < length_attribs; j++)
+		{
+			IXMLDOMNode *attribNode;
+			attribs->get_item(j, &attribNode);
+			attribNode->get_nodeName(&xmlParser_bstr);
+			if (wcscmp(xmlParser_bstr, L"title") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->title = _com_util::ConvertBSTRToString(V_BSTR(&var));
+			}
+			else if (wcscmp(xmlParser_bstr, L"model") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->model = var.intVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"posX") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->posX = var.fltVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"posY") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->posY = var.fltVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"posZ") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->posY = var.fltVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"roll") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->roll = var.fltVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"pitch") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->pitch = var.fltVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"yaw") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->yaw = var.fltVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"isImmovable") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->isImmovable = var.intVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"isInvincible") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->isInvincible = var.intVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"hasGravity") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->hasGravity = var.intVal;
+			}
+			else if (wcscmp(xmlParser_bstr, L"alpha") == 0)
+			{
+				VARIANT var;
+				VariantInit(&var);
+				attribNode->get_nodeValue(&var);
+				row->alpha = var.intVal;
+			}
+
+			SysFreeString(xmlParser_bstr);
+			attribNode->Release();
+		}
+
+		set->items.push_back(row);
+
+		attribs->Release();
+		node->Release();
+	}
+
+	set->dbSize = set->items.size();
+
+	//nodes->Release(); //don't do this, it crashes on exit
+	spXMLDoc.Release();
+	CoUninitialize();
+
+	return true;
 }
 
 void handle_error(IXMLDOMDocumentPtr doc)

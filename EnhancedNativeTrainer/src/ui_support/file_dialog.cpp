@@ -113,11 +113,24 @@ void show_file_open_dialog(std::string title, LoadFileDialogCallback* callback)
 			FILE_ATTRIBUTE_NORMAL,
 			(HANDLE)NULL);
 
-		callback->filePath = hf;
-		callback->success = true;
+		if (hf == INVALID_HANDLE_VALUE)
+		{
+			write_text_to_log_file("CreateFile returned invalid handle");
+			std::ostringstream ss;
+			ss << "Selected file was: " << ofn.lpstrFile << " and error " << GetLastError();
+			write_text_to_log_file(ss.str());
+			callback->success = false;
+		}
+		else
+		{
+			CloseHandle(hf);
+			callback->filePath = ofn.lpstrFile;
+			callback->success = true;
+		}
 	}
 	else
 	{
+		write_text_to_log_file("GetOpenFileName returned false");
 		callback->success = false;
 	}
 

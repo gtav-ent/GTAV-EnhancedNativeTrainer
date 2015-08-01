@@ -23,6 +23,7 @@ public:
 	void* data;
 	bool complete = false;
 	bool success = false;
+	bool processed = false;
 	std::string filePath;
 };
 
@@ -31,8 +32,9 @@ class LoadFileDialogCallback
 public:
 	int requestID = LAST_REQUEST++;
 	bool complete = false;
+	bool processed = false;
 	bool success = false;
-	HANDLE filePath = 0;
+	std::string filePath;
 };
 
 //the public calls

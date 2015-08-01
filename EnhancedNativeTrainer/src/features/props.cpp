@@ -1391,6 +1391,20 @@ bool onconfirm_savedprops_menu(MenuItem<int> choice)
 		}
 		return false;
 	}
+	else if (choice.value == -2)
+	{
+		std::ostringstream ss;
+		ss << "Load Object Set From XML";
+		auto title = ss.str();
+
+		LoadFileDialogCallback* cb = new LoadFileDialogCallback();
+		activeLoadFileCallbacks.insert(cb);
+
+		set_status_text("Please wait, a load dialog should appear shortly...");
+
+		show_load_dialog_in_thread(title, cb);
+		return false;
+	}
 
 	ENTDatabase* database = get_database();
 	std::vector<SavedPropSet*> savedSets = database->get_saved_prop_sets(choice.value);
@@ -1418,6 +1432,12 @@ bool process_savedprops_menu()
 		item->isLeaf = false;
 		item->value = -1;
 		item->caption = "Create New Saved Object Set";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = -2;
+		item->caption = "Import Object Set From XML";
 		menuItems.push_back(item);
 
 		for each (SavedPropSet *sv in savedSets)
@@ -1501,15 +1521,48 @@ void update_props_pending_dialogs()
 	for (it2 = activeLoadFileCallbacks.begin(); it2 != activeLoadFileCallbacks.end();)
 	{
 		LoadFileDialogCallback* loadCB = *it2;
-		if (loadCB->complete)
+		if (loadCB->complete && !loadCB->processed)
 		{
+			loadCB->processed = true;
 			if (loadCB->success)
 			{
-				set_status_text("Load successful");
+				set_status_text("Object file found - parsing content...");
+				SavedPropSet* set = new SavedPropSet();
+				bool success = parse_xml_for_propset(loadCB->filePath, set);
+				if (success)
+				{
+					std::ostringstream ss;
+					ss << set->saveName;
+					auto existingText = ss.str();
+					std::string result = show_keyboard(NULL, (char*)existingText.c_str());
+					if (!result.empty())
+					{
+						ENTDatabase* database = get_database();
+						bool dbLoaded = database->save_props(set->items, result, -1);
+						if (dbLoaded)
+						{
+							set_status_text("Objects imported successfully");
+							requireRefreshOfPropsSaveSlots = true;
+						}
+						else
+						{
+							set_status_text("Object import into database failed");
+						}
+					}
+					else
+					{
+						write_text_to_log_file("Keyboard returned empty");
+						set_status_text("Object load cancelled");
+					}
+				}
+				else
+				{
+					set_status_text("Object load failed");
+				}
 			}
 			else
 			{
-				set_status_text("Load failed/cancelled");
+				set_status_text("Object load cancelled");
 			}
 			it2 = activeLoadFileCallbacks.erase(it2);
 			delete loadCB;

@@ -15,7 +15,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile);
 
-SavedPropSet* parse_xml_for_propset(HANDLE inputFile);
+bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set);
 
 void handle_error(IXMLDOMDocumentPtr doc);
 
