@@ -250,6 +250,8 @@ void update_features()
 
 	maintain_bodyguards();
 
+	update_props_pending_dialogs();
+
 	//debug_native_investigation();
 
 	// common variables
@@ -1053,12 +1055,6 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_weapons(&settings);
 
 	handle_generic_settings_bodyguards(&settings);
-}
-
-DWORD WINAPI show_dialog_thread(LPVOID lpParameter)
-{
-	show_file_open_dialog("Open ENT File");
-	return 0;
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)

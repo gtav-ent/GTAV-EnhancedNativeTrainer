@@ -40,6 +40,7 @@
     <ClCompile Include="src\features\world.cpp" />
     <ClCompile Include="src\ui_support\file_dialog.cpp" />
     <ClCompile Include="src\utils.cpp" />
+    <ClCompile Include="src\xml\xml_import_export.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\xinput\CXBOXController.h" />
@@ -75,6 +76,7 @@
     <ClInclude Include="src\ui_support\file_dialog.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\version.h" />
+    <ClInclude Include="src\xml\xml_import_export.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml">

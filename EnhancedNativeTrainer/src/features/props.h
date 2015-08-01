@@ -83,3 +83,5 @@ bool props_individual_slot_menu_interrupt();
 bool props_save_slots_menu_interrupt();
 
 bool process_savedprops_menu();
+
+void update_props_pending_dialogs();

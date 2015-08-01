@@ -30,6 +30,7 @@
     <ClCompile Include="src\features\propplacement.cpp" />
     <ClCompile Include="src\features\props.cpp" />
     <ClCompile Include="src\ui_support\file_dialog.cpp" />
+    <ClCompile Include="src\xml\xml_import_export.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\main.h" />
@@ -65,6 +66,7 @@
     <ClInclude Include="src\features\propplacement.h" />
     <ClInclude Include="src\features\props.h" />
     <ClInclude Include="src\ui_support\file_dialog.h" />
+    <ClInclude Include="src\xml\xml_import_export.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="ent-config.xml" />

@@ -8,6 +8,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "propplacement.h"
 #include "..\datasets\data_props.h"
+#include "..\ui_support\file_dialog.h"
+#include "..\xml\xml_import_export.h"
 
 #include <set>
 
@@ -24,6 +26,10 @@ bool requireRefreshOfPropsSlotMenu = false;
 bool requireRefreshOfPropsSaveSlots = false;
 
 static std::vector<SpawnedPropInstance> propsWeCreated;
+
+static std::set<SaveFileDialogCallback*> activeSaveFileCallbacks;
+
+static std::set<LoadFileDialogCallback*> activeLoadFileCallbacks;
 
 std::string lastCustomPropSpawn;
 
@@ -1267,8 +1273,10 @@ bool onconfirm_savedprops_slot_menu(MenuItem<int> choice)
 	switch (choice.value)
 	{
 	case 1: //spawn
+	{
 		spawn_saved_props(activeSavedPropSetIndex, activeSavedPropSlotName);
 		break;
+	}
 	case 2: //overwrite
 	{
 		save_current_props(activeSavedPropSetIndex);
@@ -1288,8 +1296,8 @@ bool onconfirm_savedprops_slot_menu(MenuItem<int> choice)
 		}
 		requireRefreshOfPropsSaveSlots = true;
 		requireRefreshOfPropsSlotMenu = true;
+		break;
 	}
-	break;
 	case 4: //delete
 	{
 		ENTDatabase* database = get_database();
@@ -1300,9 +1308,28 @@ bool onconfirm_savedprops_slot_menu(MenuItem<int> choice)
 
 		return true;
 	}
-	break;
+	case 5:
+	{
+		std::ostringstream ss;
+		ss << "Save Object Set \"" << activeSavedPropSlotName << "\"";
+		auto title = ss.str();
+
+		SaveFileDialogCallback* cb = new SaveFileDialogCallback();
+		activeSaveFileCallbacks.insert(cb);
+
+		ENTDatabase* database = get_database();
+		std::vector<SavedPropSet*> sets = database->get_saved_prop_sets(activeSavedPropSetIndex);
+		SavedPropSet* set = sets.at(0);
+		database->populate_saved_prop_set(set);
+		cb->data = set;
+
+		set_status_text("Please wait, a save dialog should appear shortly...");
+
+		show_save_dialog_in_thread(title, cb);
+		break;
 	}
 	return false;
+	}
 }
 
 bool process_savedprops_slot_menu(int slot)
@@ -1335,6 +1362,12 @@ bool process_savedprops_slot_menu(int slot)
 		item->isLeaf = false;
 		item->value = 4;
 		item->caption = "Delete";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 5;
+		item->caption = "Save To XML";
 		menuItems.push_back(item);
 
 		draw_generic_menu<int>(menuItems, 0, activeSavedPropSlotName, onconfirm_savedprops_slot_menu, NULL, NULL, props_individual_slot_menu_interrupt);
@@ -1426,4 +1459,65 @@ bool props_save_slots_menu_interrupt()
 		return true;
 	}
 	return false;
+}
+
+void update_props_pending_dialogs()
+{
+	std::set<SaveFileDialogCallback*>::iterator it;
+	for (it = activeSaveFileCallbacks.begin(); it != activeSaveFileCallbacks.end();)
+	{
+		SaveFileDialogCallback* saveCB = *it;
+		if (saveCB->complete)
+		{
+			if (saveCB->success)
+			{
+				set_status_text("Saving objects...");
+				SavedPropSet* set = static_cast<SavedPropSet*>(saveCB->data);
+				bool success = generate_xml_for_propset(set, saveCB->filePath);
+				if (success)
+				{
+					set_status_text("Saved to XML successfully");
+				}
+				else
+				{
+					set_status_text("Saving to XML failed");
+				}
+				//CloseHandle(saveCB->filePath);
+			}
+			else
+			{
+				set_status_text("Save cancelled");
+			}
+			it = activeSaveFileCallbacks.erase(it);
+			delete saveCB->data;
+			delete saveCB;
+		}
+		else
+		{
+			it++;
+		}
+	}
+
+	std::set<LoadFileDialogCallback*>::iterator it2;
+	for (it2 = activeLoadFileCallbacks.begin(); it2 != activeLoadFileCallbacks.end();)
+	{
+		LoadFileDialogCallback* loadCB = *it2;
+		if (loadCB->complete)
+		{
+			if (loadCB->success)
+			{
+				set_status_text("Load successful");
+			}
+			else
+			{
+				set_status_text("Load failed/cancelled");
+			}
+			it2 = activeLoadFileCallbacks.erase(it2);
+			delete loadCB;
+		}
+		else
+		{
+			it2++;
+		}
+	}
 }

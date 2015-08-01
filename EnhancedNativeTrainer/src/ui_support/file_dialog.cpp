@@ -17,16 +17,59 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <sstream>
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam);
-
 static HWND parentWindow = 0;
+
+struct SaveDialogThreadContext
+{
+	std::string title;
+	SaveFileDialogCallback* request;
+};
+
+struct LoadDialogThreadContext
+{
+	std::string title;
+	LoadFileDialogCallback* request;
+};
+
+
+void show_save_dialog_in_thread(std::string title, SaveFileDialogCallback* request)
+{
+	DWORD myThreadID;
+	SaveDialogThreadContext* ctx = new SaveDialogThreadContext{ title, request };
+	HANDLE myHandle = CreateThread(0, 0, show_save_dialog_thread_call, ctx, 0, &myThreadID);
+	CloseHandle(myHandle);
+}
+
+void show_load_dialog_in_thread(std::string title, LoadFileDialogCallback* request)
+{
+	DWORD myThreadID;
+	LoadDialogThreadContext* ctx = new LoadDialogThreadContext{ title, request };
+	HANDLE myHandle = CreateThread(0, 0, show_open_dialog_thread_call, ctx, 0, &myThreadID);
+	CloseHandle(myHandle);
+}
 
 void find_parent_window()
 {
 	EnumWindows(EnumWindowsProc, NULL);
 }
 
-void show_file_open_dialog(std::string title)
+DWORD WINAPI show_save_dialog_thread_call(LPVOID lpParameter)
+{
+	SaveDialogThreadContext *ctx = static_cast<SaveDialogThreadContext*>(lpParameter);
+	show_file_save_dialog(ctx->title, ctx->request);
+	delete ctx;
+	return 0;
+}
+
+DWORD WINAPI show_open_dialog_thread_call(LPVOID lpParameter)
+{
+	LoadDialogThreadContext *ctx = static_cast<LoadDialogThreadContext*>(lpParameter);
+	show_file_open_dialog(ctx->title, ctx->request);
+	delete ctx;
+	return 0;
+}
+
+void show_file_open_dialog(std::string title, LoadFileDialogCallback* callback)
 {
 	if (parentWindow == 0)
 	{
@@ -61,16 +104,27 @@ void show_file_open_dialog(std::string title)
 	// Display the Open dialog box. 
 
 	if (GetOpenFileName(&ofn) == TRUE)
+	{
 		hf = CreateFile(ofn.lpstrFile,
-		GENERIC_READ,
-		0,
-		(LPSECURITY_ATTRIBUTES)NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		(HANDLE)NULL);
+			GENERIC_READ,
+			0,
+			(LPSECURITY_ATTRIBUTES)NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			(HANDLE)NULL);
+
+		callback->filePath = hf;
+		callback->success = true;
+	}
+	else
+	{
+		callback->success = false;
+	}
+
+	callback->complete = true;
 }
 
-void show_file_save_dialog(std::string title)
+void show_file_save_dialog(std::string title, SaveFileDialogCallback* callback)
 {
 	if (parentWindow == 0)
 	{
@@ -100,18 +154,37 @@ void show_file_save_dialog(std::string title)
 	sfn.lpstrTitle = title.c_str();
 	sfn.nMaxFileTitle = 0;
 	sfn.lpstrInitialDir = NULL;
-	sfn.Flags = OFN_PATHMUSTEXIST;
+	sfn.Flags = OFN_OVERWRITEPROMPT;
 
 	// Display the Open dialog box. 
 
 	if (GetSaveFileName(&sfn) == TRUE)
+	{
 		hf = CreateFile(sfn.lpstrFile,
-		GENERIC_WRITE,
-		0,
-		(LPSECURITY_ATTRIBUTES)NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		(HANDLE)NULL);
+			GENERIC_WRITE,
+			0,
+			(LPSECURITY_ATTRIBUTES)NULL,
+			CREATE_ALWAYS,
+			FILE_ATTRIBUTE_NORMAL,
+			(HANDLE)NULL);
+
+		if (hf == INVALID_HANDLE_VALUE)
+		{
+			callback->success = false;
+		}
+		else
+		{
+			CloseHandle(hf);
+			callback->filePath = sfn.lpstrFile;
+			callback->success = true;
+		}
+	}
+	else
+	{
+		callback->success = false;
+	}
+
+	callback->complete = true;
 }
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
@@ -126,12 +199,15 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 			char title[80];
 			GetClassName(hwnd, class_name, sizeof(class_name));
 			GetWindowText(hwnd, title, sizeof(title));
-			if (strcmp(class_name, "grcWindow") == 0)
+
+			std::ostringstream ss;
+			ss << "Window title: " << title << " and class: " << class_name;
+			write_text_to_log_file(ss.str());
+
+			if (strcmp(class_name, "DIEmWin") == 0)
 			{
-				std::ostringstream ss;
-				ss << "Window title: " << title << " and class: " << class_name;
-				write_text_to_log_file(ss.str());
 				parentWindow = hwnd;
+				return FALSE;
 			}
 		}
 	}

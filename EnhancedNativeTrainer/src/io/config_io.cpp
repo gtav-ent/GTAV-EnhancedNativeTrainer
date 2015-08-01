@@ -12,9 +12,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <sstream>
 
 // A global Windows "basic string". Actual memory is allocated by the
-// COM methods used by MSXML which take &bstr. We must use SysFreeString() 
+// COM methods used by MSXML which take &keyconf_bstr. We must use SysFreeString() 
 // to free this memory before subsequent uses, to prevent a leak.
-BSTR bstr;
+BSTR keyconf_bstr;
 
 TrainerConfig *config = NULL;
 
@@ -57,22 +57,22 @@ void read_config_file()
 		{
 			IXMLDOMNode *attribNode;
 			attribs->get_item(j, &attribNode);
-			attribNode->get_nodeName(&bstr);
-			if (wcscmp(bstr, L"function") == 0)
+			attribNode->get_nodeName(&keyconf_bstr);
+			if (wcscmp(keyconf_bstr, L"function") == 0)
 			{
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
 				attrib_key_func = _com_util::ConvertBSTRToString(V_BSTR(&var));
 			}
-			else if (wcscmp(bstr, L"value") == 0)
+			else if (wcscmp(keyconf_bstr, L"value") == 0)
 			{
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
 				attrib_key_value = _com_util::ConvertBSTRToString(V_BSTR(&var));
 			}
-			else if (wcscmp(bstr, L"modCtrl") == 0)
+			else if (wcscmp(keyconf_bstr, L"modCtrl") == 0)
 			{
 				VARIANT var;
 				VariantInit(&var);
@@ -83,7 +83,7 @@ void read_config_file()
 					modCtrl = true;
 				}
 			}
-			else if (wcscmp(bstr, L"modAlt") == 0)
+			else if (wcscmp(keyconf_bstr, L"modAlt") == 0)
 			{
 				VARIANT var;
 				VariantInit(&var);
@@ -94,7 +94,7 @@ void read_config_file()
 					modAlt = true;
 				}
 			}
-			else if (wcscmp(bstr, L"modShift") == 0)
+			else if (wcscmp(keyconf_bstr, L"modShift") == 0)
 			{
 				VARIANT var;
 				VariantInit(&var);
@@ -106,7 +106,7 @@ void read_config_file()
 				}
 			}
 
-			SysFreeString(bstr);
+			SysFreeString(keyconf_bstr);
 			attribNode->Release();
 		}
 		
@@ -140,8 +140,8 @@ void read_config_file()
 		{
 			IXMLDOMNode *attribNode;
 			attribs->get_item(j, &attribNode);
-			attribNode->get_nodeName(&bstr);
-			if (wcscmp(bstr, L"function") == 0)
+			attribNode->get_nodeName(&keyconf_bstr);
+			if (wcscmp(keyconf_bstr, L"function") == 0)
 			{
 				VARIANT var;
 				VariantInit(&var);
@@ -177,8 +177,8 @@ void read_config_file()
 				{
 					IXMLDOMNode *attribNode;
 					childAttribs->get_item(k, &attribNode);
-					attribNode->get_nodeName(&bstr);
-					if (wcscmp(bstr, L"value") == 0)
+					attribNode->get_nodeName(&keyconf_bstr);
+					if (wcscmp(keyconf_bstr, L"value") == 0)
 					{
 						VARIANT var;
 						VariantInit(&var);
