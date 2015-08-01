@@ -180,6 +180,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_INT);
 				row->model = var.intVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"posX") == 0)
@@ -187,6 +188,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_R4);
 				row->posX = var.fltVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"posY") == 0)
@@ -194,6 +196,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_R4);
 				row->posY = var.fltVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"posZ") == 0)
@@ -201,6 +204,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_R4);
 				row->posY = var.fltVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"roll") == 0)
@@ -208,6 +212,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_R4);
 				row->roll = var.fltVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"pitch") == 0)
@@ -215,6 +220,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_R4);
 				row->pitch = var.fltVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"yaw") == 0)
@@ -222,6 +228,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_R4);
 				row->yaw = var.fltVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"isImmovable") == 0)
@@ -229,6 +236,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_INT);
 				row->isImmovable = var.intVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"isInvincible") == 0)
@@ -236,6 +244,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_INT);
 				row->isInvincible = var.intVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"hasGravity") == 0)
@@ -243,6 +252,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_INT);
 				row->hasGravity = var.intVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"alpha") == 0)
@@ -250,6 +260,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
+				VariantChangeType(&var, &var, 0, VT_INT);
 				row->alpha = var.intVal;
 			}
 

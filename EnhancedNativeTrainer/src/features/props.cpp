@@ -1562,7 +1562,7 @@ void update_props_pending_dialogs()
 			}
 			else
 			{
-				set_status_text("Object load cancelled");
+				set_status_text("Object load cancelled/failed");
 			}
 			it2 = activeLoadFileCallbacks.erase(it2);
 			delete loadCB;
