@@ -58,7 +58,7 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile)
 		pXMLDoc->createElement(L"object", &objectNode);
 
 		objectNode->setAttribute(L"title", _variant_t(row->title.c_str()));
-		objectNode->setAttribute(L"model", _variant_t(row->model));
+		objectNode->setAttribute(L"model", _variant_t((long)(row->model)));
 
 		objectNode->setAttribute(L"posX", _variant_t(row->posX));
 		objectNode->setAttribute(L"posY", _variant_t(row->posY));
@@ -84,20 +84,30 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile)
 	std::wstring ws;
 	ws.assign(outputFile.begin(), outputFile.end());
 	BSTR bs = SysAllocStringLen(ws.data(), ws.size());
-	FileStream::OpenFile(bs, &output, true);
 
-	if (!format_dom_document(pXMLDoc, output))
+	bool result = true;
+	if (FAILED(FileStream::OpenFile(bs, &output, true)))
 	{
-		write_text_to_log_file("Save failed");
-		write_text_to_log_file(outputFile);
-		handle_error(pXMLDoc);
-		return false;
+		write_text_to_log_file("Opening output failed");
+		result = false;
 	}
 	else
 	{
-		write_text_to_log_file("Save complete");
-		write_text_to_log_file(outputFile);
-		return true;
+		if (!format_dom_document(pXMLDoc, output))
+		{
+			write_text_to_log_file("Save failed");
+			write_text_to_log_file(outputFile);
+			handle_error(pXMLDoc);
+			result = false;
+		}
+		else
+		{
+			write_text_to_log_file("Save complete");
+			write_text_to_log_file(outputFile);
+			result = false;
+		}
+
+		output->Release();
 	}
 }
 
@@ -180,7 +190,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VARIANT var;
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
-				VariantChangeType(&var, &var, 0, VT_INT);
+				VariantChangeType(&var, &var, 0, VT_I8);
 				row->model = var.intVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"posX") == 0)
@@ -205,7 +215,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 				VariantInit(&var);
 				attribNode->get_nodeValue(&var);
 				VariantChangeType(&var, &var, 0, VT_R4);
-				row->posY = var.fltVal;
+				row->posZ = var.fltVal;
 			}
 			else if (wcscmp(xmlParser_bstr, L"roll") == 0)
 			{
@@ -268,6 +278,7 @@ bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)
 			attribNode->Release();
 		}
 
+		row->counter = 0;
 		set->items.push_back(row);
 
 		attribs->Release();

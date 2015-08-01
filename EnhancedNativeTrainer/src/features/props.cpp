@@ -113,7 +113,7 @@ void do_spawn_model_by_player(Hash propHash, char* model, std::string title, boo
 	if (!STREAMING::HAS_MODEL_LOADED(propHash))
 	{
 		std::ostringstream ss2;
-		ss2 << "TIMEOUT: " << model;
+		ss2 << "TIMEOUT: " << model << " w hash " << propHash;
 		write_text_to_log_file(ss2.str());
 		return;
 	}
