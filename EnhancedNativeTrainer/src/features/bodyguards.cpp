@@ -14,7 +14,6 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "bodyguards.h"
 
 int activeLineIndexBodyguards = 0;
-int activeLineIndexBodyguardsType = 0;
 
 bool featureBodyguardInvincible = false;
 bool featureBodyguardInvincibleUpdated = false;
@@ -23,13 +22,12 @@ bool featureBodyguardInfAmmo = false;
 
 bool requireRefreshOfBodyguardMainMenu = false;
 
+//first index is which category, second is position in that category
 int skinTypesBodyguardMenuPositionMemory[2] = { 0, 0 };
 
-Hash bodyGuardModel = NULL;
 Hash bodyGuardWeapon = NULL;
 
 std::vector<Ped> spawnedBodyguards;
-std::string chosenSkin(SKINS_GENERAL_CAPTIONS[0]); // default bodyguard
 
 bool process_bodyguard_skins_menu()
 {
@@ -38,22 +36,22 @@ bool process_bodyguard_skins_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Players";
-	item->value = activeLineIndexBodyguardsType++;
+	item->value = 0;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "NPCs";
-	item->value = activeLineIndexBodyguardsType++;
+	item->value = 1;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
-	return draw_generic_menu<int>(menuItems, &activeLineIndexBodyguardsType, "Bodyguard Skins", onconfirm_bodyguard_skins_menu, NULL, NULL);
+	return draw_generic_menu<int>(menuItems, &skinTypesBodyguardMenuPositionMemory[0], "Bodyguard Skins", onconfirm_bodyguard_skins_menu, NULL, NULL);
 }
 
 bool onconfirm_bodyguard_skins_menu(MenuItem<int> choice)
 {
-	switch (activeLineIndexBodyguardsType)
+	switch (choice.value)
 	{
 	case 0:
 		return process_player_skins_menu();
@@ -65,13 +63,46 @@ bool onconfirm_bodyguard_skins_menu(MenuItem<int> choice)
 	return false;
 }
 
+std::string get_current_model_name()
+{
+	std::string value;
+	switch (skinTypesBodyguardMenuPositionMemory[0])
+	{
+	case 0:
+		value = SKINS_PLAYER_CAPTIONS[skinTypesBodyguardMenuPositionMemory[1]];
+		break;
+	case 1:
+		value = SKINS_GENERAL_CAPTIONS[skinTypesBodyguardMenuPositionMemory[1]];
+		break;
+	default:
+		value = SKINS_GENERAL_CAPTIONS[0];
+		break;
+	}
+	return value;
+}
+
+Hash get_current_model_hash()
+{
+	std::string value;
+	switch (skinTypesBodyguardMenuPositionMemory[0])
+	{
+	case 0:
+		value = SKINS_PLAYER_VALUES[skinTypesBodyguardMenuPositionMemory[1]];
+		break;
+	case 1:
+		value = SKINS_GENERAL_VALUES[skinTypesBodyguardMenuPositionMemory[1]];
+		break;
+	default:
+		value = SKINS_GENERAL_VALUES[0];
+		break;
+	}
+	return GAMEPLAY::GET_HASH_KEY((char*)value.c_str());
+}
+
 bool onconfirm_bodyguards_skins_players(MenuItem<std::string> choice)
 {
-	skinTypesBodyguardMenuPositionMemory[0] = choice.currentMenuIndex;
-	bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)(choice.value).c_str());
-
-	chosenSkin = SKINS_PLAYER_CAPTIONS[choice.currentMenuIndex];
-
+	skinTypesBodyguardMenuPositionMemory[0] = 0;
+	skinTypesBodyguardMenuPositionMemory[1] = choice.currentMenuIndex;
 	requireRefreshOfBodyguardMainMenu = true;
 
 	return true;
@@ -79,10 +110,8 @@ bool onconfirm_bodyguards_skins_players(MenuItem<std::string> choice)
 
 bool onconfirm_bodyguards_skins_npcs(MenuItem<std::string> choice)
 {
+	skinTypesBodyguardMenuPositionMemory[0] = 1;
 	skinTypesBodyguardMenuPositionMemory[1] = choice.currentMenuIndex;
-	bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)(choice.value).c_str());
-
-	chosenSkin = SKINS_GENERAL_CAPTIONS[choice.currentMenuIndex];
 
 	requireRefreshOfBodyguardMainMenu = true;
 
@@ -101,7 +130,7 @@ bool process_player_skins_menu()
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<std::string>(menuItems, &skinTypesBodyguardMenuPositionMemory[0], "Player Skins", onconfirm_bodyguards_skins_players, NULL, NULL);
+	return draw_generic_menu<std::string>(menuItems, &skinTypesBodyguardMenuPositionMemory[1], "Player Skins", onconfirm_bodyguards_skins_players, NULL, NULL);
 }
 
 bool process_npc_skins_menu()
@@ -141,6 +170,7 @@ void dismiss_bodyguards() {
 	}
 
 	spawnedBodyguards.clear();
+	requireRefreshOfBodyguardMainMenu = true;
 
 	set_status_text("Bodyguards dismissed");
 }
@@ -149,13 +179,13 @@ void do_spawn_bodyguard() {
 
 	requireRefreshOfBodyguardMainMenu = true;
 
-	if (spawnedBodyguards.size() >= 7) {
+	if (spawnedBodyguards.size() >= 7)
+	{
 		set_status_text("Cannot spawn any more bodyguards");
 		return;
 	}
 
-	if (bodyGuardModel == NULL)
-		bodyGuardModel = GAMEPLAY::GET_HASH_KEY((char *)SKINS_GENERAL_VALUES[0].c_str()); // store the chosen bodyguard's Hash
+	DWORD bodyGuardModel = get_current_model_hash();
 
 	if (STREAMING::IS_MODEL_IN_CDIMAGE(bodyGuardModel) && STREAMING::IS_MODEL_VALID(bodyGuardModel))
 	{
@@ -247,7 +277,8 @@ void maintain_bodyguards()
 			iter = spawnedBodyguards.erase(iter);
 			requireRefreshOfBodyguardMainMenu = true;
 		}
-		else {
+		else
+		{
 			++iter;
 		}
 	}
@@ -268,7 +299,7 @@ bool process_bodyguard_menu()
 
 		item = new MenuItem<int>();
 		std::ostringstream ss;
-		ss << "Spawn Bodyguard (" << spawnedBodyguards.size() << "/7): " << chosenSkin;
+		ss << "Spawn Bodyguard: " << get_current_model_name();
 		item->caption = ss.str();
 		item->value = i++;
 		item->isLeaf = true;
@@ -326,7 +357,7 @@ bool onconfirm_bodyguard_menu(MenuItem<int> choice)
 	Player player = PLAYER::PLAYER_ID();
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
-	switch (activeLineIndexBodyguards)
+	switch (choice.value)
 	{
 	case 0:
 		do_spawn_bodyguard();
@@ -368,7 +399,6 @@ void add_bodyguards_generic_settings(std::vector<StringPairSettingDBRow>* result
 {
 	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuPositionMemory0", std::to_string(skinTypesBodyguardMenuPositionMemory[0]) });
 	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuPositionMemory1", std::to_string(skinTypesBodyguardMenuPositionMemory[1]) });
-	results->push_back(StringPairSettingDBRow{ "bodyguardsChosenSkin", chosenSkin });
 }
 
 void handle_generic_settings_bodyguards(std::vector<StringPairSettingDBRow>* settings)
@@ -383,10 +413,6 @@ void handle_generic_settings_bodyguards(std::vector<StringPairSettingDBRow>* set
 		else if (setting.name.compare("skinTypesBodyguardMenuPositionMemory1") == 0)
 		{
 			skinTypesBodyguardMenuPositionMemory[1] = stoi(setting.value);
-		}
-		else if (setting.name.compare("bodyguardsChosenSkin") == 0)
-		{
-			chosenSkin = setting.value;
 		}
 	}
 }

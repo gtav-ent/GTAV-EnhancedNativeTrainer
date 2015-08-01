@@ -229,6 +229,7 @@ public:
 
 	std::vector<MenuItem<T>*> items;
 	std::string headerText;
+	bool sanitiseHeaderText = true;
 	int *menuSelectionPtr = 0;
 	bool(*onConfirmation)(MenuItem<T> value) = NULL;
 	void(*onHighlight)(MenuItem<T> value) = NULL;
@@ -287,17 +288,20 @@ void draw_rect(float A_0, float A_1, float A_2, float A_3, int A_4, int A_5, int
 
 void draw_ingame_sprite(MenuItemImage *image, float x, float y, int w, int h);
 
-inline void draw_menu_header_line(std::string caption, float lineWidth, float lineHeight, float lineTop, float lineLeft, float textLeft, bool active, bool rescaleText = true, int curPage=1, int pageCount=1)
+inline std::string sanitise_menu_header_text(std::string input)
 {
-	/*
+	std::string caption(input);
 	std::replace(caption.begin(), caption.end(), '-', ' ');
 	std::replace(caption.begin(), caption.end(), '_', ' ');
 	caption.erase(remove_if(caption.begin(), caption.end(), [](char c)
 	{
-		return !isalnum(c) && c != ' ';
+	return !isalnum(c) && c != ' ';
 	}), caption.end());
-	*/
+	return caption;
+}
 
+inline void draw_menu_header_line(std::string caption, float lineWidth, float lineHeight, float lineTop, float lineLeft, float textLeft, bool active, bool rescaleText = true, int curPage=1, int pageCount=1)
+{
 	// default values
 	int text_col[4] = { 255, 255, 255, 255.0f },
 		rect_col[4] = { 0, 0, 0, 200.0f };
@@ -870,7 +874,9 @@ bool draw_generic_menu(MenuParameters<T> params)
 		DWORD maxTickCount = GetTickCount() + waitTime;
 		do
 		{
-			draw_menu_header_line(params.headerText,
+			std::string sanit_header = params.sanitiseHeaderText ? sanitise_menu_header_text(params.headerText) : params.headerText;
+
+			draw_menu_header_line(sanit_header,
 				350.0f,//line W
 				50.0f,//line H
 				15.0f,//line T
@@ -886,10 +892,10 @@ bool draw_generic_menu(MenuParameters<T> params)
 
 			for (int i = 0; i < itemsOnThisLine; i++)
 			{
-				float lineSpacingY = 10.0f;
+				float lineSpacingY = 8.0f;
 
 				float lineWidth = 350.0f;
-				float lineHeight = 35.0f;
+				float lineHeight = 31.0f;
 
 				float lineTop = 75.0 + (i * (lineHeight + lineSpacingY));
 				float lineLeft = 35.0f;

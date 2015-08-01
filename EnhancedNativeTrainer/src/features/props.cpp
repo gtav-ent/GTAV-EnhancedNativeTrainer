@@ -13,9 +13,13 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 int lastSelectedCategoryIndex = 0;
 int lastSelectedPropIndex = 0;
+int lastKnownSavedPropSetCount = 0;
 
 bool requireRefreshOfPropInstanceMenu = false;
 bool propInstanceMenuInterruptFlag = false;
+
+bool requireRefreshOfPropsSlotMenu = false;
+bool requireRefreshOfPropsSaveSlots = false;
 
 static std::vector<SpawnedPropInstance> propsWeCreated;
 
@@ -86,7 +90,66 @@ bool get_ground_height_at_position(Vector3 coords, float* result)
 	return GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z, result);
 }
 
-void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
+void do_spawn_model_by_player(Hash propHash, char* model, std::string title, bool silent)
+{
+	float alpha = ALPHA_VALUES[propCreationAlphaIndex];
+
+	STREAMING::REQUEST_MODEL(propHash);
+	DWORD now = GetTickCount();
+	while (!STREAMING::HAS_MODEL_LOADED(propHash) && GetTickCount() < now + 5000)
+	{
+		make_periodic_feature_call();
+		WAIT(0);
+	}
+
+	if (!STREAMING::HAS_MODEL_LOADED(propHash))
+	{
+		std::ostringstream ss2;
+		ss2 << "TIMEOUT: " << model;
+		write_text_to_log_file(ss2.str());
+		return;
+	}
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	FLOAT spawnOffX = 0.0f;
+	FLOAT spawnOffY = 3.5f;
+	FLOAT spawnOffZ = 0.0f;
+
+	Vector3 minDimens;
+	Vector3 maxDimens;
+	GAMEPLAY::GET_MODEL_DIMENSIONS(propHash, &minDimens, &maxDimens);
+	spawnOffY = max(3.5f, 2.0f + 0.5f * (maxDimens.y - minDimens.y));
+	spawnOffZ = 0.0f;
+
+	Vector3 r_coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(playerPed, spawnOffX, spawnOffY, spawnOffZ);
+	SimpleVector3 coords = { r_coords.x, r_coords.y, r_coords.z };
+
+	float objZBase = 0;
+	bool translatable = get_ground_height_at_position(r_coords, &objZBase);
+	if (translatable)
+	{
+		if (minDimens.z < 0)
+		{
+			coords.z -= minDimens.z;
+		}
+	}
+
+	do_spawn_model(
+		propHash,
+		model,
+		title,
+		&coords,
+		0.0f, 0.0f, 0.0f,
+		propCreationIsInvincible,
+		propCreationIsImmovable,
+		propCreationHasGravity,
+		alpha,
+		true);
+}
+
+void do_spawn_model(Hash propHash, char* model, std::string title, SimpleVector3* coords, float pitch, float roll, float heading,
+	bool invincible, bool immovable, bool gravity, float alpha, bool silent)
 {
 	STREAMING::REQUEST_MODEL(propHash);
 	DWORD now = GetTickCount();
@@ -104,68 +167,26 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 		return;
 	}
 
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	FLOAT look = ENTITY::GET_ENTITY_HEADING(playerPed);
-	FLOAT lookAni = look + 180.00;
-	FLOAT lookOff = look + 90.00;
-	FLOAT vecX = 0;
-	FLOAT vecY = 0;
-	BOOL getPosParam1 = 1;
-	BOOL getPosParam2 = 1;
-	BOOL getPosParam3 = 1;
-
-	FLOAT spawnOffX = 0.0f;
-	FLOAT spawnOffY = 3.5f;
-	FLOAT spawnOffZ = 0.0f;
-
-	Vector3 minDimens;
-	Vector3 maxDimens;
-	GAMEPLAY::GET_MODEL_DIMENSIONS(propHash, &minDimens, &maxDimens);
-	spawnOffY = max(3.5f, 2.0f + 0.5f * (maxDimens.y - minDimens.y));
-	spawnOffZ = 0.0f;
-
-	Vector3 coords = ENTITY::GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(playerPed, spawnOffX, spawnOffY, spawnOffZ);
-
-	float objZBase = 0;
-	bool translatable = get_ground_height_at_position(coords, &objZBase);
-
-	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords.x, coords.y, coords.z, creationParam1, creationParam2, creationParam3);
+	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords->x, coords->y, coords->z, creationParam1, creationParam2, creationParam3);
 	ENTITY::SET_ENTITY_VELOCITY(obj, 0.0f, 0.0f, 0.0f);
-	ENTITY::SET_ENTITY_ROTATION(obj, 0, 0, 0, 0, false);
+	ENTITY::SET_ENTITY_ROTATION(obj, pitch, roll, heading, 0, false);
 
 	if (ENTITY::DOES_ENTITY_EXIST(obj))
 	{
 		ENTITY::SET_ENTITY_COLLISION(obj, 1, 0);
-		
-		//place on the ground doesn't work on half the items, so do it ourselves
-		Vector3 curLocation = ENTITY::GET_ENTITY_COORDS(obj, 0);
-		if (translatable)
-		{
-			if (minDimens.z < 0)
-			{
-				objZBase -= minDimens.z;
-			}
 
-			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(obj, curLocation.x, curLocation.y, objZBase, 1, 1, 1);
-		}
-		else
-		{
-			//best effort in case of failure
-			OBJECT::PLACE_OBJECT_ON_GROUND_PROPERLY(obj);
-		}
+		ENTITY::SET_ENTITY_HAS_GRAVITY(obj, gravity);
 
-		ENTITY::SET_ENTITY_HAS_GRAVITY(obj, propCreationHasGravity);
+		ENTITY::FREEZE_ENTITY_POSITION(obj, immovable);
 
-		ENTITY::FREEZE_ENTITY_POSITION(obj, propCreationIsImmovable);
-
-		if (!propCreationIsImmovable)
+		if (!immovable)
 		{
 			//this unfreezes it
 			ENTITY::APPLY_FORCE_TO_ENTITY(obj, 3, 0, 0, 0.1, 0, 0, 0, 0, 1, 1, 0, 0, 1);
 			OBJECT::SET_ACTIVATE_OBJECT_PHYSICS_AS_SOON_AS_IT_IS_UNFROZEN(obj, TRUE);
 		}
 
-		if (propCreationIsInvincible)
+		if (invincible)
 		{
 			//ENTITY::SET_ENTITY_INVINCIBLE(obj, TRUE);
 			//ENTITY::SET_ENTITY_PROOFS(obj, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -174,19 +195,18 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 
 		ENTITY::SET_ENTITY_LOAD_COLLISION_FLAG(obj, true);
 
-		ENTITY::SET_ENTITY_ALPHA(obj, ALPHA_VALUES[propCreationAlphaIndex], false);
+		ENTITY::SET_ENTITY_ALPHA(obj, alpha, false);
 
 		SpawnedPropInstance record;
 		record.instance = obj;
 
 		record.title = title;
 		record.counter = find_highest_instance_num_of_prop(propHash) + 1;
-		record.isInvincible = propCreationIsInvincible;
-		record.isImmovable = propCreationIsImmovable;
-		record.hasGravity = propCreationHasGravity;
+		record.isInvincible = invincible;
+		record.isImmovable = immovable;
+		record.hasGravity = gravity;
 
 		propsWeCreated.push_back(record);
-		manage_prop_set();
 	}
 	else
 	{
@@ -214,7 +234,7 @@ void do_spawn_model(Hash propHash, char* model, std::string title, bool silent)
 	//ENTITY::SET_OBJECT_AS_NO_LONGER_NEEDED(&obj);
 }
 
-void do_spawn_prop(PropInfo prop, bool silent)
+void do_spawn_model_by_player(PropInfo prop, bool silent)
 {
 	Hash propHash = GAMEPLAY::GET_HASH_KEY((char *)prop.model);
 
@@ -233,7 +253,7 @@ void do_spawn_prop(PropInfo prop, bool silent)
 		return;
 	}
 
-	do_spawn_model(propHash, prop.model, prop.label, silent);
+	do_spawn_model_by_player(propHash, prop.model, prop.label, silent);
 }
 
 bool onconfirm_prop_selection(MenuItem<int> choice)
@@ -249,7 +269,7 @@ bool onconfirm_prop_selection(MenuItem<int> choice)
 		}
 	}
 
-	if (choice.value == -1)
+	if (choice.value == -1) //spawn all in category
 	{
 		int i = 0;
 		for each (PropInfo prop  in filtered)
@@ -259,13 +279,15 @@ bool onconfirm_prop_selection(MenuItem<int> choice)
 			set_status_text_centre_screen(ss.str());
 			WAIT(0);
 
-			do_spawn_prop(prop, true);
+			do_spawn_model_by_player(prop, true);
 		}
+		manage_prop_set();
 		return false;
 	}
 
 	PropInfo prop = filtered.at(choice.value);
-	do_spawn_prop(prop, false);
+	do_spawn_model_by_player(prop, false);
+	manage_prop_set();
 
 	return false;
 }
@@ -339,7 +361,7 @@ bool onconfirm_prop_category(MenuItem<int> choice)
 			}
 			else
 			{
-				do_spawn_model(GAMEPLAY::GET_HASH_KEY((char*)result.c_str()), (char*)result.c_str(), result, false);
+				do_spawn_model_by_player(GAMEPLAY::GET_HASH_KEY((char*)result.c_str()), (char*)result.c_str(), result, false);
 			}
 		}
 		return false;
@@ -506,6 +528,10 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 			prop_spawned_instances_menu();
 		}
 	}
+	else if (choice.value == 4)
+	{
+		process_savedprops_menu();
+	}
 	return false;
 }
 
@@ -520,6 +546,13 @@ void process_props_menu()
 	MenuItem<int>* item = new MenuItem<int>();
 	item->value = 0;
 	item->caption = "Object Spawner";
+	item->isLeaf = false;
+	menuItems.push_back(item);
+	i++;
+
+	item = new MenuItem<int>();
+	item->value = 4;
+	item->caption = "Saved Object Sets";
 	item->isLeaf = false;
 	menuItems.push_back(item);
 	i++;
@@ -881,6 +914,38 @@ std::string get_explosion_name(int id)
 	}
 }
 
+void teleport_to_last_prop()
+{
+	SpawnedPropInstance prop = get_prop_at_index(lastSelectedPropIndex);
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vector3 coords = ENTITY::GET_ENTITY_COORDS(prop.instance, 1);
+	Hash objModel = ENTITY::GET_ENTITY_MODEL(prop.instance);
+	Hash playerModel = ENTITY::GET_ENTITY_MODEL(playerPed);
+
+	Vector3 minDimens, maxDimens;
+	GAMEPLAY::GET_MODEL_DIMENSIONS(objModel, &minDimens, &maxDimens);
+	coords.y -= max(3.5f, 2.0f + 0.5f * (maxDimens.y - minDimens.y));
+
+	float newZ;
+	if (GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z + 3.0f, &newZ))
+	{
+		coords.z = newZ;
+	}
+
+	GAMEPLAY::GET_MODEL_DIMENSIONS(playerModel, &minDimens, &maxDimens);
+	coords.z += ((maxDimens.z - minDimens.z) / 2.0f);
+	if (minDimens.z < 0);
+	{
+		coords.z -= minDimens.z;
+	}
+
+	ENTITY::SET_ENTITY_COORDS_NO_OFFSET(playerPed, coords.x, coords.y, coords.z, 0, 0, 1);
+	ENTITY::SET_ENTITY_HEADING(playerPed, 0.0f);
+	WAIT(0);
+	set_status_text("Teleported");
+}
+
 void explode_last_prop(int explosionID)
 {
 	SpawnedPropInstance prop = get_prop_at_index(lastSelectedPropIndex);
@@ -922,6 +987,10 @@ bool onconfirm_prop_single_instance_menu(MenuItem<int> choice)
 	{
 		process_prop_explosion_choices();
 	}
+	else if (choice.value == 5) //teleport there
+	{
+		teleport_to_last_prop();
+	}
 	return false;
 }
 
@@ -959,6 +1028,12 @@ bool prop_spawned_single_instance_menu(int index)
 	item->value = 2;
 	item->caption = "Move This Object";
 	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->value = 5;
+	item->caption = "Teleport To Object";
+	item->isLeaf = true;
 	menuItems.push_back(item);
 
 	FunctionDrivenToggleMenuItem<int>* togItem = new FunctionDrivenToggleMenuItem<int>();
@@ -1036,4 +1111,287 @@ void process_prop_explosion_choices()
 	}
 
 	draw_generic_menu<int>(menuItems, &explosionSelection, "Explosions", onconfirm_prop_explosion, NULL, NULL, NULL);
+}
+
+//Save menus
+
+int activeSavedPropSetIndex = 0;
+std::string activeSavedPropSlotName;
+
+void spawn_individual_object(SavedPropDBRow* row)
+{
+	SimpleVector3 coords = { row->posX, row->posY, row->posZ };
+	do_spawn_model(row->model, (char*)row->title.c_str(), row->title, &coords, row->pitch, row->roll, row->yaw, row->isInvincible, row->isImmovable, row->hasGravity, row->alpha, true);
+}
+
+bool spawn_saved_props(int slot, std::string caption)
+{
+	std::ostringstream ss;
+	ss << "Trying to spawn all objects in set...";
+	set_status_text(ss.str());
+
+	ENTDatabase* database = get_database();
+
+	manage_prop_set();
+
+	std::vector<SavedPropSet*> saveProps = database->get_saved_prop_sets(slot);
+	SavedPropSet* savedSet = saveProps.at(0);
+	database->populate_saved_prop_set(savedSet);
+
+	lastKnownSavedPropSetCount = savedSet->size();
+
+	int i = 0;
+	for each (SavedPropDBRow* row in savedSet->items)
+	{
+		spawn_individual_object(row);
+		WAIT(0);
+		make_periodic_feature_call();
+	}
+
+	manage_prop_set();
+
+	delete savedSet;
+
+	std::ostringstream ss2;
+	ss2 << "Spawn of object set completed";
+	set_status_text(ss2.str());
+
+	return false;
+}
+
+void save_current_props(int slot)
+{
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Player player = PLAYER::PLAYER_ID();
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (bPlayerExists)
+	{
+		std::ostringstream ss;
+		if (slot != -1)
+		{
+			ss << activeSavedPropSlotName;
+		}
+		else
+		{
+			ss << "Saved Object Set " << (lastKnownSavedPropSetCount + 1);
+		}
+
+		auto existingText = ss.str();
+		std::string result = show_keyboard(NULL, (char*)existingText.c_str());
+		if (!result.empty())
+		{
+			std::vector<SavedPropDBRow*> dbProps;
+
+			manage_prop_set();
+
+			std::ostringstream ss;
+			ss << "Saving " << propsWeCreated.size() << " object" << ((propsWeCreated.size() == 1) ? "" : "s") << "...";
+			set_status_text(ss.str());
+
+			for each (SpawnedPropInstance prop in propsWeCreated)
+			{
+				SavedPropDBRow* dbProp = new SavedPropDBRow();
+
+				dbProp->model = ENTITY::GET_ENTITY_MODEL(prop.instance);
+				dbProp->title = prop.title;
+				dbProp->counter = prop.counter;
+
+				Vector3 position = ENTITY::GET_ENTITY_COORDS(prop.instance, 1);
+				dbProp->posX = position.x;
+				dbProp->posY = position.y;
+				dbProp->posZ = position.z;
+
+				dbProp->pitch = ENTITY::GET_ENTITY_PITCH(prop.instance);
+				dbProp->roll = ENTITY::GET_ENTITY_ROLL(prop.instance);
+				dbProp->yaw = ENTITY::GET_ENTITY_HEADING(prop.instance);
+
+				dbProp->isImmovable = prop.isImmovable ? 1 : 0;
+				dbProp->isInvincible = prop.isInvincible ? 1 : 0;
+				dbProp->hasGravity = prop.hasGravity ? 1 : 0;
+				dbProp->alpha = ENTITY::GET_ENTITY_ALPHA(prop.instance);
+
+				dbProps.push_back(dbProp);
+
+				make_periodic_feature_call();
+				WAIT(0);
+			}
+
+			ENTDatabase* database = get_database();
+			if (database->save_props(dbProps, result, slot))
+			{
+				set_status_text("Saved objects successfully");
+				activeSavedPropSlotName = result;
+			}
+			else
+			{
+				set_status_text("Error saving objects");
+			}
+
+			for (std::vector<SavedPropDBRow*>::iterator it = dbProps.begin(); it != dbProps.end();)
+			{
+				it = dbProps.erase(it);
+			}
+		}
+	}
+
+	
+}
+
+bool onconfirm_savedprops_slot_menu(MenuItem<int> choice)
+{
+	switch (choice.value)
+	{
+	case 1: //spawn
+		spawn_saved_props(activeSavedPropSetIndex, activeSavedPropSlotName);
+		break;
+	case 2: //overwrite
+	{
+		save_current_props(activeSavedPropSetIndex);
+		requireRefreshOfPropsSaveSlots = true;
+		requireRefreshOfPropsSlotMenu = true;
+	}
+	break;
+	case 3: //rename
+	{
+		std::string result = show_keyboard(NULL, (char*)activeSavedPropSlotName.c_str());
+		if (!result.empty())
+		{
+			ENTDatabase* database = get_database();
+			database->rename_saved_propset(result, activeSavedPropSetIndex);
+
+			activeSavedPropSlotName = result;
+		}
+		requireRefreshOfPropsSaveSlots = true;
+		requireRefreshOfPropsSlotMenu = true;
+	}
+	break;
+	case 4: //delete
+	{
+		ENTDatabase* database = get_database();
+		database->delete_saved_propset(activeSavedPropSetIndex);
+
+		requireRefreshOfPropsSlotMenu = false;
+		requireRefreshOfPropsSaveSlots = true;
+
+		return true;
+	}
+	break;
+	}
+	return false;
+}
+
+bool process_savedprops_slot_menu(int slot)
+{
+	do
+	{
+		requireRefreshOfPropsSlotMenu = false;
+
+		std::vector<MenuItem<int>*> menuItems;
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 1;
+		item->caption = "Spawn Objects";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 2;
+		item->caption = "Overwrite With Current";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 3;
+		item->caption = "Rename";
+		menuItems.push_back(item);
+
+		item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = 4;
+		item->caption = "Delete";
+		menuItems.push_back(item);
+
+		draw_generic_menu<int>(menuItems, 0, activeSavedPropSlotName, onconfirm_savedprops_slot_menu, NULL, NULL, props_individual_slot_menu_interrupt);
+	} while (requireRefreshOfPropsSlotMenu);
+	return false;
+}
+
+bool onconfirm_savedprops_menu(MenuItem<int> choice)
+{
+	if (choice.value == -1)
+	{
+		save_current_props(-1);
+		requireRefreshOfPropsSaveSlots = true;
+		return false;
+	}
+
+	ENTDatabase* database = get_database();
+	std::vector<SavedPropSet*> savedSets = database->get_saved_prop_sets(choice.value);
+	SavedPropSet* savedSet = savedSets.at(0);
+
+	activeSavedPropSlotName = savedSet->saveName;
+	activeSavedPropSetIndex = choice.value;
+	return process_savedprops_slot_menu(choice.value);
+}
+
+bool process_savedprops_menu()
+{
+	do
+	{
+		requireRefreshOfPropsSlotMenu = false;
+		requireRefreshOfPropsSaveSlots = false;
+
+		ENTDatabase* database = get_database();
+		std::vector<SavedPropSet*> savedSets = database->get_saved_prop_sets();
+		lastKnownSavedPropSetCount = savedSets.size();
+
+		std::vector<MenuItem<int>*> menuItems;
+
+		MenuItem<int> *item = new MenuItem<int>();
+		item->isLeaf = false;
+		item->value = -1;
+		item->caption = "Create New Saved Object Set";
+		menuItems.push_back(item);
+
+		for each (SavedPropSet *sv in savedSets)
+		{
+			std::ostringstream ss;
+			ss << sv->saveName << " (" << sv->dbSize << ")";
+			MenuItem<int> *item = new MenuItem<int>();
+			item->isLeaf = false;
+			item->value = sv->rowID;
+			item->caption = ss.str();
+			menuItems.push_back(item);
+		}
+
+		draw_generic_menu<int>(menuItems, 0, "Saved Object Sets", onconfirm_savedprops_menu, NULL, NULL, props_save_slots_menu_interrupt);
+
+		for (std::vector<SavedPropSet*>::iterator it = savedSets.begin(); it != savedSets.end(); ++it)
+		{
+			delete (*it);
+		}
+		savedSets.clear();
+	} while (requireRefreshOfPropsSaveSlots);
+
+	return false;
+}
+
+bool props_individual_slot_menu_interrupt()
+{
+	if (requireRefreshOfPropsSlotMenu)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool props_save_slots_menu_interrupt()
+{
+	if (requireRefreshOfPropsSaveSlots)
+	{
+		return true;
+	}
+	return false;
 }

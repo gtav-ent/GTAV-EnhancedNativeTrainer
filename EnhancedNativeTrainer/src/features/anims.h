@@ -99,3 +99,5 @@ void replay_last_anim();
 void do_play_anim(Ped playerPed, char* dict, char* anim, int mode);
 
 void cleanup_anims();
+
+bool process_scenarios_menu_l1();

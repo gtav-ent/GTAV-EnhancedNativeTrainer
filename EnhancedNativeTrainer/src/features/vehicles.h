@@ -23,6 +23,17 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 
+struct PaintColour
+{
+	std::string name;
+	int mainValue;
+	int pearlAddition;
+};
+
+extern const std::vector<PaintColour> PAINTS_METALLIC;
+
+extern const std::vector<std::string> VALUES_SUPERCARS;
+
 /***
 * METHODS
 */
@@ -136,13 +147,6 @@ void init_vehicle_feature();
 void fix_vehicle();
 
 void clean_vehicle();
-
-struct PaintColour
-{
-	std::string name;
-	int mainValue;
-	int pearlAddition;
-};
 
 void apply_paint(PaintColour whichpaint);
 

@@ -61,6 +61,7 @@ class SavedPropSet
 public:
 	std::vector<SavedPropDBRow*> items;
 	int rowID;
+	int dbSize; //size as returned by database
 	std::string saveName;
 
 	inline SavedPropSet()
@@ -273,6 +274,8 @@ public:
 	void rename_saved_vehicle(std::string name, sqlite3_int64 slot);
 
 	void rename_saved_skin(std::string name, sqlite3_int64 slot);
+
+	void rename_saved_propset(std::string name, sqlite3_int64 slot);
 
 private:
 

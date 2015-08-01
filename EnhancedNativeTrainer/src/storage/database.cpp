@@ -16,7 +16,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/
-const int DATABASE_VERSION = 7;
+const int DATABASE_VERSION = 8;
 
 static int singleIntResultCallback(void *data, int count, char **rows, char **azColName)
 {
@@ -306,7 +306,28 @@ void ENTDatabase::handle_version(int oldVersion)
 		}
 	}
 
-	if (oldVersion < 7)
+
+	if (oldVersion == 7)
+	{
+		{
+			int dropTable = sqlite3_exec(db, "DROP TABLE ENT_PROP_INSTANCES;", NULL, 0, &zErrMsg);
+			if (dropTable != SQLITE_OK)
+			{
+				write_text_to_log_file("Couldn't alter props table");
+				sqlite3_free(zErrMsg);
+			}
+		}
+		{
+			int dropTable = sqlite3_exec(db, "DROP TABLE ENT_PROP_SETS;", NULL, 0, &zErrMsg);
+			if (dropTable != SQLITE_OK)
+			{
+				write_text_to_log_file("Couldn't alter props table");
+				sqlite3_free(zErrMsg);
+			}
+		}
+	}
+
+	if (oldVersion < 8)
 	{
 		write_text_to_log_file("Props sets table not found, so creating it");
 		char* CREATE_PROP_SETS_TABLE_QUERY = "CREATE TABLE ENT_PROP_SETS ( \
@@ -328,7 +349,7 @@ void ENTDatabase::handle_version(int oldVersion)
 		char* CREATE_PROP_INSTANCES_TABLE_QUERY = "CREATE TABLE ENT_PROP_INSTANCES ( \
 			id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \
 			parentId INTEGER NOT NULL, \
-			modelHash TEXT NOT NULL, \
+			modelHash INT NOT NULL, \
 			title TEXT NOT NULL, \
 			counter INTEGER NOT NULL, \
 			posX REAL NOT NULL, \
@@ -340,7 +361,7 @@ void ENTDatabase::handle_version(int oldVersion)
 			isImmovable INT NOT NULL, \
 			isInvincible INT NOT NULL, \
 			hasGravity INT NOT NULL, \
-			alpha REAL NOT NULL, \
+			alpha INT NOT NULL, \
 			FOREIGN KEY (parentId) REFERENCES ENT_PROP_SETS(id) ON DELETE CASCADE)";
 
 		int propInstanceRC = sqlite3_exec(db, CREATE_PROP_INSTANCES_TABLE_QUERY, NULL, 0, &zErrMsg);
@@ -1511,6 +1532,34 @@ void ENTDatabase::rename_saved_vehicle(std::string name, sqlite3_int64 slot)
 	mutex_unlock();
 }
 
+void ENTDatabase::rename_saved_propset(std::string name, sqlite3_int64 slot)
+{
+	mutex_lock();
+
+	sqlite3_stmt *stmt;
+	const char *pzTest;
+	auto qStr = "UPDATE ENT_PROP_SETS SET name=? WHERE id=?";
+	int rc = sqlite3_prepare_v2(db, qStr, strlen(qStr), &stmt, &pzTest);
+
+	if (rc == SQLITE_OK)
+	{
+		// bind the value
+		sqlite3_bind_text(stmt, 1, name.c_str(), name.length(), 0);
+		sqlite3_bind_int64(stmt, 2, slot);
+
+		// commit
+		sqlite3_step(stmt);
+		sqlite3_finalize(stmt);
+	}
+	else
+	{
+		write_text_to_log_file("Failed to rename saved vehicle");
+		write_text_to_log_file(sqlite3_errmsg(db));
+	}
+
+	mutex_unlock();
+}
+
 void ENTDatabase::rename_saved_skin(std::string name, sqlite3_int64 slot)
 {
 	mutex_lock();
@@ -1752,6 +1801,7 @@ std::vector<SavedPropDBRow*> ENTDatabase::get_saved_prop_instances(int parentId)
 			int index = 0;
 			prop->rowID = sqlite3_column_int(stmt, index++);
 			prop->parentID = sqlite3_column_int(stmt, index++);
+			prop->model = sqlite3_column_int(stmt, index++);
 			prop->title = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, index++)));
 			prop->counter = sqlite3_column_int(stmt, index++);
 
@@ -1795,11 +1845,13 @@ std::vector<SavedPropSet*> ENTDatabase::get_saved_prop_sets(int index)
 	const char *pzTest;
 
 	std::stringstream ss;
-	ss << "select * from ENT_PROP_SETS";
+	ss << "SELECT s.id, s.name, COUNT(i.id) AS size FROM ENT_PROP_SETS s LEFT JOIN ENT_PROP_INSTANCES i ON s.id = i.parentId ";
 	if (index != -1)
 	{
-		ss << " WHERE id = ? ";
+		ss << " WHERE s.id = ? ";
 	}
+	ss << " GROUP BY i.parentId ORDER BY s.id";
+
 	auto qStr = ss.str();
 	int rc = sqlite3_prepare_v2(db, qStr.c_str(), qStr.length(), &stmt, &pzTest);
 
@@ -1823,6 +1875,7 @@ std::vector<SavedPropSet*> ENTDatabase::get_saved_prop_sets(int index)
 			int index = 0;
 			set->rowID = sqlite3_column_int(stmt, index++);
 			set->saveName = std::string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, index++)));
+			set->dbSize = sqlite3_column_int(stmt, index++);;
 
 			results.push_back(set);
 
@@ -1891,7 +1944,11 @@ bool ENTDatabase::save_props(std::vector<SavedPropDBRow*> props, std::string sav
 		//if we're updating, delete any pre-existing children
 		if (slot != -1)
 		{
-			delete_saved_propset_children(slot);
+			delete_saved_propset_children(slot);;
+		}
+		else
+		{
+			slot = newRowID; //get new ID to use for parent of children
 		}
 	}
 
@@ -1924,10 +1981,10 @@ bool ENTDatabase::save_props(std::vector<SavedPropDBRow*> props, std::string sav
 			}
 			else
 			{
-				int index = 0;
+				int index = 1;
 
 				sqlite3_bind_null(inst_stmt, index++);
-				sqlite3_bind_int64(inst_stmt, index++, newRowID); //parent id
+				sqlite3_bind_int64(inst_stmt, index++, slot); //parent id
 				sqlite3_bind_int(inst_stmt, index++, prop->model);
 				auto propTitle = prop->title;
 				sqlite3_bind_text(inst_stmt, index++, (char*)propTitle.c_str(), propTitle.length(), 0);
@@ -1941,10 +1998,19 @@ bool ENTDatabase::save_props(std::vector<SavedPropDBRow*> props, std::string sav
 				sqlite3_bind_int(inst_stmt, index++, prop->isImmovable);
 				sqlite3_bind_int(inst_stmt, index++, prop->isInvincible);
 				sqlite3_bind_int(inst_stmt, index++, prop->hasGravity);
-				sqlite3_bind_double(inst_stmt, index++, prop->alpha);
+				sqlite3_bind_int(inst_stmt, index++, prop->alpha);
 
 				sqlite3_step(inst_stmt);
-				sqlite3_finalize(inst_stmt);
+				
+				int finalOK = sqlite3_finalize(inst_stmt);
+				if (finalOK != SQLITE_OK)
+				{
+					write_text_to_log_file("Prop instance save failed (finalise)");
+					write_text_to_log_file(sqlite3_errmsg(db));
+					result = false;
+				}
+
+				write_text_to_log_file("Prop instance save OK");
 			}
 		}	
 	}

@@ -244,6 +244,8 @@ void update_features()
 
 	update_world_features();
 
+	update_teleport_features();
+
 	check_player_model();
 
 	maintain_bodyguards();
@@ -480,7 +482,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 	case 1:
 		heal_player();
 		break;
-	case 18:
+	case 17:
 		process_anims_menu_top();
 		break;
 	default:
@@ -528,7 +530,7 @@ int activeLineIndexMain = 0;
 
 bool onconfirm_main_menu(MenuItem<int> choice)
 {
-	switch (activeLineIndexMain)
+	switch (choice.value)
 	{
 	case 0:
 		process_player_menu();
@@ -577,65 +579,70 @@ void process_main_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Player";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Locations";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Weapons";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Bodyguards";
-	item->value = i++;
+	item->value = 0;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Vehicles";
-	item->value = i++;
+	item->value = 4;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Locations";
+	item->value = 1;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Weapons";
+	item->value = 2;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Bodyguards";
+	item->value = 3;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "World";
-	item->value = i++;
+	item->value = 5;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Time";
-	item->value = i++;
+	item->value = 6;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Objects";
-	item->value = i++;
+	item->value = 7;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Miscellaneous";
-	item->value = i++;
+	item->value = 8;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Reset All Settings";
-	item->value = i++;
+	item->value = 9;
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
-	draw_generic_menu<int>(menuItems, &activeLineIndexMain, captionSS.str(), onconfirm_main_menu, NULL, NULL);
+	MenuParameters<int> params(menuItems, captionSS.str());
+	params.menuSelectionPtr = &activeLineIndexMain;
+	params.onConfirmation = onconfirm_main_menu;
+	params.sanitiseHeaderText = false;
+
+	draw_generic_menu<int>(params);
 }
 
 void reset_globals()
