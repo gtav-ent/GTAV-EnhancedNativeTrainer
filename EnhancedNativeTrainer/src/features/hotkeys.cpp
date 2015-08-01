@@ -126,6 +126,9 @@ void trigger_function_for_hotkey(int hotkey)
 	case HKEY_TOGGLE_THERMAL_VIS:
 		toggle_thermal_vision();
 		break;
+	case HKEY_PASSENGER:
+		drive_passenger();
+		break;
 	default:
 	{
 		std::ostringstream ss;
