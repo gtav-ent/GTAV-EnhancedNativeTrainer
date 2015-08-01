@@ -1482,7 +1482,6 @@ void update_props_pending_dialogs()
 				{
 					set_status_text("Saving to XML failed");
 				}
-				//CloseHandle(saveCB->filePath);
 			}
 			else
 			{

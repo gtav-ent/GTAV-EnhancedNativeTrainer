@@ -6,7 +6,9 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <string>
 #include <sstream>
+#include <iostream>
 
+#include "filestream.hpp"
 #include "../storage/database.h"
 
 #import <msxml6.dll> //read the GitHub project readme regarding what you need to make this work
@@ -16,3 +18,5 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile);
 SavedPropSet* parse_xml_for_propset(HANDLE inputFile);
 
 void handle_error(IXMLDOMDocumentPtr doc);
+
+bool format_dom_document(IXMLDOMDocument *pDoc, IStream *pStream);

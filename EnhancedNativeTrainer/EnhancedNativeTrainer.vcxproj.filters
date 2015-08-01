@@ -31,6 +31,7 @@
     <ClCompile Include="src\features\props.cpp" />
     <ClCompile Include="src\ui_support\file_dialog.cpp" />
     <ClCompile Include="src\xml\xml_import_export.cpp" />
+    <ClCompile Include="src\xml\filestream.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\main.h" />

@@ -46,7 +46,7 @@ public:
 	int isImmovable;
 	int isInvincible;
 	int hasGravity;
-	float alpha;
+	int alpha;
 
 	inline ~SavedPropDBRow() {};
 
