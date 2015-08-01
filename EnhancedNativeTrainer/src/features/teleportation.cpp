@@ -9,6 +9,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 */
 
 #include "teleportation.h"
+#include "misc.h"
 #include "vehicles.h"
 #include "..\ui_support\menu_functions.h"
 #include "..\debug\debuglog.h"
@@ -196,6 +197,80 @@ std::vector<const char*> IPLS_HEISTYACHT = {
 	"hei_yacht_heist_Lounge"
 };
 
+std::vector<const char*> IPLS_HEIST_APT_1 = {
+	"hw1_blimp_interior_v_apartment_high_milo_",
+	"hw1_blimp_interior_v_apartment_high_milo__1",
+	"hw1_blimp_interior_v_apartment_high_milo__2",
+	"hw1_blimp_interior_v_apartment_high_milo__3",
+	"hw1_blimp_interior_v_apartment_high_milo__4",
+	"hw1_blimp_interior_v_apartment_high_milo__5",
+	"hw1_blimp_interior_v_apartment_high_milo__6",
+	"hw1_blimp_interior_v_apartment_high_milo__7",
+	"hw1_blimp_interior_v_apartment_high_milo__8",
+	"hw1_blimp_interior_v_apartment_high_milo__9",
+	"hw1_blimp_interior_v_apartment_high_milo__10",
+	"hw1_blimp_interior_v_apartment_high_milo__11",
+	"hw1_blimp_interior_v_apartment_high_milo__12",
+	"hw1_blimp_interior_v_apartment_high_milo__13",
+	"hw1_blimp_interior_v_apartment_high_milo__14",
+	"hw1_blimp_interior_v_apartment_high_milo__15",
+	"hw1_blimp_interior_v_apartment_high_milo__16",
+	"hw1_blimp_interior_v_apartment_high_milo__17",
+	"hw1_blimp_interior_v_apartment_high_milo__18",
+	"hw1_blimp_interior_v_apartment_high_milo__19"
+};
+
+std::vector<const char*> IPLS_HEIST_APT_2 = {
+	"hei_hw1_blimp_interior_8_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_9_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_10_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_11_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_12_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_13_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_14_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_15_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_16_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_17_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_18_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_19_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_20_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_21_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_22_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_23_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_24_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_25_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_26_dlc_apart_high_new_milo_",
+	"hei_hw1_blimp_interior_27_dlc_apart_high_new_milo_"
+};
+
+std::vector<const char*> IPLS_HEIST_APT_3 = {
+	"mpbusiness_int_placement",
+	"mpbusiness_int_placement_interior_v_mp_apt_h_01_milo_",
+	"mpbusiness_int_placement_interior_v_mp_apt_h_01_milo__1",
+	"mpbusiness_int_placement_interior_v_mp_apt_h_01_milo__2",
+	"mpbusiness_int_placement_interior_v_mp_apt_h_01_milo__3",
+	"mpbusiness_int_placement_interior_v_mp_apt_h_01_milo__4",
+	"mpbusiness_int_placement_interior_v_mp_apt_h_01_milo__5"
+};
+
+std::vector<const char*> IPLS_HEIST_APT_4 = {
+	"hei_hw1_blimp_interior_28_dlc_apart_high2_new_milo",
+	"hei_hw1_blimp_interior_29_dlc_apart_high2_new_milo",
+	"hei_hw1_blimp_interior_30_dlc_apart_high2_new_milo",
+	"hei_hw1_blimp_interior_31_dlc_apart_high2_new_milo",
+	"hei_hw1_blimp_interior_32_dlc_apart_high2_new_milo",
+	"hei_hw1_blimp_interior_33_dlc_apart_high2_new_milo",
+};
+
+std::vector<const char*> IPLS_HEIST_APT_5 = {
+	"hei_mpheist_int_placement_interior_20_dlc_apart_high2_new_milo_",
+	"hei_mpheist_int_placement_interior_21_dlc_apart_high2_new_milo_",
+	"hei_mpheist_int_placement_interior_22_dlc_apart_high2_new_milo_",
+	"hei_mpheist_int_placement_interior_23_dlc_apart_high2_new_milo_",
+	"hei_mpheist_int_placement_interior_24_dlc_apart_high2_new_milo_",
+	"hei_mpheist_int_placement_interior_25_dlc_apart_high2_new_milo_",
+};
+
 std::vector<const char*> IPLS_NORTH_YANKTON = {
 	"plg_01",
 	"prologue01",
@@ -310,10 +385,23 @@ std::vector<tele_location> LOCATIONS_BROKEN = {
 	//{ "Director Mod Trailer", -20.004f, -10.889f, 500.602f },
 };
 
+std::vector<tele_location> LOCATIONS_JELLMAN = {
+	{ "Aircraft Carrier", 3069.330f, -4704.220f, 15.043f, IPLS_CARRIER, {}, false },
+	{ "Heist Police Station", 445.488f, -983.779f, 30.6896f, { "" }, {}, false },
+	{ "Heist Yacht", -2043.974f, -1031.582f, 11.981f, IPLS_HEISTYACHT, {}, false },
+	{ "Integrity Way Apt 28", -14.7964, -581.709, 79.4307, {}, {}, false },
+	{ "Del Perro Heights Apt 28", -1468.14f, -541.815f, 73.4442f, {}, {}, false },
+	{ "Richard Majestic Apt 2", -915.811f, -379.432f, 113.675f, {}, {}, false },
+	{ "Tinsel Towers Apt 42", -614.86f, 40.6783f, 97.6f, {}, {}, false },
+	{ "Eclipse Towers Apt 3", -773.407, 341.766, 211.397, {}, {}, false }
+	//{ "High Life Garage", 228.135f, -995.350f, -99.000f, { "hei_hw1_blimp_interior_2_dlc_garage_high_new_milo_" }, { "hw1_blimp_interior_v_garagel_milo_" }, false },
+};
 
-std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Interiors", "Extra Exterior Scenery" };// "Test", "Toggles" };
+std::string JELLMAN_CAPTION = "Heist Map Updates In SP";
 
-std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN };// , LOCATIONS_BROKEN };
+static std::vector<std::string> MENU_LOCATION_CATEGORIES{ "Safehouses", "Landmarks", "Roof/High Up", "Underwater", "Interiors", "Extra Exterior Scenery", JELLMAN_CAPTION };// "Test", "Toggles" };
+
+static std::vector<tele_location> VOV_LOCATIONS[] = { LOCATIONS_SAFE, LOCATIONS_LANDMARKS, LOCATIONS_HIGH, LOCATIONS_UNDERWATER, LOCATIONS_INTERIORS, LOCATIONS_REQSCEN, LOCATIONS_JELLMAN };// , LOCATIONS_BROKEN };
 
 void teleport_to_coords(Entity e, Vector3 coords)
 {
@@ -541,7 +629,7 @@ void get_chauffeur_to_marker()
 		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, playerName);
 	}
 
-	//random paint
+	//random metallic paint
 	int useless, wheelCol;//pearl topcoat, wheel color
 	int paintIndex = rand() % PAINTS_METALLIC.size();
 	PaintColour paint = PAINTS_METALLIC.at(paintIndex);
@@ -843,16 +931,10 @@ bool process_teleport_menu(int categoryIndex)
 
 		for (int i = 0; i < MENU_LOCATION_CATEGORIES.size(); i++)
 		{
-			/*
-			if (i == MENU_LOCATION_CATEGORIES.size() - 1)
+			if (MENU_LOCATION_CATEGORIES[i].compare(JELLMAN_CAPTION) == 0 && !is_jellman_scenery_enabled())
 			{
-				MenuItem<int> *item = new MenuItem<int>();
-				item->caption = "Toggles";
-				item->value = -3;
-				item->isLeaf = false;
-				menuItems.push_back(item);
+				continue;
 			}
-			*/
 
 			MenuItem<int> *item = new MenuItem<int>();
 			item->caption = MENU_LOCATION_CATEGORIES[i];

@@ -11,6 +11,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include <set>
 
+const int PROP_LIMIT = 250;
+
 int lastSelectedCategoryIndex = 0;
 int lastSelectedPropIndex = 0;
 int lastKnownSavedPropSetCount = 0;
@@ -151,6 +153,13 @@ void do_spawn_model_by_player(Hash propHash, char* model, std::string title, boo
 void do_spawn_model(Hash propHash, char* model, std::string title, SimpleVector3* coords, float pitch, float roll, float heading,
 	bool invincible, bool immovable, bool gravity, float alpha, bool silent)
 {
+	if (propsWeCreated.size() >= PROP_LIMIT)
+	{
+		std::ostringstream ss;
+		ss << "Object limit (" << PROP_LIMIT << ") reached - please remove some first";
+		set_status_text(ss.str());
+	}
+
 	STREAMING::REQUEST_MODEL(propHash);
 	DWORD now = GetTickCount();
 	while (!STREAMING::HAS_MODEL_LOADED(propHash) && GetTickCount() < now + 5000 )
@@ -532,6 +541,14 @@ bool onconfirm_prop_menu(MenuItem<int> choice)
 	{
 		process_savedprops_menu();
 	}
+	else if (choice.value == 5)
+	{
+		manage_prop_set();
+		std::ostringstream ss;
+		int size = propsWeCreated.size();
+		ss << size << " out of a possible " << PROP_LIMIT << " objects created";
+		set_status_text(ss.str());
+	}
 	return false;
 }
 
@@ -574,6 +591,13 @@ void process_props_menu()
 	item = new MenuItem<int>();
 	item->value = 1;
 	item->caption = "Remove All Spawned Objects";
+	item->isLeaf = true;
+	menuItems.push_back(item);
+	i++;
+
+	item = new MenuItem<int>();
+	item->value = 5;
+	item->caption = "Check Object Limit";
 	item->isLeaf = true;
 	menuItems.push_back(item);
 	i++;
@@ -1322,8 +1346,16 @@ bool onconfirm_savedprops_menu(MenuItem<int> choice)
 {
 	if (choice.value == -1)
 	{
-		save_current_props(-1);
-		requireRefreshOfPropsSaveSlots = true;
+		manage_prop_set();
+		if (propsWeCreated.size() == 0)
+		{
+			set_status_text("No spawned objects - create some first");
+		}
+		else
+		{
+			save_current_props(-1);
+			requireRefreshOfPropsSaveSlots = true;
+		}
 		return false;
 	}
 

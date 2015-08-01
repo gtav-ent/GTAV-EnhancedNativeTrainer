@@ -768,12 +768,7 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 
 		if (featureVehSpawnTuned)
 		{
-			VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
-			VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
-			VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
-			VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
-			VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
-			VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
+			fully_tune_vehicle(veh);
 		}
 
 		if (featureVehSpawnInto)
@@ -788,7 +783,6 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 		}
 
 		VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0f);
-		//VEHICLE::_SET_VEHICLE_PAINT_FADE(veh, 0.0f);
 
 		WAIT(0);
 		STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(model);

@@ -32,6 +32,8 @@ bool featureMiscHideHudUpdated = false;
 bool featureShowVehiclePreviews = false;
 bool featureControllerIgnoreInTrainer = false;
 
+bool featureMiscJellmanScenery = false;
+
 const int TRAINERCONFIG_HOTKEY_MENU = 99;
 
 void onchange_hotkey_function(int value, SelectFromListMenuItem* source)
@@ -115,6 +117,11 @@ void process_misc_trainerconfig_menu()
 	toggleItem->toggleValue = &featureShowVehiclePreviews;
 	menuItems.push_back(toggleItem);
 
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Include Nkjellman's Extra Scenery";
+	toggleItem->toggleValue = &featureMiscJellmanScenery;
+	menuItems.push_back(toggleItem);
+
 	draw_generic_menu<int>(menuItems, &activeLineIndexTrainerConfig, caption, onconfirm_trainerconfig_menu, NULL, NULL);
 }
 
@@ -160,6 +167,7 @@ void reset_misc_globals()
 	featureMiscHideHud =
 		featurePlayerRadio =
 		featureMiscLockRadio =
+		featureMiscJellmanScenery =
 		featureRadioAlwaysOff = false;
 
 	featureShowVehiclePreviews = true;
@@ -247,6 +255,8 @@ void add_misc_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* re
 	results->push_back(FeatureEnabledLocalDefinition{ "featureControllerIgnoreInTrainer", &featureControllerIgnoreInTrainer });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureBlockInputInMenu", &featureBlockInputInMenu });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureShowVehiclePreviews", &featureShowVehiclePreviews });
+
+	results->push_back(FeatureEnabledLocalDefinition{ "featureMiscJellmanScenery", &featureMiscJellmanScenery });
 }
 
 void add_misc_generic_settings(std::vector<StringPairSettingDBRow>* results)
@@ -293,4 +303,9 @@ void set_hud_hidden(bool hidden)
 {
 	featureMiscHideHud = hidden;
 	featureMiscHideHudUpdated = true;
+}
+
+bool is_jellman_scenery_enabled()
+{
+	return featureMiscJellmanScenery;
 }

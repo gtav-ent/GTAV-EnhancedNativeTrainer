@@ -43,3 +43,5 @@ bool is_controller_ignored_in_trainer();
 bool is_hud_hidden();
 
 void set_hud_hidden(bool hidden);
+
+bool is_jellman_scenery_enabled();
