@@ -172,6 +172,8 @@ void set_neonLights(bool applied, std::vector<int> extras);
 
 bool process_neon_lights_menu();
 
+void drive_passenger();
+
 bool inline is_this_a_car(Vehicle veh)
 {
 	// Return true if the current vehicle is a car, e.g. as certain vehicles don't support neon lights

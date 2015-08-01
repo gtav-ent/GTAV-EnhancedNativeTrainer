@@ -1779,3 +1779,39 @@ void set_convertible_roofdown(bool applied, std::vector<int> extras)
 		VEHICLE::RAISE_CONVERTIBLE_ROOF(veh, featureVehicleDoorInstant);
 	}
 }
+
+void drive_passenger()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vector3 coords = ENTITY::GET_ENTITY_COORDS(playerPed, 1);
+	Vehicle veh = VEHICLE::GET_CLOSEST_VEHICLE(coords.x, coords.y, coords.z, 20.f, 0, 70);
+
+	if (veh) {
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0)) {
+			Object mytask;
+			AI::CLEAR_PED_TASKS_IMMEDIATELY(playerPed);
+			AI::OPEN_SEQUENCE_TASK(&mytask);
+			AI::TASK_LEAVE_ANY_VEHICLE(playerPed, 0, 0);
+			AI::CLOSE_SEQUENCE_TASK(mytask);
+			AI::TASK_PERFORM_SEQUENCE(playerPed, mytask);
+			AI::CLEAR_SEQUENCE_TASK(&mytask);
+
+		} else {
+			set_status_text("Vehicle found");
+			//		AI::TASK_ENTER_VEHICLE(playerPed, veh, 0, 0, 2, 1, 0);
+			//		PED::SET_PED_INTO_VEHICLE(playerPed, veh, -1);
+			Object mytask;
+			AI::CLEAR_PED_TASKS_IMMEDIATELY(playerPed);
+			AI::OPEN_SEQUENCE_TASK(&mytask);
+			AI::TASK_ENTER_VEHICLE(0, veh, -1, 0, 2, 1, 0);
+			AI::TASK_VEHICLE_DRIVE_WANDER(0, veh, 30, 786599);
+			AI::CLOSE_SEQUENCE_TASK(mytask);
+			AI::TASK_PERFORM_SEQUENCE(playerPed, mytask);
+			AI::CLEAR_SEQUENCE_TASK(&mytask);
+
+			PED::SET_PED_CAN_BE_DRAGGED_OUT(playerPed, 0);
+		}
+		
+	}
+}
+

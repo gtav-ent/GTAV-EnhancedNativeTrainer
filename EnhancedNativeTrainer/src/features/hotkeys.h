@@ -30,6 +30,7 @@ static const int HKEY_TELEPORT_TO_VEHICLE = 112;
 static const int HKEY_MENU_NEXT_RADIO_TRACK = 113;
 static const int HKEY_TOGGLE_THERMAL_VIS = 114;
 static const int HKEY_TOGGLE_NIGHT_VIS = 115;
+static const int HKEY_PASSENGER = 116;
 
 const std::vector<HOTKEY_DEF> HOTKEY_AVAILABLE_FUNCS{
 	{ "No Function", 0 },
@@ -47,7 +48,8 @@ const std::vector<HOTKEY_DEF> HOTKEY_AVAILABLE_FUNCS{
 	{ "Skin Customise Menu", HKEY_MENU_SKIN_CUST },
 	{ "Next Radio Track", HKEY_MENU_NEXT_RADIO_TRACK },
 	{ "Toggle Night Vision", HKEY_TOGGLE_NIGHT_VIS },
-	{ "Toggle Thermal Vision", HKEY_TOGGLE_THERMAL_VIS }
+	{ "Toggle Thermal Vision", HKEY_TOGGLE_THERMAL_VIS },
+	{ "Drive as Passenger", HKEY_PASSENGER }
 };
 
 void change_hotkey_function(int hotkey, int funcIndex);
