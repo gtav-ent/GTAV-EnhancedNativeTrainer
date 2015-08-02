@@ -357,7 +357,8 @@ KeyInputConfig::KeyInputConfig()
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_BACK] = new KeyConfig(VK_KEY_S);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT] = new KeyConfig(VK_KEY_A);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT] = new KeyConfig(VK_KEY_D);
-	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED] = new KeyConfig(VK_SHIFT);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED_UP] = new KeyConfig(VK_OEM_6);
+	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED_DOWN] = new KeyConfig(VK_OEM_4);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME] = new KeyConfig(VK_KEY_T);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_HELP] = new KeyConfig(VK_KEY_H);
 	this->keyConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION] = new KeyConfig(VK_KEY_G);
@@ -443,8 +444,8 @@ KeyInputConfig::KeyInputConfig()
 	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT] = new ControllerButtonConfig();
 	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT]->add_button(ControllerButtonConfig::CONTROLLER_LSTICK_R);
 
-	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED] = new ControllerButtonConfig();
-	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED]->add_button(ControllerButtonConfig::CONTROLLER_BTN_A);
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED_CYCLE] = new ControllerButtonConfig();
+	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_SPEED_CYCLE]->add_button(ControllerButtonConfig::CONTROLLER_BTN_A);
 	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME] = new ControllerButtonConfig();
 	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME]->add_button(ControllerButtonConfig::CONTROLLER_BTN_B);
 	this->controllerConfigs[KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION] = new ControllerButtonConfig();
@@ -522,7 +523,9 @@ const std::string KeyConfig::KEY_OBJECTPLACER_FORWARD = std::string("objectplace
 const std::string KeyConfig::KEY_OBJECTPLACER_BACK = std::string("objectplacer_back");
 const std::string KeyConfig::KEY_OBJECTPLACER_ROTATE_LEFT = std::string("objectplacer_rotate_left");
 const std::string KeyConfig::KEY_OBJECTPLACER_ROTATE_RIGHT = std::string("objectplacer_rotate_right");
-const std::string KeyConfig::KEY_OBJECTPLACER_SPEED = std::string("objectplacer_speed");
+const std::string KeyConfig::KEY_OBJECTPLACER_SPEED_CYCLE = std::string("objectplacer_speed_cycle");
+const std::string KeyConfig::KEY_OBJECTPLACER_SPEED_UP = std::string("objectplacer_speed_up");
+const std::string KeyConfig::KEY_OBJECTPLACER_SPEED_DOWN = std::string("objectplacer_speed_down");
 const std::string KeyConfig::KEY_OBJECTPLACER_FREEZE_TIME = std::string("objectplacer_freeze_time");
 const std::string KeyConfig::KEY_OBJECTPLACER_FREEZE_POSITION = std::string("objectplacer_freeze_position");
 const std::string KeyConfig::KEY_OBJECTPLACER_HELP = std::string("objectplacer_help");

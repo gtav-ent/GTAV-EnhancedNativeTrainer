@@ -40,6 +40,8 @@ bool skinSaveSlotMenuInterrupt = false;
 bool requireRefreshOfSkinSaveSlots = false;
 bool requireRefreshOfSkinSlotMenu = false;
 
+std::string lastCustomSkinSpawn;
+
 int skinTypesMenuPositionMemory[4] = { 0, 0, 0, 0 }; //player, animals, general, test
 
 /***
@@ -73,7 +75,6 @@ bool applyChosenSkin(DWORD model)
 			make_periodic_feature_call();
 			WAIT(0);
 		}
-		//STREAMING::LOAD_ALL_OBJECTS_NOW();
 
 		Vehicle veh = NULL;
 		if (PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
@@ -84,7 +85,6 @@ bool applyChosenSkin(DWORD model)
 		save_player_weapons();
 
 		PLAYER::SET_PLAYER_MODEL(PLAYER::PLAYER_ID(), model);
-		//PED::SET_PED_RANDOM_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID(), FALSE);
 		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(PLAYER::PLAYER_PED_ID());
 		WAIT(0);
 
@@ -431,7 +431,7 @@ bool process_skinchanger_choices_players()
 		menuItems.push_back(item);
 	}
 
-	return draw_generic_menu<std::string>(menuItems, &skinTypesMenuPositionMemory[0], "Player Skins", onconfirm_skinchanger_choices_players, NULL, NULL);
+	return draw_generic_menu<std::string>(menuItems, &skinTypesMenuPositionMemory[0], "Player Appearance", onconfirm_skinchanger_choices_players, NULL, NULL);
 }
 
 /*
@@ -518,6 +518,45 @@ bool process_skinchanger_choices_test()
 * =================
 */
 
+bool onconfirm_skinchanger_category_menu(MenuItem<int> choice)
+{
+	switch (choice.value)
+	{
+	case 0: //Players
+		process_skinchanger_choices_players();
+		break;
+	case 1: //Animals
+		process_skinchanger_choices_animals();
+		break;
+	case 2: //Misc
+		process_skinchanger_choices_misc();
+		break;
+	case 3: //Custom entry
+	{
+		std::string result = show_keyboard(NULL, (char*)lastCustomSkinSpawn.c_str());
+		if (!result.empty())
+		{
+			result = trim(result);
+			lastCustomSkinSpawn = result;
+			Hash hash = GAMEPLAY::GET_HASH_KEY((char*)result.c_str());
+			if (!STREAMING::IS_MODEL_IN_CDIMAGE(hash) || !STREAMING::IS_MODEL_VALID(hash))
+			{
+				std::ostringstream ss;
+				ss << "Couldn't find model '" << result << "'";
+				set_status_text(ss.str());
+				return false;
+			}
+			else
+			{
+				return applyChosenSkin(hash);
+			}
+		}
+		return false;
+	}
+	}
+	return false;
+}
+
 bool onconfirm_skinchanger_menu(MenuItem<int> choice)
 {
 	skinMainMenuPosition = choice.currentMenuIndex;
@@ -531,44 +570,34 @@ bool onconfirm_skinchanger_menu(MenuItem<int> choice)
 	case 0:
 		process_savedskin_menu();
 		break;
-	case 1: //Players
-		process_skinchanger_choices_players();
+	case 1: //Change skin
+		process_skinchanger_category_menu();
 		break;
-	case 2: //Animals
-		process_skinchanger_choices_animals();
-		break;
-	case 3: //Misc
-		process_skinchanger_choices_misc();
-		break;
-	case 4: //Detail
+	case 2: //Detail
 		process_skinchanger_detail_menu();
 		break;
-	case 5: //Reset
+	case 3: //Reset
 		PED::SET_PED_DEFAULT_COMPONENT_VARIATION(playerPed);
 		set_status_text("Using default model skin");
 		break;
-	case 6:
+	case 4:
 		process_prop_menu();
 		break;
-	case 7:
+	case 5:
 		PED::CLEAR_ALL_PED_PROPS(playerPed);
 		break;
 	}
 	return false;
 }
 
-bool process_skinchanger_menu()
+int skinCategoryPosition = 0;
+
+bool process_skinchanger_category_menu()
 {
 	std::vector<MenuItem<int>*> menuItems;
 
 	MenuItem<int> *item;
 	int i = 0;
-
-	item = new MenuItem<int>();
-	item->caption = "Saved Skins";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Players";
@@ -584,6 +613,34 @@ bool process_skinchanger_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "NPCs";
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Enter Name Manually";
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	return draw_generic_menu<int>(menuItems, &skinCategoryPosition, "Skin Categories", onconfirm_skinchanger_category_menu, NULL, NULL);
+}
+
+bool process_skinchanger_menu()
+{
+	std::vector<MenuItem<int>*> menuItems;
+
+	MenuItem<int> *item;
+	int i = 0;
+
+	item = new MenuItem<int>();
+	item->caption = "Saved Appearances";
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Change Skin";
 	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
@@ -1012,6 +1069,22 @@ void save_current_skin(int slot)
 			}
 		}
 	}
-
-
 }
+
+void add_skin_generic_settings(std::vector<StringPairSettingDBRow>* results)
+{
+	results->push_back(StringPairSettingDBRow{ "lastCustomSkinSpawn", lastCustomSkinSpawn });
+}
+
+void handle_generic_settings_skin(std::vector<StringPairSettingDBRow>* settings)
+{
+	for (int i = 0; i < settings->size(); i++)
+	{
+		StringPairSettingDBRow setting = settings->at(i);
+		if (setting.name.compare("lastCustomSkinSpawn") == 0)
+		{
+			lastCustomSkinSpawn = setting.value;
+		}
+	}
+}
+

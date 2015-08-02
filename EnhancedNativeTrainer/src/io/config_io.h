@@ -50,7 +50,9 @@ public:
 	static const std::string KEY_OBJECTPLACER_BACK;
 	static const std::string KEY_OBJECTPLACER_ROTATE_LEFT;
 	static const std::string KEY_OBJECTPLACER_ROTATE_RIGHT;
-	static const std::string KEY_OBJECTPLACER_SPEED;
+	static const std::string KEY_OBJECTPLACER_SPEED_CYCLE;
+	static const std::string KEY_OBJECTPLACER_SPEED_UP;
+	static const std::string KEY_OBJECTPLACER_SPEED_DOWN;
 	static const std::string KEY_OBJECTPLACER_FREEZE_TIME;
 	static const std::string KEY_OBJECTPLACER_FREEZE_POSITION;
 	static const std::string KEY_OBJECTPLACER_HELP;

@@ -137,6 +137,7 @@ void do_spawn_model_by_player(Hash propHash, char* model, std::string title, boo
 	bool translatable = get_ground_height_at_position(r_coords, &objZBase);
 	if (translatable)
 	{
+		coords.z = objZBase;
 		if (minDimens.z < 0)
 		{
 			coords.z -= minDimens.z;
@@ -182,14 +183,6 @@ void do_spawn_model(Hash propHash, char* model, std::string title, SimpleVector3
 		ss2 << "TIMEOUT: " << model;
 		write_text_to_log_file(ss2.str());
 		return;
-	}
-
-	STREAMING::REQUEST_COLLISION_FOR_MODEL(propHash);
-	while (!STREAMING::HAS_COLLISION_FOR_MODEL_LOADED(propHash) && GetTickCount() < now + 5000)
-	{
-		set_status_text_centre_screen("Waiting for collision model");
-		make_periodic_feature_call();
-		WAIT(0);
 	}
 
 	Object obj = OBJECT::CREATE_OBJECT_NO_OFFSET(propHash, coords->x, coords->y, coords->z, creationParam1, creationParam2, creationParam3);
@@ -754,7 +747,8 @@ bool prop_spawned_instances_menu()
 
 		WAIT(0);
 	}
-	while (requireRefreshOfPropInstanceMenu);
+	while (requireRefreshOfPropInstanceMenu && propsWeCreated.size() > 0 );
+
 	return false;
 }
 
