@@ -80,7 +80,7 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile)
 
 	char Path[MAX_PATH];
 
-	IStreamPtr output;
+	FileStream* output;
 	std::wstring ws;
 	ws.assign(outputFile.begin(), outputFile.end());
 	BSTR bs = SysAllocStringLen(ws.data(), ws.size());
@@ -104,11 +104,25 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile)
 		{
 			write_text_to_log_file("Save complete");
 			write_text_to_log_file(outputFile);
-			result = false;
+			result = true;
 		}
 
-		output->Release();
+		int count = 0;
+		do
+		{
+			count = output->Release();
+		} while (count > 0);
+
+		if (count == 0)
+		{
+			write_text_to_log_file("File closed, zero count");
+		}
+		else
+		{
+			write_text_to_log_file("File closed, non-zero count");
+		}
 	}
+	return result;
 }
 
 bool parse_xml_for_propset(std::string inputFile, SavedPropSet* set)

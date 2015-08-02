@@ -23,7 +23,7 @@ class FileStream : public IStream
 	}
 
 public:
-	HRESULT static OpenFile(LPCWSTR pName, IStream ** ppStream, bool fWrite)
+	HRESULT static OpenFile(LPCWSTR pName, FileStream ** ppStream, bool fWrite)
 	{
 		HANDLE hFile = ::CreateFileW(pName,
 			fWrite ? GENERIC_WRITE : GENERIC_READ, FILE_SHARE_READ,
