@@ -48,8 +48,8 @@ const std::vector<HOTKEY_DEF> HOTKEY_AVAILABLE_FUNCS{
 	{ "Skin Customise Menu", HKEY_MENU_SKIN_CUST },
 	{ "Next Radio Track", HKEY_MENU_NEXT_RADIO_TRACK },
 	{ "Toggle Night Vision", HKEY_TOGGLE_NIGHT_VIS },
-	{ "Toggle Thermal Vision", HKEY_TOGGLE_THERMAL_VIS },
-	{ "Drive as Passenger", HKEY_PASSENGER }
+	{ "Toggle Thermal Vision", HKEY_TOGGLE_THERMAL_VIS }
+	//{ "Drive as Passenger", HKEY_PASSENGER }
 };
 
 void change_hotkey_function(int hotkey, int funcIndex);
