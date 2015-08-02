@@ -83,7 +83,7 @@ void set_neonLights(bool applied, std::vector<int> extras)
 {
 	int loc = extras.at(0);
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-	int rCol, bCol, gCol = 0;
+	int rCol = 0, gCol = 0, bCol = 0;
 	bool lightFound = false;
 
 	if (!is_this_a_car(veh))
@@ -95,8 +95,8 @@ void set_neonLights(bool applied, std::vector<int> extras)
 	if (applied) // Turn on the neon lights
 	{
 		VEHICLE::_SET_VEHICLE_NEON_LIGHT_ENABLED(veh, loc, true);
-		VEHICLE::_GET_VEHICLE_NEON_LIGHTS_COLOUR(veh, &rCol, &bCol, &gCol);
-		if (!rCol && !bCol && !gCol)
+		VEHICLE::_GET_VEHICLE_NEON_LIGHTS_COLOUR(veh, &rCol, &gCol, &bCol);
+		if (!rCol && !gCol && !bCol)
 		{
 			NeonLightsColor col = NEON_COLORS.at(0);
 			VEHICLE::_SET_VEHICLE_NEON_LIGHTS_COLOUR(veh, col.rVal, col.gVal, col.bVal);
