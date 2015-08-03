@@ -176,7 +176,7 @@ void begin_prop_placement(SpawnedPropInstance prop)
 
 		float groundZ;
 		float aboveGroundMargin = 0.15f;
-		bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(newCamCoords.x, newCamCoords.y, entityCoords.z + 3.0f, &groundZ);
+		bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(newCamCoords.x, newCamCoords.y, entityCoords.z + 3.0f, &groundZ) == 1;
 		if (groundFound && groundZ > newCamCoords.z - aboveGroundMargin)
 		{
 			float limitedCamAngle = radToDeg(asin((newCamCoords.z - entityCoords.z) / cameraDistance));

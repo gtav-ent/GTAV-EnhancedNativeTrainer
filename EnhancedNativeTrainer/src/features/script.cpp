@@ -1357,7 +1357,8 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
-	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS();
+	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS() == 1;
+
 	std::ostringstream ss;
 	ss << "Online: " << (online ? "Yes" : "No");
 	set_status_text_centre_screen(ss.str());

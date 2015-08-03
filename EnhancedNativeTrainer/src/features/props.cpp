@@ -95,7 +95,7 @@ void manage_prop_set()
 */
 bool get_ground_height_at_position(Vector3 coords, float* result)
 {
-	return GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z, result);
+	return GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(coords.x, coords.y, coords.z, result) == 1;
 }
 
 void do_spawn_model_by_player(Hash propHash, char* model, std::string title, bool silent)
@@ -868,7 +868,7 @@ bool is_prop_on_fire(std::vector<int> extras)
 		set_status_text_centre_screen("Null prop - label E");
 		return false;
 	}
-	return FIRE::IS_ENTITY_ON_FIRE(prop.instance);
+	return FIRE::IS_ENTITY_ON_FIRE(prop.instance) == 1;
 }
 
 void set_prop_on_fire(bool applied, std::vector<int> extras)
@@ -1190,7 +1190,11 @@ std::string activeSavedPropSlotName;
 void spawn_individual_object(SavedPropDBRow* row)
 {
 	SimpleVector3 coords = { row->posX, row->posY, row->posZ };
-	do_spawn_model(row->model, (char*)row->title.c_str(), row->title, &coords, row->pitch, row->roll, row->yaw, row->isInvincible, row->isImmovable, row->hasGravity, row->alpha, true);
+	do_spawn_model(row->model, (char*)row->title.c_str(), row->title,
+        &coords, row->pitch, row->roll, row->yaw,
+        row->isInvincible == 1, row->isImmovable == 1,
+        row->hasGravity == 1, row->alpha, true
+    );
 }
 
 bool spawn_saved_props(int slot, std::string caption)

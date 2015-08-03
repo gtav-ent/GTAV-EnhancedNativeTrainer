@@ -1007,7 +1007,7 @@ const std::vector<std::string> TOGGLE_IPLS
 
 bool is_ipl_active(std::vector<std::string> extras)
 {
-	return STREAMING::IS_IPL_ACTIVE(extras.at(0).c_str());
+	return STREAMING::IS_IPL_ACTIVE(extras.at(0).c_str()) == 1;
 }
 
 void set_ipl_active(bool applied, std::vector<std::string> extras)
