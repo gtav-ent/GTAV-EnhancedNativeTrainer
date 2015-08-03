@@ -209,6 +209,27 @@
     <Filter Include="Resource Files">
       <UniqueIdentifier>{daf42466-4307-41d1-93bd-2f966f36ad94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\storage">
+      <UniqueIdentifier>{e316c4db-1408-4ba8-bc9e-f05f14e98d1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\datasets">
+      <UniqueIdentifier>{39982bda-4966-409f-86ab-55360b228779}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\debug">
+      <UniqueIdentifier>{18b84b2e-e22a-4173-88d5-5ad810be3d36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\features">
+      <UniqueIdentifier>{2975e362-12e9-4621-96c7-50e7c026e6b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\io">
+      <UniqueIdentifier>{a3b2384e-7147-4386-9071-39555b362af9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\xml">
+      <UniqueIdentifier>{8963442c-6357-42f0-8455-04f71bd050be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ui_support">
+      <UniqueIdentifier>{bbadedf3-1da7-46a2-8671-d101d6cbe24d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
