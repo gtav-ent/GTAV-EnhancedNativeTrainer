@@ -1,202 +1,202 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\features\airbrake.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\anims.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\bodyguards.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\config_io.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="inc\xinput\CXBOXController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\storage\database.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\xml\filestream.hpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\hotkeys.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\io.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\keyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui_support\menu_functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\misc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\neonlightsmenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\paintmenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\propplacement.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\props.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\script.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\skins.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="inc\sqlite3\sqlite3.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\teleportation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\features\vehicles.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\vehmodmenu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\weapons.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\world.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\xinput.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\xml\filestream.hpp">
+      <Filter>Source Files\xml</Filter>
     </ClCompile>
     <ClCompile Include="src\xml\xml_import_export.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\xml</Filter>
     </ClCompile>
     <ClCompile Include="src\ui_support\file_dialog.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\ui_support</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui_support\menu_functions.cpp">
+      <Filter>Source Files\ui_support</Filter>
+    </ClCompile>
+    <ClCompile Include="src\storage\database.cpp">
+      <Filter>Source Files\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\config_io.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\io.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\keyboard.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\xinput.cpp">
+      <Filter>Source Files\io</Filter>
     </ClCompile>
     <ClCompile Include="src\debug\debuglog.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="inc\xinput\CXBOXController.cpp">
+      <Filter>Source Files\include\xinput</Filter>
+    </ClCompile>
+    <ClCompile Include="inc\sqlite3\sqlite3.c">
+      <Filter>Source Files\include\sqlite3</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\airbrake.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\anims.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\bodyguards.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\hotkeys.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\misc.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\neonlightsmenu.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\paintmenu.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\propplacement.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\props.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\script.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\skins.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\teleportation.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\time.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehicles.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehmodmenu.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\weapons.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\world.cpp">
+      <Filter>Source Files\features</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\features\airbrake.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\anims.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\bodyguards.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\config_io.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\xinput\CXBOXController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\datasets\data_props.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\xml\xml_import_export.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\xinput.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\world.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\weapons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\vehicles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="inc\types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\teleportation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\sqlite3\sqlite3ext.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\sqlite3\sqlite3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\skins.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\script.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\props.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\nativeCaller.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\misc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui_support\menu_functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\keyboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\io.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\hotkeys.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui_support\file_dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ent-enums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\debug\debuglog.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="src\xml\xml_import_export.h">
+      <Filter>Header Files\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui_support\file_dialog.h">
+      <Filter>Header Files\ui_support</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui_support\menu_functions.h">
+      <Filter>Header Files\ui_support</Filter>
     </ClInclude>
     <ClInclude Include="src\storage\database.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\config_io.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\io.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\keyboard.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\xinput.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\debuglog.h">
+      <Filter>Header Files\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\datasets\data_props.h">
+      <Filter>Header Files\datasets</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\main.h">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\nativeCaller.h">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\types.h">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\xinput\CXBOXController.h">
+      <Filter>Header Files\include\xinput</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\sqlite3\sqlite3.h">
+      <Filter>Header Files\include\sqlite3</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\sqlite3\sqlite3ext.h">
+      <Filter>Header Files\include\sqlite3</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\props.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\airbrake.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\anims.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\bodyguards.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\hotkeys.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\misc.h">
+      <Filter>Header Files\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\propplacement.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\script.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\skins.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\teleportation.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\time.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\vehicles.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\weapons.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\world.h">
+      <Filter>Header Files\features</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -229,6 +229,42 @@
     </Filter>
     <Filter Include="Header Files\ui_support">
       <UniqueIdentifier>{bbadedf3-1da7-46a2-8671-d101d6cbe24d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\debug">
+      <UniqueIdentifier>{c83c7dd4-06f9-4237-b6b2-237ee951fd31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\features">
+      <UniqueIdentifier>{ddca2cb6-ce1b-4904-b928-ef6de611af4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\io">
+      <UniqueIdentifier>{9a3db449-a7b7-4d94-aa7c-16c2a7ecedc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\storage">
+      <UniqueIdentifier>{7bd6dfe3-5d72-4ed8-ab74-c228302e2396}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ui_support">
+      <UniqueIdentifier>{0b1d4998-6d45-411b-bb9d-a56e0f3b339f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\xml">
+      <UniqueIdentifier>{eb8294df-2682-42f8-b498-a8b4c3c6756c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\include">
+      <UniqueIdentifier>{f65ee54a-3361-493f-b5a3-af21c91c8444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\include\xinput">
+      <UniqueIdentifier>{646929c3-198f-41ba-bf9f-09841761e331}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\include\sqlite3">
+      <UniqueIdentifier>{cfbc44a0-9752-421d-859f-786bc4227527}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\include">
+      <UniqueIdentifier>{1c083c41-1d3e-426e-91d2-2458890a254a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\include\sqlite3">
+      <UniqueIdentifier>{eb0aafd6-4605-4aba-a21a-c0f111b817ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\include\xinput">
+      <UniqueIdentifier>{6d34f6d0-6d08-4ee2-ace7-58a74b795c93}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
