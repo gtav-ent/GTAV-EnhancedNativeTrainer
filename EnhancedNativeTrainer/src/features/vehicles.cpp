@@ -28,6 +28,7 @@ bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehSpawnInto = false;
 bool featureVehSpawnTuned = false;
+bool featureVehSpawnOptic = false;
 bool featureVehicleDoorInstant = false;
 bool featureWearHelmetOff = false;
 bool featureWearHelmetOffUpdated = false;
@@ -370,9 +371,15 @@ void process_veh_menu()
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Spawn Vehicles Fully Tuned";
+	toggleItem->caption = "Spawn Vehicles Fully Tuned (Performance)";
 	toggleItem->value = i++;
 	toggleItem->toggleValue = &featureVehSpawnTuned;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Spawn Vehicles Fully Tuned (Optic)";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureVehSpawnOptic;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
@@ -768,7 +775,7 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 
 		if (featureVehSpawnTuned)
 		{
-			fully_tune_vehicle(veh);
+			fully_tune_vehicle(veh, false, featureVehSpawnOptic);
 		}
 
 		if (featureVehSpawnInto)
@@ -810,6 +817,7 @@ void add_vehicle_feature_enablements(std::vector<FeatureEnabledLocalDefinition>*
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnOptic", &featureVehSpawnOptic });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
 }

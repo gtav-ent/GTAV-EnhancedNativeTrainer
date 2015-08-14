@@ -189,4 +189,4 @@ bool inline is_this_a_heli_or_plane(Vehicle veh)
 
 bool did_player_just_enter_vehicle(Ped playerPed);
 
-void fully_tune_vehicle(Vehicle veh, bool repaint = true);
+void fully_tune_vehicle(Vehicle veh, bool repaint = true, bool optics = true);
