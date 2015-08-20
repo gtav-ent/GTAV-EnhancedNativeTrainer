@@ -125,89 +125,8 @@ void process_misc_trainerconfig_menu()
 	draw_generic_menu<int>(menuItems, &activeLineIndexTrainerConfig, caption, onconfirm_trainerconfig_menu, NULL, NULL);
 }
 
-bool featureFreezeRadio = false;
-int activeLineIndexRadio;
-std::string stationGameNames[] = { "RADIO_01_CLASS_ROCK", "RADIO_02_POP", "RADIO_03_HIPHOP_NEW", "RADIO_04_PUNK", "RADIO_05_TALK_01", "RADIO_06_COUNTRY", "RADIO_07_DANCE_01", "RADIO_08_MEXICAN",
-"RADIO_09_HIPHOP_OLD", "OFF", "RADIO_11_TALK_02", "RADIO_12_REGGAE", "RADIO_13_JAZZ", "RADIO_14_DANCE_02", "RADIO_15_MOTOWN", "RADIO_20_THELAB", "RADIO_16_SILVERLAKE", "RADIO_17_FUNK", "RADIO_18_90S_ROCK", "RADIO_19_USER" };
-std::string stationNames[] = { "Los Santos Rock", "Non-Stop-Pop", "Radio Los Santos", "Channel X", "West Coast Talk", "Rebel Radio", "Soulwax FM", "East Los FM", "West Coast Classics",
-"Off", "Blaine County Radio", "Blue Ark", "Worldwide FM", "FlyLo FM", "The Lowdown 91.1", "The Lab", "Radio Mirror Park", "Space 103.2", "Vinewood Boulevard", "Self Radio" };
-
-std::string findStationName(){
-	std::string name;
-
-	for (int i = 0; i < 20; i++){
-		if (stationGameNames[i] == AUDIO::GET_RADIO_STATION_NAME(AUDIO::GET_PLAYER_RADIO_STATION_INDEX())){
-			name = stationNames[i];
-			break;
-		}
-	}
-
-	return name;
-}
-
-int favoriteStation = 0; 
-std::vector<MenuItem<int>*> radioMenuItems; //outside the function so that we can make the title update
-bool onconfirm_radio_menu(MenuItem<int> choice)
-{
-	
-	switch (activeLineIndexRadio)
-	{
-	case 1:
-		AUDIO::SKIP_RADIO_FORWARD();
-		break;
-	case 3:
-		favoriteStation = AUDIO::GET_PLAYER_RADIO_STATION_INDEX();
-		radioMenuItems[3]->caption = "Set Favorite Station: " + findStationName();
-		break;
-	default:
-		break;
-	}
-	return false;
-}
-
-void process_radio_menu(){
-	radioMenuItems.clear();
-	std::string caption = "Radio Options";
-
-	MenuItem<int> *item;
-	ToggleMenuItem<int>* toggleItem;;
-	int i = 0;
-
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Portable Radio";
-	toggleItem->value = i++;
-	toggleItem->toggleValue = &featurePlayerRadio;
-	toggleItem->toggleValueUpdated = &featurePlayerRadioUpdated;
-	radioMenuItems.push_back(toggleItem);
-
-	item = new MenuItem<int>();
-	item->caption = "Next Radio Track";
-	item->value = i++;
-	radioMenuItems.push_back(item);
-
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Radio Always Off";
-	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureRadioAlwaysOff;
-	toggleItem->toggleValueUpdated = &featureRadioAlwaysOffUpdated;
-	radioMenuItems.push_back(toggleItem);
-
-	item = new MenuItem<int>();
-	item->caption = "Set Favorite Station: " + findStationName();
-	item->value = i++;
-	item->isLeaf = true;
-	radioMenuItems.push_back(item);
-
-	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Freeze Radio";
-	toggleItem->value = i++;
-	toggleItem->toggleValue = &featureFreezeRadio;
-	radioMenuItems.push_back(toggleItem);
-
-	draw_generic_menu<int>(radioMenuItems, &activeLineIndexRadio, caption, onconfirm_radio_menu, NULL, NULL);
-}
-
 int activeLineIndexMisc = 0;
+
 bool onconfirm_misc_menu(MenuItem<int> choice)
 {
 	switch (activeLineIndexMisc)
@@ -216,8 +135,8 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 		process_misc_trainerconfig_menu();
 		break;
 		// next radio track
-	case 1:
-		process_radio_menu();
+	case 2:
+		AUDIO::SKIP_RADIO_FORWARD();
 		break;
 		// switchable features
 	default:
@@ -228,15 +147,16 @@ bool onconfirm_misc_menu(MenuItem<int> choice)
 
 void process_misc_menu()
 {
-	const int lineCount = 4;
+	const int lineCount = 5;
 
 	std::string caption = "Miscellaneous Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-			{ "Trainer Options", NULL, NULL, false },
-			{ "Radio Options", NULL, NULL, false },
-			{ "Hide HUD", &featureMiscHideHud, &featureMiscHideHudUpdated },
-			{ "Reset All Settings", NULL, NULL, true },
+		{ "Trainer Options", NULL, NULL, false },
+		{ "Portable Radio", &featurePlayerRadio, &featurePlayerRadioUpdated, true },
+		{ "Next Radio Track", NULL, NULL, true },
+		{ "Radio Always Off", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated, true },
+		{ "Hide HUD", &featureMiscHideHud, &featureMiscHideHudUpdated },
 	};
 
 	draw_menu_from_struct_def(lines, lineCount, &activeLineIndexMisc, caption, onconfirm_misc_menu);
@@ -294,11 +214,6 @@ void update_misc_features(BOOL playerExists, Ped playerPed)
 		}
 	}
 
-	//Lock the station to what was set
-	if (featureFreezeRadio){
-		AUDIO::SET_RADIO_TO_STATION_NAME(AUDIO::GET_RADIO_STATION_NAME(favoriteStation));
-	}
-
 	// hide hud
 	if (featureMiscHideHud)
 	{
@@ -331,7 +246,6 @@ void update_misc_features(BOOL playerExists, Ped playerPed)
 
 void add_misc_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
-	results->push_back(FeatureEnabledLocalDefinition{ "featureFreezeRadio", &featureFreezeRadio });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerRadio", &featurePlayerRadio, &featurePlayerRadioUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureRadioAlwaysOff", &featureRadioAlwaysOff, &featureRadioAlwaysOffUpdated });
 
@@ -347,7 +261,7 @@ void add_misc_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* re
 
 void add_misc_generic_settings(std::vector<StringPairSettingDBRow>* results)
 {
-	results->push_back(StringPairSettingDBRow{ "favoriteStation", std::to_string(favoriteStation) });
+
 }
 
 void handle_generic_settings_misc(std::vector<StringPairSettingDBRow>* settings)
