@@ -1288,7 +1288,7 @@ std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 			veh->tyreSmokeRGB[1] = sqlite3_column_int(stmt, index++);
 			veh->tyreSmokeRGB[2] = sqlite3_column_int(stmt, index++);
 
-			veh->convertibleRoofUp = sqlite3_column_int(stmt, index++);
+			veh->convertibleRoofUp = sqlite3_column_int(stmt, index++) == 1;
 
 			results.push_back(veh);
 

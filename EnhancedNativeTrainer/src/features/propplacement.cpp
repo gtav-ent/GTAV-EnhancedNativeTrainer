@@ -13,12 +13,14 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 bool pp_exit_flag = false;
 
-int pp_travel_speed = 0;
+int pp_travel_speed = 2;
 
 bool in_placement_mode = false;
 
 bool pp_frozen_time = false;
 bool pp_help_showing = true;
+
+const int MOVE_SPEED_COUNTS = 5;
 
 Vector3 pp_cur_location;
 Vector3 pp_cur_rotation;
@@ -174,7 +176,7 @@ void begin_prop_placement(SpawnedPropInstance prop)
 
 		float groundZ;
 		float aboveGroundMargin = 0.15f;
-		bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(newCamCoords.x, newCamCoords.y, entityCoords.z + 3.0f, &groundZ);
+		bool groundFound = GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(newCamCoords.x, newCamCoords.y, entityCoords.z + 3.0f, &groundZ) == 1;
 		if (groundFound && groundZ > newCamCoords.z - aboveGroundMargin)
 		{
 			float limitedCamAngle = radToDeg(asin((newCamCoords.z - entityCoords.z) / cameraDistance));
@@ -298,12 +300,18 @@ void create_prop_placement_help_text()
 	switch (pp_travel_speed)
 	{
 	case 0:
-		pp_travel_speedStr = "Slow";
+		pp_travel_speedStr = "Very Slow";
 		break;
 	case 1:
-		pp_travel_speedStr = "Fast";
+		pp_travel_speedStr = "Slow";
 		break;
 	case 2:
+		pp_travel_speedStr = "Normal";
+		break;
+	case 3:
+		pp_travel_speedStr = "Fast";
+		break;
+	case 4:
 		pp_travel_speedStr = "Very Fast";
 		break;
 	}
@@ -312,10 +320,10 @@ void create_prop_placement_help_text()
 
 	propPlacerStatusLines.push_back("Default Object Placement Keys (change in XML):");
 	propPlacerStatusLines.push_back("Q/Z - Move Up/Down");
-	propPlacerStatusLines.push_back("A/D - Rotate Left/Right (Alt: Tilt)");
-	propPlacerStatusLines.push_back("W/S - Move Forward/Back (Alt: Tilt)");
+	propPlacerStatusLines.push_back("A/D - Rotate Left/Right (Alt: Roll)");
+	propPlacerStatusLines.push_back("W/S - Move Forward/Back (Alt: Pitch)");
 	propPlacerStatusLines.push_back("Alt - Alternate Movement");
-	propPlacerStatusLines.push_back("Shift - Cycle Move Speeds");
+	propPlacerStatusLines.push_back("[ and ] - Decrease/Increase Move Speed");
 	propPlacerStatusLines.push_back("T - Toggle Frozen Time");
 	propPlacerStatusLines.push_back("G - Toggle Object Frozen On Exit");
 	propPlacerStatusLines.push_back("H - Toggle This Help");
@@ -351,18 +359,26 @@ void prop_placement()
 
 	//float tmpHeading = pp_cur_heading += ;
 
-	float rotationSpeed = 2.5;
+	float rotationSpeed = 2.5f;
 	float forwardPush;
 
 	switch (pp_travel_speed)
 	{
 	case 0:
-		forwardPush = 0.2f;
+		rotationSpeed = 0.5f;
+		forwardPush = 0.04f;
 		break;
 	case 1:
-		forwardPush = 0.8f;
+		rotationSpeed = 1.0f;
+		forwardPush = 0.1f;
 		break;
 	case 2:
+		forwardPush = 0.2f;
+		break;
+	case 3:
+		forwardPush = 0.8f;
+		break;
+	case 4:
 		forwardPush = 1.6f;
 		break;
 	}
@@ -387,12 +403,27 @@ void prop_placement()
 
 	ENTITY::SET_ENTITY_VELOCITY(currentProp.instance, 0.0f, 0.0f, 0.0f);
 
-	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED) || IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED))
+	if (IsControllerButtonJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED_CYCLE))
 	{
 		pp_travel_speed++;
-		if (pp_travel_speed > 2)
+		if (pp_travel_speed >= MOVE_SPEED_COUNTS)
 		{
 			pp_travel_speed = 0;
+		}
+	}
+
+	if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED_UP))
+	{
+		if (pp_travel_speed < MOVE_SPEED_COUNTS - 1)
+		{
+			pp_travel_speed++;
+		}
+	}
+	else if (IsKeyJustUp(KeyConfig::KEY_OBJECTPLACER_SPEED_DOWN))
+	{
+		if (pp_travel_speed > 0)
+		{
+			pp_travel_speed--;
 		}
 	}
 

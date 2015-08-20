@@ -42,6 +42,8 @@ void reset_skin_globals();
 
 bool process_skinchanger_menu();
 
+bool process_skinchanger_category_menu();
+
 bool process_prop_menu();
 
 bool onconfirm_props_texture_menu(MenuItem<int> choice);
@@ -61,3 +63,7 @@ bool process_savedskin_slot_menu(int slot);
 bool spawn_saved_skin(int slot, std::string caption);
 
 void save_current_skin(int slot);
+
+void add_skin_generic_settings(std::vector<StringPairSettingDBRow>* results);
+
+void handle_generic_settings_skin(std::vector<StringPairSettingDBRow>* settings);

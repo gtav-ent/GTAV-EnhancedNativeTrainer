@@ -99,7 +99,7 @@ void show_file_open_dialog(std::string title, LoadFileDialogCallback* callback)
 	ofn.lpstrTitle = title.c_str();
 	ofn.nMaxFileTitle = 0;
 	ofn.lpstrInitialDir = NULL;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
 	// Display the Open dialog box. 
 
@@ -167,7 +167,7 @@ void show_file_save_dialog(std::string title, SaveFileDialogCallback* callback)
 	sfn.lpstrTitle = title.c_str();
 	sfn.nMaxFileTitle = 0;
 	sfn.lpstrInitialDir = NULL;
-	sfn.Flags = OFN_OVERWRITEPROMPT;
+	sfn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 
 	// Display the Open dialog box. 
 

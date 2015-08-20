@@ -45,7 +45,8 @@
     <key function="objectplacer_back" value="VK_KEY_S"/>
     <key function="objectplacer_rotate_left" value="VK_KEY_A"/>
     <key function="objectplacer_rotate_right" value="VK_KEY_D"/>
-    <key function="objectplacer_speed" value="VK_SHIFT"/>
+    <key function="objectplacer_speed_up" value="VK_OEM_6"/>
+    <key function="objectplacer_speed_down" value="VK_OEM_4"/>
     <key function="objectplacer_freeze_time" value="VK_KEY_T"/>
     <key function="objectplacer_freeze_position" value="VK_KEY_G"/>
     <key function="objectplacer_help" value="VK_KEY_H"/>

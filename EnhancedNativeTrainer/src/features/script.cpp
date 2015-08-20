@@ -500,7 +500,7 @@ void process_player_menu()
 	std::string caption = "Player Options";
 
 	StandardOrToggleMenuDef lines[lineCount] = {
-		{ "Player Skin", NULL, NULL, false },
+		{ "Player Appearance", NULL, NULL, false },
 		{ "Heal Player", NULL, NULL, true },
 		{ "Add Cash", NULL, NULL, true, CASH },
 		{ "Wanted Level", NULL, NULL, true, WANTED },
@@ -1021,6 +1021,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_props_generic_settings(&settings);
 	add_weapons_generic_settings(&settings);
 	add_bodyguards_generic_settings(&settings);
+	add_skin_generic_settings(&settings);
 
 	settings.push_back(StringPairSettingDBRow{ "frozenWantedLevel", std::to_string(frozenWantedLevel) });
 
@@ -1055,6 +1056,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_weapons(&settings);
 
 	handle_generic_settings_bodyguards(&settings);
+
+	handle_generic_settings_skin(&settings);
 }
 
 DWORD WINAPI save_settings_thread(LPVOID lpParameter)
@@ -1354,7 +1357,8 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
-	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS();
+	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS() == 1;
+
 	std::ostringstream ss;
 	ss << "Online: " << (online ? "Yes" : "No");
 	set_status_text_centre_screen(ss.str());

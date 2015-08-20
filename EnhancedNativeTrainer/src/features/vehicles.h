@@ -172,6 +172,31 @@ void set_neonLights(bool applied, std::vector<int> extras);
 
 bool process_neon_lights_menu();
 
+struct TireSmokeColor
+{
+	std::string colorString;
+	int rVal, gVal, bVal;
+};
+
+void apply_smoke_colors(int colorIndex);
+
+void onhighlight_smoke_selection(MenuItem<int> smokeColorIndex);
+
+bool onconfirm_smoke_selection(MenuItem<int> choice);
+
+void set_smoke(bool applied, std::vector<int> extras);
+
+bool process_smoke_colour_menu();
+
+void turnSignalLeft();
+void turnSignalRight();
+
+bool isTurnleft();
+bool isTurnRight();
+
+void setTurnLeft(bool toggle);
+void setTurnRight(bool toggle);
+
 void drive_passenger();
 
 bool inline is_this_a_car(Vehicle veh)
@@ -179,6 +204,13 @@ bool inline is_this_a_car(Vehicle veh)
 	// Return true if the current vehicle is a car, e.g. as certain vehicles don't support neon lights
 	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
 	return !(VEHICLE::IS_THIS_MODEL_A_BIKE(et) || VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et) || VEHICLE::IS_THIS_MODEL_A_TRAIN(et) || VEHICLE::IS_THIS_MODEL_A_BICYCLE(et) || VEHICLE::IS_THIS_MODEL_A_BOAT(et));
+}
+
+bool inline is_this_a_motorcycle(Vehicle veh)
+{
+	// Return true if the current vehicle is a car, e.g. as certain vehicles don't support neon lights
+	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
+	return VEHICLE::IS_THIS_MODEL_A_BIKE(et);
 }
 
 bool inline is_this_a_heli_or_plane(Vehicle veh)
@@ -189,4 +221,4 @@ bool inline is_this_a_heli_or_plane(Vehicle veh)
 
 bool did_player_just_enter_vehicle(Ped playerPed);
 
-void fully_tune_vehicle(Vehicle veh, bool repaint = true);
+void fully_tune_vehicle(Vehicle veh, bool repaint = true, bool optics = true);

@@ -129,6 +129,12 @@ void trigger_function_for_hotkey(int hotkey)
 	case HKEY_PASSENGER:
 		drive_passenger();
 		break;
+	case HKEY_TOGGLE_TURN_SIGNAL_LEFT:
+		turnSignalLeft();
+		break;
+	case HKEY_TOGGLE_TURN_SIGNAL_RIGHT:
+		turnSignalRight();
+		break;
 	default:
 	{
 		std::ostringstream ss;

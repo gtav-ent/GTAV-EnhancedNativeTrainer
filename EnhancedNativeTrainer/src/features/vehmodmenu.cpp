@@ -46,6 +46,8 @@ const static int SPECIAL_ID_FOR_PLATE_TEXT = 96;
 
 const static int SPECIAL_ID_FOR_NEON_LIGHTS = 97;
 
+const static int SPECIAL_ID_FOR_TIRE_SMOKE = 98;
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -687,7 +689,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 	case -3: //Add All Mods Pimp My Ride
 
-		fully_tune_vehicle(veh, false);
+		fully_tune_vehicle(veh, false, false);
 
 		set_status_text("Added all available upgrades");
 		break;
@@ -709,6 +711,10 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 	case SPECIAL_ID_FOR_NEON_LIGHTS:
 		process_neon_lights_menu();
+		return false;
+
+	case SPECIAL_ID_FOR_TIRE_SMOKE:
+		process_smoke_colour_menu();
 		return false;
 
 	default:
@@ -862,6 +868,15 @@ bool process_vehmod_menu()
 		MenuItem<int>* item = new MenuItem<int>();
 		item->caption = "Neon Lights Menu";
 		item->value = SPECIAL_ID_FOR_NEON_LIGHTS;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
+	if (is_this_a_car(veh) || is_this_a_motorcycle(veh))
+	{
+		MenuItem<int>* item = new MenuItem<int>();
+		item->caption = "Tire Smoke Menu";
+		item->value = SPECIAL_ID_FOR_TIRE_SMOKE;
 		item->isLeaf = false;
 		menuItems.push_back(item);
 	}
@@ -1097,7 +1112,7 @@ void set_chrome_wheels_enabled(Vehicle veh, bool enabled)
 }
 
 
-void fully_tune_vehicle(Vehicle veh, bool repaint)
+void fully_tune_vehicle(Vehicle veh, bool repaint, bool optics)
 {
 	VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
@@ -1106,23 +1121,25 @@ void fully_tune_vehicle(Vehicle veh, bool repaint)
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
 
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_SPOILER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SPOILER) - 1, 1); //--Spoilers
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_FRONTBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FRONTBUMPER) - 1, 1); //--Front Bumper
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_REARBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_REARBUMPER) - 1, 1); //--Rear Bumper
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_SIDESKIRT, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SIDESKIRT) - 1, 1); //--Side Skirt
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_EXHAUST, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_EXHAUST) - 1, 1); //--Exhaust
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_CHASSIS, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_CHASSIS) - 1, 1); //--Chassis or roll cage
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_GRILLE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_GRILLE) - 1, 1); //--Grille
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_HOOD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_HOOD) - 1, 1); //--Hood
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_FENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FENDER) - 1, 1); //--Fender
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_RIGHTFENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_RIGHTFENDER) - 1, 1); //--Right Fender
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ROOF, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ROOF) - 1, MOD_ROOF); //--Roof
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_HORNS, HORN_MUSICAL5, 0);										  //--Horns
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_SUSPENSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SUSPENSION) - 1, 1); //--Suspension
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //--Armor
+	if (optics) {
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SPOILER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SPOILER) - 1, 1); //--Spoilers
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_FRONTBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FRONTBUMPER) - 1, 1); //--Front Bumper
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_REARBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_REARBUMPER) - 1, 1); //--Rear Bumper
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SIDESKIRT, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SIDESKIRT) - 1, 1); //--Side Skirt
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_EXHAUST, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_EXHAUST) - 1, 1); //--Exhaust
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_CHASSIS, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_CHASSIS) - 1, 1); //--Chassis or roll cage
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_GRILLE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_GRILLE) - 1, 1); //--Grille
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_HOOD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_HOOD) - 1, 1); //--Hood
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_FENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FENDER) - 1, 1); //--Fender
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_RIGHTFENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_RIGHTFENDER) - 1, 1); //--Right Fender
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ROOF, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ROOF) - 1, MOD_ROOF); //--Roof
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_HORNS, HORN_MUSICAL5, 0);										  //--Horns
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SUSPENSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SUSPENSION) - 1, 1); //--Suspension
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //--Armor
 
-	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, PLATE_YANKTON);
-	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENHANCED");
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, PLATE_YANKTON);
+//		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENHANCED");
+	}
 
 	VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0f);
 

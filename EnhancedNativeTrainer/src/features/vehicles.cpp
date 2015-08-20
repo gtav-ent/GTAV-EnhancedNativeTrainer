@@ -28,6 +28,7 @@ bool featureNoVehFallOffUpdated = false;
 bool featureVehSpeedBoost = false;
 bool featureVehSpawnInto = false;
 bool featureVehSpawnTuned = false;
+bool featureVehSpawnOptic = false;
 bool featureVehicleDoorInstant = false;
 bool featureWearHelmetOff = false;
 bool featureWearHelmetOffUpdated = false;
@@ -259,6 +260,48 @@ void on_toggle_invincibility(MenuItem<int> choice)
 	featureVehInvincibleUpdated = true;
 }
 
+bool leftLight = false, rightLight = false;
+
+bool isTurnLeft(){
+	return leftLight;
+}
+bool isTurnRight(){
+	return rightLight;
+}
+
+void setTurnLeft(bool toggle){
+	leftLight = toggle;
+}
+void setTurnRight(bool toggle){
+	rightLight = toggle;
+}
+
+void turnSignalLeft(){
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+	if (isTurnRight()){
+		VEHICLE::SET_VEHICLE_INDICATOR_LIGHTS(veh, 0, false);
+		setTurnRight(false);
+	}
+
+	leftLight = !leftLight;
+	VEHICLE::SET_VEHICLE_INDICATOR_LIGHTS(veh, 1, leftLight);
+}
+
+void turnSignalRight(){
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+	if (isTurnLeft()){
+		VEHICLE::SET_VEHICLE_INDICATOR_LIGHTS(veh, 1, false);
+		setTurnLeft(false);
+	}
+
+	rightLight = !rightLight;
+	VEHICLE::SET_VEHICLE_INDICATOR_LIGHTS(veh, 0, rightLight);
+}
+
 bool onconfirm_veh_menu(MenuItem<int> choice)
 {
 	// common variables
@@ -288,6 +331,12 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 		break;
 	case 13:
 		if (process_veh_door_menu()) return false;
+		break;
+	case 14:
+		turnSignalLeft();
+		break;
+	case 15:
+		turnSignalRight();
 		break;
 		// switchable features
 	default:
@@ -370,9 +419,15 @@ void process_veh_menu()
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Spawn Vehicles Fully Tuned";
+	toggleItem->caption = "Spawn Vehicles Fully Tuned (Performance)";
 	toggleItem->value = i++;
 	toggleItem->toggleValue = &featureVehSpawnTuned;
+	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Spawn Vehicles Fully Tuned (Optic)";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureVehSpawnOptic;
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
@@ -391,6 +446,18 @@ void process_veh_menu()
 	item->caption = "Door Control";
 	item->value = i++;
 	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->isLeaf = true;
+	item->value = i++;
+	item->caption = "Turn Signal Left";
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->isLeaf = true;
+	item->value = i++;
+	item->caption = "Turn Signal Right";
 	menuItems.push_back(item);
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexVeh, caption, onconfirm_veh_menu, NULL, NULL);
@@ -768,7 +835,7 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 
 		if (featureVehSpawnTuned)
 		{
-			fully_tune_vehicle(veh);
+			fully_tune_vehicle(veh, false, featureVehSpawnOptic);
 		}
 
 		if (featureVehSpawnInto)
@@ -810,6 +877,7 @@ void add_vehicle_feature_enablements(std::vector<FeatureEnabledLocalDefinition>*
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnInto", &featureVehSpawnInto });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpeedBoost", &featureVehSpeedBoost });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnTuned", &featureVehSpawnTuned });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureVehSpawnOptic", &featureVehSpawnOptic });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWearHelmetOff", &featureWearHelmetOff, &featureWearHelmetOffUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureVehInvulnIncludesCosmetic", &featureVehInvulnIncludesCosmetic, &featureVehInvincibleUpdated });
 }
