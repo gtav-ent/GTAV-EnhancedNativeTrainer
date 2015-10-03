@@ -287,10 +287,9 @@ bool onconfirm_veh_menu(MenuItem<int> choice)
 	case 5: // mods
 		if (process_vehmod_menu()) return false;
 		break;
-	case 13:
+	case 14: // door menu
 		if (process_veh_door_menu()) return false;
 		break;
-		// switchable features
 	default:
 		break;
 	}
@@ -377,7 +376,7 @@ void process_veh_menu()
 	menuItems.push_back(toggleItem);
 
 	toggleItem = new ToggleMenuItem<int>();
-	toggleItem->caption = "Spawn Vehicles Fully Tuned (Optic)";
+	toggleItem->caption = "Spawn Vehicles Fully Tuned (Aesthetics)";
 	toggleItem->value = i++;
 	toggleItem->toggleValue = &featureVehSpawnOptic;
 	menuItems.push_back(toggleItem);
@@ -1055,12 +1054,12 @@ void save_current_vehicle(int slot)
 				ENTDatabase* database = get_database();
 				if (database->save_vehicle(veh, result, slot))
 				{
-					set_status_text("Saved Vehicle");
+					set_status_text("Vehicle saved");
 					activeSavedVehicleSlotName = result;
 				}
 				else
 				{
-					set_status_text("Save Error");
+					set_status_text("Save error");
 				}
 			}
 		}

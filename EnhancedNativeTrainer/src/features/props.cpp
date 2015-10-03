@@ -1366,7 +1366,7 @@ bool onconfirm_savedprops_slot_menu(MenuItem<int> choice)
 		database->populate_saved_prop_set(set);
 		cb->data = set;
 
-		set_status_text("Please wait, a save dialog should appear shortly...");
+		set_status_text("A save dialog should appear shortly...");
 
 		show_save_dialog_in_thread(title, cb);
 		break;
@@ -1447,7 +1447,7 @@ bool onconfirm_savedprops_menu(MenuItem<int> choice)
 		LoadFileDialogCallback* cb = new LoadFileDialogCallback();
 		activeLoadFileCallbacks.insert(cb);
 
-		set_status_text("Please wait, a load dialog should appear shortly...");
+		set_status_text("A load dialog should appear shortly...");
 
 		show_load_dialog_in_thread(title, cb);
 		return false;

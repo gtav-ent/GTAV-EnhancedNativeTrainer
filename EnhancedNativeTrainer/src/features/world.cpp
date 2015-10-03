@@ -71,11 +71,11 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		}
 		else if (!featureWeatherFreeze)
 		{
-			set_status_text("Weather freeze disabled");
+			set_status_text("Weather unfrozen");
 		}
 		else
 		{
-			set_status_text("Please set a weather value first");
+			set_status_text("Set a weather value first");
 			featureWeatherFreeze = false;
 		}
 		break;
@@ -92,7 +92,7 @@ bool onconfirm_weather_menu(MenuItem<std::string> choice)
 		GRAPHICS::CLEAR_TIMECYCLE_MODIFIER();
 
 		std::ostringstream ss2;
-		ss2 << "Weather Now " << choice.caption;
+		ss2 << "Weather: " << choice.caption;
 		set_status_text(ss2.str());
 	}
 

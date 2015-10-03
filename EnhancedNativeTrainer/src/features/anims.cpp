@@ -22212,7 +22212,7 @@ bool process_anims_menu()
 {
 	if (!loaded)
 	{
-		set_status_text("Anims not loaded yet, please try later");
+		set_status_text("Anims not loaded yet, try again later");
 		return false;
 	}
 

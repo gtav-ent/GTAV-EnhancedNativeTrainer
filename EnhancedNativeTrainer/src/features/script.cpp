@@ -827,7 +827,7 @@ void ScriptMain()
 		if (!database->open())
 		{
 			write_text_to_log_file("Failed to open database");
-			set_status_text("ENT couldn't open its database - sorry, exiting");
+			set_status_text("ENT couldn't open the database - exiting");
 			database = NULL;
 			return;
 		}
