@@ -1004,7 +1004,7 @@ void teleport_to_last_prop()
 
 	GAMEPLAY::GET_MODEL_DIMENSIONS(playerModel, &minDimens, &maxDimens);
 	coords.z += ((maxDimens.z - minDimens.z) / 2.0f);
-	if (minDimens.z < 0);
+	if (minDimens.z < 0)
 	{
 		coords.z -= minDimens.z;
 	}
@@ -1325,8 +1325,8 @@ bool onconfirm_savedprops_slot_menu(MenuItem<int> choice)
 		save_current_props(activeSavedPropSetIndex);
 		requireRefreshOfPropsSaveSlots = true;
 		requireRefreshOfPropsSlotMenu = true;
+		break;
 	}
-	break;
 	case 3: //rename
 	{
 		std::string result = show_keyboard(NULL, (char*)activeSavedPropSlotName.c_str());
@@ -1369,6 +1369,10 @@ bool onconfirm_savedprops_slot_menu(MenuItem<int> choice)
 		set_status_text("Please wait, a save dialog should appear shortly...");
 
 		show_save_dialog_in_thread(title, cb);
+		break;
+	}
+	default:
+	{
 		break;
 	}
 	return false;

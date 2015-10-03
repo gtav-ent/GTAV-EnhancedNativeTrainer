@@ -78,8 +78,6 @@ bool generate_xml_for_propset(SavedPropSet* props, std::string outputFile)
 		pXMLRootElem->appendChild(objectNode, 0);
 	}
 
-	char Path[MAX_PATH];
-
 	FileStream* output;
 	std::wstring ws;
 	ws.assign(outputFile.begin(), outputFile.end());

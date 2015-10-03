@@ -147,11 +147,11 @@ bool is_fivem()
 //Converts Radians to Degrees
 float degToRad(float degs)
 {
-	return degs*3.141592653589793 / 180;
+	return degs*(float)3.141592653589793 / (float)180.0;
 }
 
 //Converts Degrees to Radians
 float radToDeg(float rads)
 {
-	return rads * (180 / 3.141592653589793);
+	return rads * ((float)180.0 / (float)3.141592653589793);
 }
