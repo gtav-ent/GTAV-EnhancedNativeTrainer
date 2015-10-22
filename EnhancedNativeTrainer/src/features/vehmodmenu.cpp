@@ -46,6 +46,8 @@ const static int SPECIAL_ID_FOR_PLATE_TEXT = 96;
 
 const static int SPECIAL_ID_FOR_NEON_LIGHTS = 97;
 
+const static int SPECIAL_ID_FOR_ORNAMENTS = 98; // we may or may not need this, can't figure out if we will or not
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
