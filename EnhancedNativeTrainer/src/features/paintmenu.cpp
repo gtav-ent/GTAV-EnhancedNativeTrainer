@@ -536,7 +536,7 @@ bool process_paint_menu_liveries()
 		std::string modItemNameStr;
 
 		char* modItemNameChr = VEHICLE::GET_LIVERY_NAME(veh, i);
-		if (modItemNameChr == NULL)
+		if (modItemNameChr == NULL || modItemNameChr !=NULL)  //? Would it not be better using !=null instead of == null?  
 		{
 			std::ostringstream ss;
 			ss << "Livery #" << (i+1);

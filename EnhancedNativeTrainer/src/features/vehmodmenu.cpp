@@ -281,7 +281,7 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 		modItemNameStr = ss.str();
 	}
 	else
-	{
+	{ //could this be the reason ornaments are 28? 
 		char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, category, index);
 		bool foundName = false;
 		if (modItemNameChr != NULL && strlen(modItemNameChr) > 0)
@@ -315,7 +315,7 @@ void addClanLogoToVehicle(Vehicle vehicle, Ped ped)
 		int alpha = 200;
 		if (modelHash == VEHICLE_WINDSOR)
 			alpha = 255;
-		GRAPHICS::_ADD_CLAN_DECAL_TO_VEHICLE(vehicle, ped, ENTITY::_GET_ENTITY_BONE_INDEX(vehicle, "chassis_dummy"), x.x, x.y, x.z, y.x, y.y, y.z, z.x, z.y, z.z, scale, 0, alpha);
+		GRAPHICS::_ADD_CLAN_DECAL_TO_VEHICLE(vehicle, ped, ENTITY::GET_ENTITY_BONE_INDEX_BY_NAME(vehicle, "chassis_dummy"), x.x, x.y, x.z, y.x, y.y, y.z, z.x, z.y, z.z, scale, 0, alpha);
 	}
 }
 

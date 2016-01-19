@@ -342,7 +342,7 @@ void update_features()
 	if (featurePlayerUnlimitedAbility)
 	{
 		if (bPlayerExists)
-			PLAYER::_RECHARGE_SPECIAL_ABILITY(player, 1);
+			PLAYER::SPECIAL_ABILITY_FILL_METER(player, 1);
 	}
 
 	// player no noise
@@ -359,21 +359,21 @@ void update_features()
 	if (featurePlayerFastSwimUpdated)
 	{
 		if (bPlayerExists && !featurePlayerFastSwim)
-			PLAYER::_SET_SWIM_SPEED_MULTIPLIER(player, 1.0);
+			PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(player, 1.0);
 		featurePlayerFastSwimUpdated = false;
 	}
 	if (featurePlayerFastSwim)
-		PLAYER::_SET_SWIM_SPEED_MULTIPLIER(player, 1.49);
+		PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(player, 1.49);
 
 	// player fast run
 	if (featurePlayerFastRunUpdated)
 	{
 		if (bPlayerExists && !featurePlayerFastRun)
-			PLAYER::_SET_MOVE_SPEED_MULTIPLIER(player, 1.0);
+			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.0);
 		featurePlayerFastRunUpdated = false;
 	}
 	if (featurePlayerFastRun)
-		PLAYER::_SET_MOVE_SPEED_MULTIPLIER(player, 1.49);
+		PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.49);
 
 	// player super jump
 	if (featurePlayerSuperJump)
@@ -1246,7 +1246,7 @@ std::vector<GraphicsTest> graphicsTests = {
 	{ GRAPHICS::_0x8CDE909A0370BB3A, false },
 	{ GRAPHICS::_0x8CDE909A0370BB3A, false },
 
-	{ GRAPHICS::_0x9DCE1F0F78260875, false },
+	{ GRAPHICS::ENABLE_ALIEN_BLOOD_VFX, false },
 	{ GRAPHICS::_0xCA4AE345A153D573, false },
 	{ GRAPHICS::_0x9B079E5221D984D3, false },
 	{ GRAPHICS::_0xA46B73FAA3460AE1, false },
@@ -1254,8 +1254,8 @@ std::vector<GraphicsTest> graphicsTests = {
 	{ GRAPHICS::_0x0E4299C549F0D1F1, false },
 	{ GRAPHICS::_0x02369D5C8A51FDCF, false },
 	{ GRAPHICS::_0x03300B57FCAC6DDB, false },
-	{ GRAPHICS::_0xAEEDAD1420C65CC0, false },
-	{ GRAPHICS::_0x4CC7F0FEA5283FE0, false },
+	{ GRAPHICS::_SET_FORCE_PED_FOOTSTEPS_TRACKS, false },
+	{ GRAPHICS::_SET_FORCE_VEHICLE_TRAILS, false },
 
 	{ GRAPHICS::_0x74C180030FDE4B69, false },
 	//{ GRAPHICS::_0xD1C55B110E4DF534, false },
