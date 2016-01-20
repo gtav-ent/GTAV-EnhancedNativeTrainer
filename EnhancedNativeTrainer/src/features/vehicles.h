@@ -30,6 +30,12 @@ struct PaintColour
 	int pearlAddition;
 };
 
+struct RGBColor
+{
+	std::string colorName;
+	int rVal, gVal, bVal;
+};
+
 extern const std::vector<PaintColour> PAINTS_METALLIC;
 
 extern const std::vector<std::string> VALUES_SUPERCARS;
@@ -172,6 +178,14 @@ void set_neonLights(bool applied, std::vector<int> extras);
 
 bool process_neon_lights_menu();
 
+void apply_smoke_colors(int colorIndex);
+
+void onhighlight_tire_smoke_selection(MenuItem<int> choice);
+
+bool onconfirm_tire_smoke_selection(MenuItem<int> choice);
+
+bool process_tire_smoke_menu();
+
 void drive_passenger();
 
 bool inline is_this_a_car(Vehicle veh)
@@ -185,6 +199,13 @@ bool inline is_this_a_heli_or_plane(Vehicle veh)
 {
 	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
 	return VEHICLE::IS_THIS_MODEL_A_HELI(et) || VEHICLE::IS_THIS_MODEL_A_PLANE(et);
+}
+
+bool inline is_this_a_tire_vehicle(Vehicle veh)
+{
+	// Return true if the current vehicle is powered by the contact of tire with the ground, e.g. as certain vehicles don't support tire smoke
+	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
+	return VEHICLE::IS_THIS_MODEL_A_BICYCLE(et) || VEHICLE::IS_THIS_MODEL_A_BIKE(et) || VEHICLE::IS_THIS_MODEL_A_CAR(et) || VEHICLE::IS_THIS_MODEL_A_QUADBIKE(et);
 }
 
 bool did_player_just_enter_vehicle(Ped playerPed);

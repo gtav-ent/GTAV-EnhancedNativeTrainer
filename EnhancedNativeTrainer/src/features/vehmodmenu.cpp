@@ -48,6 +48,8 @@ const static int SPECIAL_ID_FOR_NEON_LIGHTS = 97;
 
 const static int SPECIAL_ID_FOR_ORNAMENTS = 98; // we may or may not need this, can't figure out if we will or not
 
+const static int SPECIAL_ID_FOR_TIRE_SMOKE = 99;
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -713,6 +715,10 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		process_neon_lights_menu();
 		return false;
 
+	case SPECIAL_ID_FOR_TIRE_SMOKE:
+		process_tire_smoke_menu();
+		return false;
+
 	default:
 		process_vehmod_category_menu(choice.value);
 		break;
@@ -864,6 +870,15 @@ bool process_vehmod_menu()
 		MenuItem<int>* item = new MenuItem<int>();
 		item->caption = "Neon Lights Menu";
 		item->value = SPECIAL_ID_FOR_NEON_LIGHTS;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
+	if (is_this_a_tire_vehicle(veh))
+	{
+		MenuItem<int>* item = new MenuItem<int>();
+		item->caption = "Tire Smoke Menu";
+		item->value = SPECIAL_ID_FOR_TIRE_SMOKE;
 		item->isLeaf = false;
 		menuItems.push_back(item);
 	}
