@@ -48,6 +48,8 @@ const static int SPECIAL_ID_FOR_NEON_LIGHTS = 97;
 
 const static int SPECIAL_ID_FOR_ORNAMENTS = 98; // we may or may not need this, can't figure out if we will or not
 
+const static int SPECIAL_ID_FOR_TIRE_SMOKE = 99;
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -159,7 +161,13 @@ std::string getHornTitle(int index)
 	case 31: v_3 = "HORN_INDI_4"; break;
 	case 32: v_3 = "HORN_LUXE1"; break;
 	case 33: v_3 = "HORN_LUXE2"; break;
-	case 34: v_3 = "HORN_LUXE3"; break;
+	case 34: v_3 = "HORN_LUXE3"; break; //added new horns after this line - are the cases related to horn index in ent-enums.h?
+	case 35: v_3 = "ORGAN_HORN_LOOP_01"; break; //index: 39
+	case 36: v_3 = "ORGAN_HORN_LOOP_02"; break; //41
+	//case 41: v_3 = "LOWRIDER_HORN_1"; break;
+	//case 41: v_3 = "LOWRIDER_HORN_2"; break;
+	case 37: v_3 = "XM15_HORN_01"; break; //46
+	case 38: v_3 = "XM15_HORN_02"; break; //47
 	}
 
 	if (v_3 == NULL)
@@ -713,6 +721,10 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		process_neon_lights_menu();
 		return false;
 
+	case SPECIAL_ID_FOR_TIRE_SMOKE:
+		process_smoke_colour_menu();
+		return false;
+
 	default:
 		process_vehmod_category_menu(choice.value);
 		break;
@@ -867,6 +879,16 @@ bool process_vehmod_menu()
 		item->isLeaf = false;
 		menuItems.push_back(item);
 	}
+
+	if (is_this_a_car(veh) || is_this_a_motorcycle(veh))
+	{
+		MenuItem<int>* item = new MenuItem<int>();
+		item->caption = "Tire Smoke Menu";
+		item->value = SPECIAL_ID_FOR_TIRE_SMOKE;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
 
 	FunctionDrivenToggleMenuItem<int> *toggleItem;
 
@@ -1105,6 +1127,12 @@ void fully_tune_vehicle(Vehicle veh, bool repaint, bool optics)
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
+	
+	//Below test works!
+	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BOBBLEHEAD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BOBBLEHEAD) - 1, 1); //--Bobblehead test
+	VEHICLE::SET_VEHICLE_MOD(veh, MOD_LIVERY, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_LIVERY) - 1, 1); //--Livery Test 
+	//end of test
+
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
 
@@ -1123,7 +1151,8 @@ void fully_tune_vehicle(Vehicle veh, bool repaint, bool optics)
 		VEHICLE::SET_VEHICLE_MOD(veh, MOD_HORNS, HORN_MUSICAL5, 0);										  //--Horns
 		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SUSPENSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SUSPENSION) - 1, 1); //--Suspension
 		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //--Armor
-
+		
+	
 		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, PLATE_YANKTON);
 //		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENHANCED");
 	}

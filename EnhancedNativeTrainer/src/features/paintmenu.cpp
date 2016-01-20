@@ -524,10 +524,10 @@ bool process_paint_menu_liveries()
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
 	int count = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
-	if (count <= 1)
+	/*if (count <= -2) //for some reason, one of the liveries for the halloween car is -1
 	{
 		set_status_text("No liveries for this vehicle");
-	}
+	}*/
 
 	std::vector<MenuItem<int>*> menuItems;
 
@@ -536,7 +536,7 @@ bool process_paint_menu_liveries()
 		std::string modItemNameStr;
 
 		char* modItemNameChr = VEHICLE::GET_LIVERY_NAME(veh, i);
-		if (modItemNameChr == NULL || modItemNameChr !=NULL)  //? Would it not be better using !=null instead of == null?  
+		if (modItemNameChr == NULL)  //?
 		{
 			std::ostringstream ss;
 			ss << "Livery #" << (i+1);
