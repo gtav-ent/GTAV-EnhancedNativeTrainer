@@ -405,12 +405,12 @@ void process_world_menu()
 	togItem->toggleValueUpdated = &featureBlackoutUpdated;
 	menuItems.push_back(togItem);
 
-	togItem = new ToggleMenuItem<int>();
+	/*togItem = new ToggleMenuItem<int>(); //Needs an updated mem address!
 	togItem->caption = "Heavy Snow";
 	togItem->value = 7;
 	togItem->toggleValue = &featureSnow;
 	togItem->toggleValueUpdated = &featureSnowUpdated;
-	menuItems.push_back(togItem);
+	menuItems.push_back(togItem);*/
 
 	draw_generic_menu<int>(menuItems, &activeLineIndexWorld, caption, onconfirm_world_menu, NULL, NULL);
 }
@@ -663,7 +663,7 @@ void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* r
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldNoPeds", &featureWorldNoPeds, &featureWorldNoPedsUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldNoTraffic", &featureWorldNoTraffic, &featureWorldNoTrafficUpdated });
 
-	results->push_back(FeatureEnabledLocalDefinition{ "featureSnow", &featureSnow });
+	//results->push_back(FeatureEnabledLocalDefinition{ "featureSnow", &featureSnow }); NEEDS NEW MEM ADDRESS
 }
 
 void add_world_generic_settings(std::vector<StringPairSettingDBRow>* settings)

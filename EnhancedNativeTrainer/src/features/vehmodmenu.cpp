@@ -86,8 +86,38 @@ std::string getModCategoryName(int i)
 		return "Suspension";
 	case 16:
 		return "Armor";
-	case 22:
+	case 25: 
+		return "Plate Holder";
+	case 26:
+		return "Vanity Plates";
+	case 27:
+		return "Interior Trim";
+	case 28:
+		return "Bobbleheads";
+	case 30:
+		return "Dials";
+	case 19:
 		return "Headlights";
+	case 33:
+		return "Steering Wheels";
+	case 34:
+		return "Gear Sticks";
+	case 35:
+		return "Plaques";
+	case 36:
+		return "Shelf Speakers";
+	case 37:
+		return "Trunk Speakers";
+	case 38:
+		return "Hydraulics";
+	case 39:
+		return "Engine Block";
+	case 40:
+		return "Air Filters";
+	case 45:
+		return "Tank";
+	case 48:
+		return "Liveries";
 	case SPECIAL_ID_FOR_WHEEL_CATEGORY:
 		return "Wheel Category";
 	case SPECIAL_ID_FOR_WHEEL_SELECTION:
@@ -350,7 +380,7 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
-	switch (lastSelectedModValue)
+	switch (lastSelectedModValue) //is this why Benny's mods aren't applying? It should go up to ~ 48
 	{
 	case 0:
 	case 1:
@@ -372,7 +402,22 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 	case 22:
 	case 23:
 	case 24:
-
+	case 25:
+	case 26:
+	case 27:
+	case 28:
+	case 30:
+	case 33:
+	case 34:
+	case 35:
+	case 36:
+	case 37:
+	case 38:
+	case 39:
+	case 40:
+	case 45:
+	case 48:
+		
 	{
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
@@ -784,7 +829,7 @@ bool process_vehmod_menu()
 
 	if (!isWeird && !isAircraft)
 	{
-		for (int i = 0; i < 30; i++)
+		for (int i = 0; i < 50; i++) //30
 		{
 			if (i == 23 || i == 24 || i == 21)
 			{
@@ -1128,10 +1173,10 @@ void fully_tune_vehicle(Vehicle veh, bool repaint, bool optics)
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
 	
-	//Below test works!
+	/*Below test works!
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BOBBLEHEAD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BOBBLEHEAD) - 1, 1); //--Bobblehead test
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_LIVERY, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_LIVERY) - 1, 1); //--Livery Test 
-	//end of test
+	end of test*/
 
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
