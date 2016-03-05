@@ -39,181 +39,10 @@ bool featureBlackoutUpdated = false;
 bool featureWeatherWind = false;
 bool featureWeatherFreeze = false;
 
-//GTA MP's Snow Mod
-bool featureSnow = false;
-bool featureSnowUpdated = false;
+
 
 std::string lastWeather;
 std::string lastWeatherName;
-
-
-/*******************Snow Related code********************/
-
-static bool configEnableDefault = true;
-static bool configVehicleTracks = true;
-static bool configPedTracks = true;
-static bool configVehicleTrackDepth = true; //false
-static bool configPedTrackDepth = true; //false
-
-
-// Find Pattern
-bool CompareMemory(const uint8_t* pData, const uint8_t* bMask, const char* sMask)
-{
-	for (; *sMask; ++sMask, ++pData, ++bMask)
-		if (*sMask == 'x' && *pData != *bMask)
-			return false;
-
-	return *sMask == NULL;
-}
-
-intptr_t FindPattern(const char* bMask, const char* sMask) //finds snow pattern in memory
-{
-	// Game Base & Size
-	static intptr_t pGameBase = (intptr_t)GetModuleHandle(nullptr);
-	static uint32_t pGameSize = 0;
-	if (!pGameSize)
-	{
-		MODULEINFO info;
-		GetModuleInformation(GetCurrentProcess(), (HMODULE)pGameBase, &info, sizeof(MODULEINFO));
-		pGameSize = info.SizeOfImage;
-	}
-
-	// Scan
-	for (uint32_t i = 0; i < pGameSize; i++)
-		if (CompareMemory((uint8_t*)(pGameBase + i), (uint8_t*)bMask, sMask))
-			return pGameBase + i;
-
-	return 0;
-}
-
-// Tracks
-void EnableTracks(bool tracksVehicle = true, bool tracksPeds = true, bool deepTracksVehicle = true, bool deepTracksPed = true)
-{
-	static auto VAR_FeetSnowTracks_call = FindPattern("\x80\x3D\x00\x00\x00\x00\x00\x48\x8B\xD9\x74\x37", "xx?????xxxxx");
-	if (!VAR_FeetSnowTracks_call)
-	{
-		set_status_text("Snow Mod is ~r~not compatible ~s~with this GTA Version #1!");
-		return;
-	}
-	static auto VAR_FeetSnowTracks = VAR_FeetSnowTracks_call + (*(int32_t *)(VAR_FeetSnowTracks_call + 2)) + 7;
-	//
-	static auto VAR_VehicleSnowTracks_call = FindPattern("\x40\x38\x3D\x00\x00\x00\x00\x48\x8B\x42\x20", "xxx????xxxx");
-	if (!VAR_VehicleSnowTracks_call)
-	{
-		set_status_text("Snow Mod is ~r~not compatible ~s~with this GTA Version #2!");
-		return;
-	}
-	static auto VAR_VehicleSnowTracks = VAR_VehicleSnowTracks_call + (*(int32_t *)(VAR_VehicleSnowTracks_call + 3)) + 7;
-	//
-
-	VirtualProtect((void*)VAR_FeetSnowTracks, 1, PAGE_EXECUTE_READWRITE, nullptr);
-	VirtualProtect((void*)VAR_VehicleSnowTracks, 1, PAGE_EXECUTE_READWRITE, nullptr);
-
-	// Enable/Disable Vehicle/Foot Snow tracks
-	*(uint8_t *)VAR_FeetSnowTracks = tracksVehicle;
-	*(uint8_t *)VAR_VehicleSnowTracks = tracksPeds;
-
-	// Switch for big/small tracks
-	static auto vehicleTrackTypes = FindPattern("\xB9\x00\x00\x00\x00\x84\xC0\x44\x0F\x44\xF1", "x????xxxxxx");
-	if (!vehicleTrackTypes)
-	{
-		set_status_text("Snow Mod is ~r~not compatible ~s~with this GTA Version #3!");
-		return;
-	}
-
-	VirtualProtect((void*)vehicleTrackTypes, 1, PAGE_EXECUTE_READWRITE, nullptr);
-	*(uint8_t *)(vehicleTrackTypes + 1) = deepTracksVehicle ? 0x13 : 0x14;
-
-	static auto pedTrackTypes = FindPattern("\xB9\x00\x00\x00\x00\x84\xC0\x0F\x44\xD9\x48\x8B\x4F\x30", "x????xxxxxxxxx");
-	if (!pedTrackTypes)
-	{
-		set_status_text("Snow Mod is ~r~not compatible ~s~with this GTA Version #4!");
-		return;
-	}
-	VirtualProtect((void*)pedTrackTypes, 1, PAGE_EXECUTE_READWRITE, nullptr);
-	*(uint8_t *)(pedTrackTypes + 1) = deepTracksPed ? 0x13 : 0x14;
-}
-
-// Snow
-void EnableSnow(bool featureSnow)
-{
-	if (featureSnow) //bEnable
-		EnableTracks(configVehicleTracks, configPedTracks, configVehicleTrackDepth, configPedTrackDepth);
-	else
-		EnableTracks();
-
-	// Adresses
-	static auto addr1 = FindPattern("\x80\x3D\x00\x00\x00\x00\x00\x74\x27\x84\xC0", "xx?????xxxx");
-	static auto addr2 = FindPattern("\x44\x38\x3D\x00\x00\x00\x00\x74\x0F", "xxx????xx");
-
-	// Outdated
-	// In future the patterns might change
-	if (!addr1 || !addr2)
-	{
-		static auto addr3 = FindPattern("\x40\x38\x35\x00\x00\x00\x00\x74\x18\x84\xdb\x74\x14", "xxx????xxxxxx");
-
-		if (!addr3)
-		{
-			set_status_text("Snow Mod is ~r~not compatible ~s~with this GTA Version #5!");
-			return;
-		}
-		else
-		{
-			addr1 = addr3;
-		}
-
-	}
-
-	// Original Memory
-	static uint8_t original1[14] = { 0 };
-	static uint8_t original2[15] = { 0 };
-
-	// Initialize
-	static bool bInitialized = false;
-	if (!bInitialized)
-	{
-		bInitialized = true;
-
-		// Unprotect Memory
-		VirtualProtect((void*)addr1, 13, PAGE_EXECUTE_READWRITE, nullptr);
-		VirtualProtect((void*)addr2, 14, PAGE_EXECUTE_READWRITE, nullptr);
-
-		// Copy original Memory
-		memcpy(&original1, (void*)addr1, 13);
-		memcpy(&original2, (void*)addr2, 14);
-	}
-
-	// Toggle
-	if (featureSnow) //bEnable
-	{
-		// Weather
-		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("XMAS");
-
-		// NOP checks
-		memset((void*)addr1, 0x90, 13);
-		memset((void*)addr2, 0x90, 14);
-
-		// Notification
-		set_status_text("Snow ~g~ON");
-	}
-	else
-	{
-		// Copy original memory
-		memcpy((void*)addr1, &original1, 13);
-		memcpy((void*)addr2, &original2, 14);
-
-		// Weather
-		GAMEPLAY::CLEAR_WEATHER_TYPE_PERSIST();
-		GAMEPLAY::SET_WEATHER_TYPE_NOW("CLEAR");
-
-		// Notification
-		set_status_text("Snow ~r~OFF");
-	}
-}
-
-
-/*************** End of Snow Related code****************/
-
 
 
 bool onconfirm_weather_menu(MenuItem<std::string> choice)
@@ -324,8 +153,6 @@ bool onconfirm_world_menu(MenuItem<int> choice)
 	case 5:
 		VEHICLE::SET_GARBAGE_TRUCKS(featureWorldGarbageTrucks);
 		break;
-	case 6:
-		EnableSnow(featureSnow);
 	}
 	return false;
 }
@@ -430,14 +257,12 @@ void reset_world_globals()
 	featureWorldNoTraffic = false;
 	featureBlackout = false;
 
-	featureSnow = false;
 	
 	featureWorldRandomCops =
 		featureWorldRandomTrains =
 		featureWorldRandomBoats =
 		featureWorldGarbageTrucks = true;
 
-	featureSnowUpdated = true;
 	featureWorldNoPedsUpdated = true;
 	featureWorldMoonGravityUpdated = true;
 	featureWorldNoTrafficUpdated = true;
@@ -627,22 +452,6 @@ void update_world_features()
 		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_lossantosintl");
 		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_prison");
 		GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("re_prisonvanbreak");
-	}
-
-	if (featureSnowUpdated)
-	{
-		if (featureSnow)
-		{
-		//	EnableSnow(!featureBlackout);
-			EnableSnow(true);
-			EnableTracks(true, true, true, true);
-		}
-		else
-		{
-			EnableSnow(false);
-			EnableTracks(false, false, false, false);
-		}
-		featureSnowUpdated = false;
 	}
 }
 
