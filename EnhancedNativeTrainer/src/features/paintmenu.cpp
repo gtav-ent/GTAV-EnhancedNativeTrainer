@@ -494,9 +494,9 @@ void onhighlight_livery(MenuItem<int> choice)
 	}
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-	//VEHICLE::SET_VEHICLE_LIVERY(veh, choice.value);
+	VEHICLE::SET_VEHICLE_LIVERY(veh, choice.value);
 
-	VEHICLE::SET_VEHICLE_MOD(veh, 48, choice.value, 0); //vehicle, modType (48 liv), mod index, bool customTires)
+	//VEHICLE::SET_VEHICLE_MOD(veh, 48, choice.value, 0); //vehicle, modType (48 liv), mod index, bool customTires)
 }
 
 bool onconfirm_livery(MenuItem<int> choice)
@@ -525,8 +525,8 @@ bool process_paint_menu_liveries()
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
-	//int count = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
-	int livCount = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 48); //48 is the livery index
+	int count = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
+	//int livCount = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 48); //48 is the livery index
 
 	/*if (count <= -2) //for some reason, one of the liveries for the halloween car is -1
 	{
@@ -535,7 +535,7 @@ bool process_paint_menu_liveries()
 
 	std::vector<MenuItem<int>*> menuItems;
 
-	for (int i = 0; i < livCount; i++) //count
+	for (int i = 0; i < count; i++) //livcount
 	{
 		std::string modItemNameStr;
 
@@ -558,8 +558,8 @@ bool process_paint_menu_liveries()
 		menuItems.push_back(item);
 	}
 
-	//int currentSelection = VEHICLE::GET_VEHICLE_LIVERY(veh);
-	int currentSelection = VEHICLE::GET_VEHICLE_MOD(veh, 48);
+	int currentSelection = VEHICLE::GET_VEHICLE_LIVERY(veh);
+	//int currentSelection = VEHICLE::GET_VEHICLE_MOD(veh, 48);
 	return draw_generic_menu<int>(menuItems, &currentSelection, "Liveries", onconfirm_livery, onhighlight_livery, NULL, vehicle_menu_interrupt);
 }
 

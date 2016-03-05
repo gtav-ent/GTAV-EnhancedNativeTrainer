@@ -69,6 +69,10 @@ bool featureThermalVision = false;
 bool featureThermalVisionUpdated = false;
 bool featureWantedLevelFrozen = false;
 bool featureWantedLevelFrozenUpdated = false;
+
+bool featureNoRagdoll = false; 
+bool featureNoRagdollUpdated = false;
+
 int  frozenWantedLevel = 0;
 
 // player model control, switching on normal ped model when needed	
@@ -256,7 +260,7 @@ void update_features()
 
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();	
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
 	//PLAYER::DISABLE_PLAYER_FIRING(playerPed, TRUE);
@@ -271,7 +275,7 @@ void update_features()
 
 	if (featurePlayerInvincible && bPlayerExists)
 	{
-			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
+		PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
 	if (featureWantedLevelFrozen)
@@ -291,7 +295,7 @@ void update_features()
 		PLAYER::SET_MAX_WANTED_LEVEL(5);
 		featureWantedLevelFrozenUpdated = false;
 	}
-	
+
 	// police ignore player
 	if (featurePlayerIgnoredByPolice)
 	{
@@ -382,10 +386,32 @@ void update_features()
 			GAMEPLAY::SET_SUPER_JUMP_THIS_FRAME(player);
 	}
 
+	//No Radgoll
+
+	if (featureNoRagdoll)
+	{
+		if (bPlayerExists)
+		{
+			PED::SET_PED_CAN_RAGDOLL(playerPed, 0);
+			PED::SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(playerPed, 0);
+		}
+	}
+	else if (featureNoRagdollUpdated)
+	{
+		if (bPlayerExists)
+		{
+			PED::SET_PED_CAN_RAGDOLL(playerPed, 1);
+			PED::SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(playerPed, 1);
+		}
+		featureNoRagdollUpdated = false;
+	}
+
+
 	//Player Invisible
 	if (featurePlayerInvisibleUpdated)
 	{
 		featurePlayerInvisibleUpdated = false;
+
 		if (bPlayerExists && featurePlayerInvisible)
 			ENTITY::SET_ENTITY_VISIBLE(playerPed, false);
 		else if (bPlayerExists){ ENTITY::SET_ENTITY_VISIBLE(playerPed, true); }
@@ -495,7 +521,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 18;
+	const int lineCount = 19;
 	
 	std::string caption = "Player Options";
 
@@ -513,6 +539,7 @@ void process_player_menu()
 		{ "Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true },
 		{ "Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true },
 		{ "Super Jump", &featurePlayerSuperJump, NULL, true },
+		{ "No Ragdoll", &featureNoRagdoll, &featureNoRagdollUpdated, true }, //could this be the toggle value?
 		{ "Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true },
 		{ "Drunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated, true },
 		{ "Night Vision", &featureNightVision, &featureNightVisionUpdated, true },
@@ -680,6 +707,9 @@ void reset_globals()
 		featurePlayerInvisible =
 	featureNightVision =
 	featureThermalVision =
+
+	featureNoRagdoll = 
+
 		featureWantedLevelFrozen = false;
 
 	featurePlayerInvincibleUpdated =
@@ -691,7 +721,9 @@ void reset_globals()
 	featurePlayerDrunkUpdated =
 	featureNightVisionUpdated =
 	featureThermalVisionUpdated =
-		featurePlayerInvisibleUpdated = 
+		featurePlayerInvisibleUpdated =
+
+		featureNoRagdollUpdated = 
 		featureWantedLevelFrozenUpdated = true;
 
 	set_status_text("All settings reset to defaults");
@@ -981,6 +1013,7 @@ void add_player_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun, &featurePlayerFastRunUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureNoRagdoll", &featureNoRagdoll, &featureNoRagdollUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureNightVision", &featureNightVision, &featureNightVisionUpdated });

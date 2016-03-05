@@ -82,6 +82,11 @@ bool onconfirm_color_menu_selection(MenuItem<int> choice);
 
 void onhighlight_color_menu_selection(MenuItem<int> choice);
 
+//Interior Trim 
+
+bool process_light_colors();
+bool process_trim_colors();
+
 //Vehicle mod getters and setters
 
 bool is_custom_tyres(std::vector<int> extras);
@@ -137,6 +142,8 @@ void onchange_veh_invincibility_mode(int value, SelectFromListMenuItem* source);
 int get_current_veh_eng_pow_index();
 
 void onchange_veh_eng_pow_index(int value, SelectFromListMenuItem* source);
+
+void onchange_veh_mass_index(int value, SelectFromListMenuItem* source);
 
 void set_old_vehicle_state(bool updatedState);
 

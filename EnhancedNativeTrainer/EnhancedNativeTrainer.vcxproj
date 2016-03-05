@@ -16,6 +16,7 @@
     <ClCompile Include="src\features\anims.cpp" />
     <ClCompile Include="src\features\bodyguards.cpp" />
     <ClCompile Include="src\features\hotkeys.cpp" />
+    <ClCompile Include="src\features\interiorTrimColour.cpp" />
     <ClCompile Include="src\features\misc.cpp" />
     <ClCompile Include="src\features\neonlightsmenu.cpp" />
     <ClCompile Include="src\features\propplacement.cpp" />
