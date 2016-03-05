@@ -901,7 +901,7 @@ bool process_vehmod_category_menu(int category)
 
 	for (int i = 0; i < count; i++)
 	{
-		if (!(category == 14 && i > 34))
+		if (!(category == 14 && i > 52)) //34
 		{
 			std::string modItemNameStr = getNormalItemTitle(veh, actualCategory, i);
 			MenuItem<int> *item = new MenuItem<int>();
