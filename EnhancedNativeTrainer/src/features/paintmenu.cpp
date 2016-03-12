@@ -495,6 +495,8 @@ void onhighlight_livery(MenuItem<int> choice)
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 	VEHICLE::SET_VEHICLE_LIVERY(veh, choice.value);
+
+	//VEHICLE::SET_VEHICLE_MOD(veh, 48, choice.value, 0); //vehicle, modType (48 liv), mod index, bool customTires)
 }
 
 bool onconfirm_livery(MenuItem<int> choice)
@@ -524,19 +526,21 @@ bool process_paint_menu_liveries()
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
 	int count = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
-	if (count <= 1)
+	//int livCount = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 48); //48 is the livery index
+
+	/*if (count <= -2) //for some reason, one of the liveries for the halloween car is -1
 	{
 		set_status_text("No liveries for this vehicle");
-	}
+	}*/
 
 	std::vector<MenuItem<int>*> menuItems;
 
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < count; i++) //livcount
 	{
 		std::string modItemNameStr;
 
 		char* modItemNameChr = VEHICLE::GET_LIVERY_NAME(veh, i);
-		if (modItemNameChr == NULL)
+		if (modItemNameChr == NULL)  //?
 		{
 			std::ostringstream ss;
 			ss << "Livery #" << (i+1);
@@ -555,6 +559,7 @@ bool process_paint_menu_liveries()
 	}
 
 	int currentSelection = VEHICLE::GET_VEHICLE_LIVERY(veh);
+	//int currentSelection = VEHICLE::GET_VEHICLE_MOD(veh, 48);
 	return draw_generic_menu<int>(menuItems, &currentSelection, "Liveries", onconfirm_livery, onhighlight_livery, NULL, vehicle_menu_interrupt);
 }
 
@@ -688,7 +693,8 @@ bool process_paint_menu()
 	}
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-	int liveryCount = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
+	//int liveryCount = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
+	int livCount = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 48);
 
 	std::vector<MenuItem<int>*> menuItems;
 
@@ -701,10 +707,10 @@ bool process_paint_menu()
 		menuItems.push_back(item);
 	}
 
-	if (liveryCount > 1)
+	if (livCount > 1)
 	{
 		std::ostringstream ss;
-		ss << "Liveries (" << liveryCount << ")";
+		ss << "Liveries (" << livCount << ")";
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = ss.str();
 		item->value = -1;

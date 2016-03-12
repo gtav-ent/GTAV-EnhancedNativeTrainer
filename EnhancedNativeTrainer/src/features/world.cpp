@@ -8,9 +8,12 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 
+
 #include "world.h"
 #include "script.h"
 #include "..\ui_support\menu_functions.h"
+#include <Psapi.h>
+#include <Windows.h>
 
 int activeLineIndexWorld = 0;
 int activeLineIndexWeather = 0;
@@ -35,8 +38,12 @@ bool featureBlackoutUpdated = false;
 
 bool featureWeatherWind = false;
 bool featureWeatherFreeze = false;
+
+
+
 std::string lastWeather;
 std::string lastWeatherName;
+
 
 bool onconfirm_weather_menu(MenuItem<std::string> choice)
 {
@@ -152,7 +159,7 @@ bool onconfirm_world_menu(MenuItem<int> choice)
 
 void process_world_menu()
 {
-	const int lineCount = 7;
+	const int lineCount = 8; // Amount of cases +1
 
 	std::string caption = "World Options";
 
@@ -225,6 +232,13 @@ void process_world_menu()
 	togItem->toggleValueUpdated = &featureBlackoutUpdated;
 	menuItems.push_back(togItem);
 
+	/*togItem = new ToggleMenuItem<int>(); //Needs an updated mem address!
+	togItem->caption = "Heavy Snow";
+	togItem->value = 7;
+	togItem->toggleValue = &featureSnow;
+	togItem->toggleValueUpdated = &featureSnowUpdated;
+	menuItems.push_back(togItem);*/
+
 	draw_generic_menu<int>(menuItems, &activeLineIndexWorld, caption, onconfirm_world_menu, NULL, NULL);
 }
 
@@ -243,6 +257,7 @@ void reset_world_globals()
 	featureWorldNoTraffic = false;
 	featureBlackout = false;
 
+	
 	featureWorldRandomCops =
 		featureWorldRandomTrains =
 		featureWorldRandomBoats =
@@ -456,6 +471,8 @@ void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* r
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldNoPeds", &featureWorldNoPeds, &featureWorldNoPedsUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldNoTraffic", &featureWorldNoTraffic, &featureWorldNoTrafficUpdated });
+
+	//results->push_back(FeatureEnabledLocalDefinition{ "featureSnow", &featureSnow }); NEEDS NEW MEM ADDRESS
 }
 
 void add_world_generic_settings(std::vector<StringPairSettingDBRow>* settings)
@@ -478,4 +495,5 @@ void handle_generic_settings_world(std::vector<StringPairSettingDBRow>* settings
 			lastWeatherName = setting.value;
 		}
 	}
+
 }
