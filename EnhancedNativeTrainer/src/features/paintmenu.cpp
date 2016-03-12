@@ -548,7 +548,17 @@ bool process_paint_menu_liveries()
 		}
 		else
 		{
-			modItemNameStr = std::string(modItemNameChr);
+			char* modItemNameTxt = UI::_GET_LABEL_TEXT(modItemNameChr);
+			if (modItemNameTxt != NULL)
+			{
+				modItemNameStr = std::string(modItemNameTxt);
+			}
+			else
+			{
+				std::ostringstream ss;
+				ss << "Livery #" << (i + 1);
+				modItemNameStr = ss.str();
+			}
 		}
 
 		MenuItem<int> *item = new MenuItem<int>();
@@ -693,8 +703,8 @@ bool process_paint_menu()
 	}
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-	//int liveryCount = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
-	int livCount = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 48);
+	int livCount = VEHICLE::GET_VEHICLE_LIVERY_COUNT(veh);
+	//int livCount = VEHICLE::GET_NUM_VEHICLE_MODS(veh, 48);
 
 	std::vector<MenuItem<int>*> menuItems;
 

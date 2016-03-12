@@ -167,7 +167,7 @@ void update_features()
 {
 	if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
 	{
-		if (onlineWarningShown)
+		if (!onlineWarningShown)
 		{
 			set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is not for use online");
 			onlineWarningShown = true;
