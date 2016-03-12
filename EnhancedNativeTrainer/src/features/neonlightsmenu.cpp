@@ -57,7 +57,7 @@ bool onconfirm_neon_lights_selection(MenuItem<int> choice)
 
 	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
-		set_status_text("Player isn't in a vehicle");
+		set_status_text("~r~Error:~r~ Player isn't in a vehicle");
 		return true;
 	}
 
@@ -88,7 +88,7 @@ void set_neonLights(bool applied, std::vector<int> extras)
 
 	if (!is_this_a_car(veh))
 	{
-		set_status_text("Can't add neon lights to this vehicle");
+		set_status_text("~r~Error:~r~ Can't add neon lights to this vehicle");
 		return;
 	}
 

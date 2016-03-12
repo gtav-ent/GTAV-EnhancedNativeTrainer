@@ -271,7 +271,7 @@ void maintain_bodyguards()
 
 	while (iter != spawnedBodyguards.end())
 	{
-		if (PED::_IS_PED_DEAD(*iter, true))
+		if (PED::IS_PED_DEAD_OR_DYING(*iter, true))
 		{
 			// clean up PED stuff, for now let's assume the game handles everything and we just worry about our vector
 			iter = spawnedBodyguards.erase(iter);
