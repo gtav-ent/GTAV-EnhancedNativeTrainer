@@ -1477,9 +1477,9 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "BTYPE3", "lgm_dlc_valentines2", "roosevelt2" },
 	{ "BANSHEE2", "lsc_jan2016", "banshee2_a" },
 	{ "SULTANRS", "lsc_jan2016", "sultan2_a" },
-	{ "TAMPA", "sssa_dlc_christmas_3", "tampa" }
+	{ "TAMPA", "sssa_dlc_christmas_3", "tampa" },
 	{ "SUPERVOLITO", "elt_dlc_apartments", "svolito" },
-	{ "SUPERVOLITO2", "elt_dlc_apartments", "svolito2" }
+	{ "SUPERVOLITO2", "elt_dlc_apartments", "svolito2" },
 	{ "COG55", "lgm_dlc_apartments", "cog55" },
 	{ "COG552", "lgm_dlc_apartments", "cog55" }, //armoured - remove and give custom pic
 	{ "COGNOSCENTI", "lgm_dlc_apartments", "cognosc" },
