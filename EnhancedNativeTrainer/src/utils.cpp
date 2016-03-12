@@ -16,7 +16,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <vector>
 #include <sstream>
 
-#include "debug\debuglog.h";
+#include "debug\debuglog.h"
 
 extern "C" IMAGE_DOS_HEADER __ImageBase; // MSVC specific, with other compilers use HMODULE from DllMain
 
@@ -147,11 +147,11 @@ bool is_fivem()
 //Converts Radians to Degrees
 float degToRad(float degs)
 {
-	return degs*3.141592653589793 / 180;
+	return degs*(float)3.141592653589793 / (float)180.0;
 }
 
 //Converts Degrees to Radians
 float radToDeg(float rads)
 {
-	return rads * (180 / 3.141592653589793);
+	return rads * ((float)180.0 / (float)3.141592653589793);
 }

@@ -42,11 +42,11 @@ bool IsKeyDown(std::string keyName)
 	bool result = IsKeyDown(key->keyCode);
 	if (result && key->modAlt)
 	{
-		result = (GetKeyState(VK_MENU) & 0x8000);
+		result = (GetKeyState(VK_MENU) & 0x8000) != 0;
 	}
 	if (result && key->modShift)
 	{
-		result = (GetKeyState(VK_SHIFT) & 0x8000);
+		result = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
 	}
 	if (result && key->modCtrl)
 	{
@@ -61,7 +61,7 @@ bool IsKeyDown(DWORD key)
 	{
 		return false;
 	}
-	return GetAsyncKeyState(key) & 0x8000;
+	return (GetAsyncKeyState(key) & 0x8000) != 0;
 	//return (key < KEYS_SIZE) ? ((GetTickCount() < keyStates[key].time + MAX_DOWN) && !keyStates[key].isUpNow) : false;
 }
 
@@ -77,11 +77,11 @@ bool IsKeyJustUp(std::string keyName, bool exclusive)
 	bool result = IsKeyJustUp(key->keyCode, exclusive);
 	if (result && key->modAlt)
 	{
-		result = (GetKeyState(VK_MENU) & 0x8000);
+		result = (GetKeyState(VK_MENU) & 0x8000) != 0;
 	}
 	if (result && key->modShift)
 	{
-		result = (GetKeyState(VK_SHIFT) & 0x8000);
+		result = (GetKeyState(VK_SHIFT) & 0x8000) != 0;
 	}
 	if (result && key->modCtrl)
 	{

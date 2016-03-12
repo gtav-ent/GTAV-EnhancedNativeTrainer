@@ -79,7 +79,7 @@ public:
 
 	inline int size()
 	{
-		return items.size();
+		return (int)items.size();
 	}
 };
 

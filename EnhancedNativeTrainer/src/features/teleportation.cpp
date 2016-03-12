@@ -57,6 +57,8 @@ std::vector<tele_location> LOCATIONS_SAFE = {
 std::vector<tele_location> LOCATIONS_LANDMARKS = {
 	{ "Airport Entrance", -1034.6f, -2733.6f, 13.8f },
 	{ "Airport Field", -1336.0f, -3044.0f, 13.9f },
+	{ "Airport Entrance Tower", -912.523f, -2529.81f, 41.96f },
+	{ "Airport Tower Roof", -982.67f, -2638.2f, 89.522f },
 	{ "Altruist Cult Camp", -1170.841f, 4926.646f, 224.295f },
 	{ "Calafia Train Bridge", -517.869f, 4425.284f, 89.795f },
 	{ "Cargo Ship", 899.678f, -2882.191f, 19.013f },
@@ -1007,7 +1009,7 @@ const std::vector<std::string> TOGGLE_IPLS
 
 bool is_ipl_active(std::vector<std::string> extras)
 {
-	return STREAMING::IS_IPL_ACTIVE(extras.at(0).c_str());
+	return STREAMING::IS_IPL_ACTIVE(extras.at(0).c_str()) == 1;
 }
 
 void set_ipl_active(bool applied, std::vector<std::string> extras)

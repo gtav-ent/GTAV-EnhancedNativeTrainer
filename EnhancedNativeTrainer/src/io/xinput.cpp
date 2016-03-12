@@ -62,7 +62,7 @@ bool IsControllerButtonDown(std::string btnName)
 		}
 		else
 		{
-			pressedNow = (state.Gamepad.wButtons & code);
+			pressedNow = (state.Gamepad.wButtons & code) != 0;
 		}
 
 		if (!pressedNow)
@@ -127,8 +127,8 @@ bool IsControllerButtonJustUp(std::string btnName)
 		}
 		else
 		{
-			pressedNow = (state.Gamepad.wButtons & code);
-			pressedBefore = (prevState.Gamepad.wButtons & code);
+			pressedNow = (state.Gamepad.wButtons & code) != 0;
+			pressedBefore = (prevState.Gamepad.wButtons & code) != 0;
 		}
 
 		if (!anyPressed && pressedNow)

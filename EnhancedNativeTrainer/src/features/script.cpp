@@ -69,6 +69,10 @@ bool featureThermalVision = false;
 bool featureThermalVisionUpdated = false;
 bool featureWantedLevelFrozen = false;
 bool featureWantedLevelFrozenUpdated = false;
+
+bool featureNoRagdoll = false; 
+bool featureNoRagdollUpdated = false;
+
 int  frozenWantedLevel = 0;
 
 // player model control, switching on normal ped model when needed	
@@ -256,7 +260,7 @@ void update_features()
 
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
-	Ped playerPed = PLAYER::PLAYER_PED_ID();	
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
 	//PLAYER::DISABLE_PLAYER_FIRING(playerPed, TRUE);
@@ -271,7 +275,7 @@ void update_features()
 
 	if (featurePlayerInvincible && bPlayerExists)
 	{
-			PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
+		PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
 	}
 
 	if (featureWantedLevelFrozen)
@@ -291,7 +295,7 @@ void update_features()
 		PLAYER::SET_MAX_WANTED_LEVEL(5);
 		featureWantedLevelFrozenUpdated = false;
 	}
-	
+
 	// police ignore player
 	if (featurePlayerIgnoredByPolice)
 	{
@@ -342,7 +346,7 @@ void update_features()
 	if (featurePlayerUnlimitedAbility)
 	{
 		if (bPlayerExists)
-			PLAYER::_RECHARGE_SPECIAL_ABILITY(player, 1);
+			PLAYER::SPECIAL_ABILITY_FILL_METER(player, 1);
 	}
 
 	// player no noise
@@ -359,21 +363,21 @@ void update_features()
 	if (featurePlayerFastSwimUpdated)
 	{
 		if (bPlayerExists && !featurePlayerFastSwim)
-			PLAYER::_SET_SWIM_SPEED_MULTIPLIER(player, 1.0);
+			PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(player, 1.0);
 		featurePlayerFastSwimUpdated = false;
 	}
 	if (featurePlayerFastSwim)
-		PLAYER::_SET_SWIM_SPEED_MULTIPLIER(player, 1.49);
+		PLAYER::SET_SWIM_MULTIPLIER_FOR_PLAYER(player, 1.49);
 
 	// player fast run
 	if (featurePlayerFastRunUpdated)
 	{
 		if (bPlayerExists && !featurePlayerFastRun)
-			PLAYER::_SET_MOVE_SPEED_MULTIPLIER(player, 1.0);
+			PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.0);
 		featurePlayerFastRunUpdated = false;
 	}
 	if (featurePlayerFastRun)
-		PLAYER::_SET_MOVE_SPEED_MULTIPLIER(player, 1.49);
+		PLAYER::SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER(player, 1.49);
 
 	// player super jump
 	if (featurePlayerSuperJump)
@@ -382,10 +386,32 @@ void update_features()
 			GAMEPLAY::SET_SUPER_JUMP_THIS_FRAME(player);
 	}
 
+	//No Radgoll
+
+	if (featureNoRagdoll)
+	{
+		if (bPlayerExists)
+		{
+			PED::SET_PED_CAN_RAGDOLL(playerPed, 0);
+			PED::SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(playerPed, 0);
+		}
+	}
+	else if (featureNoRagdollUpdated)
+	{
+		if (bPlayerExists)
+		{
+			PED::SET_PED_CAN_RAGDOLL(playerPed, 1);
+			PED::SET_PED_CAN_RAGDOLL_FROM_PLAYER_IMPACT(playerPed, 1);
+		}
+		featureNoRagdollUpdated = false;
+	}
+
+
 	//Player Invisible
 	if (featurePlayerInvisibleUpdated)
 	{
 		featurePlayerInvisibleUpdated = false;
+
 		if (bPlayerExists && featurePlayerInvisible)
 			ENTITY::SET_ENTITY_VISIBLE(playerPed, false);
 		else if (bPlayerExists){ ENTITY::SET_ENTITY_VISIBLE(playerPed, true); }
@@ -495,7 +521,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 18;
+	const int lineCount = 19;
 	
 	std::string caption = "Player Options";
 
@@ -513,6 +539,7 @@ void process_player_menu()
 		{ "Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true },
 		{ "Fast Run", &featurePlayerFastRun, &featurePlayerFastRunUpdated, true },
 		{ "Super Jump", &featurePlayerSuperJump, NULL, true },
+		{ "No Ragdoll", &featureNoRagdoll, &featureNoRagdollUpdated, true }, //could this be the toggle value?
 		{ "Invisibility", &featurePlayerInvisible, &featurePlayerInvisibleUpdated, true },
 		{ "Drunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated, true },
 		{ "Night Vision", &featureNightVision, &featureNightVisionUpdated, true },
@@ -680,6 +707,9 @@ void reset_globals()
 		featurePlayerInvisible =
 	featureNightVision =
 	featureThermalVision =
+
+	featureNoRagdoll = 
+
 		featureWantedLevelFrozen = false;
 
 	featurePlayerInvincibleUpdated =
@@ -691,7 +721,9 @@ void reset_globals()
 	featurePlayerDrunkUpdated =
 	featureNightVisionUpdated =
 	featureThermalVisionUpdated =
-		featurePlayerInvisibleUpdated = 
+		featurePlayerInvisibleUpdated =
+
+		featureNoRagdollUpdated = 
 		featureWantedLevelFrozenUpdated = true;
 
 	set_status_text("All settings reset to defaults");
@@ -827,7 +859,7 @@ void ScriptMain()
 		if (!database->open())
 		{
 			write_text_to_log_file("Failed to open database");
-			set_status_text("ENT couldn't open its database - sorry, exiting");
+			set_status_text("ENT couldn't open the database - exiting");
 			database = NULL;
 			return;
 		}
@@ -981,6 +1013,7 @@ void add_player_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastRun", &featurePlayerFastRun, &featurePlayerFastRunUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerSuperJump", &featurePlayerSuperJump });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureNoRagdoll", &featureNoRagdoll, &featureNoRagdollUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvisible", &featurePlayerInvisible, &featurePlayerInvisibleUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerDrunk", &featurePlayerDrunk, &featurePlayerDrunkUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureNightVision", &featureNightVision, &featureNightVisionUpdated });
@@ -1246,7 +1279,7 @@ std::vector<GraphicsTest> graphicsTests = {
 	{ GRAPHICS::_0x8CDE909A0370BB3A, false },
 	{ GRAPHICS::_0x8CDE909A0370BB3A, false },
 
-	{ GRAPHICS::_0x9DCE1F0F78260875, false },
+	{ GRAPHICS::ENABLE_ALIEN_BLOOD_VFX, false },
 	{ GRAPHICS::_0xCA4AE345A153D573, false },
 	{ GRAPHICS::_0x9B079E5221D984D3, false },
 	{ GRAPHICS::_0xA46B73FAA3460AE1, false },
@@ -1254,8 +1287,8 @@ std::vector<GraphicsTest> graphicsTests = {
 	{ GRAPHICS::_0x0E4299C549F0D1F1, false },
 	{ GRAPHICS::_0x02369D5C8A51FDCF, false },
 	{ GRAPHICS::_0x03300B57FCAC6DDB, false },
-	{ GRAPHICS::_0xAEEDAD1420C65CC0, false },
-	{ GRAPHICS::_0x4CC7F0FEA5283FE0, false },
+	{ GRAPHICS::_SET_FORCE_PED_FOOTSTEPS_TRACKS, false },
+	{ GRAPHICS::_SET_FORCE_VEHICLE_TRAILS, false },
 
 	{ GRAPHICS::_0x74C180030FDE4B69, false },
 	//{ GRAPHICS::_0xD1C55B110E4DF534, false },
@@ -1357,7 +1390,8 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
-	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS();
+	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS() == 1;
+
 	std::ostringstream ss;
 	ss << "Online: " << (online ? "Yes" : "No");
 	set_status_text_centre_screen(ss.str());

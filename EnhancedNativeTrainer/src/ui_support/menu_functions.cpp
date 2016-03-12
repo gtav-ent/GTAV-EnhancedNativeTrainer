@@ -395,11 +395,7 @@ void WantedSymbolItem::handleLeftPress()
 		std::stringstream ss;
 		if (currentWantedLevel > 0)
 		{
-			ss << "Wanted Level: " << currentWantedLevel << " Star";
-			if (currentWantedLevel != 1)
-			{
-				ss << "s"; //plural
-			}
+			ss << "Wanted level: " << currentWantedLevel << " star" << (currentWantedLevel != 1) ? "s" : "";
 		}
 		else
 		{
@@ -425,11 +421,7 @@ void WantedSymbolItem::handleRightPress()
 		PLAYER::SET_PLAYER_WANTED_LEVEL_NOW(player, 0);
 
 		std::stringstream ss;
-		ss << "Wanted Level: " << currentWantedLevel << " Star";
-		if (currentWantedLevel != 1)
-		{
-			ss << "s"; //plural
-		}
+		ss << "Wanted Level: " << currentWantedLevel << " Star" << (currentWantedLevel != 1) ? "s" : "";
 		set_status_text(ss.str());
 	}
 

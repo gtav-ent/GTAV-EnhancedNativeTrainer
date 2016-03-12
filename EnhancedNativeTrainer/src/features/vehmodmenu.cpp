@@ -46,6 +46,21 @@ const static int SPECIAL_ID_FOR_PLATE_TEXT = 96;
 
 const static int SPECIAL_ID_FOR_NEON_LIGHTS = 97;
 
+const static int SPECIAL_ID_FOR_ORNAMENTS = 98; // we may or may not need this, can't figure out if we will or not
+
+const static int SPECIAL_ID_FOR_TIRE_SMOKE = 99;
+
+const static int SPECIAL_ID_FOR_INTERIOR_COLOUR = 100;
+
+/*
+static Hash SUPPORTS_DIALSANDTRIM[] = { VEHICLE_BANSHEE2, VEHICLE_BUCCANEER2, VEHICLE_CHINO2, VEHICLE_FACTION2, VEHICLE_MOONBEAM2, VEHICLE_SULTANRS, VEHICLE_PRIMO2, VEHICLE_VOODOO };
+
+static Hash LOWRIDER_VEHS[] = { VEHICLE_BUCCANEER2, VEHICLE_CHINO2, VEHICLE_FACTION2, VEHICLE_MOONBEAM2, VEHICLE_PRIMO2, VEHICLE_VOODOO };
+
+static Hash SUPPORTS_TRIM[] = { VEHICLE_SCHAFTER3, VEHICLE_SCHAFTER4, VEHICLE_SCHAFTER5, VEHICLE_SCHAFTER6, VEHICLE_COG55, VEHICLE_COG552, VEHICLE_COGNOSCENTI, VEHICLE_COGNOSCENTI2, VEHICLE_BALLER3, VEHICLE_BALLER4, VEHICLE_BALLER5, VEHICLE_BALLER6 };
+
+*/
+
 std::string getModCategoryName(int i)
 {
 	switch (i)
@@ -84,6 +99,54 @@ std::string getModCategoryName(int i)
 		return "Armor";
 	case 22:
 		return "Headlights";
+	case 25: 
+		return "Plate Holder";
+	case 26:
+		return "Vanity Plates";
+	case 27:
+		return "Trim Design";
+	case 28:
+		return "Ornaments";
+	case 29:
+		return "Dashboard"; //The Banshee has a different interior Index than the lowriders
+	case 30:
+		return "Dials";
+	case 31:
+		return "Door Cards";
+	case 32:
+		return "Seats";
+	//case 19:
+		//return "Headlights";
+	case 33:
+		return "Steering Wheels";
+	case 34:
+		return "Gear Sticks";
+	case 35:
+		return "Plaques";
+	case 36:
+		return "Shelf Speakers";
+	case 37:
+		return "Trunk Speakers";
+	case 38:
+		return "Hydraulics";
+	case 39:
+		return "Engine Block";
+	case 40:
+		return "Misc Engine";
+	case 41:
+		return "Strut Braces";
+	case 42:
+		return "Arch Covers";
+	case 43:
+		return "Foglamps";
+	case 44:
+		return "Exterior Extra";
+	case 45:
+		return "Fuel Tank";
+	case 46:
+		return "Doors Extra";
+	case 48:
+		return "Liveries";
 	case SPECIAL_ID_FOR_WHEEL_CATEGORY:
 		return "Wheel Category";
 	case SPECIAL_ID_FOR_WHEEL_SELECTION:
@@ -92,6 +155,8 @@ std::string getModCategoryName(int i)
 		return "Window Tint";
 	case SPECIAL_ID_FOR_LICENSE_PLATES:
 		return "License Plates";
+	//case 50:
+		//return "case 50";
 	default:
 		return std::to_string(i);
 	}
@@ -119,6 +184,7 @@ const static std::string SUSP_PREFIXES[] = { "Lowered", "Street", "Sports", "Com
 
 std::string getHornTitle(int index)
 {
+	/*
 	char* v_3 = NULL;
 	switch (index)
 	{
@@ -157,7 +223,13 @@ std::string getHornTitle(int index)
 	case 31: v_3 = "HORN_INDI_4"; break;
 	case 32: v_3 = "HORN_LUXE1"; break;
 	case 33: v_3 = "HORN_LUXE2"; break;
-	case 34: v_3 = "HORN_LUXE3"; break;
+	case 34: v_3 = "HORN_LUXE3"; break; //added new horns after this line - are the cases related to horn index in ent-enums.h?
+	case 35: v_3 = "ORGAN_HORN_LOOP_01"; break; //index: 39
+	case 36: v_3 = "ORGAN_HORN_LOOP_02"; break; //41
+	//case 41: v_3 = "LOWRIDER_HORN_1"; break;
+	//case 41: v_3 = "LOWRIDER_HORN_2"; break;
+	case 37: v_3 = "XM15_HORN_01"; break; //46
+	case 38: v_3 = "XM15_HORN_02"; break; //47
 	}
 
 	if (v_3 == NULL)
@@ -172,7 +244,222 @@ std::string getHornTitle(int index)
 			return "Unknown Horn";
 		}
 		return std::string(label);
+	}*/
+
+	if (index == 0)
+	{
+		return "Truck Horn";
 	}
+	else if (index == 1)
+	{
+		return "Cop Horn";
+	}
+	else if (index == 2)
+	{
+		return "Clown Horn";
+	}
+	else if (index == 3)
+	{
+		return "Musical Horn 1";
+	}
+	else if (index == 4)
+	{
+		return "Musical Horn 2";
+	}
+	else if (index == 5)
+	{
+		return "Musical Horn 3";
+	}
+	else if (index == 6)
+	{
+		return "Musical Horn 4";
+	}
+	else if (index == 7)
+	{
+		return "Musical Horn 5";
+	}
+	else if (index == 8)
+	{
+		return "Sad Trombone";
+	}
+	else if (index == 9)
+	{
+		return "Classical Horn 1";
+	}
+	else if (index == 10)
+	{
+		return "Classical Horn 2";
+	}
+	else if (index == 11)
+	{
+		return "Classical Horn 3";
+	}
+	else if (index == 12)
+	{
+		return "Classical Horn 4";
+	}
+	else if (index == 13)
+	{
+		return "Classical Horn 5";
+	}
+	else if (index == 14)
+	{
+		return "Classical Horn 6";
+	}
+	else if (index == 15)
+	{
+		return "Classical Horn 7";
+	}
+	else if (index == 16)
+	{
+		return "Scale - Do";
+	}
+	else if (index == 17)
+	{
+		return "Scale - Re";
+	}
+	else if (index == 18)
+	{
+		return "Scale - Mi";
+	}
+	else if (index == 19)
+	{
+		return "Scale - Fa";
+	}
+	else if (index == 20)
+	{
+		return "Scale - Sol";
+	}
+	else if (index == 21)
+	{
+		return "Scale - La";
+	}
+	else if (index == 22)
+	{
+		return "Scale - Si";
+	}
+	else if (index == 23)
+	{
+		return "Scale - Do";
+	}
+	else if (index == 24)
+	{
+		return "Jazz Horn 1";
+	}
+	else if (index == 25)
+	{
+		return "Jazz Horn 2";
+	}
+	else if (index == 26)
+	{
+		return "Jazz Horn 3";
+	}
+	else if (index == 27)
+	{
+		return "Jazz Horn Loop";
+	}
+	else if (index == 28)
+	{
+		return "Star Spangled Banner 1";
+	}
+	else if (index == 29)
+	{
+		return "Star Spangled Banner 2";
+	}
+	else if (index == 30)
+	{
+		return "Star Spangled Banner 3";
+	}
+	else if (index == 31)
+	{
+		return "Star Spangled Banner 4";
+	}
+	else if (index == 32)
+	{
+		return "Classical Horn 8 Loop";
+	}
+	else if (index == 33)
+	{
+		return "Classical Horn 9 Loop";
+	}
+	else if (index == 34)
+	{
+		return "Classical Horn 10 Loop";
+	}
+	else if (index == 35)
+	{
+		return "Classical Horn 8";
+	}
+	else if (index == 36)
+	{
+		return "Classical Horn 9";
+	}
+	else if (index == 37)
+	{
+		return "Classical Horn 10";
+	}
+	else if (index == 38)
+	{
+		return "Funeral Loop";
+	}
+	else if (index == 39)
+	{
+		return "Funeral";
+	}
+	else if (index == 40)
+	{
+		return "Spooky Loop";
+	}
+	else if (index == 41)
+	{
+		return "Spooky";
+	}
+	else if (index == 42)
+	{
+		return "San Andreas Loop";
+	}
+	else if (index == 43)
+	{
+		return "San Andreas";
+	}
+	else if (index == 44)
+	{
+		return "Liberty City Loop";
+	}
+	else if (index == 45)
+	{
+		return "Liberty City";
+	}
+	else if (index == 46)
+	{
+		return "Festive Loop 1";
+	}
+	else if (index == 47)
+	{
+		return "Festive Loop 2";
+	}
+	else if (index == 48)
+	{
+		return "Festive Loop 3";
+	}
+	else if (index == 49)
+	{
+		return "Festive Loop 4";
+	}
+	else if (index == 50)
+	{
+		return "Festive Loop 5";
+	}
+	else if (index == 51)
+	{
+		return "Festive Loop 6";
+	}
+	else if (index == 52)
+	{
+		return "Festive Loop 7";
+	}
+
+	return "Unknown Horn";
 }
 
 int getHornDuration(int index)
@@ -214,6 +501,7 @@ int getHornDuration(int index)
 	case 6: v_D = 4500; break;
 	case 7: v_D = 4500; break;
 	case 8: v_D = 4500; break;
+	case 32: v_D = 1000; break;
 	default: v_D = 1000; break;
 	}
 
@@ -279,7 +567,7 @@ std::string getNormalItemTitle(Vehicle veh, int category, int index)
 		modItemNameStr = ss.str();
 	}
 	else
-	{
+	{ //could this be the reason ornaments are 28? 
 		char* modItemNameChr = VEHICLE::GET_MOD_TEXT_LABEL(veh, category, index);
 		bool foundName = false;
 		if (modItemNameChr != NULL && strlen(modItemNameChr) > 0)
@@ -313,7 +601,7 @@ void addClanLogoToVehicle(Vehicle vehicle, Ped ped)
 		int alpha = 200;
 		if (modelHash == VEHICLE_WINDSOR)
 			alpha = 255;
-		GRAPHICS::_ADD_CLAN_DECAL_TO_VEHICLE(vehicle, ped, ENTITY::_GET_ENTITY_BONE_INDEX(vehicle, "chassis_dummy"), x.x, x.y, x.z, y.x, y.y, y.z, z.x, z.y, z.z, scale, 0, alpha);
+		GRAPHICS::_ADD_CLAN_DECAL_TO_VEHICLE(vehicle, ped, ENTITY::GET_ENTITY_BONE_INDEX_BY_NAME(vehicle, "chassis_dummy"), x.x, x.y, x.z, y.x, y.y, y.z, z.x, z.y, z.z, scale, 0, alpha);
 	}
 }
 
@@ -334,13 +622,13 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 
 	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
-		set_status_text("Player isn't in a vehicle");
+		set_status_text("~r~Player isn't in a vehicle");
 		return false;
 	}
 
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
-	switch (lastSelectedModValue)
+	switch (lastSelectedModValue) //is this why Benny's mods aren't applying? It should go up to ~ 48
 	{
 	case 0:
 	case 1:
@@ -351,6 +639,7 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 	case 6:
 	case 7:
 	case 8:
+	case 9:
 	case 10:
 	case 11:
 	case 12:
@@ -362,7 +651,30 @@ bool onconfirm_vehmod_category_menu(MenuItem<int> choice)
 	case 22:
 	case 23:
 	case 24:
-
+	case 25:
+	case 26:
+	case 27:
+	case 28:
+	case 29:
+	case 30:
+	case 31:
+	case 32:
+	case 33:
+	case 34:
+	case 35:
+	case 36:
+	case 37:
+	case 38:
+	case 39:
+	case 40:
+	case 41:
+	case 42:
+	case 43:
+	case 44:
+	case 45:
+	case 46:
+	case 48:
+		
 	{
 		VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 
@@ -541,7 +853,7 @@ bool process_vehmod_category_menu(int category)
 
 	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
-		set_status_text("Player isn't in a vehicle");
+		set_status_text("~r~Player isn't in a vehicle");
 		return false;
 	}
 
@@ -589,7 +901,7 @@ bool process_vehmod_category_menu(int category)
 
 	for (int i = 0; i < count; i++)
 	{
-		if (!(category == 14 && i > 34))
+		if (!(category == 14 && i > 52)) //34
 		{
 			std::string modItemNameStr = getNormalItemTitle(veh, actualCategory, i);
 			MenuItem<int> *item = new MenuItem<int>();
@@ -660,7 +972,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 	if (!PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 	{
-		set_status_text("Player isn't in a vehicle");
+		set_status_text("~r~Player isn't in a vehicle");
 		return false;
 	}
 
@@ -687,7 +999,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 
 	case -3: //Add All Mods Pimp My Ride
 
-		fully_tune_vehicle(veh, false);
+		fully_tune_vehicle(veh, false, false);
 
 		set_status_text("Added all available upgrades");
 		break;
@@ -703,6 +1015,14 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		set_status_text("Removed all upgrades");
 		break;
 
+	case -5:
+		process_light_colors();
+		return false;
+
+	case -6:
+		process_trim_colors();
+		return false;
+
 	case  SPECIAL_ID_FOR_TOGGLE_VARIATIONS:
 		//these are toggles, do nothing
 		return false;
@@ -711,6 +1031,10 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		process_neon_lights_menu();
 		return false;
 
+	case SPECIAL_ID_FOR_TIRE_SMOKE:
+		process_smoke_colour_menu();
+		return false;
+		
 	default:
 		process_vehmod_category_menu(choice.value);
 		break;
@@ -723,7 +1047,7 @@ bool process_vehmod_menu()
 {
 	if (!PED::IS_PED_IN_ANY_VEHICLE(PLAYER::PLAYER_PED_ID(), 0))
 	{
-		set_status_text("Player isn't in a vehicle");
+		set_status_text("~r~Player isn't in a vehicle");
 		return false;
 	}
 
@@ -766,11 +1090,23 @@ bool process_vehmod_menu()
 		item4->value = -4;
 		item4->isLeaf = true;
 		menuItems.push_back(item4);
+
+		MenuItem<int> *item5 = new MenuItem<int>();
+		item5->caption = "Dash Color (74)"; //~HUD_COLOUR_GREYLIGHT~
+		item5->value = -5;
+		item5->isLeaf = false;
+		menuItems.push_back(item5);
+
+		MenuItem<int> *item6 = new MenuItem<int>();
+		item6->caption = "Trim Color (74)"; //~HUD_COLOUR_GREYLIGHT~
+		item6->value = -6;
+		item6->isLeaf = false;
+		menuItems.push_back(item6);
 	}
 
 	if (!isWeird && !isAircraft)
 	{
-		for (int i = 0; i < 30; i++)
+		for (int i = 0; i < 50; i++) //30 - how many mod options we have?
 		{
 			if (i == 23 || i == 24 || i == 21)
 			{
@@ -866,6 +1202,16 @@ bool process_vehmod_menu()
 		menuItems.push_back(item);
 	}
 
+	if (is_this_a_car(veh) || is_this_a_motorcycle(veh))
+	{
+		MenuItem<int>* item = new MenuItem<int>();
+		item->caption = "Tire Smoke Menu";
+		item->value = SPECIAL_ID_FOR_TIRE_SMOKE;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
+
 	FunctionDrivenToggleMenuItem<int> *toggleItem;
 
 	if (!isWeird && !isAircraft)
@@ -902,7 +1248,7 @@ bool process_vehmod_menu()
 		}
 	}
 
-	for (int i = 1; i < 10; i++)
+	for (int i = 1; i < 12; i++)
 	{
 		if (!VEHICLE::DOES_EXTRA_EXIST(veh, i))
 		{
@@ -1097,32 +1443,42 @@ void set_chrome_wheels_enabled(Vehicle veh, bool enabled)
 }
 
 
-void fully_tune_vehicle(Vehicle veh, bool repaint)
+void fully_tune_vehicle(Vehicle veh, bool repaint, bool optics)
 {
 	VEHICLE::SET_VEHICLE_MOD_KIT(veh, 0);
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ENGINE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ENGINE) - 1, 1); //Engine
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BRAKES, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BRAKES) - 1, 1); //Brakes
 	VEHICLE::SET_VEHICLE_MOD(veh, MOD_TRANSMISSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_TRANSMISSION) - 1, 1); //Transmission
+	
+	/*Below test works!
+	VEHICLE::SET_VEHICLE_MOD(veh, MOD_BOBBLEHEAD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_BOBBLEHEAD) - 1, 1); //--Bobblehead test
+	VEHICLE::SET_VEHICLE_MOD(veh, MOD_LIVERY, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_LIVERY) - 1, 1); //--Livery Test 
+	end of test*/
+
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_TURBO, 1); //Turbo Tuning
 	VEHICLE::TOGGLE_VEHICLE_MOD(veh, MOD_XENONLIGHTS, 1); //Headlights
 
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_SPOILER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SPOILER) - 1, 1); //--Spoilers
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_FRONTBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FRONTBUMPER) - 1, 1); //--Front Bumper
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_REARBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_REARBUMPER) - 1, 1); //--Rear Bumper
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_SIDESKIRT, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SIDESKIRT) - 1, 1); //--Side Skirt
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_EXHAUST, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_EXHAUST) - 1, 1); //--Exhaust
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_CHASSIS, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_CHASSIS) - 1, 1); //--Chassis or roll cage
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_GRILLE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_GRILLE) - 1, 1); //--Grille
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_HOOD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_HOOD) - 1, 1); //--Hood
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_FENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FENDER) - 1, 1); //--Fender
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_RIGHTFENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_RIGHTFENDER) - 1, 1); //--Right Fender
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ROOF, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ROOF) - 1, MOD_ROOF); //--Roof
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_HORNS, HORN_MUSICAL5, 0);										  //--Horns
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_SUSPENSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SUSPENSION) - 1, 1); //--Suspension
-	VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //--Armor
+	if (optics) {
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SPOILER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SPOILER) - 1, 1); //--Spoilers
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_FRONTBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FRONTBUMPER) - 1, 1); //--Front Bumper
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_REARBUMPER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_REARBUMPER) - 1, 1); //--Rear Bumper
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SIDESKIRT, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SIDESKIRT) - 1, 1); //--Side Skirt
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_EXHAUST, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_EXHAUST) - 1, 1); //--Exhaust
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_CHASSIS, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_CHASSIS) - 1, 1); //--Chassis or roll cage
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_GRILLE, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_GRILLE) - 1, 1); //--Grille
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_HOOD, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_HOOD) - 1, 1); //--Hood
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_FENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_FENDER) - 1, 1); //--Fender
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_RIGHTFENDER, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_RIGHTFENDER) - 1, 1); //--Right Fender
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ROOF, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ROOF) - 1, MOD_ROOF); //--Roof
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_HORNS, HORN_MUSICAL5, 0);										  //--Horns
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_SUSPENSION, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_SUSPENSION) - 1, 1); //--Suspension
+		VEHICLE::SET_VEHICLE_MOD(veh, MOD_ARMOR, VEHICLE::GET_NUM_VEHICLE_MODS(veh, MOD_ARMOR) - 1, 1); //--Armor
+		
 
-	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, PLATE_YANKTON);
-	VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENHANCED");
+	
+		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX(veh, PLATE_YANKTON);
+//		VEHICLE::SET_VEHICLE_NUMBER_PLATE_TEXT(veh, "ENHANCED");
+	}
 
 	VEHICLE::SET_VEHICLE_DIRT_LEVEL(veh, 0.0f);
 

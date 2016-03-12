@@ -85,7 +85,7 @@ void onchange_game_speed_callback(int value, SelectFromListMenuItem* source)
 {
 	timeSpeedIndex = value;
 	std::stringstream ss;
-	ss << "Game Speed Now " << TIME_SPEED_CAPTIONS.at(value);
+	ss << "Game speed: " << TIME_SPEED_CAPTIONS.at(value);
 	set_status_text(ss.str());
 }
 
@@ -93,7 +93,7 @@ void onchange_aiming_speed_callback(int value, SelectFromListMenuItem* source)
 {
 	timeSpeedIndexWhileAiming = value;
 	std::stringstream ss;
-	ss << "Aiming Speed Now " << TIME_SPEED_CAPTIONS.at(value);
+	ss << "Aiming speed: " << TIME_SPEED_CAPTIONS.at(value);
 	set_status_text(ss.str());
 }
 
@@ -318,7 +318,7 @@ void movetime_day_backward()
 	TIME::SET_CLOCK_TIME(gameHour, gameMins, 0);
 
 	std::ostringstream ss;
-	ss << "Date is now: " << get_day_of_game_week() << " ";
+	ss << "Date is now " << get_day_of_game_week() << " ";
 	ss << std::setfill('0') << std::setw(2) << calDay;
 	ss << ".";
 	ss << std::setfill('0') << std::setw(2) << calMon;
