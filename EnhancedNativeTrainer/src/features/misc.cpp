@@ -29,7 +29,7 @@ bool featureMiscLockRadio = false;
 bool featureMiscHideHud = false;
 bool featureMiscHideHudUpdated = false;
 
-bool featureShowVehiclePreviews = false;
+bool featureShowVehiclePreviews = true;
 bool featureControllerIgnoreInTrainer = false;
 
 bool featureMiscJellmanScenery = false;
