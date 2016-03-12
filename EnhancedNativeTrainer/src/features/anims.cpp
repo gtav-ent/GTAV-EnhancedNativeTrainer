@@ -40,10 +40,10 @@ const int CATEGORY_FACIAL_IDLE = 90;
 const int CATEGORY_MOVE_IDLE = 91;
 const int CATEGORY_MOVE_WALK = 92;
 const int CATEGORY_MOVE_RUN = 93;
-const int CATEGORY_MOVE_CLIPSET = 96;
 const int CATEGORY_FACIAL_NOW = 94;
 const int CATEGORY_GENERAL_NOW = 95;
 const int CATEGORY_SCENARIOS = 96;
+const int CATEGORY_MOVE_CLIPSET = 97;
 
 bool loaded = false;
 
