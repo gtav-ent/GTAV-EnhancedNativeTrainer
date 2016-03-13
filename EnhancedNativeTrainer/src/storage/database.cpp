@@ -782,7 +782,7 @@ void ENTDatabase::save_vehicle_mods(Vehicle veh, sqlite3_int64 rowID)
 
 	begin_transaction();
 
-	for (int i = 0; i < 50; i++) //49/50 mods total (that is including Bennys mods)
+	for (int i = 0; i < 49; i++) //49/50 mods total (that is including Bennys mods)
 	{
 		std::stringstream ss;
 		ss << "INSERT OR REPLACE INTO ENT_VEHICLE_MODS VALUES (?, ?, ?, ?, ?)";
