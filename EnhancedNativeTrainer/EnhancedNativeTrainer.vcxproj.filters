@@ -97,7 +97,7 @@
     <ClCompile Include="src\features\tyresmokemenu.cpp">
       <Filter>Source Files\features</Filter>
     </ClCompile>
-    <ClCompile Include="src\features\interiorTrimColour.cpp">
+    <ClCompile Include="src\features\vehmod_interiorcols.cpp">
       <Filter>Source Files\features</Filter>
     </ClCompile>
   </ItemGroup>
@@ -288,7 +288,6 @@
     <Image Include="Documents\veh-previews\cog552.png" />
     <Image Include="Documents\veh-previews\cognoscenti2.png" />
     <Image Include="Documents\veh-previews\schafter6.png" />
-    <Image Include="Documents\veh-previews\schafter5.png" />
     <Image Include="Documents\veh-previews\faction.png" />
     <Image Include="Documents\veh-previews\schafter2.png" />
     <Image Include="Documents\veh-previews\schafter3.png" />
@@ -463,5 +462,10 @@
     <Image Include="Documents\veh-previews\fbi.png" />
     <Image Include="Documents\veh-previews\fbi2.png" />
     <Image Include="Documents\veh-previews\airtug.png" />
+    <Image Include="Documents\veh-previews\schafter5.png" />
+    <Image Include="Documents\veh-previews\lurcher.png" />
+    <Image Include="Documents\veh-previews\btype2.png" />
+    <Image Include="Documents\veh-previews\baller3.png" />
+    <Image Include="Documents\veh-previews\baller4.png" />
   </ItemGroup>
 </Project>
