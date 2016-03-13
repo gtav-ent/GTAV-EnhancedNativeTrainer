@@ -16,7 +16,7 @@
     <ClCompile Include="src\features\anims.cpp" />
     <ClCompile Include="src\features\bodyguards.cpp" />
     <ClCompile Include="src\features\hotkeys.cpp" />
-    <ClCompile Include="src\features\interiorTrimColour.cpp" />
+    <ClCompile Include="src\features\vehmod_interiorcols.cpp" />
     <ClCompile Include="src\features\misc.cpp" />
     <ClCompile Include="src\features\neonlightsmenu.cpp" />
     <ClCompile Include="src\features\propplacement.cpp" />
@@ -99,6 +99,8 @@
     <Image Include="Documents\veh-previews\b747.png" />
     <Image Include="Documents\veh-previews\bagger.png" />
     <Image Include="Documents\veh-previews\baletrailer.png" />
+    <Image Include="Documents\veh-previews\baller3.png" />
+    <Image Include="Documents\veh-previews\baller4.png" />
     <Image Include="Documents\veh-previews\baller5.png" />
     <Image Include="Documents\veh-previews\baller6.png" />
     <Image Include="Documents\veh-previews\baller_small.png" />
@@ -115,6 +117,7 @@
     <Image Include="Documents\veh-previews\boxville.png" />
     <Image Include="Documents\veh-previews\boxville2.png" />
     <Image Include="Documents\veh-previews\boxville3.png" />
+    <Image Include="Documents\veh-previews\btype2.png" />
     <Image Include="Documents\veh-previews\buccaneer.png" />
     <Image Include="Documents\veh-previews\burrito.png" />
     <Image Include="Documents\veh-previews\burrito2.png" />
@@ -174,6 +177,7 @@
     <Image Include="Documents\veh-previews\lectro.png" />
     <Image Include="Documents\veh-previews\lguard.png" />
     <Image Include="Documents\veh-previews\lifeguard.png" />
+    <Image Include="Documents\veh-previews\lurcher.png" />
     <Image Include="Documents\veh-previews\manana.png" />
     <Image Include="Documents\veh-previews\mesa_snow.png" />
     <Image Include="Documents\veh-previews\metrotrain.png" />

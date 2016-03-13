@@ -28,7 +28,7 @@ bool process_light_colors()
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = TRIM_COLOUR_CAPTIONS[i];
 		item->value = TRIM_COLOUR_VALUES[i];
-		item->isLeaf = false;
+		item->isLeaf = true;
 		menuItems.push_back(item);
 	}
 
@@ -56,7 +56,7 @@ bool process_trim_colors()
 		MenuItem<int> *item = new MenuItem<int>();
 		item->caption = TRIM_COLOUR_CAPTIONS[i];
 		item->value = TRIM_COLOUR_VALUES[i];
-		item->isLeaf = false;
+		item->isLeaf = true;
 		menuItems.push_back(item);
 	}
 
