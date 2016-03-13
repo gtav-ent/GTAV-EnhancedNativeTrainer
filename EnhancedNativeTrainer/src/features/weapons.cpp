@@ -307,6 +307,7 @@ bool onconfirm_weapon_in_category(MenuItem<int> choice)
 	return false;
 }
 
+
 bool process_weapons_in_category_menu(int category)
 {
 	lastSelectedWeaponCategory = category;
