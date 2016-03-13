@@ -11,6 +11,7 @@ const std::vector<int> TRIM_COLOUR_VALUES{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 143
 /* Dashboard Colors */
 int activeLineIndexLightColors = 0;
 
+
 bool onconfirm_light_colors(MenuItem<int> choice)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
