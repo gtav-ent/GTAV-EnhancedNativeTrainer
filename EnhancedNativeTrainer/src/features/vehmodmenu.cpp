@@ -83,6 +83,8 @@ std::string getModCategoryName(int i)
 		return "Bonnet";
 	case 8:
 		return "Fenders/Arches";
+	case 9:
+		return "Skirts";
 	case 10:
 		return "Roof";
 	case 11:
@@ -1092,13 +1094,13 @@ bool process_vehmod_menu()
 		menuItems.push_back(item4);
 
 		MenuItem<int> *item5 = new MenuItem<int>();
-		item5->caption = "Dash Color (74)"; //~HUD_COLOUR_GREYLIGHT~
+		item5->caption = "Dash Color ~HUD_COLOUR_GREYLIGHT~(74)"; //~HUD_COLOUR_GREYLIGHT~
 		item5->value = -5;
 		item5->isLeaf = false;
 		menuItems.push_back(item5);
 
 		MenuItem<int> *item6 = new MenuItem<int>();
-		item6->caption = "Trim Color (74)"; //~HUD_COLOUR_GREYLIGHT~
+		item6->caption = "Trim Color ~HUD_COLOUR_GREYLIGHT~(74)"; //~HUD_COLOUR_GREYLIGHT~
 		item6->value = -6;
 		item6->isLeaf = false;
 		menuItems.push_back(item6);

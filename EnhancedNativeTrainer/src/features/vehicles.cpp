@@ -93,7 +93,7 @@ const std::vector<std::string> CAPTIONS_OFFROAD{ "Benefactor Dubsta 6x6", "BF Bi
 
 const std::vector<std::string> CAPTIONS_SUVS{ "Albany Cavalcade", "Albany Cavalcade Mk2", "Benefactor Dubsta", "Benefactor Dubsta (Flat Black)", "Benefactor Serrano", "Bravado Gresley", "Canis Mesa", "Canis Mesa (Snow)", "Canis Seminole", "Declasse Granger", "Dundreary Landstalker", "Emperor Habanero", "Enus Huntley S", "Fathom FQ 2", "Gallivanter Baller (Large)", "Gallivanter Baller (Small)", "Gallivanter Baller (Large) LWB", "Gallivanter Baller (Small) LWB", "Gallivanter Baller LE (Armoured)", "Gallivanter Baller LE LWB (Armoured)", "Karin BeeJay XL", "Mammoth Patriot", "Obey Rocoto", "Vapid Radius" };
 
-const std::vector<std::string> CAPTIONS_SEDANS{ "Albany Emperor", "Albany Emperor (Rusty)", "Albany Emperor (Snow)", "Albany Primo", "Albany Washington", "Benefactor Glendale", "Benefactor Schafter", "Benefactor Schafter LWB", "Benefactor Schafter Sport", "Benefactor Schafter V12", "Benefactor Schafter V12 Armoured", "Benefactor Turreted Limo", "Chariot Romero Hearse", "Cheval Fugitive", "Cheval Surge", "Declasse Asea", "Declasse Asea (Snow)", "Declasse Premier", "Dundreary Regina", "Dundreary Stretch", "Enus Cognoscenti", "Enus Cognoscenti 55", "Enus Cognoscenti 55 Armoured", "Enus Cognoscenti Armoured", "Enus Super Diamond", "Karin Asterope", "Karin Intruder", "Obey Tailgater", "Ubermacht Oracle", "Ubermacht Oracle Mk2", "Vapid Stanier", "Vapid Stanier (Taxi)", "Vulcan Ingot", "Vulcar Warrener", "Zirconium Stratum" };
+const std::vector<std::string> CAPTIONS_SEDANS{ "Albany Emperor", "Albany Emperor (Rusty)", "Albany Emperor (Snow)", "Albany Primo", "Albany Washington", "Benefactor Glendale", "Benefactor Schafter", "Benefactor Schafter LWB", "Benefactor Schafter LWB Armoured", "Benefactor Schafter V12", "Benefactor Schafter V12 Armoured", "Benefactor Turreted Limo", "Chariot Romero Hearse", "Cheval Fugitive", "Cheval Surge", "Declasse Asea", "Declasse Asea (Snow)", "Declasse Premier", "Dundreary Regina", "Dundreary Stretch", "Enus Cognoscenti", "Enus Cognoscenti 55", "Enus Cognoscenti 55 Armoured", "Enus Cognoscenti Armoured", "Enus Super Diamond", "Karin Asterope", "Karin Intruder", "Obey Tailgater", "Ubermacht Oracle", "Ubermacht Oracle Mk2", "Vapid Stanier", "Vapid Stanier (Taxi)", "Vulcan Ingot", "Vulcar Warrener", "Zirconium Stratum" };
 
 const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan Prairie", "Declasse Rhapsody", "Dinka Blista", "Karin Dilettante", "Karin Dilettante (Liveried)", "Weeny Issi" };
 
@@ -113,11 +113,11 @@ const std::vector<std::string> VALUES_OFFROAD{ "DUBSTA3", "BIFTA", "BFINJECTION"
 
 const std::vector<std::string> VALUES_SUVS{ "CAVALCADE", "CAVALCADE2", "DUBSTA", "DUBSTA2", "SERRANO", "GRESLEY", "MESA", "MESA2", "SEMINOLE", "GRANGER", "LANDSTALKER", "HABANERO", "HUNTLEY", "FQ2", "BALLER", "BALLER2", "BALLER3", "BALLER4", "BALLER5", "BALLER6", "BJXL", "PATRIOT", "ROCOTO", "RADI" };
 
-const std::vector<std::string> VALUES_SEDANS{ "EMPEROR", "EMPEROR2", "EMPEROR3", "PRIMO", "WASHINGTON", "GLENDALE", "SCHAFTER2", "SCHAFTER5", "SCHAFTER3", "SCHAFTER4", "SCHAFTER6", "LIMO2", "ROMERO", "FUGITIVE", "SURGE", "ASEA", "ASEA2", "PREMIER", "REGINA", "STRETCH", "COGNOSCENTI", "COG55", "COG552", "COGNOSCENTI2", "SUPERD", "ASTEROPE", "INTRUDER", "TAILGATER", "ORACLE", "ORACLE2", "STANIER", "TAXI", "INGOT", "WARRENER", "STRATUM" };
+const std::vector<std::string> VALUES_SEDANS{ "EMPEROR", "EMPEROR2", "EMPEROR3", "PRIMO", "WASHINGTON", "GLENDALE", "SCHAFTER2", "SCHAFTER4", "SCHAFTER6", "SCHAFTER3", "SCHAFTER5", "LIMO2", "ROMERO", "FUGITIVE", "SURGE", "ASEA", "ASEA2", "PREMIER", "REGINA", "STRETCH", "COGNOSCENTI", "COG55", "COG552", "COGNOSCENTI2", "SUPERD", "ASTEROPE", "INTRUDER", "TAILGATER", "ORACLE", "ORACLE2", "STANIER", "TAXI", "INGOT", "WARRENER", "STRATUM" };
 
 const std::vector<std::string> VALUES_COMPACTS{ "PANTO", "PRAIRIE", "RHAPSODY", "BLISTA", "DILETTANTE", "DILETTANTE2", "ISSI2" };
 
-const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "MOONBEAM2", "VOODOO2", "CHINO2", "FACTION2" };
+const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "MOONBEAM2", "VOODOO", "CHINO2", "FACTION2" };
 
 const std::vector<std::string> VOV_CAR_CAPTIONS[] = { CAPTIONS_SUPERCARS, CAPTIONS_SPORTS, CAPTIONS_SPORTCLASSICS, CAPTIONS_COUPES, CAPTIONS_MUSCLE, CAPTIONS_OFFROAD, CAPTIONS_SUVS, CAPTIONS_SEDANS, CAPTIONS_COMPACTS, CAPTIONS_LOWRIDERS };
 
@@ -1458,19 +1458,10 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "MOONBEAM2", "lsc_default", "moonbeam2_a" },
 	{ "PRIMO2", "lsc_default", "primo2_a" },
 	{ "VOODOO", "lsc_default", "voodoo_0" }, //voodoo = shiny
-	{ "VOODOO2", "lsc_default", "voodoo" }, //voodoo2 = rusty
-	{ "MOONBEAM", "lsc_default", "moonbeam2_a" }, //wrong - should be the normal one
-	{ "FACTION", "lsc_default", "faction2_a" },
 	{ "BALLER3", "lgm_dlc_apartments", "baller3" },
-	{ "BALLER5", "lgm_dlc_apartments", "baller3" },
 	{ "BALLER4", "sssa_default", "baller2" },
-	{ "BALLER6", "sssa_default", "baller2" },
 	{ "MAMBA", "lgm_dlc_apartments", "mamba" },
 	{ "NITESHAD", "lgm_dlc_apartments", "niteshad" },
-	{ "SCHAFTER3", "lgm_dlc_apartments", "schafter3" },
-	{ "SCHAFTER4", "lgm_dlc_apartments", "schafter4" },
-	{ "SCHAFTER5", "sssa_dlc_heist", "schafter2" },
-	{ "SCHAFTER6", "lgm_dlc_apartments", "schafter4" },
 	{ "VERLIERER2", "lgm_dlc_apartments", "verlier" },
 	{ "BTYPE2", "sssa_dlc_halloween", "btype2" },
 	{ "LURCHER", "sssa_dlc_halloween", "lurcher" },
@@ -1481,10 +1472,8 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "SUPERVOLITO", "elt_dlc_apartments", "svolito" },
 	{ "SUPERVOLITO2", "elt_dlc_apartments", "svolito2" },
 	{ "COG55", "lgm_dlc_apartments", "cog55" },
-	{ "COG552", "lgm_dlc_apartments", "cog55" }, //armoured - remove and give custom pic
 	{ "COGNOSCENTI", "lgm_dlc_apartments", "cognosc" },
-	{ "COGNOSCENTI2", "lgm_dlc_apartments", "cognosc" }, //armoured - remove and give custom pic
-	{ "LIMO2", " candc_apartments", "limo2" }
+	{ "LIMO2", "candc_apartments", "limo2" }
 };
 
 static std::vector<VehicleImage> ALL_VEH_IMAGES;
@@ -1771,7 +1760,19 @@ void init_vehicle_feature()
 	unpack_veh_preview("UTILLITRUCK", VP_UTILLITRUCK, "VP_UTILLITRUCK");
 	unpack_veh_preview("UTILLITRUCK2", VP_UTILLITRUCK2, "VP_UTILLITRUCK2");
 	unpack_veh_preview("UTILLITRUCK3", VP_UTILLITRUCK3, "VP_UTILLITRUCK3");
-	//unpack_veh_preview("VOODOO2", VP_VOODOO, "VP_VOODOO");
+	unpack_veh_preview("VOODOO2", VP_VOODOO, "VP_VOODOO");
+
+	unpack_veh_preview("BALLER5", VP_BALLER5, "VP_BALLER5");
+	unpack_veh_preview("BALLER6", VP_BALLER6, "VP_BALLER6");
+	unpack_veh_preview("SCHAFTER2", VP_SCHAFTER2, "VP_SCHAFTER2");
+	unpack_veh_preview("SCHAFTER3", VP_SCHAFTER3, "VP_SCHAFTER3");
+	unpack_veh_preview("SCHAFTER4", VP_SCHAFTER4, "VP_SCHAFTER4");
+	unpack_veh_preview("SCHAFTER5", VP_SCHAFTER5, "VP_SCHAFTER5");
+	unpack_veh_preview("SCHAFTER6", VP_SCHAFTER6, "VP_SCHAFTER6");
+	unpack_veh_preview("MOONBEAM", VP_MOONBEAM, "VP_MOONBEAM");
+	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
+	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
+	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 }
 
 void fix_vehicle()
