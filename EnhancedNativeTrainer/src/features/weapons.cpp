@@ -146,6 +146,60 @@ int get_current_switchblade_appearance()
 	return 0;
 }
 
+void onchange_revolver_appearance(int value, SelectFromListMenuItem* source)
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	int weapHash = GAMEPLAY::GET_HASH_KEY("WEAPON_REVOLVER");
+
+	int i = 0;
+
+	Hash hashToApply = 0;
+	for each (std::string componentName in VALUES_ATTACH_REVOLVER)
+	{
+		DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+		WEAPON::REMOVE_WEAPON_COMPONENT_FROM_PED(playerPed, weapHash, componentHash);
+
+		if (i == value)
+		{
+			hashToApply = componentHash;
+		}
+
+		i++;
+	}
+
+	if (hashToApply != 0)
+	{
+		WEAPON::GIVE_WEAPON_COMPONENT_TO_PED(playerPed, weapHash, hashToApply);
+	}
+}
+
+int get_current_revolver_appearance()
+{
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+	int weapHash = GAMEPLAY::GET_HASH_KEY("WEAPON_REVOLVER");
+
+	int i = 0;
+	for each (std::string componentName in VALUES_ATTACH_REVOLVER)
+	{
+		if (i == 0)
+		{
+			continue;
+		}
+
+		DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
+
+		if (WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, weapHash, componentHash))
+		{
+			return i;
+		}
+
+		i++;
+	}
+
+	return 0;
+}
+
 bool process_individual_weapon_menu(int weaponIndex)
 {
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
@@ -249,6 +303,15 @@ bool process_individual_weapon_menu(int weaponIndex)
 			listItem->wrap = false;
 			listItem->caption = "Skin Choice";
 			listItem->value = get_current_switchblade_appearance();
+			menuItems.push_back(listItem);
+		}
+
+		if (strcmp(weaponChar, "WEAPON_REVOLVER") == 0)
+		{
+			SelectFromListMenuItem *listItem = new SelectFromListMenuItem(CAPTIONS_ATTACH_REVOLVER, onchange_revolver_appearance);
+			listItem->wrap = false;
+			listItem->caption = "Skin Choice";
+			listItem->value = get_current_revolver_appearance();
 			menuItems.push_back(listItem);
 		}
 
