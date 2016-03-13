@@ -510,7 +510,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 	case 1:
 		heal_player();
 		break;
-	case 17:
+	case 18:
 		process_anims_menu_top();
 		break;
 	default:
