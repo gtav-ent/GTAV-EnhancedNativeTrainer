@@ -18,11 +18,12 @@ int modChoiceMenuIndex = 0;
 
 const static int CUSTOM_TYRE_COUNT = 1;
 
-const static int WHEEL_CATEGORY_COUNT = 7;
+const static int WHEEL_CATEGORY_COUNT = 8; //was 7
 
-const static std::string WHEEL_CATEGORY_NAMES[] = { "Sports", "Muscle", "Lowrider", "SUV", "Offroad", "Tuner", "High End" };
+const static std::string WHEEL_CATEGORY_NAMES[] = { "Sports", "Muscle", "Lowrider", "SUV", "Offroad", "Tuner", "High End", "Benny's Originals" };
 
-const static int WHEEL_CATEGORY_COUNTS[] = { 25, 18, 15, 19, 10, 24, 20 };
+//const static int WHEEL_CATEGORY_COUNTS[] = { 50, 36, 30, 38, 20, 48, 40, 217 }; /* UNSORTED */
+const static int WHEEL_CATEGORY_COUNTS[] = { 25, 18, 15, 19, 10, 24, 20, 108 }; /* SORTED */
 
 const static int WHEEL_CATEGORY_COUNT_BIKE = 13;
 
@@ -184,7 +185,6 @@ const static std::string SUSP_PREFIXES[] = { "Lowered", "Street", "Sports", "Com
 
 std::string getHornTitle(int index)
 {
-	/*
 	char* v_3 = NULL;
 	switch (index)
 	{
@@ -221,15 +221,26 @@ std::string getHornTitle(int index)
 	case 29: v_3 = "HORN_INDI_2"; break;
 	case 30: v_3 = "HORN_INDI_3"; break;
 	case 31: v_3 = "HORN_INDI_4"; break;
-	case 32: v_3 = "HORN_LUXE1"; break;
-	case 33: v_3 = "HORN_LUXE2"; break;
-	case 34: v_3 = "HORN_LUXE3"; break; //added new horns after this line - are the cases related to horn index in ent-enums.h?
-	case 35: v_3 = "ORGAN_HORN_LOOP_01"; break; //index: 39
-	case 36: v_3 = "ORGAN_HORN_LOOP_02"; break; //41
-	//case 41: v_3 = "LOWRIDER_HORN_1"; break;
-	//case 41: v_3 = "LOWRIDER_HORN_2"; break;
-	case 37: v_3 = "XM15_HORN_01"; break; //46
-	case 38: v_3 = "XM15_HORN_02"; break; //47
+	case 32: v_3 = "HORN_LUXE2"; break; //Classical Horn Loop 1
+	case 33: v_3 = "HORN_LUXE1"; break; //Classical Horn 8
+	case 34: v_3 = "HORN_LUXE3"; break; //Classical Horn Loop 2
+	case 35: return "Classical Horn Loop 1 Preview"; break;
+	case 36: return "Classical Horn 8 Preview"; break;
+	case 37: return "Classical Horn Loop 2 Preview"; break;
+	case 38: v_3 = "HORN_HWEEN1"; break; //Halloween Loop 1
+	case 39: return "Halloween Loop 1 Preview"; break;
+	case 40: v_3 = "HORN_HWEEN2"; break; //Halloween Loop 2
+	case 41: return "Halloween Loop 2 Preview"; break;
+	case 42: v_3 = "HORN_LOWRDER1"; break; //San Andreas Loop
+	case 43: return "San Andreas Loop Preview"; break;
+	case 44: v_3 = "HORN_LOWRDER2"; break; //Liberty City Loop
+	case 45: return "Liberty City Loop Preview"; break;
+	case 46: v_3 = "HORN_XM15_1"; break; //Festive Loop 1
+	case 47: return "Festive Bells 1"; break;
+	case 48: v_3 = "HORN_XM15_2"; break; //Festive Loop 2
+	case 49: return "Festive Bells 2"; break;
+	case 50: v_3 = "HORN_XM15_3"; break; //Festive Loop 3
+	case 51: return "Festive Bells 3"; break;
 	}
 
 	if (v_3 == NULL)
@@ -244,222 +255,7 @@ std::string getHornTitle(int index)
 			return "Unknown Horn";
 		}
 		return std::string(label);
-	}*/
-
-	if (index == 0)
-	{
-		return "Truck Horn";
 	}
-	else if (index == 1)
-	{
-		return "Cop Horn";
-	}
-	else if (index == 2)
-	{
-		return "Clown Horn";
-	}
-	else if (index == 3)
-	{
-		return "Musical Horn 1";
-	}
-	else if (index == 4)
-	{
-		return "Musical Horn 2";
-	}
-	else if (index == 5)
-	{
-		return "Musical Horn 3";
-	}
-	else if (index == 6)
-	{
-		return "Musical Horn 4";
-	}
-	else if (index == 7)
-	{
-		return "Musical Horn 5";
-	}
-	else if (index == 8)
-	{
-		return "Sad Trombone";
-	}
-	else if (index == 9)
-	{
-		return "Classical Horn 1";
-	}
-	else if (index == 10)
-	{
-		return "Classical Horn 2";
-	}
-	else if (index == 11)
-	{
-		return "Classical Horn 3";
-	}
-	else if (index == 12)
-	{
-		return "Classical Horn 4";
-	}
-	else if (index == 13)
-	{
-		return "Classical Horn 5";
-	}
-	else if (index == 14)
-	{
-		return "Classical Horn 6";
-	}
-	else if (index == 15)
-	{
-		return "Classical Horn 7";
-	}
-	else if (index == 16)
-	{
-		return "Scale - Do";
-	}
-	else if (index == 17)
-	{
-		return "Scale - Re";
-	}
-	else if (index == 18)
-	{
-		return "Scale - Mi";
-	}
-	else if (index == 19)
-	{
-		return "Scale - Fa";
-	}
-	else if (index == 20)
-	{
-		return "Scale - Sol";
-	}
-	else if (index == 21)
-	{
-		return "Scale - La";
-	}
-	else if (index == 22)
-	{
-		return "Scale - Si";
-	}
-	else if (index == 23)
-	{
-		return "Scale - Do";
-	}
-	else if (index == 24)
-	{
-		return "Jazz Horn 1";
-	}
-	else if (index == 25)
-	{
-		return "Jazz Horn 2";
-	}
-	else if (index == 26)
-	{
-		return "Jazz Horn 3";
-	}
-	else if (index == 27)
-	{
-		return "Jazz Horn Loop";
-	}
-	else if (index == 28)
-	{
-		return "Star Spangled Banner 1";
-	}
-	else if (index == 29)
-	{
-		return "Star Spangled Banner 2";
-	}
-	else if (index == 30)
-	{
-		return "Star Spangled Banner 3";
-	}
-	else if (index == 31)
-	{
-		return "Star Spangled Banner 4";
-	}
-	else if (index == 32)
-	{
-		return "Classical Horn 8 Loop";
-	}
-	else if (index == 33)
-	{
-		return "Classical Horn 9 Loop";
-	}
-	else if (index == 34)
-	{
-		return "Classical Horn 10 Loop";
-	}
-	else if (index == 35)
-	{
-		return "Classical Horn 8";
-	}
-	else if (index == 36)
-	{
-		return "Classical Horn 9";
-	}
-	else if (index == 37)
-	{
-		return "Classical Horn 10";
-	}
-	else if (index == 38)
-	{
-		return "Funeral Loop";
-	}
-	else if (index == 39)
-	{
-		return "Funeral";
-	}
-	else if (index == 40)
-	{
-		return "Spooky Loop";
-	}
-	else if (index == 41)
-	{
-		return "Spooky";
-	}
-	else if (index == 42)
-	{
-		return "San Andreas Loop";
-	}
-	else if (index == 43)
-	{
-		return "San Andreas";
-	}
-	else if (index == 44)
-	{
-		return "Liberty City Loop";
-	}
-	else if (index == 45)
-	{
-		return "Liberty City";
-	}
-	else if (index == 46)
-	{
-		return "Festive Loop 1";
-	}
-	else if (index == 47)
-	{
-		return "Festive Loop 2";
-	}
-	else if (index == 48)
-	{
-		return "Festive Loop 3";
-	}
-	else if (index == 49)
-	{
-		return "Festive Loop 4";
-	}
-	else if (index == 50)
-	{
-		return "Festive Loop 5";
-	}
-	else if (index == 51)
-	{
-		return "Festive Loop 6";
-	}
-	else if (index == 52)
-	{
-		return "Festive Loop 7";
-	}
-
-	return "Unknown Horn";
 }
 
 int getHornDuration(int index)
@@ -872,6 +668,10 @@ bool process_vehmod_category_menu(int category)
 		{
 			count = WHEEL_CATEGORY_COUNTS[6];
 		}
+		else if (wheelType == 8) //Benny's Originals
+		{
+			count = WHEEL_CATEGORY_COUNTS[7];
+		}
 		else
 		{
 			count = WHEEL_CATEGORY_COUNTS[wheelType];
@@ -1106,7 +906,7 @@ bool process_vehmod_menu()
 
 	if (!isWeird && !isAircraft)
 	{
-		for (int i = 0; i < 50; i++) //30 - how many mod options we have?
+		for (int i = 0; i < 49; i++) //was 30
 		{
 			if (i == 23 || i == 24 || i == 21)
 			{
@@ -1177,6 +977,10 @@ bool process_vehmod_menu()
 		else if (wheelType == 7)
 		{
 			wheelCount = WHEEL_CATEGORY_COUNTS[6];
+		}
+		else if (wheelType == 8) //Benny's Originals
+		{
+			wheelCount = WHEEL_CATEGORY_COUNTS[7];
 		}
 		else
 		{
