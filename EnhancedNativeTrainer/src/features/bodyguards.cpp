@@ -25,6 +25,9 @@ bool requireRefreshOfBodyguardMainMenu = false;
 //first index is which category, second is position in that category
 int skinTypesBodyguardMenuPositionMemory[2] = { 0, 0 };
 
+//first index is which category, second is position in that category
+int skinTypesBodyguardMenuLastConfirmed[2] = { 0, 0 };
+
 Hash bodyGuardWeapon = NULL;
 
 std::vector<Ped> spawnedBodyguards;
@@ -66,13 +69,13 @@ bool onconfirm_bodyguard_skins_menu(MenuItem<int> choice)
 std::string get_current_model_name()
 {
 	std::string value;
-	switch (skinTypesBodyguardMenuPositionMemory[0])
+	switch (skinTypesBodyguardMenuLastConfirmed[0])
 	{
 	case 0:
-		value = SKINS_PLAYER_CAPTIONS[skinTypesBodyguardMenuPositionMemory[1]];
+		value = SKINS_PLAYER_CAPTIONS[skinTypesBodyguardMenuLastConfirmed[1]];
 		break;
 	case 1:
-		value = SKINS_GENERAL_CAPTIONS[skinTypesBodyguardMenuPositionMemory[1]];
+		value = SKINS_GENERAL_CAPTIONS[skinTypesBodyguardMenuLastConfirmed[1]];
 		break;
 	default:
 		value = SKINS_GENERAL_CAPTIONS[0];
@@ -84,13 +87,13 @@ std::string get_current_model_name()
 Hash get_current_model_hash()
 {
 	std::string value;
-	switch (skinTypesBodyguardMenuPositionMemory[0])
+	switch (skinTypesBodyguardMenuLastConfirmed[0])
 	{
 	case 0:
-		value = SKINS_PLAYER_VALUES[skinTypesBodyguardMenuPositionMemory[1]];
+		value = SKINS_PLAYER_VALUES[skinTypesBodyguardMenuLastConfirmed[1]];
 		break;
 	case 1:
-		value = SKINS_GENERAL_VALUES[skinTypesBodyguardMenuPositionMemory[1]];
+		value = SKINS_GENERAL_VALUES[skinTypesBodyguardMenuLastConfirmed[1]];
 		break;
 	default:
 		value = SKINS_GENERAL_VALUES[0];
@@ -103,6 +106,8 @@ bool onconfirm_bodyguards_skins_players(MenuItem<std::string> choice)
 {
 	skinTypesBodyguardMenuPositionMemory[0] = 0;
 	skinTypesBodyguardMenuPositionMemory[1] = choice.currentMenuIndex;
+	skinTypesBodyguardMenuLastConfirmed[0] = 0;
+	skinTypesBodyguardMenuLastConfirmed[1] = choice.currentMenuIndex;
 	requireRefreshOfBodyguardMainMenu = true;
 
 	return true;
@@ -112,6 +117,8 @@ bool onconfirm_bodyguards_skins_npcs(MenuItem<std::string> choice)
 {
 	skinTypesBodyguardMenuPositionMemory[0] = 1;
 	skinTypesBodyguardMenuPositionMemory[1] = choice.currentMenuIndex;
+	skinTypesBodyguardMenuLastConfirmed[0] = 1;
+	skinTypesBodyguardMenuLastConfirmed[1] = choice.currentMenuIndex;
 
 	requireRefreshOfBodyguardMainMenu = true;
 
@@ -399,6 +406,8 @@ void add_bodyguards_generic_settings(std::vector<StringPairSettingDBRow>* result
 {
 	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuPositionMemory0", std::to_string(skinTypesBodyguardMenuPositionMemory[0]) });
 	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuPositionMemory1", std::to_string(skinTypesBodyguardMenuPositionMemory[1]) });
+	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuLastConfirmed0", std::to_string(skinTypesBodyguardMenuLastConfirmed[0]) });
+	results->push_back(StringPairSettingDBRow{ "skinTypesBodyguardMenuLastConfirmed1", std::to_string(skinTypesBodyguardMenuLastConfirmed[1]) });
 }
 
 void handle_generic_settings_bodyguards(std::vector<StringPairSettingDBRow>* settings)
@@ -413,6 +422,14 @@ void handle_generic_settings_bodyguards(std::vector<StringPairSettingDBRow>* set
 		else if (setting.name.compare("skinTypesBodyguardMenuPositionMemory1") == 0)
 		{
 			skinTypesBodyguardMenuPositionMemory[1] = stoi(setting.value);
+		}
+		else if (setting.name.compare("skinTypesBodyguardMenuLastConfirmed0") == 0)
+		{
+			skinTypesBodyguardMenuLastConfirmed[0] = stoi(setting.value);
+		}
+		else if (setting.name.compare("skinTypesBodyguardMenuLastConfirmed1") == 0)
+		{
+			skinTypesBodyguardMenuLastConfirmed[1] = stoi(setting.value);
 		}
 	}
 }
