@@ -256,7 +256,7 @@ void update_features()
 
 	update_props_pending_dialogs();
 
-	//debug_native_investigation();
+	debug_native_investigation();
 
 	// common variables
 	Player player = PLAYER::PLAYER_ID();
@@ -1390,11 +1390,30 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
+	/*
+	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	if (bPlayerExists)
+	{
+		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			int intCol, dashCol;
+			VEHICLE::_GET_VEHICLE_INTERIOR_COLOUR(veh, &intCol);
+			VEHICLE::_GET_VEHICLE_DASHBOARD_COLOUR(veh, &dashCol);
+			std::ostringstream ss;
+			ss << "Interior: " << intCol << "; Dash: "<< dashCol;
+			set_status_text_centre_screen(ss.str());
+		}
+	}*/
+
+	/*
 	bool online = NETWORK::NETWORK_IS_GAME_IN_PROGRESS() == 1;
 
 	std::ostringstream ss;
 	ss << "Online: " << (online ? "Yes" : "No");
-	set_status_text_centre_screen(ss.str());
+	set_status_text_centre_screen(ss.str());*/
 	/*
 	for (int i = 0; i < graphicsTests.size(); i++)
 	{

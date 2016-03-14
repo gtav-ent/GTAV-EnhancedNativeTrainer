@@ -16,7 +16,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 /**This value should be increased whenever you change the schema and a release is made.
 However you must also put in code to upgrade from older versions, in ENTDatabase::handle_version,
 as they will be deployed in the wild already.*/
-const int DATABASE_VERSION = 8;
+const int DATABASE_VERSION = 9;
 
 static int singleIntResultCallback(void *data, int count, char **rows, char **azColName)
 {
@@ -142,7 +142,9 @@ void ENTDatabase::handle_version(int oldVersion)
 			tyreSmokeR INTEGER DEFAULT -1, \
 			tyreSmokeG INTEGER DEFAULT -1, \
 			tyreSmokeB INTEGER DEFAULT -1, \
-			convertibleRoofUp INTEGER DEFAULT 0 \
+			convertibleRoofUp INTEGER DEFAULT 0, \
+			dashColour INTEGER DEFAULT -1, \
+			interiorColour INTEGER DEFAULT -1 \
 			)";
 		int rcVeh1 = sqlite3_exec(db, CREATE_VEHICLE_TABLE_QUERY, NULL, 0, &zErrMsg);
 		if (rcVeh1 != SQLITE_OK)
@@ -373,6 +375,25 @@ void ENTDatabase::handle_version(int oldVersion)
 		else
 		{
 			write_text_to_log_file("Prop instance table creation problem");
+		}
+	}
+
+	if (oldVersion >= 3 && oldVersion < 9)
+	{
+		char* queries[]
+		{
+			"ALTER TABLE ENT_SAVED_VEHICLES ADD dashColour INTEGER DEFAULT -1",
+				"ALTER TABLE ENT_SAVED_VEHICLES ADD interiorColour INTEGER DEFAULT -1"
+		};
+
+		for each (char* q in queries)
+		{
+			int extraColsAddition = sqlite3_exec(db, q, NULL, 0, &zErrMsg);
+			if (extraColsAddition != SQLITE_OK)
+			{
+				write_text_to_log_file("Couldn't add v9 vehicle column");
+				sqlite3_free(zErrMsg);
+			}
 		}
 	}
 }
@@ -782,7 +803,7 @@ void ENTDatabase::save_vehicle_mods(Vehicle veh, sqlite3_int64 rowID)
 
 	begin_transaction();
 
-	for (int i = 0; i < 49; i++)
+	for (int i = 0; i < 49; i++) //49 mods total (that is including Bennys mods)
 	{
 		std::stringstream ss;
 		ss << "INSERT OR REPLACE INTO ENT_VEHICLE_MODS VALUES (?, ?, ?, ?, ?)";
@@ -970,7 +991,7 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 
 	std::stringstream ss;
 	ss << "INSERT OR REPLACE INTO ENT_SAVED_VEHICLES VALUES (";
-	for (int i = 0; i < 38; i++)
+	for (int i = 0; i < 40; i++)
 	{
 		if (i > 0)
 		{
@@ -999,6 +1020,7 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 			colourCustom2R INTEGER, \ 16
 			colourCustom2G INTEGER, \ 17
 			colourCustom2B INTEGER, \ 18
+
 	*/
 
 	sqlite3_stmt *stmt;
@@ -1130,6 +1152,14 @@ bool ENTDatabase::save_vehicle(Vehicle veh, std::string saveName, sqlite3_int64 
 		sqlite3_bind_int(stmt, index++, tyreSmokeB);
 
 		sqlite3_bind_int(stmt, index++, VEHICLE::IS_VEHICLE_A_CONVERTIBLE(veh, 0) && VEHICLE::GET_CONVERTIBLE_ROOF_STATE(veh));
+
+		/*dashColour INTEGER,
+			interiorColour INTEGER*/
+		int dashCol, interiorCol;
+		VEHICLE::_GET_VEHICLE_DASHBOARD_COLOUR(veh, &dashCol);
+		VEHICLE::_GET_VEHICLE_INTERIOR_COLOUR(veh, &interiorCol);
+		sqlite3_bind_int(stmt, index++, dashCol);
+		sqlite3_bind_int(stmt, index++, interiorCol);
 
 		// commit
 		sqlite3_step(stmt);
@@ -1289,6 +1319,9 @@ std::vector<SavedVehicleDBRow*> ENTDatabase::get_saved_vehicles(int index)
 			veh->tyreSmokeRGB[2] = sqlite3_column_int(stmt, index++);
 
 			veh->convertibleRoofUp = sqlite3_column_int(stmt, index++) == 1;
+
+			veh->dashboardColour = sqlite3_column_int(stmt, index++);
+			veh->interiorColour = sqlite3_column_int(stmt, index++);
 
 			results.push_back(veh);
 

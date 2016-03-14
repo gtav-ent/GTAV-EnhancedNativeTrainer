@@ -950,6 +950,15 @@ bool spawn_saved_car(int slot, std::string caption)
 			}
 		}
 
+		if (savedVeh->dashboardColour != -1)
+		{
+			VEHICLE::_SET_VEHICLE_DASHBOARD_COLOUR(veh, savedVeh->dashboardColour);
+		}
+		if (savedVeh->interiorColour != -1)
+		{
+			VEHICLE::_SET_VEHICLE_INTERIOR_COLOUR(veh, savedVeh->interiorColour);
+		}
+
 		ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
 	}
 

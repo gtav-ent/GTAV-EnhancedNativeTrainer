@@ -22,8 +22,7 @@ const static int WHEEL_CATEGORY_COUNT = 8; //was 7
 
 const static std::string WHEEL_CATEGORY_NAMES[] = { "Sports", "Muscle", "Lowrider", "SUV", "Offroad", "Tuner", "High End", "Benny's Originals" };
 
-//const static int WHEEL_CATEGORY_COUNTS[] = { 50, 36, 30, 38, 20, 48, 40, 217 }; /* UNSORTED */
-const static int WHEEL_CATEGORY_COUNTS[] = { 25, 18, 15, 19, 10, 24, 20, 108 }; /* SORTED */
+const static int WHEEL_CATEGORY_COUNTS[] = { 25, 18, 15, 19, 10, 24, 20, 31 }; /* SORTED */
 
 const static int WHEEL_CATEGORY_COUNT_BIKE = 13;
 
