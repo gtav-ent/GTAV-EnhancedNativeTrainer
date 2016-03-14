@@ -204,6 +204,10 @@
     <ClInclude Include="src\features\world.h">
       <Filter>Header Files\features</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\enums.h" />
+    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\main.h" />
+    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\nativeCaller.h" />
+    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\types.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
