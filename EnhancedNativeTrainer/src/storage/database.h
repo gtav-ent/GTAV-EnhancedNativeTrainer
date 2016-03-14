@@ -133,6 +133,8 @@ public:
 	int neonEnablement[4];
 	int tyreSmokeRGB[3];
 	bool convertibleRoofUp = false;
+	int dashboardColour;
+	int interiorColour;
 
 	std::vector<SavedVehicleExtraDBRow*> extras;
 	std::vector<SavedVehicleModDBRow*> mods;
