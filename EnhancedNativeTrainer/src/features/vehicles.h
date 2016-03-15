@@ -222,6 +222,8 @@ bool process_dash_colour_menu();
 
 bool process_interior_colour_menu();
 
+bool process_dash_colour_menu(); 
+
 void drive_passenger();
 
 bool inline is_this_a_car(Vehicle veh)

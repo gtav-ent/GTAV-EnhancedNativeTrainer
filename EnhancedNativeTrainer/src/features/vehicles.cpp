@@ -97,7 +97,7 @@ const std::vector<std::string> CAPTIONS_SEDANS{ "Albany Emperor", "Albany Empero
 
 const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan Prairie", "Declasse Rhapsody", "Dinka Blista", "Karin Dilettante", "Karin Dilettante (Liveried)", "Weeny Issi" };
 
-const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom)","Albany Virgo (Custom Donk)", "Declasse Moonbeam (Custom)", "Declasse Voodoo (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)","Vapid Slamvan (Custom)","Declasse Tornado (Custom)", "Willard Faction (Custom)", "Willard Faction (Custom Donk)" };
+const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Voodoo (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)","Vapid Slamvan (Custom)","Declasse Tornado (Custom)", "Willard Faction (Custom)", "Willard Faction (Custom Donk)" };
 
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "OSIRIS", "VACCA", "ZENTORNO", "T20", "ADDER", "BULLET" };
 
@@ -117,7 +117,7 @@ const std::vector<std::string> VALUES_SEDANS{ "EMPEROR", "EMPEROR2", "EMPEROR3",
 
 const std::vector<std::string> VALUES_COMPACTS{ "PANTO", "PRAIRIE", "RHAPSODY", "BLISTA", "DILETTANTE", "DILETTANTE2", "ISSI2" };
 
-const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "VIRGO2", "VIRGO3", "MOONBEAM2", "VOODOO", "SABREGT2", "TORNADO5", "CHINO2", "MINIVAN2", "SLAMVAN3", "FACTION2", "FACTION3" };
+const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "VIRGO2", "MOONBEAM2", "VOODOO", "SABREGT2", "TORNADO5", "CHINO2", "MINIVAN2", "SLAMVAN3", "FACTION2", "FACTION3" };
 
 const std::vector<std::string> VOV_CAR_CAPTIONS[] = { CAPTIONS_SUPERCARS, CAPTIONS_SPORTS, CAPTIONS_SPORTCLASSICS, CAPTIONS_COUPES, CAPTIONS_MUSCLE, CAPTIONS_OFFROAD, CAPTIONS_SUVS, CAPTIONS_SEDANS, CAPTIONS_COMPACTS, CAPTIONS_LOWRIDERS };
 
