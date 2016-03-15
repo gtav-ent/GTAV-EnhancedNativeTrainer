@@ -201,6 +201,24 @@ bool process_smoke_colour_menu();
 
 void drive_passenger();
 
+// Vehicle Interior Colours
+
+void apply_trim_colors(int colorIndex);
+
+void onhighlight_trim_colour_selection(MenuItem<int> choice);
+
+bool onconfirm_trim_colour_selection(MenuItem<int> choice);
+
+bool process_trim_design_menu();
+
+void apply_dash_colors(int colorIndex);
+
+void onhighlight_dash_colour_selection(MenuItem<int> choice);
+
+bool onconfirm_dash_colour_selection(MenuItem<int> choice);
+
+bool process_dash_colour_menu();
+
 bool inline is_this_a_car(Vehicle veh)
 {
 	// Return true if the current vehicle is a car, e.g. as certain vehicles don't support neon lights
