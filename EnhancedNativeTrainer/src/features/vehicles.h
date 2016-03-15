@@ -34,6 +34,8 @@ extern const std::vector<PaintColour> PAINTS_METALLIC;
 
 extern const std::vector<std::string> VALUES_SUPERCARS;
 
+extern char* TRIM_OR_DIAL_VEHS[20];
+
 /***
 * METHODS
 */
@@ -81,11 +83,6 @@ bool process_paint_menu_special();
 bool onconfirm_color_menu_selection(MenuItem<int> choice);
 
 void onhighlight_color_menu_selection(MenuItem<int> choice);
-
-//Interior Trim 
-
-bool process_light_colors();
-bool process_trim_colors();
 
 //Vehicle mod getters and setters
 
@@ -173,6 +170,12 @@ struct TireSmokeColor
 	int rVal, gVal, bVal;
 };
 
+struct TrimColour
+{
+	std::string trimColName;
+	int trimColVal;
+};
+
 void apply_neon_colors(int colorIndex);
 
 void onhighlight_neon_lights_selection(MenuItem<int> colorIndex);
@@ -198,6 +201,26 @@ void set_smoke(bool applied, std::vector<int> extras);
 bool process_smoke_colour_menu();
 
 //End of smoke related code
+
+// Vehicle Interior Colours
+
+void apply_trim_colors(int colorIndex);
+
+void onhighlight_trim_colour_selection(MenuItem<int> choice);
+
+bool onconfirm_trim_colour_selection(MenuItem<int> choice);
+
+bool process_trim_colour_menu();
+
+void apply_dash_colors(int colorIndex);
+
+void onhighlight_dash_colour_selection(MenuItem<int> choice);
+
+bool onconfirm_dash_colour_selection(MenuItem<int> choice);
+
+bool process_dash_colour_menu();
+
+bool process_interior_colour_menu();
 
 void drive_passenger();
 
