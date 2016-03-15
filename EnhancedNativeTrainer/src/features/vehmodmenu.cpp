@@ -816,12 +816,8 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		set_status_text("Removed all upgrades");
 		break;
 
-	case -5:
-		process_light_colors();
-		return false;
-
-	case -6:
-		process_trim_colors();
+	case -5: // Vehicle interior colors
+		process_interior_colour_menu();
 		return false;
 
 	case  SPECIAL_ID_FOR_TOGGLE_VARIATIONS:
@@ -892,17 +888,25 @@ bool process_vehmod_menu()
 		item4->isLeaf = true;
 		menuItems.push_back(item4);
 
-		MenuItem<int> *item5 = new MenuItem<int>();
-		item5->caption = "Dash Color ~HUD_COLOUR_GREYLIGHT~(74)"; //~HUD_COLOUR_GREYLIGHT~
-		item5->value = -5;
-		item5->isLeaf = false;
-		menuItems.push_back(item5);
+		Hash currVeh = ENTITY::GET_ENTITY_MODEL(veh);
+		bool supports_trim_cols = false;
 
-		MenuItem<int> *item6 = new MenuItem<int>();
-		item6->caption = "Trim Color ~HUD_COLOUR_GREYLIGHT~(74)"; //~HUD_COLOUR_GREYLIGHT~
-		item6->value = -6;
-		item6->isLeaf = false;
-		menuItems.push_back(item6);
+		for each (char* vehModel in TRIM_OR_DIAL_VEHS)
+		{
+			if (GAMEPLAY::GET_HASH_KEY(vehModel) == currVeh)
+			{
+				supports_trim_cols = true;
+			}
+		}
+
+		if (supports_trim_cols)
+		{
+			MenuItem<int> *item5 = new MenuItem<int>();
+			item5->caption = "Interior Colors";
+			item5->value = -5;
+			item5->isLeaf = false;
+			menuItems.push_back(item5);
+		}
 	}
 
 	if (!isWeird && !isAircraft)
