@@ -816,7 +816,7 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		set_status_text("Removed all upgrades");
 		break;
 
-	case -5: // Vehicle interior colours
+	case -5: // Vehicle interior colors
 		process_interior_colour_menu();
 		return false;
 
@@ -902,7 +902,7 @@ bool process_vehmod_menu()
 		if (supports_trim_cols)
 		{
 			MenuItem<int> *item5 = new MenuItem<int>();
-			item5->caption = "Interior Colours";
+			item5->caption = "Interior Colors";
 			item5->value = -5;
 			item5->isLeaf = false;
 			menuItems.push_back(item5);
