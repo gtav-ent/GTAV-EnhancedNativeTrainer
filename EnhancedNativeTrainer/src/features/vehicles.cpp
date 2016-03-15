@@ -1782,6 +1782,7 @@ void init_vehicle_feature()
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
+	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
 	unpack_veh_preview("FACTION3", VP_FACTION3, "VP_FACTION3");
 	unpack_veh_preview("MINIVAN2", VP_COGNOSCENTI2, "MINIVAN2");
 	unpack_veh_preview("SABREGT2", VP_SABREGT2, "SABREGT2");
