@@ -30,12 +30,6 @@ struct PaintColour
 	int pearlAddition;
 };
 
-struct TrimColour
-{
-	std::string trimColName;
-	int trimColVal;
-};
-
 extern const std::vector<PaintColour> PAINTS_METALLIC;
 
 extern const std::vector<std::string> VALUES_SUPERCARS;
@@ -87,11 +81,6 @@ bool process_paint_menu_special();
 bool onconfirm_color_menu_selection(MenuItem<int> choice);
 
 void onhighlight_color_menu_selection(MenuItem<int> choice);
-
-//Interior Trim 
-
-bool process_light_colors();
-bool process_trim_colors();
 
 //Vehicle mod getters and setters
 
@@ -177,6 +166,12 @@ struct TireSmokeColor
 {
 	std::string colorString;
 	int rVal, gVal, bVal;
+};
+
+struct TrimColour
+{
+	std::string trimColName;
+	int trimColVal;
 };
 
 void apply_neon_colors(int colorIndex);
