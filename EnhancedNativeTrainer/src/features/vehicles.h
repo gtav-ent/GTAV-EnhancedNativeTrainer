@@ -209,6 +209,8 @@ void onhighlight_trim_colour_selection(MenuItem<int> choice);
 
 bool onconfirm_trim_colour_selection(MenuItem<int> choice);
 
+bool process_trim_colour_menu();
+
 void apply_dash_colors(int colorIndex);
 
 void onhighlight_dash_colour_selection(MenuItem<int> choice);
