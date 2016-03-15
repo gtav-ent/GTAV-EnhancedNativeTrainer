@@ -30,6 +30,12 @@ struct PaintColour
 	int pearlAddition;
 };
 
+struct TrimColour
+{
+	std::string trimColName;
+	int trimColVal;
+};
+
 extern const std::vector<PaintColour> PAINTS_METALLIC;
 
 extern const std::vector<std::string> VALUES_SUPERCARS;
