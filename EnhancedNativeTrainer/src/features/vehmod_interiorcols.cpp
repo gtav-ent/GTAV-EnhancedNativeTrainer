@@ -321,5 +321,5 @@ bool process_trim_design_menu()
 		menuItems.push_back(chooseTrimColor);
 	}
 
-	return draw_generic_menu<int>(menuItems, 0, "Interior Colours", onconfirm_trim_colour_menu, NULL, NULL, vehicle_menu_interrupt);
+	return draw_generic_menu<int>(menuItems, 0, "Interior Colors", onconfirm_trim_colour_menu, NULL, NULL, vehicle_menu_interrupt);
 }
