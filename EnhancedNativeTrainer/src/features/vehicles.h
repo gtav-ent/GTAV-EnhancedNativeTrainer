@@ -202,8 +202,6 @@ bool process_smoke_colour_menu();
 
 //End of smoke related code
 
-void drive_passenger();
-
 // Vehicle Interior Colours
 
 void apply_trim_colors(int colorIndex);
