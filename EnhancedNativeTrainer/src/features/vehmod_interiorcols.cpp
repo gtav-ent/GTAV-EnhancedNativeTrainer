@@ -8,7 +8,7 @@ char* SUPPORTS_TRIM_COLOUR[] = { "SCHAFTER3", "SCHAFTER4", "SCHAFTER5", "SCHAFTE
 char* TRIM_OR_DIAL_VEHS[] = { "SCHAFTER3", "SCHAFTER4", "SCHAFTER5", "SCHAFTER6", "COG55", "COG552", "COGNOSCENTI", "COGNOSCENTI2", "BALLER3", "BALLER4", "BALLER5", "BALLER6", "BANSHEE2", "BUCCANEER2", "CHINO2", "FACTION2", "MOONBEAM2", "SULTANRS", "PRIMO2", "VOODOO" };
 
 
-const std::vector<TrimColor> TRIM_COLORS = {
+const std::vector<TrimColour> TRIM_COLORS = {
 	{ "Black", 0 },
 	{ "Graphite Black", 1 },
 	{ "Black Steel", 2 },
@@ -88,7 +88,7 @@ const std::vector<TrimColor> TRIM_COLORS = {
 void apply_dash_colors(int colorIndex)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-	TrimColor whichcolor = TRIM_COLORS[colorIndex];
+	TrimColour whichcolor = TRIM_COLORS[colorIndex];
 	VEHICLE::_SET_VEHICLE_DASHBOARD_COLOUR(veh, whichcolor.trimColVal);
 }
 
@@ -132,7 +132,7 @@ bool process_dash_colour_menu()
 
 	for (int i = 0; i < TRIM_COLORS.size(); i++)
 	{
-		TrimColor thisCol = TRIM_COLORS[i];
+		TrimColour thisCol = TRIM_COLORS[i];
 
 		//try and match the current col to a value, in order to set the menu index
 		if (colIndex == -1 && currDashCol == thisCol.trimColVal)
@@ -158,7 +158,7 @@ bool process_dash_colour_menu()
 void apply_trim_colors(int colorIndex)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
-	TrimColor whichcolor = TRIM_COLORS[colorIndex];
+	TrimColour whichcolor = TRIM_COLORS[colorIndex];
 	VEHICLE::_SET_VEHICLE_INTERIOR_COLOUR(veh, whichcolor.trimColVal);
 }
 
@@ -202,7 +202,7 @@ bool process_trim_colour_menu()
 
 	for (int i = 0; i < TRIM_COLORS.size(); i++)
 	{
-		TrimColor thisCol = TRIM_COLORS[i];
+		TrimColour thisCol = TRIM_COLORS[i];
 
 		//try and match the current col to a value, in order to set the menu index
 		if (colIndex == -1 && currTrimCol == thisCol.trimColVal)
