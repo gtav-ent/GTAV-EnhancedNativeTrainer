@@ -315,7 +315,7 @@ bool process_trim_design_menu()
 	if (trim_col)
 	{
 		MenuItem<int> *chooseTrimColor = new MenuItem<int>();
-		chooseTrimColor->caption = "Trim Colour ~HUD_COLOUR_BLUE~(74)";
+		chooseTrimColor->caption = "Trim Colour ~HUD_COLOUR_GREYLIGHT~(74)";
 		chooseTrimColor->value = -2;
 		chooseTrimColor->isLeaf = false;
 		menuItems.push_back(chooseTrimColor);
