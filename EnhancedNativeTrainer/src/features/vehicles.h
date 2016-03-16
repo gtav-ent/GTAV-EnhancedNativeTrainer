@@ -34,7 +34,7 @@ extern const std::vector<PaintColour> PAINTS_METALLIC;
 
 extern const std::vector<std::string> VALUES_SUPERCARS;
 
-extern char* TRIM_OR_DIAL_VEHS[20];
+extern char* TRIM_OR_DIAL_VEHS[20]; 
 
 /***
 * METHODS
@@ -221,8 +221,6 @@ bool onconfirm_dash_colour_selection(MenuItem<int> choice);
 bool process_dash_colour_menu();
 
 bool process_interior_colour_menu();
-
-bool process_dash_colour_menu(); 
 
 void drive_passenger();
 
