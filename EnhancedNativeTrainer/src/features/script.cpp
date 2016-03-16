@@ -181,6 +181,13 @@ void update_features()
 	}
 
 	/*
+	GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("shop_controller");
+	
+	std::ostringstream ss;
+	ss << "Scripts disabled";
+	set_status_text_centre_screen(ss.str());*/
+
+	/*
 	std::ostringstream perfSS;
 	perfSS << "Calls this frame: " << get_calls_per_frame() << " in " << get_ticks_since_last_frame() << "ms";
 	write_text_to_log_file(perfSS.str());
