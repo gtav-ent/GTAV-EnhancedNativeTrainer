@@ -240,7 +240,7 @@ bool onconfirm_trim_colour_menu(MenuItem<int> choice)
 	return false;
 }
 
-bool process_trim_design_menu()
+bool process_interior_colour_menu()
 {
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 
