@@ -97,7 +97,7 @@ const std::vector<std::string> CAPTIONS_SEDANS{ "Albany Emperor", "Albany Empero
 
 const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan Prairie", "Declasse Rhapsody", "Dinka Blista", "Karin Dilettante", "Karin Dilettante (Liveried)", "Weeny Issi" };
 
-const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Voodoo (Custom)", "Vapid Chino (Custom)", "Willard Faction (Custom)" };
+const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Voodoo (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)","Vapid Slamvan (Custom)","Declasse Tornado (Custom)", "Willard Faction (Custom)", "Willard Faction (Custom Donk)" };
 
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "OSIRIS", "VACCA", "ZENTORNO", "T20", "ADDER", "BULLET" };
 
@@ -117,7 +117,7 @@ const std::vector<std::string> VALUES_SEDANS{ "EMPEROR", "EMPEROR2", "EMPEROR3",
 
 const std::vector<std::string> VALUES_COMPACTS{ "PANTO", "PRAIRIE", "RHAPSODY", "BLISTA", "DILETTANTE", "DILETTANTE2", "ISSI2" };
 
-const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "MOONBEAM2", "VOODOO", "CHINO2", "FACTION2" };
+const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "VIRGO2", "MOONBEAM2", "VOODOO", "SABREGT2", "TORNADO5", "CHINO2", "MINIVAN2", "SLAMVAN3", "FACTION2", "FACTION3" };
 
 const std::vector<std::string> VOV_CAR_CAPTIONS[] = { CAPTIONS_SUPERCARS, CAPTIONS_SPORTS, CAPTIONS_SPORTCLASSICS, CAPTIONS_COUPES, CAPTIONS_MUSCLE, CAPTIONS_OFFROAD, CAPTIONS_SUVS, CAPTIONS_SEDANS, CAPTIONS_COMPACTS, CAPTIONS_LOWRIDERS };
 
@@ -269,6 +269,27 @@ bool process_veh_door_menu() {
 void on_toggle_invincibility(MenuItem<int> choice)
 {
 	featureVehInvincibleUpdated = true;
+}
+
+
+void checkVehicleForLowriderScript()
+{
+	char* SCRIPTED_LOWRIDER_DESPAWN[] = { "FACTION", "FACTION3", "SABREGT2", "SLAMVAN3", "TORNADO5", "VIRGO2" };
+
+	Ped playerPed = PLAYER::PLAYER_PED_ID();
+
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+
+	Hash currVehModel = ENTITY::GET_ENTITY_MODEL(veh);
+
+	for each (char* vehModel in SCRIPTED_LOWRIDER_DESPAWN)
+	{
+		if (GAMEPLAY::GET_HASH_KEY(vehModel) == currVehModel)
+		{
+			*getGlobalPtr(2558120) = 1;
+		}
+	}
+	set_status_text("Lowrider disable script ~r~disabled");
 }
 
 bool onconfirm_veh_menu(MenuItem<int> choice)
@@ -818,6 +839,8 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 		{
 			ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
 		}
+
+		checkVehicleForLowriderScript();
 
 		std::ostringstream ss;
 		ss << modelTitle << " spawned";
@@ -1482,7 +1505,14 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "SUPERVOLITO2", "elt_dlc_apartments", "svolito2" },
 	{ "COG55", "lgm_dlc_apartments", "cog55" },
 	{ "COGNOSCENTI", "lgm_dlc_apartments", "cognosc" },
-	{ "LIMO2", "candc_apartments", "limo2" }
+	{ "LIMO2", "candc_apartments", "limo2" },
+	// Lowrider 2 update
+	{ "FACTION3", "lsc_lowrider2", "faction3_a" },
+	{ "MINIVAN2", "lsc_lowrider2", "minivan2_a" },
+	{ "SABREGT2", "lsc_lowrider2", "sabregt2_a" },
+	{ "SLAMVAN3", "lsc_lowrider2", "slamvan3_a" },
+	{ "TORNADO5", "lsc_lowrider2", "tornado5_a" },
+	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" }
 };
 
 static std::vector<VehicleImage> ALL_VEH_IMAGES;
@@ -1779,9 +1809,19 @@ void init_vehicle_feature()
 	unpack_veh_preview("SCHAFTER5", VP_SCHAFTER5, "VP_SCHAFTER5");
 	unpack_veh_preview("SCHAFTER6", VP_SCHAFTER6, "VP_SCHAFTER6");
 	unpack_veh_preview("MOONBEAM", VP_MOONBEAM, "VP_MOONBEAM");
-	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
+	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
+	
+	/*
+	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
+	unpack_veh_preview("FACTION3", VP_FACTION3, "VP_FACTION3");
+	unpack_veh_preview("MINIVAN2", VP_MINIVAN2, "MINIVAN2");
+	unpack_veh_preview("SABREGT2", VP_SABREGT2, "SABREGT2");
+	unpack_veh_preview("SLAMVAN3", VP_SLAMVAN3, "SLAMVAN3");
+	unpack_veh_preview("TORNADO5", VP_TORNADO5, "TORNADO5");
+	unpack_veh_preview("VIRGO2", VP_VIRGO2, "VIRGO2");
+	*/
 }
 
 void fix_vehicle()
@@ -1898,4 +1938,3 @@ void drive_passenger()
 		
 	}
 }
-

@@ -817,7 +817,8 @@ bool onconfirm_vehmod_menu(MenuItem<int> choice)
 		break;
 
 	case -5: // Vehicle interior colors
-		process_interior_colour_menu();
+		process_interior_colour_menu(); 
+		//process_dash_colour_menu();
 		return false;
 
 	case  SPECIAL_ID_FOR_TOGGLE_VARIATIONS:
