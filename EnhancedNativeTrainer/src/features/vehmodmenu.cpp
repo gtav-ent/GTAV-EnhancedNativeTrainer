@@ -18,11 +18,11 @@ int modChoiceMenuIndex = 0;
 
 const static int CUSTOM_TYRE_COUNT = 1;
 
-const static int WHEEL_CATEGORY_COUNT = 8; //was 7
+const static int WHEEL_CATEGORY_COUNT = 9; //was 7
 
-const static std::string WHEEL_CATEGORY_NAMES[] = { "Sports", "Muscle", "Lowrider", "SUV", "Offroad", "Tuner", "High End", "Benny's Originals" };
+const static std::string WHEEL_CATEGORY_NAMES[] = { "Sports", "Muscle", "Lowrider", "SUV", "Offroad", "Tuner", "High End", "Benny's Originals", "Benny's Bespoke" };
 
-const static int WHEEL_CATEGORY_COUNTS[] = { 25, 18, 15, 19, 10, 24, 20, 31 }; /* SORTED */
+const static int WHEEL_CATEGORY_COUNTS[] = { 25, 18, 15, 19, 10, 24, 20, 31, 31 }; /* SORTED */
 
 const static int WHEEL_CATEGORY_COUNT_BIKE = 13;
 
@@ -673,6 +673,10 @@ bool process_vehmod_category_menu(int category)
 		{
 			count = WHEEL_CATEGORY_COUNTS[7];
 		}
+		else if (wheelType == 9) //Benny's Bespoke
+		{
+			count = WHEEL_CATEGORY_COUNTS[8];
+		}
 		else
 		{
 			count = WHEEL_CATEGORY_COUNTS[wheelType];
@@ -988,6 +992,10 @@ bool process_vehmod_menu()
 		{
 			wheelCount = WHEEL_CATEGORY_COUNTS[7];
 		}
+		else if (wheelType == 9) //Benny's Bespoke
+		{
+			wheelCount = WHEEL_CATEGORY_COUNTS[8];
+		}
 		else
 		{
 			wheelCount = WHEEL_CATEGORY_COUNTS[wheelType];
@@ -1219,6 +1227,14 @@ void set_chrome_wheels_enabled(Vehicle veh, bool enabled)
 	else if (wheelType == 7)
 	{
 		count = WHEEL_CATEGORY_COUNTS[6];
+	}
+	else if (wheelType == 8) //Benny's Originals
+	{
+		count = WHEEL_CATEGORY_COUNTS[7];
+	}
+	else if (wheelType == 9) //Benny's Bespoke
+	{
+		count = WHEEL_CATEGORY_COUNTS[8];
 	}
 	else
 	{
