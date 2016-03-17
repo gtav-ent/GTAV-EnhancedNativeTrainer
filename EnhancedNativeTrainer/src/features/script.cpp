@@ -460,6 +460,8 @@ void update_features()
 
 	update_weapon_features(bPlayerExists, player);
 
+	update_aimbot_esp_features();
+
 	update_vehicle_features(bPlayerExists, playerPed);
 
 	update_misc_features(bPlayerExists, playerPed);
@@ -578,24 +580,27 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_weapon_menu();
 		break;
 	case 3:
-		process_bodyguard_menu();
+		process_aimbot_esp_menu();
 		break;
 	case 4:
-		process_veh_menu();
+		process_bodyguard_menu();
 		break;
 	case 5:
-		process_world_menu();
+		process_veh_menu();
 		break;
 	case 6:
-		process_time_menu();
+		process_world_menu();
 		break;
 	case 7:
-		process_props_menu();
+		process_time_menu();
 		break;
 	case 8:
-		process_misc_menu();
+		process_props_menu();
 		break;
 	case 9:
+		process_misc_menu();
+		break;
+	case 10:
 		reset_globals();
 		break;
 	}
@@ -615,61 +620,67 @@ void process_main_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Player";
-	item->value = 0;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Vehicles";
-	item->value = 4;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Locations";
-	item->value = 1;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Weapons";
-	item->value = 2;
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Aimbot ESP";
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Bodyguards";
-	item->value = 3;
+	item->value = i++;
+	item->isLeaf = false;
+	menuItems.push_back(item);
+
+	item = new MenuItem<int>();
+	item->caption = "Vehicles";
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "World";
-	item->value = 5;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Time";
-	item->value = 6;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Objects";
-	item->value = 7;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Miscellaneous";
-	item->value = 8;
+	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
 
 	item = new MenuItem<int>();
 	item->caption = "Reset All Settings";
-	item->value = 9;
+	item->value = i++;
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
@@ -690,6 +701,8 @@ void reset_globals()
 	reset_teleporter_globals();
 
 	reset_weapon_globals();
+
+	reset_aimbot_globals();
 
 	reset_world_globals();
 
@@ -1060,6 +1073,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_hotkey_generic_settings(&settings);
 	add_props_generic_settings(&settings);
 	add_weapons_generic_settings(&settings);
+	add_aimbot_esp_generic_settings(&settings);
 	add_bodyguards_generic_settings(&settings);
 	add_skin_generic_settings(&settings);
 
@@ -1094,6 +1108,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_props(&settings);
 
 	handle_generic_settings_weapons(&settings);
+
+	handle_generic_settings_aimbot_esp(&settings);
 
 	handle_generic_settings_bodyguards(&settings);
 
