@@ -100,6 +100,9 @@
     <ClCompile Include="src\features\vehmod_interiorcols.cpp">
       <Filter>Source Files\features</Filter>
     </ClCompile>
+    <ClCompile Include="src\features\aimbot_esp.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\version.h">
@@ -208,6 +211,12 @@
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\main.h" />
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\nativeCaller.h" />
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\types.h" />
+    <ClInclude Include="src\features\aimbot_esp.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\common\vectorHelper.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -278,6 +287,9 @@
     </Filter>
     <Filter Include="Resource Files\Image Previews">
       <UniqueIdentifier>{c2ecbea4-778b-4e02-a352-0ee279256edd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{90ace7bd-52ea-4e20-9bcd-c3cb8abf8b9b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
