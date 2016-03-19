@@ -165,21 +165,6 @@ void check_player_model()
 // Updates all features that can be turned off by the game, being called each game frame
 void update_features()
 {
-	if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
-	{
-		if (!onlineWarningShown)
-		{
-			set_status_text("~HUD_COLOUR_MENU_YELLOW~ENT ~HUD_COLOUR_WHITE~is not for use online");
-			onlineWarningShown = true;
-		}
-		WAIT(0);
-		return;
-	}
-	else
-	{
-		onlineWarningShown = false;
-	}
-
 	/*
 	GAMEPLAY::TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME("shop_controller");
 	
