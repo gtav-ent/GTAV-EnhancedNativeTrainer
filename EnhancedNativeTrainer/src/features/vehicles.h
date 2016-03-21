@@ -234,7 +234,7 @@ bool inline is_this_a_car(Vehicle veh)
 bool inline is_this_a_motorcycle(Vehicle veh)
 {
 	Entity et = ENTITY::GET_ENTITY_MODEL(veh);
-	return VEHICLE::IS_THIS_MODEL_A_BIKE(et);
+	return (BOOL)VEHICLE::IS_THIS_MODEL_A_BIKE(et);
 }
 
 bool inline is_this_a_heli_or_plane(Vehicle veh)
