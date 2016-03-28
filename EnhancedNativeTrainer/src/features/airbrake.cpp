@@ -90,7 +90,7 @@ void process_airbrake_menu()
 			break;
 		}
 
-		if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+		if (NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
 		{
 			break;
 		}

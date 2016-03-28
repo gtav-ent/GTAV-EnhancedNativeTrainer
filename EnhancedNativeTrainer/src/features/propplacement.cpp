@@ -152,7 +152,7 @@ void begin_prop_placement(SpawnedPropInstance prop)
 			break;
 		}
 
-		if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+		if (NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
 		{
 			break;
 		}

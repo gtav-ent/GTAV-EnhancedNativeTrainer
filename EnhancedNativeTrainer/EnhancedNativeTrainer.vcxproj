@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="inc\xinput\CXBOXController.cpp" />
+    <ClCompile Include="src\features\aimbot_esp.cpp" />
     <ClCompile Include="src\features\airbrake.cpp" />
     <ClCompile Include="src\features\anims.cpp" />
     <ClCompile Include="src\features\bodyguards.cpp" />
@@ -51,8 +52,10 @@
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\nativeCaller.h" />
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\types.h" />
     <ClInclude Include="inc\xinput\CXBOXController.h" />
+    <ClInclude Include="src\common\vectorHelper.h" />
     <ClInclude Include="src\datasets\data_props.h" />
     <ClInclude Include="src\ent-enums.h" />
+    <ClInclude Include="src\features\aimbot_esp.h" />
     <ClInclude Include="src\features\airbrake.h" />
     <ClInclude Include="src\features\anims.h" />
     <ClInclude Include="src\features\bodyguards.h" />
