@@ -15,6 +15,14 @@ struct HOTKEY_DEF
 	int id;
 };
 
+bool is_hotkey_held_slow_mo();
+
+bool is_hotkey_held_normal_speed();
+
+bool is_hotkey_held_veh_burnout();
+
+bool is_hotkey_held_veh_extrapower();
+
 static const int HKEY_FIX_CAR = 101;
 static const int HKEY_CLEAN_CAR = 102;
 static const int HKEY_HEAL_PLAYER = 103;
@@ -31,6 +39,10 @@ static const int HKEY_MENU_NEXT_RADIO_TRACK = 113;
 static const int HKEY_TOGGLE_THERMAL_VIS = 114;
 static const int HKEY_TOGGLE_NIGHT_VIS = 115;
 static const int HKEY_PASSENGER = 116;
+static const int HKEY_SLOW_MOTION = 117;
+static const int HKEY_NORMAL_SPEED = 118;
+static const int HKEY_VEHICLE_POWER = 119;
+static const int HKEY_VEHICLE_BURNOUT = 120;
 
 const std::vector<HOTKEY_DEF> HOTKEY_AVAILABLE_FUNCS{
 	{ "No Function", 0 },
@@ -48,7 +60,11 @@ const std::vector<HOTKEY_DEF> HOTKEY_AVAILABLE_FUNCS{
 	{ "Skin Customise Menu", HKEY_MENU_SKIN_CUST },
 	{ "Next Radio Track", HKEY_MENU_NEXT_RADIO_TRACK },
 	{ "Toggle Night Vision", HKEY_TOGGLE_NIGHT_VIS },
-	{ "Toggle Thermal Vision", HKEY_TOGGLE_THERMAL_VIS }
+	{ "Toggle Thermal Vision", HKEY_TOGGLE_THERMAL_VIS },
+	{ "Slow Motion (Hold Key)", HKEY_SLOW_MOTION},
+	{ "Normal Motion (Hold Key)", HKEY_NORMAL_SPEED },
+	{ "Vehicle Extra Power (Hold Key)", HKEY_VEHICLE_POWER },
+	{ "Vehicle Burnout (Hold Key)", HKEY_VEHICLE_BURNOUT },
 	//{ "Drive as Passenger", HKEY_PASSENGER }
 };
 
@@ -62,4 +78,6 @@ void add_hotkey_generic_settings(std::vector<StringPairSettingDBRow>* results);
 
 void handle_generic_settings_hotkey(std::vector<StringPairSettingDBRow>* settings);
 
-void trigger_function_for_hotkey(int i);
+void trigger_function_for_hotkey_onkeyup(int i);
+
+void trigger_function_for_hotkey_onkeydown(int i);

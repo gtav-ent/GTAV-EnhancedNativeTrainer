@@ -32,6 +32,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
 
+bool AIMBOT_INCLUDED = false;
+
 int last_player_slot_seen = 0;
 
 int game_frame_num = 0;
@@ -459,7 +461,10 @@ void update_features()
 
 	update_weapon_features(bPlayerExists, player);
 
-	update_aimbot_esp_features();
+	if (AIMBOT_INCLUDED)
+	{
+		update_aimbot_esp_features();
+	}
 
 	update_vehicle_features(bPlayerExists, playerPed);
 
@@ -579,28 +584,28 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_weapon_menu();
 		break;
 	case 3:
-		process_aimbot_esp_menu();
-		break;
-	case 4:
 		process_bodyguard_menu();
 		break;
-	case 5:
+	case 4:
 		process_veh_menu();
 		break;
-	case 6:
+	case 5:
 		process_world_menu();
 		break;
-	case 7:
+	case 6:
 		process_time_menu();
 		break;
-	case 8:
+	case 7:
 		process_props_menu();
 		break;
-	case 9:
+	case 8:
 		process_misc_menu();
 		break;
-	case 10:
+	case 9:
 		reset_globals();
+		break;
+	case 10:
+		process_aimbot_esp_menu();
 		break;
 	}
 	return false;
@@ -631,12 +636,6 @@ void process_main_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Weapons";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Aimbot ESP";
 	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
@@ -683,6 +682,15 @@ void process_main_menu()
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
+	if (AIMBOT_INCLUDED)
+	{
+		item = new MenuItem<int>();
+		item->caption = "Aimbot ESP";
+		item->value = i++;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
 	MenuParameters<int> params(menuItems, captionSS.str());
 	params.menuSelectionPtr = &activeLineIndexMain;
 	params.onConfirmation = onconfirm_main_menu;
@@ -701,7 +709,10 @@ void reset_globals()
 
 	reset_weapon_globals();
 
-	reset_aimbot_globals();
+	if (AIMBOT_INCLUDED)
+	{
+		reset_aimbot_globals();
+	}
 
 	reset_world_globals();
 
@@ -1072,7 +1083,12 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_hotkey_generic_settings(&settings);
 	add_props_generic_settings(&settings);
 	add_weapons_generic_settings(&settings);
-	add_aimbot_esp_generic_settings(&settings);
+	
+	if (AIMBOT_INCLUDED)
+	{
+		add_aimbot_esp_generic_settings(&settings);
+	}
+
 	add_bodyguards_generic_settings(&settings);
 	add_skin_generic_settings(&settings);
 
@@ -1108,7 +1124,10 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 
 	handle_generic_settings_weapons(&settings);
 
-	handle_generic_settings_aimbot_esp(&settings);
+	if (AIMBOT_INCLUDED)
+	{
+		handle_generic_settings_aimbot_esp(&settings);
+	}
 
 	handle_generic_settings_bodyguards(&settings);
 

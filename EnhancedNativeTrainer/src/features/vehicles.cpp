@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\..\resource.h"
 #include "..\utils.h"
 #include "vehicles.h"
+#include "hotkeys.h"
 #include "script.h"
 #include "..\ui_support\menu_functions.h"
 #include "..\io\config_io.h"
@@ -56,6 +57,8 @@ const std::vector<std::string> VEH_ENG_POW_CAPTIONS{ "1x", "5x", "10x", "25x", "
 const std::vector<int> VEH_ENG_POW_VALUES{ 0, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400 };
 int engPowMultIndex = 0;
 bool powChanged = true;
+
+bool burnoutApplied = false;
 
 //vehicle mass stuff
 const std::vector<std::string> VEH_MASS_CAPTIONS{ "1x", "5x", "10x", "25x", "50x", "75x", "100x", "125x", "150x", "175x", "200x", "225x", "250x", "275x", "300x", "325x", "350x", "375x", "400x" };
@@ -573,7 +576,24 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		oldVehicleState = false; // player is NOT in a vehicle, set state to false
 	}
 
-	if (bPlayerExists && (did_player_just_enter_vehicle(playerPed) || powChanged)) { // check if player entered vehicle, only need to set mults once
+	if (is_hotkey_held_veh_burnout() && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		VEHICLE::SET_VEHICLE_BURNOUT(veh, true);
+		burnoutApplied = true;
+	}
+	else if (burnoutApplied)
+	{
+		VEHICLE::SET_VEHICLE_BURNOUT(veh, false);
+		burnoutApplied = false;
+	}
+
+	if (is_hotkey_held_veh_extrapower() && bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
+		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 250.0f);
+		powChanged = true;
+	}
+	else if (bPlayerExists && (did_player_just_enter_vehicle(playerPed) || powChanged)) { // check if player entered vehicle, only need to set mults once
 		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
 		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, VEH_ENG_POW_VALUES[engPowMultIndex]);
 		powChanged = false;
