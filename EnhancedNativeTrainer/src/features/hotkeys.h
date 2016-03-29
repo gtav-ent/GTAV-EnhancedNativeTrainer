@@ -43,6 +43,8 @@ static const int HKEY_SLOW_MOTION = 117;
 static const int HKEY_NORMAL_SPEED = 118;
 static const int HKEY_VEHICLE_POWER = 119;
 static const int HKEY_VEHICLE_BURNOUT = 120;
+static const int HKEY_KILL_NEARBY_PEDS = 121;
+static const int HKEY_EXPLODE_NEARBY_VEHS = 122;
 
 const std::vector<HOTKEY_DEF> HOTKEY_AVAILABLE_FUNCS{
 	{ "No Function", 0 },
@@ -65,6 +67,8 @@ const std::vector<HOTKEY_DEF> HOTKEY_AVAILABLE_FUNCS{
 	{ "Normal Motion (Hold Key)", HKEY_NORMAL_SPEED },
 	{ "Vehicle Extra Power (Hold Key)", HKEY_VEHICLE_POWER },
 	{ "Vehicle Burnout (Hold Key)", HKEY_VEHICLE_BURNOUT },
+	{ "Kill All Nearby Peds", HKEY_KILL_NEARBY_PEDS },
+	{ "Explode All Vehicles", HKEY_EXPLODE_NEARBY_VEHS },
 	//{ "Drive as Passenger", HKEY_PASSENGER }
 };
 

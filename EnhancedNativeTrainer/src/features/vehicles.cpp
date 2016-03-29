@@ -94,7 +94,7 @@ const std::vector<std::string> CAPTIONS_SPORTCLASSICS{ "Albany Franken Strange",
 
 const std::vector<std::string> CAPTIONS_COUPES{ "Dewbauchee Exemplar", "Enus Cognoscenti Cabrio", "Enus Windsor", "Lampadati Felon", "Lampadati Felon GT", "Ocelot F620", "Ocelot Jackal", "Ubermacht Sentinel", "Ubermacht Sentinel XS", "Ubermacht Zion", "Ubermacht Zion Cabrio" };
 
-const std::vector<std::string> CAPTIONS_MUSCLE{ "Albany Buccaneer", "Albany Lurcher", "Albany Virgo", "Bravado Gauntlet", "Bravado Gauntlet (Race)", "Cheval Picador", "Dundreary Virgo", "Declasse Moonbeam", "Declasse Sabre Turbo", "Declasse Stallion", "Declasse Stallion (Race)", "Declasse Tampa", "Declasse Vigero", "Declasse Voodoo", "Imponte Duke O' Death", "Imponte Dukes", "Imponte Nightshade", "Imponte Phoenix", "Imponte Ruiner", "Invetero Coquette BlackFin", "Vapid Blade", "Vapid Chino", "Vapid Dominator", "Vapid Dominator (Race)", "Vapid Hotknife", "Vapid Slamvan", "Vapid Slamvan (Lost MC)", "Willard Faction" };
+const std::vector<std::string> CAPTIONS_MUSCLE{ "Albany Buccaneer", "Albany Lurcher", "Albany Virgo", "Bravado Gauntlet", "Bravado Gauntlet (Race)", "Cheval Picador", "Declasse Moonbeam", "Declasse Sabre Turbo", "Declasse Stallion", "Declasse Stallion (Race)", "Declasse Tampa", "Declasse Vigero", "Declasse Voodoo", "Imponte Duke O' Death", "Imponte Dukes", "Imponte Nightshade", "Imponte Phoenix", "Imponte Ruiner", "Invetero Coquette BlackFin", "Vapid Blade", "Vapid Chino", "Vapid Dominator", "Vapid Dominator (Race)", "Vapid Hotknife", "Vapid Slamvan", "Vapid Slamvan (Lost MC)", "Willard Faction" };
 
 const std::vector<std::string> CAPTIONS_OFFROAD{ "Benefactor Dubsta 6x6", "BF Bifta", "BF Injection", "Bravado Dune", "Bravado Duneloader", "Bravado Space Docker", "Canis Bodhi", "Canis Kalahari", "Canis Mesa (Off-Road)", "Cheval Marshall", "Coil Brawler", "Declasse Rancher XL", "Declasse Rancher XL (Snow)", "Insurgent", "Insurgent (Gun Mount)", "Karin Rebel", "Karin Rebel (Rusty)", "Karin Technical", "Nagasaki Blazer", "Nagasaki Blazer (Hot Rod)", "Nagasaki Blazer (Lifeguard)", "Vapid Guardian", "Vapid Sandking", "Vapid Sandking XL", "Vapid The Liberator" };
 
@@ -104,7 +104,7 @@ const std::vector<std::string> CAPTIONS_SEDANS{ "Albany Emperor", "Albany Empero
 
 const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan Prairie", "Declasse Rhapsody", "Dinka Blista", "Karin Dilettante", "Karin Dilettante (Liveried)", "Weeny Issi" };
 
-const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom Donk)", "Albany Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Cusotm)", "Declasse Voodoo (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)", "Vapid Slamvan (Custom)", "Willard Faction (Custom Donk)", "Willard Faction (Custom)" };
+const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom Donk)", "Albany Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Custom)", "Declasse Voodoo (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)", "Vapid Slamvan (Custom)", "Willard Faction (Custom Donk)", "Willard Faction (Custom)" };
 
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "OSIRIS", "VACCA", "ZENTORNO", "T20", "ADDER", "BULLET" };
 
@@ -114,7 +114,7 @@ const std::vector<std::string> VALUES_SPORTCLASSICS{ "BTYPE2", "MANANA", "BTYPE"
 
 const std::vector<std::string> VALUES_COUPES{ "EXEMPLAR", "COGCABRIO", "WINDSOR", "FELON", "FELON2", "F620", "JACKAL", "SENTINEL2", "SENTINEL", "ZION", "ZION2" };
 
-const std::vector<std::string> VALUES_MUSCLE{ "BUCCANEER", "LURCHER", "VIRGO", "GAUNTLET", "GAUNTLET2", "PICADOR", "VIRGO3", "MOONBEAM", "SABREGT", "STALION", "STALION2", "TAMPA", "VIGERO", "VOODOO2", "DUKES2", "DUKES", "NITESHAD", "PHOENIX", "RUINER", "COQUETTE3", "BLADE", "CHINO", "DOMINATOR", "DOMINATOR2", "HOTKNIFE", "SLAMVAN", "SLAMVAN2", "FACTION" };
+const std::vector<std::string> VALUES_MUSCLE{ "BUCCANEER", "LURCHER", "VIRGO", "GAUNTLET", "GAUNTLET2", "PICADOR", "MOONBEAM", "SABREGT", "STALION", "STALION2", "TAMPA", "VIGERO", "VOODOO2", "DUKES2", "DUKES", "NIGHTSHADE", "PHOENIX", "RUINER", "COQUETTE3", "BLADE", "CHINO", "DOMINATOR", "DOMINATOR2", "HOTKNIFE", "SLAMVAN", "SLAMVAN2", "FACTION" };
 
 const std::vector<std::string> VALUES_OFFROAD{ "DUBSTA3", "BIFTA", "BFINJECTION", "DUNE", "DLOADER", "DUNE2", "BODHI2", "KALAHARI", "MESA3", "MARSHALL", "BRAWLER", "RANCHERXL", "RANCHERXL2", "INSURGENT2", "INSURGENT", "REBEL2", "REBEL", "TECHNICAL", "BLAZER", "BLAZER3", "BLAZER2", "GUARDIAN", "SANDKING2", "SANDKING", "MONSTER" };
 
@@ -225,6 +225,23 @@ bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 			set_status_text("Player isn't in a vehicle");
 		}
 	}
+	else if (choice.value == -2)//bomb bay open
+	{
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			VEHICLE::_OPEN_VEHICLE_BOMB_BAY(veh);
+		}
+	}
+	else if (choice.value == -3)//bomb bay close
+	{
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			VEHICLE::_0x3556041742A0DC74(veh);
+		}
+	}
+
 	return false;
 }
 
@@ -268,6 +285,20 @@ bool process_veh_door_menu() {
 		toggleItem->setter_call = set_convertible_roofdown;
 		toggleItem->value = -1;
 		menuItems.push_back(toggleItem);
+	}
+
+	Hash currVehModel = ENTITY::GET_ENTITY_MODEL(veh);
+	if (GAMEPLAY::GET_HASH_KEY("CUBAN800") == currVehModel)
+	{
+		MenuItem<int>* bombBayItem1 = new MenuItem<int>();
+		bombBayItem1->caption = "Open Bomb Bay";
+		bombBayItem1->value = -2;
+		menuItems.push_back(bombBayItem1);
+
+		MenuItem<int>* bombBayItem2 = new MenuItem<int>();
+		bombBayItem2->caption = "Close Bomb Bay";
+		bombBayItem2->value = -3;
+		menuItems.push_back(bombBayItem2);
 	}
 
 	return draw_generic_menu<int>(menuItems, &doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
@@ -1438,7 +1469,8 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "INFERNUS", "sssa_default", "infernus" },
 	{ "ISSI2", "sssa_default", "issi2" },
 	{ "KALAHARI", "sssa_default", "kalahari" },
-	{ "ORACLE", "sssa_default", "oracle" },
+	{ "ORACLE", "sssa_dlc_heist", "oracle1" },
+	{ "ORACLE2", "sssa_default", "oracle" },
 	{ "PARADISE", "sssa_default", "paradise" },
 	{ "PCJ", "sssa_default", "pcj" },
 	{ "REBEL", "sssa_default", "rebel" },
@@ -1534,7 +1566,7 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "BALLER3", "lgm_dlc_apartments", "baller3" },
 	{ "BALLER4", "sssa_default", "baller2" },
 	{ "MAMBA", "lgm_dlc_apartments", "mamba" },
-	{ "NITESHAD", "lgm_dlc_apartments", "niteshad" },
+	{ "NIGHTSHADE", "lgm_dlc_apartments", "niteshad" },
 	{ "VERLIERER2", "lgm_dlc_apartments", "verlier" },
 	{ "BTYPE2", "sssa_dlc_halloween", "btype2" },
 	{ "LURCHER", "sssa_dlc_halloween", "lurcher" },
@@ -1852,6 +1884,8 @@ void init_vehicle_feature()
 	unpack_veh_preview("MOONBEAM", VP_MOONBEAM, "VP_MOONBEAM");
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
+	unpack_veh_preview("VIRGO3", VP_VIRGO3, "VP_VIRGO3");
+	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
 }
 
 void fix_vehicle()
@@ -1931,6 +1965,25 @@ void set_convertible_roofdown(bool applied, std::vector<int> extras)
 	else
 	{
 		VEHICLE::RAISE_CONVERTIBLE_ROOF(veh, featureVehicleDoorInstant);
+	}
+}
+
+bool is_bombbay_open(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	return false;
+}
+
+void set_bombbay_open(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	if (applied)
+	{
+		VEHICLE::_OPEN_VEHICLE_BOMB_BAY(veh);
+	}
+	else
+	{
+		VEHICLE::_0x3556041742A0DC74(veh);
 	}
 }
 

@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "anims.h"
 #include "vehicles.h"
 #include "script.h"
+#include "area_effect.h"
 #include "teleportation.h"
 
 #include <string>
@@ -172,6 +173,12 @@ void trigger_function_for_hotkey_onkeyup(int hotkey)
 		break;
 	case HKEY_NORMAL_SPEED:
 		hotkey_held_normal_speed = false;
+		break;
+	case HKEY_KILL_NEARBY_PEDS:
+		kill_all_nearby_peds();
+		break;
+	case HKEY_EXPLODE_NEARBY_VEHS:
+		kill_all_nearby_vehicles();
 		break;
 	default:
 	{

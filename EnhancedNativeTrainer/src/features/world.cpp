@@ -10,6 +10,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 
 #include "world.h"
+#include "area_effect.h"
 #include "script.h"
 #include "..\ui_support\menu_functions.h"
 #include <Psapi.h>
@@ -32,6 +33,11 @@ bool featureWorldRandomCops = true;
 bool featureWorldRandomTrains = true;
 bool featureWorldRandomBoats = true;
 bool featureWorldGarbageTrucks = true;
+
+bool featureWorldRandomCopsUpdated = false;
+bool featureWorldRandomTrainsUpdated = false;
+bool featureWorldRandomBoatsUpdated = false;
+bool featureWorldGarbageTrucksUpdated = false;
 
 bool featureBlackout = false;
 bool featureBlackoutUpdated = false;
@@ -136,22 +142,16 @@ void process_weather_menu()
 
 bool onconfirm_world_menu(MenuItem<int> choice)
 {
-	switch (activeLineIndexWorld)
+	switch (choice.value)
 	{
-	case 0:
+	case -1:
+		process_areaeffect_menu();
+		break;
+	case -2:
 		process_weather_menu();
 		break;
 	case 2:
 		// featureWorldRandomCops being set in update_features
-		break;
-	case 3:
-		VEHICLE::SET_RANDOM_TRAINS(featureWorldRandomTrains);
-		break;
-	case 4:
-		VEHICLE::SET_RANDOM_BOATS(featureWorldRandomBoats);
-		break;
-	case 5:
-		VEHICLE::SET_GARBAGE_TRUCKS(featureWorldGarbageTrucks);
 		break;
 	}
 	return false;
@@ -163,16 +163,19 @@ void process_world_menu()
 
 	std::string caption = "World Options";
 
-	// read default feature values from the game
-	featureWorldRandomCops = (PED::CAN_CREATE_RANDOM_COPS() == TRUE);
-
 	std::vector<MenuItem<int>*> menuItems;
 
-	MenuItem<int> *item = new MenuItem<int>();
-	item->isLeaf = false;
-	item->caption = "Weather";
-	item->value = 1;
-	menuItems.push_back(item);
+	MenuItem<int> *areaItem = new MenuItem<int>();
+	areaItem->isLeaf = false;
+	areaItem->caption = "Area Effects";
+	areaItem->value = -1;
+	menuItems.push_back(areaItem);
+
+	MenuItem<int> *weatherItem = new MenuItem<int>();
+	weatherItem->isLeaf = false;
+	weatherItem->caption = "Weather";
+	weatherItem->value = -2;
+	menuItems.push_back(weatherItem);
 
 	ToggleMenuItem<int> *togItem = new ToggleMenuItem<int>();
 	togItem->caption = "Moon Gravity";
@@ -199,24 +202,28 @@ void process_world_menu()
 	togItem->caption = "Random Cops";
 	togItem->value = 2;
 	togItem->toggleValue = &featureWorldRandomCops;
+	togItem->toggleValueUpdated = &featureWorldRandomCopsUpdated;
 	menuItems.push_back(togItem);
 
 	togItem = new ToggleMenuItem<int>();
 	togItem->caption = "Random Trains";
 	togItem->value = 3;
 	togItem->toggleValue = &featureWorldRandomTrains;
+	togItem->toggleValueUpdated = &featureWorldRandomTrainsUpdated;
 	menuItems.push_back(togItem);
 
 	togItem = new ToggleMenuItem<int>();
 	togItem->caption = "Random Boats";
 	togItem->value = 4;
 	togItem->toggleValue = &featureWorldRandomBoats;
+	togItem->toggleValueUpdated = &featureWorldRandomBoatsUpdated;
 	menuItems.push_back(togItem);
 
 	togItem = new ToggleMenuItem<int>();
 	togItem->caption = "Garbage Trucks";
 	togItem->value = 5;
 	togItem->toggleValue = &featureWorldGarbageTrucks;
+	togItem->toggleValueUpdated = &featureWorldGarbageTrucksUpdated;
 	menuItems.push_back(togItem);
 
 	togItem = new ToggleMenuItem<int>();
@@ -263,16 +270,18 @@ void reset_world_globals()
 		featureWorldRandomBoats =
 		featureWorldGarbageTrucks = true;
 
-	featureWorldNoPedsUpdated = true;
-	featureWorldMoonGravityUpdated = true;
-	featureWorldNoTrafficUpdated = true;
+	featureWorldNoPedsUpdated = 
+	featureWorldMoonGravityUpdated = 
+	featureWorldNoTrafficUpdated = 
+	featureWorldGarbageTrucksUpdated =
+	featureWorldRandomBoatsUpdated =
+	featureWorldRandomCopsUpdated =
+	featureWorldRandomTrainsUpdated =
 	featureBlackoutUpdated = true;
 }
 
 void update_world_features()
 {
-	PED::SET_CREATE_RANDOM_COPS(featureWorldRandomCops);
-
 	if (featureWorldMoonGravity)
 	{
 		GAMEPLAY::SET_GRAVITY_LEVEL(1);
@@ -286,6 +295,30 @@ void update_world_features()
 	{
 		GRAPHICS::_SET_BLACKOUT(featureBlackout);
 		featureBlackoutUpdated = false;
+	}
+
+	if (featureWorldRandomCopsUpdated)
+	{
+		PED::SET_CREATE_RANDOM_COPS(featureWorldRandomCops);
+		featureWorldRandomCopsUpdated = false;
+	}
+
+	if (featureWorldRandomTrainsUpdated)
+	{
+		VEHICLE::SET_RANDOM_TRAINS(featureWorldRandomTrains);
+		featureWorldRandomTrainsUpdated = false;
+	}
+
+	if (featureWorldRandomBoatsUpdated)
+	{
+		VEHICLE::SET_RANDOM_BOATS(featureWorldRandomBoats);
+		featureWorldRandomBoatsUpdated = false;
+	}
+
+	if (featureWorldGarbageTrucksUpdated)
+	{
+		VEHICLE::SET_GARBAGE_TRUCKS(featureWorldGarbageTrucks);
+		featureWorldGarbageTrucksUpdated = false;
 	}
 
 	/*
@@ -458,10 +491,10 @@ void update_world_features()
 void add_world_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldMoonGravity", &featureWorldMoonGravity, &featureWorldMoonGravityUpdated });
-	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomCops", &featureWorldRandomCops });
-	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomTrains", &featureWorldRandomTrains });
-	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomBoats", &featureWorldRandomBoats });
-	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldGarbageTrucks", &featureWorldGarbageTrucks });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomCops", &featureWorldRandomCops, &featureWorldRandomCopsUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomTrains", &featureWorldRandomTrains, &featureWorldRandomTrainsUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldRandomBoats", &featureWorldRandomBoats, &featureWorldRandomBoatsUpdated });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureWorldGarbageTrucks", &featureWorldGarbageTrucks, &featureWorldGarbageTrucksUpdated });
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeatherWind", &featureWeatherWind });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeatherFreeze", &featureWeatherFreeze });

@@ -852,7 +852,8 @@ bool is_weaponmod_equipped(std::vector<int> extras)
 	char *weaponChar = (char*)weaponValue.c_str();
 	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
 
-	std::string componentName = VOV_WEAPONMOD_VALUES[extras.at(2)].at(extras.at(3));
+	const std::vector<std::string> MOD_VECTOR = VOV_WEAPONMOD_VALUES[extras.at(2)];
+	std::string componentName = MOD_VECTOR.at(extras.at(3));
 	DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
 
 	return WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, weapHash, componentHash) ? true : false;

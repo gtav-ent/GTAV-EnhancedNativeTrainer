@@ -103,6 +103,7 @@
     <ClCompile Include="src\features\aimbot_esp.cpp">
       <Filter>Source Files\features</Filter>
     </ClCompile>
+    <ClCompile Include="src\features\area_effect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\version.h">
@@ -217,6 +218,7 @@
     <ClInclude Include="src\common\vectorHelper.h">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="src\features\area_effect.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -852,5 +854,6 @@
     <Image Include="Documents\veh-previews\tvtrailer.png">
       <Filter>Resource Files\Image Previews</Filter>
     </Image>
+    <Image Include="Documents\veh-previews\virgo3.png" />
   </ItemGroup>
 </Project>
