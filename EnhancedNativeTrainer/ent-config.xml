@@ -51,7 +51,7 @@
     <key function="objectplacer_freeze_position" value="VK_KEY_G"/>
     <key function="objectplacer_help" value="VK_KEY_H"/>
 
-    <!-- To enable your hotkeys, change VK_NOTHING to a real key, and optionally alter the other attributes-->
+    <!-- To enable your hotkeys, change VK_NOTHING to a real key, and optionally alter the other attributes. This does not work well with controllers.-->
     <key function="hotkey_1" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
     <key function="hotkey_2" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
     <key function="hotkey_3" value="VK_NOTHING" modCtrl="false" modAlt="false" modShift="false"/>
