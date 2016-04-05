@@ -1710,9 +1710,7 @@ void init_vehicle_feature()
 
 	unpack_veh_preview("BAGGER", VP_BAGGER, "VP_BAGGER");
 	unpack_veh_preview("BALETRAILER", VP_BALETRAILER, "VP_BALETRAILER");
-	unpack_veh_preview("BALLER2", VP_BALLER_SMALL, "VP_BALLER_SMALL"); //added baller 3 + 4
-	unpack_veh_preview("BALLER3", VP_BALLER_3, "VP_BALLER3");
-	unpack_veh_preview("BALLER4", VP_BALLER_4, "VP_BALLER4");
+	unpack_veh_preview("BALLER2", VP_BALLER_SMALL, "VP_BALLER_SMALL");
 	unpack_veh_preview("BARRACKS2", VP_BARRACKS2, "VP_BARRACKS2");
 	unpack_veh_preview("BENSON", VP_BENSON, "VP_BENSON");
 	unpack_veh_preview("BIFF", VP_BIFF, "VP_BIFF");
@@ -1729,7 +1727,6 @@ void init_vehicle_feature()
 	unpack_veh_preview("BOXVILLE3", VP_BOXVILLE3, "VP_BOXVILLE3");
 	unpack_veh_preview("BLISTA3", VP_MONKEY_BLISTA, "VP_MONKEY_BLISTA");
 	unpack_veh_preview("BTYPE", VP_ROOSEVELT, "VP_ROOSEVELT");
-	unpack_veh_preview("BTYPE2", VP_BTYPE_2, "VP_BTYPE2"); //added new
 	unpack_veh_preview("BUCCANEER", VP_BUCCANEER, "VP_BUCCANEER");
 	unpack_veh_preview("BURRITO", VP_BURRITO, "VP_BURRITO");
 	unpack_veh_preview("BURRITO2", VP_BURRITO2, "VP_BURRITO2");

@@ -979,6 +979,7 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_hotkey_generic_settings(&settings);
 	add_props_generic_settings(&settings);
 	add_weapons_generic_settings(&settings);
+	add_areaeffect_generic_settings(&settings);
 	
 	if (AIMBOT_INCLUDED)
 	{
@@ -1019,6 +1020,8 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 	handle_generic_settings_props(&settings);
 
 	handle_generic_settings_weapons(&settings);
+
+	handle_generic_settings_areaeffect(&settings);
 
 	if (AIMBOT_INCLUDED)
 	{
