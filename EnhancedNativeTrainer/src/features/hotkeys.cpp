@@ -175,10 +175,10 @@ void trigger_function_for_hotkey_onkeyup(int hotkey)
 		hotkey_held_normal_speed = false;
 		break;
 	case HKEY_KILL_NEARBY_PEDS:
-		kill_all_nearby_peds();
+		kill_all_nearby_peds_now();
 		break;
 	case HKEY_EXPLODE_NEARBY_VEHS:
-		kill_all_nearby_vehicles();
+		kill_all_nearby_vehicles_now();
 		break;
 	default:
 	{

@@ -26,17 +26,46 @@ class ENTTrackedPedestrian
 {
 public:
 
-	Ped ped;
+	Ped ped = 0;
 	bool angryApplied = false;
+	Ped lastTarget = 0;
+
 	int weaponSetApplied = 0;
+	Hash lastWeaponApplied = 0;
+
 	bool missionised = true;
 	bool madeInvincible = false;
-
-	virtual ~ENTTrackedPedestrian();
 
 	inline ENTTrackedPedestrian(Ped ped)
 	{
 		this->ped = ped;
+	}
+
+	inline void missionise()
+	{
+		missionised = true;
+		if (ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, true, true);
+		}
+	}
+
+	inline void demissionise()
+	{
+		if (missionised && ENTITY::DOES_ENTITY_EXIST(ped))
+		{
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(ped, false, true);
+			ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&ped);
+		}
+		missionised = false;
+	}
+
+	inline ~ENTTrackedPedestrian()
+	{
+		if (this->missionised)
+		{
+			demissionise();
+		}
 	}
 
 protected:
@@ -48,13 +77,39 @@ class ENTTrackedVehicle
 public:
 
 	Vehicle vehicle;
-	bool missionised = true;
-
-	virtual ~ENTTrackedVehicle();
+	bool missionised = false;
 
 	inline ENTTrackedVehicle(Vehicle vehicle)
 	{
 		this->vehicle = vehicle;
+	}
+
+	inline void missionise()
+	{
+		missionised = true;
+		if (ENTITY::DOES_ENTITY_EXIST(vehicle))
+		{
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(vehicle, true, true);
+		}
+	}
+
+	inline void demissionise()
+	{
+		if (missionised && ENTITY::DOES_ENTITY_EXIST(vehicle))
+		{
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(vehicle, false, true);
+			ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&vehicle);
+		}
+		missionised = false;
+	}
+
+
+	inline ~ENTTrackedVehicle()
+	{
+		if (this->missionised)
+		{
+			demissionise();
+		}
 	}
 
 protected:
@@ -117,11 +172,15 @@ void set_all_nearby_peds_to_angry(bool enabled);
 
 void give_all_nearby_peds_a_weapon(bool enabled);
 
-void kill_all_nearby_peds();
+void kill_all_nearby_peds_continuous();
 
-void kill_all_nearby_vehicles();
+void kill_all_nearby_peds_now();
 
-void set_all_nearby_vehs_to_invincible(bool enabled);
+void kill_all_nearby_vehicles_continuous();
+
+void kill_all_nearby_vehicles_now();
+
+void set_all_nearby_vehs_to_invincible(bool enabled, bool force);
 
 void set_all_nearby_vehs_to_broken(bool enabled);
 
@@ -132,3 +191,5 @@ void onchange_areaeffect_ped_weapons(int value, SelectFromListMenuItem* source);
 ENTTrackedPedestrian* findOrCreateTrackedPed(Ped ped);
 
 ENTTrackedVehicle* findOrCreateTrackedVehicle(Vehicle vehicle);
+
+void findRandomTargetForPed(ENTTrackedPedestrian* tped);

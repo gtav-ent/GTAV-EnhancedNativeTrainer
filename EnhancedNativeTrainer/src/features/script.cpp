@@ -836,6 +836,8 @@ int filterException(int code, PEXCEPTION_POINTERS ex)
 
 void ScriptMain()
 {
+	srand(time(NULL));
+
 	#ifdef _DEBUG
 	__try
 	{
@@ -866,7 +868,6 @@ void ScriptMain()
 
 		write_text_to_log_file("ScriptMain called - handler set");
 
-		srand(GetTickCount());
 		write_text_to_log_file("Reading config...");
 		read_config_file();
 		write_text_to_log_file("Config read complete");
