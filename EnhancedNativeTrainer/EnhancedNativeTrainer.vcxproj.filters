@@ -100,6 +100,9 @@
     <ClCompile Include="src\features\vehmod_interiorcols.cpp">
       <Filter>Source Files\features</Filter>
     </ClCompile>
+    <ClCompile Include="src\features\aimbot_esp.cpp">
+      <Filter>Source Files\features</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\version.h">
@@ -208,6 +211,9 @@
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\main.h" />
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\nativeCaller.h" />
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\types.h" />
+    <ClInclude Include="src\features\aimbot_esp.h">
+      <Filter>Header Files\features</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">

@@ -26,6 +26,13 @@ bool featureWeaponExplosiveAmmo = false;
 bool featureWeaponExplosiveMelee = false;
 bool featureWeaponVehRockets = false;
 
+bool featureGravityGun = false;
+bool featureGravityGunUpdated = false;
+
+bool grav_target_locked = false;
+Entity grav_entity = 0;
+DWORD grav_partfx = 0;
+
 DWORD featureWeaponVehShootLastTime = 0;
 
 int saved_weapon_model[TOTAL_WEAPONS_SLOTS];
@@ -37,6 +44,39 @@ bool saved_parachute = false;
 int saved_armour = 0;
 
 bool redrawWeaponMenuAfterEquipChange = false;
+
+/* Begin Gravity Gun related code */
+Vector3 GetCoordsFromCam(float distance)
+{
+	Vector3 Rot = CAM::GET_GAMEPLAY_CAM_ROT(2);
+	static Vector3 Coord = CAM::GET_GAMEPLAY_CAM_COORD();
+
+	Rot.y = distance * cos(Rot.x);
+	Coord.x = Coord.x + Rot.y * sin(Rot.z * -1.0f);
+	Coord.y = Coord.y + Rot.y * cos(Rot.z * -1.0f);
+	Coord.z = Coord.z + distance * sin(Rot.x);
+
+	return Coord;
+}
+
+void VectorToFloat(Vector3 unk, float *Out)
+{
+	Out[0] = unk.x;
+	Out[1] = unk.y;
+	Out[2] = unk.z;
+}
+
+void RequestControlEntity(Entity entity) //needed so we can pick up props/Peds. This is needed in SP, even though it's a NETWORK native
+{
+	int tick = 0;
+
+	while (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(entity) && tick <= 12)
+	{
+		NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(entity);
+		tick++;
+	}
+}
+/* End Gravity Gun related code */
 
 void onchange_knuckle_appearance(int value, SelectFromListMenuItem* source)
 {
@@ -556,6 +596,15 @@ bool process_weapon_menu()
 	toggleItem->toggleValue = &featureWeaponVehRockets;
 	toggleItem->toggleValueUpdated = NULL;
 	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Gravity Gun";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureGravityGun;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+
+	
 /*
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Give All Weapons", NULL, NULL, true },
@@ -584,7 +633,8 @@ void reset_weapon_globals()
 		featureWeaponFireAmmo =
 		featureWeaponExplosiveAmmo =
 		featureWeaponExplosiveMelee =
-		featureWeaponVehRockets = false;
+		featureWeaponVehRockets = 
+		featureGravityGun = false;
 }
 
 void update_weapon_features(BOOL bPlayerExists, Player player)
@@ -597,7 +647,7 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 		PLAYER::SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
 		PLAYER::SET_PLAYER_VEHICLE_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
 	}
-	
+
 	// weapon
 	if (featureWeaponFireAmmo)
 	{
@@ -658,8 +708,85 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 	{
 		WEAPON::SET_PED_INFINITE_AMMO_CLIP(playerPed, featureWeaponNoReload);
 	}
-}
 
+	//Gravity Gun
+	if (bPlayerExists && featureGravityGun)
+	{
+		Ped tempPed;
+		Hash tempWeap;
+
+		if (!grav_target_locked) PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &grav_entity);
+	
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
+
+		tempPed = PLAYER::PLAYER_ID(); WEAPON::GET_CURRENT_PED_WEAPON(PLAYER::PLAYER_PED_ID(), &tempWeap, 1);
+
+		if ((PLAYER::IS_PLAYER_FREE_AIMING(tempPed) || PLAYER::IS_PLAYER_TARGETTING_ANYTHING(tempPed)) && ENTITY::DOES_ENTITY_EXIST(grav_entity) && tempWeap == GAMEPLAY::GET_HASH_KEY("weapon_stungun"))
+		{
+			if (!grav_target_locked)
+			{
+				PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &grav_entity);
+				grav_target_locked = true;
+			}
+
+			float Coord[3]; 
+
+			VectorToFloat(GetCoordsFromCam(5.5f), Coord);
+
+			/*This isn't mandatory, but makes it look nice
+			if (!GRAPHICS::DOES_PARTICLE_FX_LOOPED_EXIST(grav_partfx))
+			{
+			STREAMING::REQUEST_PTFX_ASSET();
+			if (STREAMING::HAS_PTFX_ASSET_LOADED())
+			{
+			grav_partfx = GRAPHICS::START_PARTICLE_FX_LOOPED_AT_COORD((char*)"scr_drug_traffic_flare_L", Coord[0], Coord[1], Coord[2], 0.0f, 0.0f, 0.0f, 0.5f, 0, 0, 0, 0);
+			GRAPHICS::SET_PARTICLE_FX_LOOPED_COLOUR(grav_partfx, 1.0f, 0.84f, 0.0f, 0);
+			}
+			}*/
+
+			RequestControlEntity(grav_entity); //so we can pick up the ped/prop/vehicle
+
+			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(grav_entity, Coord[0], Coord[1], Coord[2], 0, 0, 0); //This is what was causing the props to disappear
+
+			std::ostringstream ss;
+			ss << "Coord[0] " << Coord[0] << ", Coord[1]:" << Coord[1] << ", Coord[2]:" << Coord[1];
+			set_status_text_centre_screen(ss.str());
+
+			if (ENTITY::IS_ENTITY_A_VEHICLE(grav_entity))
+			{
+				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()) + 90.0f); //90.0f
+			}
+
+			if (PED::IS_PED_SHOOTING(PLAYER::PLAYER_PED_ID()))
+			{
+				//AUDIO::PLAY_SOUND_FROM_ENTITY(-1, (char*)"Foot_Swish", grav_entity, (char*)"docks_heist_finale_2a_sounds", 0, 0);
+
+				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
+
+				ENTITY::APPLY_FORCE_TO_ENTITY(grav_entity, 1, 0.0f, 350.0f, 2.0f, 2.0f, 0.0f, 0.0f, 0, 1, 1, 1, 0, 1);
+
+				grav_target_locked = false;
+			}
+		}
+		/*else if (GRAPHICS::DOES_PARTICLE_FX_LOOPED_EXIST(grav_partfx))
+		{
+		GRAPHICS::STOP_PARTICLE_FX_LOOPED(grav_partfx, 0);
+		GRAPHICS::REMOVE_PARTICLE_FX(grav_partfx, 0);
+		STREAMING::REMOVE_PTFX_ASSET();
+		}*/
+
+		if (!PLAYER::IS_PLAYER_FREE_AIMING_AT_ENTITY(tempPed, grav_entity) || !PLAYER::IS_PLAYER_TARGETTING_ENTITY(tempPed, grav_entity))
+		{
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
+
+			grav_target_locked = false;
+		}
+
+		featureGravityGunUpdated = false;
+
+		set_status_text("Gravity gun: ~r~called");
+	}
+}
 void update_vehicle_guns()
 {
 	Player player = PLAYER::PLAYER_ID();
@@ -974,6 +1101,7 @@ void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponInfiniteParachutes", &featureWeaponInfiniteParachutes });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponNoReload", &featureWeaponNoReload });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponVehRockets", &featureWeaponVehRockets });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureGravityGun", &featureGravityGun });
 }
 
 void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source)
