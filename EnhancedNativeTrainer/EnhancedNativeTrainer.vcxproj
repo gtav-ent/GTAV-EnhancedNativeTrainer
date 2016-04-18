@@ -52,6 +52,7 @@
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\nativeCaller.h" />
     <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\types.h" />
     <ClInclude Include="inc\xinput\CXBOXController.h" />
+    <ClInclude Include="src\common\vectorHelper.h" />
     <ClInclude Include="src\datasets\data_props.h" />
     <ClInclude Include="src\ent-enums.h" />
     <ClInclude Include="src\features\aimbot_esp.h" />

@@ -152,11 +152,6 @@ void begin_prop_placement(SpawnedPropInstance prop)
 			break;
 		}
 
-		if (!is_fivem() && NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
-		{
-			break;
-		}
-
 		/*
 		std::ostringstream ss;
 		ss << "Pitch: " << CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH() << ", Heading:" << CAM::GET_GAMEPLAY_CAM_RELATIVE_HEADING();

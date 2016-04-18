@@ -214,6 +214,12 @@
     <ClInclude Include="src\features\aimbot_esp.h">
       <Filter>Header Files\features</Filter>
     </ClInclude>
+<<<<<<< HEAD
+=======
+    <ClInclude Include="src\common\vectorHelper.h">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+>>>>>>> c3dd4642844b75a4b517ed1a715aae51f9b8508c
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
@@ -284,6 +290,9 @@
     </Filter>
     <Filter Include="Resource Files\Image Previews">
       <UniqueIdentifier>{c2ecbea4-778b-4e02-a352-0ee279256edd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\common">
+      <UniqueIdentifier>{90ace7bd-52ea-4e20-9bcd-c3cb8abf8b9b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
