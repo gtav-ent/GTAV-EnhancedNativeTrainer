@@ -15,6 +15,7 @@
     <ClCompile Include="src\features\aimbot_esp.cpp" />
     <ClCompile Include="src\features\airbrake.cpp" />
     <ClCompile Include="src\features\anims.cpp" />
+    <ClCompile Include="src\features\area_effect.cpp" />
     <ClCompile Include="src\features\bodyguards.cpp" />
     <ClCompile Include="src\features\hotkeys.cpp" />
     <ClCompile Include="src\features\vehmod_interiorcols.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="src\features\aimbot_esp.h" />
     <ClInclude Include="src\features\airbrake.h" />
     <ClInclude Include="src\features\anims.h" />
+    <ClInclude Include="src\features\area_effect.h" />
     <ClInclude Include="src\features\bodyguards.h" />
     <ClInclude Include="src\features\propplacement.h" />
     <ClInclude Include="src\features\props.h" />
@@ -279,6 +281,7 @@
     <Image Include="Documents\veh-previews\utillitruck.png" />
     <Image Include="Documents\veh-previews\utillitruck2.png" />
     <Image Include="Documents\veh-previews\utillitruck3.png" />
+    <Image Include="Documents\veh-previews\virgo3.png" />
     <Image Include="Documents\veh-previews\voodoo.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

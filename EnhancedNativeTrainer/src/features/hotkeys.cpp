@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "anims.h"
 #include "vehicles.h"
 #include "script.h"
+#include "area_effect.h"
 #include "teleportation.h"
 
 #include <string>
@@ -19,6 +20,34 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 const int MAX_HOTKEYS = 9;
 
 int functionIDs[MAX_HOTKEYS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+bool hotkey_held_slow_mo = false;
+
+bool hotkey_held_normal_speed = false;
+
+bool hotkey_held_veh_burnout = false;
+
+bool hotkey_held_veh_extrapower = false;
+
+bool is_hotkey_held_slow_mo()
+{
+	return hotkey_held_slow_mo;
+}
+
+bool is_hotkey_held_normal_speed()
+{
+	return hotkey_held_normal_speed;
+}
+
+bool is_hotkey_held_veh_burnout()
+{
+	return hotkey_held_veh_burnout;
+}
+
+bool is_hotkey_held_veh_extrapower()
+{
+	return hotkey_held_veh_extrapower;
+}
 
 void check_for_hotkey_presses()
 {
@@ -66,12 +95,16 @@ void check_for_hotkey_presses()
 
 		if (!target.empty() && IsKeyJustUp(target))
 		{
-			trigger_function_for_hotkey(i);
+			trigger_function_for_hotkey_onkeyup(i);
+		}
+		else if (!target.empty() && IsKeyDown(target))
+		{
+			trigger_function_for_hotkey_onkeydown(i);
 		}
 	}
 }
 
-void trigger_function_for_hotkey(int hotkey)
+void trigger_function_for_hotkey_onkeyup(int hotkey)
 {
 	int function = functionIDs[hotkey];
 	if (function == 0)
@@ -129,6 +162,24 @@ void trigger_function_for_hotkey(int hotkey)
 	case HKEY_PASSENGER:
 		drive_passenger();
 		break;
+	case HKEY_VEHICLE_BURNOUT:
+		hotkey_held_veh_burnout = false;
+		break;
+	case HKEY_VEHICLE_POWER:
+		hotkey_held_veh_extrapower = false;
+		break;
+	case HKEY_SLOW_MOTION:
+		hotkey_held_slow_mo = false;
+		break;
+	case HKEY_NORMAL_SPEED:
+		hotkey_held_normal_speed = false;
+		break;
+	case HKEY_KILL_NEARBY_PEDS:
+		kill_all_nearby_peds_now();
+		break;
+	case HKEY_EXPLODE_NEARBY_VEHS:
+		kill_all_nearby_vehicles_now();
+		break;
 	default:
 	{
 		std::ostringstream ss;
@@ -136,6 +187,33 @@ void trigger_function_for_hotkey(int hotkey)
 		set_status_text(ss.str());
 		break;
 	}
+	}
+}
+
+void trigger_function_for_hotkey_onkeydown(int hotkey)
+{
+	int function = functionIDs[hotkey];
+	if (function == 0)
+	{
+		return;
+	}
+
+	switch (function)
+	{
+		case HKEY_VEHICLE_BURNOUT:
+			hotkey_held_veh_burnout = true;
+			break;
+		case HKEY_SLOW_MOTION:
+			hotkey_held_slow_mo = true;
+			break;
+		case HKEY_NORMAL_SPEED:
+			hotkey_held_normal_speed = true;
+			break;
+		case HKEY_VEHICLE_POWER:
+			hotkey_held_veh_extrapower = true;
+			break;
+		default:
+			break;
 	}
 }
 

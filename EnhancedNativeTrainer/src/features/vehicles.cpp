@@ -11,6 +11,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "..\..\resource.h"
 #include "..\utils.h"
 #include "vehicles.h"
+#include "hotkeys.h"
 #include "script.h"
 #include "..\ui_support\menu_functions.h"
 #include "..\io\config_io.h"
@@ -57,6 +58,8 @@ const std::vector<int> VEH_ENG_POW_VALUES{ 0, 5, 10, 25, 50, 75, 100, 125, 150, 
 int engPowMultIndex = 0;
 bool powChanged = true;
 
+bool burnoutApplied = false;
+
 //vehicle mass stuff
 const std::vector<std::string> VEH_MASS_CAPTIONS{ "1x", "5x", "10x", "25x", "50x", "75x", "100x", "125x", "150x", "175x", "200x", "225x", "250x", "275x", "300x", "325x", "350x", "375x", "400x" };
 const std::vector<int> VEH_MASS_VALUES{ 0, 5, 10, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400 };
@@ -91,7 +94,7 @@ const std::vector<std::string> CAPTIONS_SPORTCLASSICS{ "Albany Franken Strange",
 
 const std::vector<std::string> CAPTIONS_COUPES{ "Dewbauchee Exemplar", "Enus Cognoscenti Cabrio", "Enus Windsor", "Lampadati Felon", "Lampadati Felon GT", "Ocelot F620", "Ocelot Jackal", "Ubermacht Sentinel", "Ubermacht Sentinel XS", "Ubermacht Zion", "Ubermacht Zion Cabrio" };
 
-const std::vector<std::string> CAPTIONS_MUSCLE{ "Albany Buccaneer", "Albany Lurcher", "Albany Virgo", "Bravado Gauntlet", "Bravado Gauntlet (Race)", "Cheval Picador", "Dundreary Virgo", "Declasse Moonbeam", "Declasse Sabre Turbo", "Declasse Stallion", "Declasse Stallion (Race)", "Declasse Tampa", "Declasse Vigero", "Declasse Voodoo", "Imponte Duke O' Death", "Imponte Dukes", "Imponte Nightshade", "Imponte Phoenix", "Imponte Ruiner", "Invetero Coquette BlackFin", "Vapid Blade", "Vapid Chino", "Vapid Dominator", "Vapid Dominator (Race)", "Vapid Hotknife", "Vapid Slamvan", "Vapid Slamvan (Lost MC)", "Willard Faction" };
+const std::vector<std::string> CAPTIONS_MUSCLE{ "Albany Buccaneer", "Albany Lurcher", "Albany Virgo", "Bravado Gauntlet", "Bravado Gauntlet (Race)", "Cheval Picador", "Declasse Moonbeam", "Declasse Sabre Turbo", "Declasse Stallion", "Declasse Stallion (Race)", "Declasse Tampa", "Declasse Vigero", "Declasse Voodoo", "Imponte Duke O' Death", "Imponte Dukes", "Imponte Nightshade", "Imponte Phoenix", "Imponte Ruiner", "Invetero Coquette BlackFin", "Vapid Blade", "Vapid Chino", "Vapid Dominator", "Vapid Dominator (Race)", "Vapid Hotknife", "Vapid Slamvan", "Vapid Slamvan (Lost MC)", "Willard Faction" };
 
 const std::vector<std::string> CAPTIONS_OFFROAD{ "Benefactor Dubsta 6x6", "BF Bifta", "BF Injection", "Bravado Dune", "Bravado Duneloader", "Bravado Space Docker", "Canis Bodhi", "Canis Kalahari", "Canis Mesa (Off-Road)", "Cheval Marshall", "Coil Brawler", "Declasse Rancher XL", "Declasse Rancher XL (Snow)", "Insurgent", "Insurgent (Gun Mount)", "Karin Rebel", "Karin Rebel (Rusty)", "Karin Technical", "Nagasaki Blazer", "Nagasaki Blazer (Hot Rod)", "Nagasaki Blazer (Lifeguard)", "Vapid Guardian", "Vapid Sandking", "Vapid Sandking XL", "Vapid The Liberator" };
 
@@ -101,7 +104,7 @@ const std::vector<std::string> CAPTIONS_SEDANS{ "Albany Emperor", "Albany Empero
 
 const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan Prairie", "Declasse Rhapsody", "Dinka Blista", "Karin Dilettante", "Karin Dilettante (Liveried)", "Weeny Issi" };
 
-const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Dundreary Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Cusotm)", "Declasse Voodoo (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)", "Vapid Slamvan (Custom)", "Willard Faction (Custom)", "Willard Faction (Custom Donk)" };
+const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom Donk)", "Albany Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Custom)", "Declasse Voodoo (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)", "Vapid Slamvan (Custom)", "Willard Faction (Custom Donk)", "Willard Faction (Custom)" };
 
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "OSIRIS", "VACCA", "ZENTORNO", "T20", "ADDER", "BULLET" };
 
@@ -111,7 +114,7 @@ const std::vector<std::string> VALUES_SPORTCLASSICS{ "BTYPE2", "MANANA", "BTYPE"
 
 const std::vector<std::string> VALUES_COUPES{ "EXEMPLAR", "COGCABRIO", "WINDSOR", "FELON", "FELON2", "F620", "JACKAL", "SENTINEL2", "SENTINEL", "ZION", "ZION2" };
 
-const std::vector<std::string> VALUES_MUSCLE{ "BUCCANEER", "LURCHER", "VIRGO", "GAUNTLET", "GAUNTLET2", "PICADOR", "VIRGO3", "MOONBEAM", "SABREGT", "STALION", "STALION2", "TAMPA", "VIGERO", "VOODOO2", "DUKES2", "DUKES", "NITESHAD", "PHOENIX", "RUINER", "COQUETTE3", "BLADE", "CHINO", "DOMINATOR", "DOMINATOR2", "HOTKNIFE", "SLAMVAN", "SLAMVAN2", "FACTION" };
+const std::vector<std::string> VALUES_MUSCLE{ "BUCCANEER", "LURCHER", "VIRGO", "GAUNTLET", "GAUNTLET2", "PICADOR", "MOONBEAM", "SABREGT", "STALION", "STALION2", "TAMPA", "VIGERO", "VOODOO2", "DUKES2", "DUKES", "NIGHTSHADE", "PHOENIX", "RUINER", "COQUETTE3", "BLADE", "CHINO", "DOMINATOR", "DOMINATOR2", "HOTKNIFE", "SLAMVAN", "SLAMVAN2", "FACTION" };
 
 const std::vector<std::string> VALUES_OFFROAD{ "DUBSTA3", "BIFTA", "BFINJECTION", "DUNE", "DLOADER", "DUNE2", "BODHI2", "KALAHARI", "MESA3", "MARSHALL", "BRAWLER", "RANCHERXL", "RANCHERXL2", "INSURGENT2", "INSURGENT", "REBEL2", "REBEL", "TECHNICAL", "BLAZER", "BLAZER3", "BLAZER2", "GUARDIAN", "SANDKING2", "SANDKING", "MONSTER" };
 
@@ -121,7 +124,7 @@ const std::vector<std::string> VALUES_SEDANS{ "EMPEROR", "EMPEROR2", "EMPEROR3",
 
 const std::vector<std::string> VALUES_COMPACTS{ "PANTO", "PRAIRIE", "RHAPSODY", "BLISTA", "DILETTANTE", "DILETTANTE2", "ISSI2" };
 
-const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "VIRGO2", "MOONBEAM2", "SABREGT2", "TORNADO5", "VOODOO", "CHINO2", "MINIVAN2", "SLAMVAN3", "FACTION2", "FACTION3" };
+const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "VIRGO3", "VIRGO2", "MOONBEAM2", "SABREGT2", "TORNADO5", "VOODOO", "CHINO2", "MINIVAN2", "SLAMVAN3", "FACTION3", "FACTION2" };
 
 const std::vector<std::string> VOV_CAR_CAPTIONS[] = { CAPTIONS_SUPERCARS, CAPTIONS_SPORTS, CAPTIONS_SPORTCLASSICS, CAPTIONS_COUPES, CAPTIONS_MUSCLE, CAPTIONS_OFFROAD, CAPTIONS_SUVS, CAPTIONS_SEDANS, CAPTIONS_COMPACTS, CAPTIONS_LOWRIDERS };
 
@@ -222,6 +225,23 @@ bool onconfirm_vehdoor_menu(MenuItem<int> choice) {
 			set_status_text("Player isn't in a vehicle");
 		}
 	}
+	else if (choice.value == -2)//bomb bay open
+	{
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			VEHICLE::_OPEN_VEHICLE_BOMB_BAY(veh);
+		}
+	}
+	else if (choice.value == -3)//bomb bay close
+	{
+		if (bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+		{
+			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
+			VEHICLE::_0x3556041742A0DC74(veh);
+		}
+	}
+
 	return false;
 }
 
@@ -267,42 +287,26 @@ bool process_veh_door_menu() {
 		menuItems.push_back(toggleItem);
 	}
 
+	Hash currVehModel = ENTITY::GET_ENTITY_MODEL(veh);
+	if (GAMEPLAY::GET_HASH_KEY("CUBAN800") == currVehModel)
+	{
+		MenuItem<int>* bombBayItem1 = new MenuItem<int>();
+		bombBayItem1->caption = "Open Bomb Bay";
+		bombBayItem1->value = -2;
+		menuItems.push_back(bombBayItem1);
+
+		MenuItem<int>* bombBayItem2 = new MenuItem<int>();
+		bombBayItem2->caption = "Close Bomb Bay";
+		bombBayItem2->value = -3;
+		menuItems.push_back(bombBayItem2);
+	}
+
 	return draw_generic_menu<int>(menuItems, &doorOptionsMenuIndex, caption, onconfirm_vehdoor_menu, NULL, NULL);
 }
 
 void on_toggle_invincibility(MenuItem<int> choice)
 {
 	featureVehInvincibleUpdated = true;
-}
-
-
-void checkVehicleForLowriderScript()
-{
-	char* SCRIPTED_LOWRIDER_DESPAWN[] = { "FACTION", "FACTION3", "SABREGT2", "SLAMVAN3", "TORNADO5", "VIRGO2" };
-
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-
-	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-
-	Hash currVehModel = ENTITY::GET_ENTITY_MODEL(veh);
-
-	for each (char* vehModel in SCRIPTED_LOWRIDER_DESPAWN)
-	{
-		if (GAMEPLAY::GET_HASH_KEY(vehModel) == currVehModel)
-		{
-			eGameVersion gameVer = getGameVersion();
-			if (gameVer == VER_1_0_678_1_NOSTEAM || gameVer == VER_1_0_678_1_STEAM)
-			{
-				*getGlobalPtr(2558120) = 1;
-				//set_status_text("Lowrider disable script ~r~disabled");
-			}
-			else
-			{
-				//set_status_text("~r~Error:~ unknown game version for lowrider hack");
-			}
-			
-		}
-	}
 }
 
 bool onconfirm_veh_menu(MenuItem<int> choice)
@@ -464,6 +468,13 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
+	//version-specific hack to prevent despawn of lowrider2 DLC vehicles
+	eGameVersion gameVer = getGameVersion();
+	if (gameVer == VER_1_0_678_1_NOSTEAM || gameVer == VER_1_0_678_1_STEAM)
+	{
+		*getGlobalPtr(2558120) = 1;
+	}
+
 	if (featureDespawnScriptDisabledUpdated)
 	{
 		featureDespawnScriptDisabledUpdated = false;
@@ -596,7 +607,24 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 		oldVehicleState = false; // player is NOT in a vehicle, set state to false
 	}
 
-	if (bPlayerExists && (did_player_just_enter_vehicle(playerPed) || powChanged)) { // check if player entered vehicle, only need to set mults once
+	if (is_hotkey_held_veh_burnout() && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		VEHICLE::SET_VEHICLE_BURNOUT(veh, true);
+		burnoutApplied = true;
+	}
+	else if (burnoutApplied)
+	{
+		VEHICLE::SET_VEHICLE_BURNOUT(veh, false);
+		burnoutApplied = false;
+	}
+
+	if (is_hotkey_held_veh_extrapower() && bPlayerExists && PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
+	{
+		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
+		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, 250.0f);
+		powChanged = true;
+	}
+	else if (bPlayerExists && (did_player_just_enter_vehicle(playerPed) || powChanged)) { // check if player entered vehicle, only need to set mults once
 		VEHICLE::_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER(veh, 1.8f);
 		VEHICLE::_SET_VEHICLE_ENGINE_POWER_MULTIPLIER(veh, VEH_ENG_POW_VALUES[engPowMultIndex]);
 		powChanged = false;
@@ -884,8 +912,6 @@ Vehicle do_spawn_vehicle(DWORD model, std::string modelTitle, bool cleanup)
 		{
 			ENTITY::SET_VEHICLE_AS_NO_LONGER_NEEDED(&veh);
 		}
-
-		checkVehicleForLowriderScript();
 
 		std::ostringstream ss;
 		ss << modelTitle << " spawned";
@@ -1443,7 +1469,8 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "INFERNUS", "sssa_default", "infernus" },
 	{ "ISSI2", "sssa_default", "issi2" },
 	{ "KALAHARI", "sssa_default", "kalahari" },
-	{ "ORACLE", "sssa_default", "oracle" },
+	{ "ORACLE", "sssa_dlc_heist", "oracle1" },
+	{ "ORACLE2", "sssa_default", "oracle" },
 	{ "PARADISE", "sssa_default", "paradise" },
 	{ "PCJ", "sssa_default", "pcj" },
 	{ "REBEL", "sssa_default", "rebel" },
@@ -1539,7 +1566,7 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "BALLER3", "lgm_dlc_apartments", "baller3" },
 	{ "BALLER4", "sssa_default", "baller2" },
 	{ "MAMBA", "lgm_dlc_apartments", "mamba" },
-	{ "NITESHAD", "lgm_dlc_apartments", "niteshad" },
+	{ "NIGHTSHADE", "lgm_dlc_apartments", "niteshad" },
 	{ "VERLIERER2", "lgm_dlc_apartments", "verlier" },
 	{ "BTYPE2", "sssa_dlc_halloween", "btype2" },
 	{ "LURCHER", "sssa_dlc_halloween", "lurcher" },
@@ -1683,9 +1710,7 @@ void init_vehicle_feature()
 
 	unpack_veh_preview("BAGGER", VP_BAGGER, "VP_BAGGER");
 	unpack_veh_preview("BALETRAILER", VP_BALETRAILER, "VP_BALETRAILER");
-	unpack_veh_preview("BALLER2", VP_BALLER_SMALL, "VP_BALLER_SMALL"); //added baller 3 + 4
-	unpack_veh_preview("BALLER3", VP_BALLER_3, "VP_BALLER3");
-	unpack_veh_preview("BALLER4", VP_BALLER_4, "VP_BALLER4");
+	unpack_veh_preview("BALLER2", VP_BALLER_SMALL, "VP_BALLER_SMALL");
 	unpack_veh_preview("BARRACKS2", VP_BARRACKS2, "VP_BARRACKS2");
 	unpack_veh_preview("BENSON", VP_BENSON, "VP_BENSON");
 	unpack_veh_preview("BIFF", VP_BIFF, "VP_BIFF");
@@ -1702,7 +1727,6 @@ void init_vehicle_feature()
 	unpack_veh_preview("BOXVILLE3", VP_BOXVILLE3, "VP_BOXVILLE3");
 	unpack_veh_preview("BLISTA3", VP_MONKEY_BLISTA, "VP_MONKEY_BLISTA");
 	unpack_veh_preview("BTYPE", VP_ROOSEVELT, "VP_ROOSEVELT");
-	unpack_veh_preview("BTYPE2", VP_BTYPE_2, "VP_BTYPE2"); //added new
 	unpack_veh_preview("BUCCANEER", VP_BUCCANEER, "VP_BUCCANEER");
 	unpack_veh_preview("BURRITO", VP_BURRITO, "VP_BURRITO");
 	unpack_veh_preview("BURRITO2", VP_BURRITO2, "VP_BURRITO2");
@@ -1857,17 +1881,8 @@ void init_vehicle_feature()
 	unpack_veh_preview("MOONBEAM", VP_MOONBEAM, "VP_MOONBEAM");
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
-	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
-	
-	/*
+	unpack_veh_preview("VIRGO3", VP_VIRGO3, "VP_VIRGO3");
 	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
-	unpack_veh_preview("FACTION3", VP_FACTION3, "VP_FACTION3");
-	unpack_veh_preview("MINIVAN2", VP_MINIVAN2, "MINIVAN2");
-	unpack_veh_preview("SABREGT2", VP_SABREGT2, "SABREGT2");
-	unpack_veh_preview("SLAMVAN3", VP_SLAMVAN3, "SLAMVAN3");
-	unpack_veh_preview("TORNADO5", VP_TORNADO5, "TORNADO5");
-	unpack_veh_preview("VIRGO2", VP_VIRGO2, "VIRGO2");
-	*/
 }
 
 void fix_vehicle()
@@ -1947,6 +1962,25 @@ void set_convertible_roofdown(bool applied, std::vector<int> extras)
 	else
 	{
 		VEHICLE::RAISE_CONVERTIBLE_ROOF(veh, featureVehicleDoorInstant);
+	}
+}
+
+bool is_bombbay_open(std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	return false;
+}
+
+void set_bombbay_open(bool applied, std::vector<int> extras)
+{
+	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID());
+	if (applied)
+	{
+		VEHICLE::_OPEN_VEHICLE_BOMB_BAY(veh);
+	}
+	else
+	{
+		VEHICLE::_0x3556041742A0DC74(veh);
 	}
 }
 

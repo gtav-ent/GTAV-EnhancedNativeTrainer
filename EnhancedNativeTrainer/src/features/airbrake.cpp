@@ -90,6 +90,11 @@ void process_airbrake_menu()
 			break;
 		}
 
+		if (NETWORK::NETWORK_IS_GAME_IN_PROGRESS())
+		{
+			break;
+		}
+
 		airbrake(inVehicle);
 
 		WAIT(0);

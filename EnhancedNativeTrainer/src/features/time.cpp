@@ -8,6 +8,7 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 (C) Rob Pridham and fellow contributors 2015
 */
 #include "time.h"
+#include "hotkeys.h"
 #include "propplacement.h"
 
 #include <iomanip>
@@ -485,6 +486,16 @@ void update_time_features(Player player)
 	else if (CONTROLS::IS_CONTROL_PRESSED(0, 19) || PLAYER::IS_PLAYER_DEAD(PLAYER::PLAYER_ID()))
 	{
 		//do nothing so the game chooses the speed for us
+	}
+	else if (is_hotkey_held_normal_speed())
+	{
+		GAMEPLAY::SET_TIME_SCALE(1.0f);
+		weHaveChangedTimeScale = true;
+	}
+	else if (is_hotkey_held_slow_mo())
+	{
+		GAMEPLAY::SET_TIME_SCALE(0.0f);
+		weHaveChangedTimeScale = true;
 	}
 	else if (PLAYER::IS_PLAYER_FREE_AIMING(player) && PLAYER::IS_PLAYER_CONTROL_ON(player))
 	{
