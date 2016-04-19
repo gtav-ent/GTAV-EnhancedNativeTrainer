@@ -1,859 +1,828 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="src\xml\filestream.hpp">
-      <Filter>Source Files\xml</Filter>
+      <Filter>src\xml</Filter>
     </ClCompile>
     <ClCompile Include="src\xml\xml_import_export.cpp">
-      <Filter>Source Files\xml</Filter>
+      <Filter>src\xml</Filter>
     </ClCompile>
     <ClCompile Include="src\ui_support\file_dialog.cpp">
-      <Filter>Source Files\ui_support</Filter>
+      <Filter>src\ui_support</Filter>
     </ClCompile>
     <ClCompile Include="src\ui_support\menu_functions.cpp">
-      <Filter>Source Files\ui_support</Filter>
+      <Filter>src\ui_support</Filter>
     </ClCompile>
     <ClCompile Include="src\storage\database.cpp">
-      <Filter>Source Files\storage</Filter>
+      <Filter>src\storage</Filter>
     </ClCompile>
     <ClCompile Include="src\io\config_io.cpp">
-      <Filter>Source Files\io</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\io.cpp">
-      <Filter>Source Files\io</Filter>
+      <Filter>src\io</Filter>
     </ClCompile>
     <ClCompile Include="src\io\keyboard.cpp">
-      <Filter>Source Files\io</Filter>
+      <Filter>src\io</Filter>
     </ClCompile>
     <ClCompile Include="src\io\xinput.cpp">
-      <Filter>Source Files\io</Filter>
+      <Filter>src\io</Filter>
     </ClCompile>
     <ClCompile Include="src\debug\debuglog.cpp">
-      <Filter>Source Files\debug</Filter>
+      <Filter>src\debug</Filter>
     </ClCompile>
     <ClCompile Include="inc\xinput\CXBOXController.cpp">
-      <Filter>Source Files\include\xinput</Filter>
+      <Filter>src\xinput</Filter>
     </ClCompile>
     <ClCompile Include="inc\sqlite3\sqlite3.c">
-      <Filter>Source Files\include\sqlite3</Filter>
+      <Filter>inc\sqlite3</Filter>
     </ClCompile>
     <ClCompile Include="src\features\airbrake.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\anims.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\bodyguards.cpp">
-      <Filter>Source Files\features</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\hotkeys.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\misc.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\neonlightsmenu.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\paintmenu.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\propplacement.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\props.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\script.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\skins.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\teleportation.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\time.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\vehicles.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\vehmodmenu.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\weapons.cpp">
-      <Filter>Source Files\features</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\world.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\tyresmokemenu.cpp">
-      <Filter>Source Files\features</Filter>
-    </ClCompile>
-    <ClCompile Include="src\features\vehmod_interiorcols.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
     </ClCompile>
     <ClCompile Include="src\features\aimbot_esp.cpp">
-      <Filter>Source Files\features</Filter>
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\area_effect.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\io.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\hotkeys.cpp">
+      <Filter>src\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\vehmod_interiorcols.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\features\world.cpp">
+      <Filter>src\features</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils.cpp">
+      <Filter>src\io</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ent-enums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\xml\xml_import_export.h">
-      <Filter>Header Files\xml</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui_support\file_dialog.h">
-      <Filter>Header Files\ui_support</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui_support\menu_functions.h">
-      <Filter>Header Files\ui_support</Filter>
-    </ClInclude>
-    <ClInclude Include="src\storage\database.h">
-      <Filter>Header Files\storage</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\config_io.h">
-      <Filter>Header Files\io</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\io.h">
-      <Filter>Header Files\io</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\keyboard.h">
-      <Filter>Header Files\io</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\xinput.h">
-      <Filter>Header Files\io</Filter>
-    </ClInclude>
-    <ClInclude Include="src\debug\debuglog.h">
-      <Filter>Header Files\debug</Filter>
-    </ClInclude>
-    <ClInclude Include="src\datasets\data_props.h">
-      <Filter>Header Files\datasets</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\main.h">
-      <Filter>Header Files\include</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\nativeCaller.h">
-      <Filter>Header Files\include</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\types.h">
-      <Filter>Header Files\include</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\xinput\CXBOXController.h">
-      <Filter>Header Files\include\xinput</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\sqlite3\sqlite3.h">
-      <Filter>Header Files\include\sqlite3</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\sqlite3\sqlite3ext.h">
-      <Filter>Header Files\include\sqlite3</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\props.h">
-      <Filter>Header Files\features</Filter>
+    <ClInclude Include="src\ent-enums.h" />
+    <ClInclude Include="inc\main.h" />
+    <ClInclude Include="inc\nativeCaller.h" />
+    <ClInclude Include="inc\types.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\version.h" />
+    <ClInclude Include="src\features\aimbot_esp.h">
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\airbrake.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\anims.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\area_effect.h">
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\bodyguards.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
-    <ClInclude Include="src\features\hotkeys.h">
-      <Filter>Header Files\features</Filter>
+    <ClInclude Include="src\datasets\data_props.h">
+      <Filter>inc\features</Filter>
     </ClInclude>
-    <ClInclude Include="src\features\misc.h">
-      <Filter>Header Files\features</Filter>
+    <ClInclude Include="src\features\props.h">
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\propplacement.h">
-      <Filter>Header Files\features</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\script.h">
-      <Filter>Header Files\features</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\skins.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\teleportation.h">
-      <Filter>Header Files\features</Filter>
-    </ClInclude>
-    <ClInclude Include="src\features\time.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\vehicles.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\weapons.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
     <ClInclude Include="src\features\world.h">
-      <Filter>Header Files\features</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\enums.h" />
-    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\main.h" />
-    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\nativeCaller.h" />
-    <ClInclude Include="..\..\..\..\Users\ROB~1.PRI\AppData\Local\Temp\x\types.h" />
-    <ClInclude Include="src\features\aimbot_esp.h">
-      <Filter>Header Files\features</Filter>
+    <ClInclude Include="inc\xinput\CXBOXController.h">
+      <Filter>inc\xinput</Filter>
     </ClInclude>
-<<<<<<< HEAD
-=======
+    <ClInclude Include="src\io\xinput.h">
+      <Filter>inc\xinput</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\config_io.h">
+      <Filter>inc\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\io.h">
+      <Filter>inc\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\hotkeys.h">
+      <Filter>inc\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\keyboard.h">
+      <Filter>inc\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui_support\file_dialog.h">
+      <Filter>inc\ui_support</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui_support\menu_functions.h">
+      <Filter>inc\ui_support</Filter>
+    </ClInclude>
+    <ClInclude Include="src\storage\database.h">
+      <Filter>inc\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\debuglog.h">
+      <Filter>inc\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\skins.h">
+      <Filter>inc\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\script.h">
+      <Filter>inc\features</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\sqlite3\sqlite3.h">
+      <Filter>inc\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\sqlite3\sqlite3ext.h">
+      <Filter>inc\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\misc.h">
+      <Filter>inc\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\features\time.h">
+      <Filter>inc\features</Filter>
+    </ClInclude>
+    <ClInclude Include="src\xml\xml_import_export.h">
+      <Filter>inc\xml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils.h">
+      <Filter>inc\io</Filter>
+    </ClInclude>
     <ClInclude Include="src\common\vectorHelper.h">
-      <Filter>Header Files\common</Filter>
+      <Filter>inc\features</Filter>
     </ClInclude>
->>>>>>> c3dd4642844b75a4b517ed1a715aae51f9b8508c
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{b1beedb4-6db9-4052-b6a2-ae6c3348c79f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{dec24df8-6ceb-4e34-b924-191501df3d6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{daf42466-4307-41d1-93bd-2f966f36ad94}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\storage">
-      <UniqueIdentifier>{e316c4db-1408-4ba8-bc9e-f05f14e98d1f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\datasets">
-      <UniqueIdentifier>{39982bda-4966-409f-86ab-55360b228779}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\debug">
-      <UniqueIdentifier>{18b84b2e-e22a-4173-88d5-5ad810be3d36}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\features">
-      <UniqueIdentifier>{2975e362-12e9-4621-96c7-50e7c026e6b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\io">
-      <UniqueIdentifier>{a3b2384e-7147-4386-9071-39555b362af9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\xml">
-      <UniqueIdentifier>{8963442c-6357-42f0-8455-04f71bd050be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ui_support">
-      <UniqueIdentifier>{bbadedf3-1da7-46a2-8671-d101d6cbe24d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\debug">
-      <UniqueIdentifier>{c83c7dd4-06f9-4237-b6b2-237ee951fd31}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\features">
-      <UniqueIdentifier>{ddca2cb6-ce1b-4904-b928-ef6de611af4a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\io">
-      <UniqueIdentifier>{9a3db449-a7b7-4d94-aa7c-16c2a7ecedc3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\storage">
-      <UniqueIdentifier>{7bd6dfe3-5d72-4ed8-ab74-c228302e2396}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\ui_support">
-      <UniqueIdentifier>{0b1d4998-6d45-411b-bb9d-a56e0f3b339f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\xml">
-      <UniqueIdentifier>{eb8294df-2682-42f8-b498-a8b4c3c6756c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\include">
-      <UniqueIdentifier>{f65ee54a-3361-493f-b5a3-af21c91c8444}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\include\xinput">
-      <UniqueIdentifier>{646929c3-198f-41ba-bf9f-09841761e331}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\include\sqlite3">
-      <UniqueIdentifier>{cfbc44a0-9752-421d-859f-786bc4227527}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\include">
-      <UniqueIdentifier>{1c083c41-1d3e-426e-91d2-2458890a254a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\include\sqlite3">
-      <UniqueIdentifier>{eb0aafd6-4605-4aba-a21a-c0f111b817ce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\include\xinput">
-      <UniqueIdentifier>{6d34f6d0-6d08-4ee2-ace7-58a74b795c93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Image Previews">
-      <UniqueIdentifier>{c2ecbea4-778b-4e02-a352-0ee279256edd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\common">
-      <UniqueIdentifier>{90ace7bd-52ea-4e20-9bcd-c3cb8abf8b9b}</UniqueIdentifier>
-    </Filter>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resource.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="ent-config.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
+    <Xml Include="ent-config.xml" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Documents\veh-previews\airtug.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\ambulance.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\armytanker.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\armytrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\armytrailer2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\asea_snow.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\b747.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\bagger.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\baletrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\baller_small.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\baller3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\baller4.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\baller5.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\baller6.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\barracks2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\benson.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\biff.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\bison2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\bison3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\bison2.png">
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\bjxl.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\blimp.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\blimp2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\blista.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\boattrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\boxville.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\boxville2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\boxville3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\btype2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\buccaneer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\burrito.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\burrito2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\burrito3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\burrito4.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\burrito5.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\buzzard2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\cablecar.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\caddy.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\caddy2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\camper.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\cargo.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\cargobob2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\cargobob3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\cog552.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\cognoscenti2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\cutter.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\daemon.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dilet_livery.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dinghy.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dinghy2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dockhandler.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\docktrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\docktug.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dozer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dubsta.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dubsta_black.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\dukes.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\duneloader.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\emperor.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\emperor_rusty.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\emperor_snow.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\cutter.png">
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\faction.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\fbi.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\fbi2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\firetruk.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\fixter.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\flatbed.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\forklift.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\fq2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\freight.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\freightcar.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\freightcont1.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\freightcont2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\freightgrain.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\freighttrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\frogger2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\futo.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\gburrito.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\graintrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\granger.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\guardian.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\habanero.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\hauler.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\hearse.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\lazer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\lectro.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\lguard.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\lifeguard.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\lurcher.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\manana.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\mesa_snow.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\metrotrain.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\mixer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\mixer2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\monkey_blista.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\moonbeam.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\mower.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\mule2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\manana.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\mesa_snow.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\metrotrain.png">
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\oracle2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\packer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\patriot.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\peyote.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\phantom.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\phoenix.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\police.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\police2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\police3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\police4.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\policeb.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\policeold1.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\policeold2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\policet.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\polmav.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\pony.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\pony2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\pounder.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\prairie.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\pranger.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\predator.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\proptrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\raketrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\rancherxl_snow.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\riot.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\ripley.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\roosevelt.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\rubble.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\ruiner.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\rumpo2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\sabre.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\sadler_snow.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\schafter2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\schafter3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\schafter4.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\schafter5.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\schafter6.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\scrap.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\seashark2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\sentinel.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\serrano.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\sheriff.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\sheriff2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\skylift.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\slamvan_lostmc.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\spacedocker.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\speedo.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\speedo2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\stockade.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\stockade3.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\sub.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\sultan.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\surfer2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\taco.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\tanker.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\tanker2.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\tankercar.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\taxi.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tiptruck.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tiptruck2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tornado.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tornado_cab.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tornado_cab_rusty.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tornado_rusty.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tourbus.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\towtruck.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\towtruck2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tr2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tr3.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tr4.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tractor.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tractor2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\tractor3.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trailerlogs.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trailers.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trailers2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trailers3.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trailersmall.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trash.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trash2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\trflat.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\utillitruck.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\utillitruck2.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\utillitruck3.png">
-      <Filter>Resource Files\Image Previews</Filter>
-    </Image>
-    <Image Include="Documents\veh-previews\voodoo.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
     <Image Include="Documents\veh-previews\tvtrailer.png">
-      <Filter>Resource Files\Image Previews</Filter>
+      <Filter>Documents\veh-previews</Filter>
     </Image>
+    <Image Include="Documents\veh-previews\tiptruck.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tiptruck2.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tornado.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tornado_cab.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tornado_cab_rusty.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tornado_rusty.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tourbus.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\towtruck.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\towtruck2.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tr2.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tr3.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tr4.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tractor.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tractor2.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\tractor3.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trailerlogs.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trailers.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trailers2.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trailers3.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trailersmall.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trash.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trash2.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\trflat.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\utillitruck.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\utillitruck2.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\utillitruck3.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\virgo3.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+    <Image Include="Documents\veh-previews\voodoo.png">
+      <Filter>Documents\veh-previews</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Documents">
+      <UniqueIdentifier>{5d72d3dd-0aff-467a-ace5-2cb457fbb47c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Documents\veh-previews">
+      <UniqueIdentifier>{be038c2b-ee06-4dcf-b166-86c0eb1295b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{70bb08e3-3383-401d-8524-29b612521626}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\xml">
+      <UniqueIdentifier>{5f183d11-c533-4dc4-906f-507cf0964839}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui_support">
+      <UniqueIdentifier>{c8b0a3f4-3818-4de2-984f-e6b6a7a5378f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\storage">
+      <UniqueIdentifier>{deab8ac0-d1c9-4d04-b8b0-0b31207e7f5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\io">
+      <UniqueIdentifier>{35746e12-8c04-4e52-9e2b-3e0a3c312e11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\debug">
+      <UniqueIdentifier>{42597fe4-d0cb-4d6b-ab1a-06fa92e9d09d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\xinput">
+      <UniqueIdentifier>{aa78e79f-08b0-48bd-a7cc-cda81854c446}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc">
+      <UniqueIdentifier>{f4cb23d0-2f74-4fe8-991a-64e2d777319d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\sqlite3">
+      <UniqueIdentifier>{53538dc1-569d-462d-abd7-b302667489a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\features">
+      <UniqueIdentifier>{f045131a-cadc-4fec-b1d0-80db6698ec18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\xinput">
+      <UniqueIdentifier>{a3ba00fa-ea24-440e-8ff1-1353b1fbc5a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\io">
+      <UniqueIdentifier>{1b7627a2-03af-4091-870b-50ef4016bc02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\ui_support">
+      <UniqueIdentifier>{7ff54dd0-3fa0-45dd-be3b-4f5cfce8b8e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\storage">
+      <UniqueIdentifier>{c335b91f-758c-4b51-ae81-157982e7a253}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\debug">
+      <UniqueIdentifier>{fba3114d-a07f-4847-9fe1-a23de755754f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\features">
+      <UniqueIdentifier>{0b445460-2dc6-4b62-9682-8c503860bc7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc\xml">
+      <UniqueIdentifier>{068ec0d5-19d5-4ded-a0b4-f6d318a33615}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
