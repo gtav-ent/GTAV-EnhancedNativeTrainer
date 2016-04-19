@@ -8,6 +8,8 @@
 
 #include "main.h"
 
+static int callsPerFrame = 0;
+
 template <typename T>
 static inline void nativePush(T val)
 {
@@ -23,14 +25,14 @@ static inline void nativePush(T val)
 template <typename R>
 static inline R invoke(UINT64 hash)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 	return *reinterpret_cast<R *>(nativeCall());
 }
 
 template <typename R, typename T1>
 static inline R invoke(UINT64 hash, T1 P1)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 
@@ -40,7 +42,7 @@ static inline R invoke(UINT64 hash, T1 P1)
 template <typename R, typename T1, typename T2>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -51,7 +53,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2)
 template <typename R, typename T1, typename T2, typename T3>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -63,7 +65,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3)
 template <typename R, typename T1, typename T2, typename T3, typename T4>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -76,7 +78,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4)
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -90,7 +92,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5)
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -105,7 +107,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6)
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -121,7 +123,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -138,7 +140,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -156,7 +158,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -175,7 +177,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -195,7 +197,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -216,7 +218,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -238,7 +240,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -261,7 +263,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -285,7 +287,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -310,7 +312,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -336,7 +338,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -363,7 +365,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18, typename T19>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18, T19 P19)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -391,7 +393,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18, typename T19, typename T20>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18, T19 P19, T20 P20)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -420,7 +422,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18, typename T19, typename T20, typename T21>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18, T19 P19, T20 P20, T21 P21)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -450,7 +452,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18, T19 P19, T20 P20, T21 P21, T22 P22)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -481,7 +483,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18, T19 P19, T20 P20, T21 P21, T22 P22, T23 P23)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -513,7 +515,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23, typename T24>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18, T19 P19, T20 P20, T21 P21, T22 P22, T23 P23, T24 P24)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);
@@ -546,7 +548,7 @@ static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7
 template <typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9, typename T10, typename T11, typename T12, typename T13, typename T14, typename T15, typename T16, typename T17, typename T18, typename T19, typename T20, typename T21, typename T22, typename T23, typename T24, typename T25>
 static inline R invoke(UINT64 hash, T1 P1, T2 P2, T3 P3, T4 P4, T5 P5, T6 P6, T7 P7, T8 P8, T9 P9, T10 P10, T11 P11, T12 P12, T13 P13, T14 P14, T15 P15, T16 P16, T17 P17, T18 P18, T19 P19, T20 P20, T21 P21, T22 P22, T23 P23, T24 P24, T25 P25)
 {
-	nativeInit(hash);
+	nativeInit(hash); callsPerFrame++;
 
 	nativePush(P1);
 	nativePush(P2);

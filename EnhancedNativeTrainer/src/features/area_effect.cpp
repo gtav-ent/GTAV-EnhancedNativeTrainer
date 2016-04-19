@@ -10,11 +10,18 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 
 #include "area_effect.h"
 #include "script.h"
+#include "../../inc/nativeCaller.h"
 
 int areaeffect_top_level_menu_index = 0;
 int areaeffect_ped_level_menu_index = 0;
 int areaeffect_veh_level_menu_index = 0;
 int areaeffect_ped_advconfig_menu_index = 0;
+
+int callsA = 0;
+int callsB = 0;
+int callsC = 0;
+int callsD = 0;
+int callsE = 0;
 
 std::deque<ENTTrackedPedestrian*> trackedPeds;
 std::deque<ENTTrackedVehicle*> trackedVehicles;
@@ -48,6 +55,15 @@ bool featurePedsIncludePilots = false;
 
 int pedWeaponSetIndex = 0;
 bool pedWeaponSetUpdated = false;
+
+std::set<Ped> allWorldPedsThisFrame;
+bool allWorldPedsThisFrameFilled = false;
+
+std::set<Vehicle> allWorldVehiclesThisFrame;
+bool allWorldVehiclesThisFrameFilled = false;
+
+std::set<Ped> releasedPeds;
+std::set<Vehicle> releasedVehicles;
 
 void add_areaeffect_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
@@ -124,7 +140,6 @@ void process_areaeffect_peds_menu()
 	listItem->wrap = false;
 	listItem->caption = "Peds Armed With...";
 	listItem->value = pedWeaponSetIndex;
-	listItem->value = pedWeaponSetUpdated;
 	menuItems.push_back(listItem);
 
 	togItem = new ToggleMenuItem<int>();
@@ -252,9 +267,6 @@ void process_areaeffect_menu()
 
 void do_maintenance_on_tracked_entities()
 {
-	Ped playerPed = PLAYER::PLAYER_PED_ID();
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
-
 	for each (ENTTrackedPedestrian* tped in trackedPeds)
 	{
 		//only apply this on average every 20 frames to save effort
@@ -301,18 +313,19 @@ void findRandomTargetForPed(ENTTrackedPedestrian* tped)
 
 void update_area_effects(Ped playerPed)
 {
+	//callsPerFrame = 0;
+
+	allWorldVehiclesThisFrameFilled = false;
+	allWorldPedsThisFrameFilled = false;
+	allWorldVehiclesThisFrame.clear();
+	allWorldPedsThisFrame.clear();
+
 	Player player = PLAYER::PLAYER_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
 	clear_up_missionised_entitities();
 
 	do_maintenance_on_tracked_entities();
-
-	/*
-	std::ostringstream ss;
-	ss << "Peds: " << trackedPeds.size() << "; Vehs: " << trackedVehicles.size();
-	set_status_text_centre_screen(ss.str());*/
-
 	
 	// everyone ignores player
 	if (featurePlayerIgnoredByAll)
@@ -383,6 +396,11 @@ void update_area_effects(Ped playerPed)
 		give_all_nearby_peds_a_weapon(pedWeaponSetIndex != 0);
 		pedWeaponSetUpdated = false;
 	}
+
+	std::ostringstream ss;
+	ss << "Peds: " << trackedPeds.size() << "; Vehs: " << trackedVehicles.size() << "\nCalls Total: " << callsPerFrame << ", A: " << callsA << ", B: " << callsB << "\nWP: " << allWorldPedsThisFrame.size() << ", WV: " << allWorldVehiclesThisFrame.size();
+	callsPerFrame = 0;
+	set_status_text_centre_screen(ss.str());
 }
 
 void set_all_nearby_peds_to_calm()
@@ -463,12 +481,12 @@ void set_all_nearby_peds_to_angry(bool enabled)
 				PED::SET_PED_COMBAT_ATTRIBUTES(xped, 3, 0); //can leave vehicle
 				PED::SET_PED_COMBAT_ATTRIBUTES(xped, 2, 0); //can do driveby
 
-				PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, featurePlayerIgnoredByAll ? 0 : 1);
 				PED::SET_PED_AS_ENEMY(xped, enabled);
 				PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
 
 				trackedPed->angryApplied = false;
 				trackedPed->demissionise();
+				releasedPeds.insert(xped);
 			}
 		}
 	}
@@ -534,8 +552,10 @@ void set_all_nearby_vehs_to_broken(bool enabled)
 			continue;
 		}
 
-		BOOL isAircraft = VEHICLE::IS_THIS_MODEL_A_HELI(veh) || VEHICLE::IS_THIS_MODEL_A_PLANE(veh);
-		BOOL isWeird = VEHICLE::IS_THIS_MODEL_A_TRAIN(veh) || VEHICLE::IS_THIS_MODEL_A_BOAT(veh) || VEHICLE::_IS_THIS_MODEL_A_SUBMERSIBLE(veh);
+		Hash vehModel = ENTITY::GET_ENTITY_MODEL(veh);
+
+		BOOL isAircraft = VEHICLE::IS_THIS_MODEL_A_HELI(vehModel) || VEHICLE::IS_THIS_MODEL_A_PLANE(vehModel);
+		BOOL isWeird = VEHICLE::IS_THIS_MODEL_A_TRAIN(vehModel) || VEHICLE::IS_THIS_MODEL_A_BOAT(vehModel) || VEHICLE::_IS_THIS_MODEL_A_SUBMERSIBLE(vehModel);
 		if (isAircraft || isWeird)
 		{
 			continue;
@@ -578,19 +598,28 @@ void set_all_nearby_vehs_to_broken(bool enabled)
 
 std::set<Ped> get_nearby_peds(Ped playerPed)
 {
+	if (allWorldPedsThisFrameFilled)
+	{
+		return allWorldPedsThisFrame;
+	}
+
 	const int ARR_SIZE = 1024;
 	Ped peds[ARR_SIZE];
 	int found = worldGetAllPeds(peds, ARR_SIZE);
 
-	std::set<Ped> result;
+	callsA = 0;
+	callsB = found;
 
 	for (int i = 0; i < found; i++)
 	{
 		Ped item = peds[i];
 
-		
+		if (releasedPeds.find(item) != releasedPeds.end())
+		{
+			continue;
+		}
 
-		if (!ENTITY::DOES_ENTITY_EXIST(item) || ENTITY::IS_ENTITY_DEAD(item))
+		if (ENTITY::IS_ENTITY_DEAD(item))
 		{
 			continue;
 		}
@@ -608,50 +637,62 @@ std::set<Ped> get_nearby_peds(Ped playerPed)
 		}
 
 		//filter out drivers/pilots if necessary
-		if (PED::IS_PED_IN_ANY_VEHICLE(item, false))
+		if ((!featurePedsIncludePilots || !featurePedsIncludeDrivers) && PED::IS_PED_IN_ANY_VEHICLE(item, false))
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_IN(item, false);
 
-			BOOL isAircraft = VEHICLE::IS_THIS_MODEL_A_HELI(veh) || VEHICLE::IS_THIS_MODEL_A_PLANE(veh);
-			BOOL isWeird = VEHICLE::IS_THIS_MODEL_A_TRAIN(veh) || VEHICLE::IS_THIS_MODEL_A_BOAT(veh) || VEHICLE::_IS_THIS_MODEL_A_SUBMERSIBLE(veh);
+			Hash vehModel = ENTITY::GET_ENTITY_MODEL(veh);
 
+			bool isAircraft = VEHICLE::IS_THIS_MODEL_A_HELI(vehModel) || VEHICLE::IS_THIS_MODEL_A_PLANE(vehModel);
 			if (!featurePedsIncludePilots && isAircraft)
 			{
 				continue;
 			}
-			else if (!featurePedsIncludeDrivers && !isAircraft && !isWeird)
+
+			bool isWeird = VEHICLE::IS_THIS_MODEL_A_TRAIN(vehModel) || VEHICLE::IS_THIS_MODEL_A_BOAT(vehModel) || VEHICLE::_IS_THIS_MODEL_A_SUBMERSIBLE(vehModel);
+			if (!featurePedsIncludeDrivers && !isAircraft && !isWeird)
 			{
 				continue;
 			}
 		}
 
-		result.insert(item);
+		allWorldPedsThisFrame.insert(item);
 	}
 
-	return result;
+	allWorldPedsThisFrameFilled = true;
+	return allWorldPedsThisFrame;
 }
 
 std::set<Vehicle> get_nearby_vehicles(Ped playerPed)
 {
+	if (allWorldVehiclesThisFrameFilled)
+	{
+		return allWorldVehiclesThisFrame;
+	}
+
 	BOOL playerInVehicle = PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0);
+	Vehicle playerVehicle = playerInVehicle ? PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()) : 0;
 
 	const int ARR_SIZE = 1024;
 	Vehicle vehs[ARR_SIZE];
 	int found = worldGetAllVehicles(vehs, ARR_SIZE);
 
-	std::set<Vehicle> result;
-
 	for (int i = 0; i < found; i++)
 	{
 		Vehicle item = vehs[i];
 
+		if (releasedVehicles.find(item) != releasedVehicles.end())
+		{
+			continue;
+		}
+
 		//don't return dead items
-		if (!ENTITY::DOES_ENTITY_EXIST(item) || ENTITY::IS_ENTITY_DEAD(item))
+		if (ENTITY::IS_ENTITY_DEAD(item))
 		{
 			continue;
 		}
 		//don't return the vehicle we're using
-		else if (playerInVehicle && PED::GET_VEHICLE_PED_IS_USING(PLAYER::PLAYER_PED_ID()) == item)
+		else if (playerInVehicle && playerVehicle == item)
 		{
 			continue;
 		}
@@ -661,10 +702,11 @@ std::set<Vehicle> get_nearby_vehicles(Ped playerPed)
 			continue;
 		}
 
-		result.insert(item);
+		allWorldVehiclesThisFrame.insert(item);
 	}
 
-	return result;
+	allWorldVehiclesThisFrameFilled = true;
+	return allWorldVehiclesThisFrame;
 }
 
 void cleanup_area_effects()
@@ -779,29 +821,14 @@ void clear_up_missionised_entitities()
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
-	/*while (missionisedVehicles.size() > MAX_MISSION_VEHICLES)
-	{
-		Vehicle deadVeh = missionisedVehicles.front();
-		if (ENTITY::DOES_ENTITY_EXIST(deadVeh))
-		{
-			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(deadVeh, false, true);
-			ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&deadVeh);
-		}
-		missionisedVehicles.pop_front();
-	}*/
-
 	std::deque<ENTTrackedVehicle*>::iterator vit;
 	for (vit = trackedVehicles.begin(); vit != trackedVehicles.end();)
 	{
 		Vehicle actualVeh = (*vit)->vehicle;
-		if (!ENTITY::DOES_ENTITY_EXIST(actualVeh))
+		if (!ENTITY::DOES_ENTITY_EXIST(actualVeh) || is_entity_to_be_disposed(playerPed, actualVeh))
 		{
 			delete *vit;
-			vit = trackedVehicles.erase(vit);
-		}
-		else if (bPlayerExists && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(playerPed, actualVeh, 17) && !ENTITY::IS_ENTITY_ON_SCREEN(actualVeh))
-		{
-			delete *vit;
+			releasedVehicles.insert(actualVeh);
 			vit = trackedVehicles.erase(vit);
 		}
 		else
@@ -810,34 +837,53 @@ void clear_up_missionised_entitities()
 		}
 	}
 
-	/*while (missionisedPeds.size() > MAX_MISSION_PEDS)
-	{
-		Ped deadPed = missionisedPeds.front();
-		if (ENTITY::DOES_ENTITY_EXIST(deadPed))
-		{
-			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(deadPed, false, true);
-			ENTITY::SET_ENTITY_AS_NO_LONGER_NEEDED(&deadPed);
-		}
-		missionisedPeds.pop_front();
-	}*/
-
 	std::deque<ENTTrackedPedestrian*>::iterator pit;
 	for (pit = trackedPeds.begin(); pit != trackedPeds.end();)
 	{
 		Ped actualPed = (*pit)->ped;
-		if (!ENTITY::DOES_ENTITY_EXIST(actualPed))
+		if (!ENTITY::DOES_ENTITY_EXIST(actualPed)|| is_entity_to_be_disposed(playerPed, actualPed))
 		{
 			delete *pit;
-			pit = trackedPeds.erase(pit);
-		}
-		else if (bPlayerExists && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(playerPed, actualPed, 17) && !ENTITY::IS_ENTITY_ON_SCREEN(actualPed))
-		{
-			delete *pit;
+			releasedPeds.insert(actualPed);
 			pit = trackedPeds.erase(pit);
 		}
 		else
 		{
 			++pit;
+		}
+	}
+
+	std::set<Ped>::iterator rpIt;
+	for (rpIt = releasedPeds.begin(); rpIt != releasedPeds.end();)
+	{
+		if (!ENTITY::DOES_ENTITY_EXIST(*rpIt))
+		{
+			rpIt = releasedPeds.erase(rpIt);
+		}
+		else if (!is_entity_to_be_disposed(playerPed, *rpIt)) //no longer for deletion after all
+		{
+			rpIt = releasedPeds.erase(rpIt);
+		}
+		else
+		{
+			rpIt++;
+		}
+	}
+
+	std::set<Vehicle>::iterator rvIt;
+	for (rvIt = releasedVehicles.begin(); rvIt != releasedVehicles.end();)
+	{
+		if (!ENTITY::DOES_ENTITY_EXIST(*rvIt))
+		{
+			rvIt = releasedVehicles.erase(rvIt);
+		}
+		else if (!is_entity_to_be_disposed(playerPed, *rvIt)) //no longer for deletion after all
+		{
+			rvIt = releasedVehicles.erase(rvIt);
+		}
+		else
+		{
+			rvIt++;
 		}
 	}
 }
@@ -850,7 +896,12 @@ void onchange_areaeffect_ped_weapons(int value, SelectFromListMenuItem* source)
 
 void give_all_nearby_peds_a_weapon(bool enabled)
 {
+	//callsPerFrame = 0;
+
 	std::set<Ped> peds = get_nearby_peds(PLAYER::PLAYER_PED_ID());
+
+	//callsA = callsPerFrame;
+	//callsPerFrame = 0;
 
 	for each (Ped xped in peds)
 	{
@@ -888,7 +939,7 @@ void give_all_nearby_peds_a_weapon(bool enabled)
 					WEAPON::GIVE_WEAPON_TO_PED(xped, weapHash, 9999, FALSE, TRUE);
 					WEAPON::SET_PED_INFINITE_AMMO_CLIP(xped, true);
 					PED::SET_PED_CAN_SWITCH_WEAPON(xped, true);
-					if (WEAPON::HAS_PED_GOT_WEAPON(xped, weapHash, 0))
+					if (WEAPON::HAS_PED_GOT_WEAPON(xped, weapHash, 0) && !PED::IS_PED_IN_ANY_VEHICLE(xped, false) && !PED::IS_PED_INJURED(xped))
 					{
 						WEAPON::SET_CURRENT_PED_WEAPON(xped, weapHash, 0);
 					}
@@ -959,4 +1010,10 @@ ENTTrackedVehicle* findOrCreateTrackedVehicle(Vehicle searchVeh)
 	ENTTrackedVehicle* result = new ENTTrackedVehicle(searchVeh);
 	trackedVehicles.push_back(result);
 	return result;
+}
+
+
+bool is_entity_to_be_disposed(Ped playerPed, Entity entity)
+{
+	return (!ENTITY::IS_ENTITY_ON_SCREEN(entity) && !ENTITY::HAS_ENTITY_CLEAR_LOS_TO_ENTITY(playerPed, entity, 17));
 }
