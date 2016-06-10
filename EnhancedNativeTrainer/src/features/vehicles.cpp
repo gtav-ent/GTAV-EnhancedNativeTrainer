@@ -103,6 +103,8 @@ const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan 
 
 const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom Donk)", "Albany Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Cusotm)", "Declasse Voodoo (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)", "Vapid Slamvan (Custom)", "Willard Faction (Custom Donk)", "Willard Faction (Custom)" };
 
+const std::vector<std::string> CAPTIONS_EXECUTIVE{ "Benefactor XLS", "Benefactor XLS (Armored)", "Bravado Rumpo Custom", "Buckingham Nimbus", "Buckingham Volatus", "Dewbauchee Seven-70", "Enus Windsor Drop", "Grotti Bestia GTS", "Grotti X80 Proto", "HVY Brickade", "Pegassi Reaper", "Pfister 811", "Tug", "Vapid FMJ" };
+
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "OSIRIS", "VACCA", "ZENTORNO", "T20", "ADDER", "BULLET" };
 
 const std::vector<std::string> VALUES_SPORTS{ "ALPHA", "ELEGY2", "FELTZER2", "SCHWARZER", "SURANO", "BANSHEE", "BANSHEE2", "BUFFALO", "BUFFALO2", "BUFFALO3", "VERLIERER2", "MASSACRO", "MASSACRO2", "RAPIDGT", "RAPIDGT2", "BLISTA2", "BLISTA3", "JESTER", "JESTER2", "CARBONIZZARE", "KHAMELION", "COQUETTE", "FUTO", "KURUMA", "KURUMA2", "SULTAN", "SULTANRS", "FUROREGT", "PENUMBRA", "NINEF", "NINEF2", "COMET2", "FUSILADE" };
@@ -122,6 +124,8 @@ const std::vector<std::string> VALUES_SEDANS{ "EMPEROR", "EMPEROR2", "EMPEROR3",
 const std::vector<std::string> VALUES_COMPACTS{ "PANTO", "PRAIRIE", "RHAPSODY", "BLISTA", "DILETTANTE", "DILETTANTE2", "ISSI2" };
 
 const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "VIRGO3", "VIRGO2", "MOONBEAM2", "SABREGT2", "TORNADO5", "VOODOO", "CHINO2", "MINIVAN2", "SLAMVAN3", "FACTION3", "FACTION2" };
+
+const std::vector<std::string> VALUES_EXECUTIVE{ "XLS", "XLS2", "RUMPO3", "NIMBUS", "VOLATUS", "SEVEN70", "WINDSOR2", "BESTIAGTS", "PROTOTIPO", "BRICKADE", "REAPER", "PFISTER811", "TUG", "FMJ" };
 
 const std::vector<std::string> VOV_CAR_CAPTIONS[] = { CAPTIONS_SUPERCARS, CAPTIONS_SPORTS, CAPTIONS_SPORTCLASSICS, CAPTIONS_COUPES, CAPTIONS_MUSCLE, CAPTIONS_OFFROAD, CAPTIONS_SUVS, CAPTIONS_SEDANS, CAPTIONS_COMPACTS, CAPTIONS_LOWRIDERS };
 
@@ -1534,6 +1538,25 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "SLAMVAN3", "lsc_lowrider2", "slamvan3_a" },
 	{ "TORNADO5", "lsc_lowrider2", "tornado5_a" },
 	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" }
+	// Further Adventures in Finance and Felony
+	const std::vector<std::string> VALUES_EXECUTIVE{ "XLS", "XLS2", "RUMPO3", "NIMBUS", "VOLATUS", "SEVEN70", "WINDSOR2", "BESTIAGTS", "PROTOTIPO", "BRICKADE", "REAPER", "PFISTER811", "TUG", "FMJ" };
+
+
+	{ "PFISTER811", "lgm_dlc_executive1", "pfister811" },
+
+
+	{ "FMJ", "lgm_dlc_executive1", "fmj" },
+	{ "TUG", "dock_dlc_executive1", "tug" },
+
+	{ "XLS", "lgm_dlc_executive1", "xls" },
+	{ "RUMPO3", "sssa_dlc_executive_1", "rumpo3" },
+	{ "NIMBUS", "elt_dlc_executive1", "nimbus" },
+	{ "VOLATUS", "elt_dlc_executive1", "volatus" },
+	{ "SEVEN70", "lgm_dlc_executive1", "seven70" },
+	{ "WINDSOR2", "lgm_dlc_executive1", "windsor2" },
+	{ "BESTIAGTS", "lgm_dlc_executive1", "bestiagts" },
+	{ "PROTOTIPO", "lgm_dlc_executive1", "prototipo" },
+	{ "BRICKADE", "candc_executive1", "brickade" },
 };
 
 static std::vector<VehicleImage> ALL_VEH_IMAGES;
@@ -1832,6 +1855,7 @@ void init_vehicle_feature()
 	unpack_veh_preview("MOONBEAM", VP_MOONBEAM, "VP_MOONBEAM");
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
+	
 }
 
 void fix_vehicle()
