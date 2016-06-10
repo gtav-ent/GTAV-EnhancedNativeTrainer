@@ -440,9 +440,13 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 
 	//version-specific hack to prevent despawn of lowrider2 DLC vehicles
 	eGameVersion gameVer = getGameVersion();
-	if (gameVer == VER_1_0_678_1_NOSTEAM || gameVer == VER_1_0_678_1_STEAM)
+	if (gameVer == VER_1_0_678_1_STEAM || gameVer == VER_1_0_678_1_NOSTEAM)
 	{
 		*getGlobalPtr(2558120) = 1;
+	}
+	if (gameVer == VER_1_0_757_2_STEAM || gameVer == VER_1_0_757_2_NOSTEAM) 
+	{
+		*getGlobalPtr(2562051) = 1;
 	}
 
 	if (featureDespawnScriptDisabledUpdated)
@@ -1539,16 +1543,8 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "TORNADO5", "lsc_lowrider2", "tornado5_a" },
 	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" }
 	// Further Adventures in Finance and Felony
-	const std::vector<std::string> VALUES_EXECUTIVE{ "XLS", "XLS2", "RUMPO3", "NIMBUS", "VOLATUS", "SEVEN70", "WINDSOR2", "BESTIAGTS", "PROTOTIPO", "BRICKADE", "REAPER", "PFISTER811", "TUG", "FMJ" };
-
-
-	{ "PFISTER811", "lgm_dlc_executive1", "pfister811" },
-
-
-	{ "FMJ", "lgm_dlc_executive1", "fmj" },
-	{ "TUG", "dock_dlc_executive1", "tug" },
-
 	{ "XLS", "lgm_dlc_executive1", "xls" },
+	{ "XLS2", "lgm_dlc_executive1", "xls" },
 	{ "RUMPO3", "sssa_dlc_executive_1", "rumpo3" },
 	{ "NIMBUS", "elt_dlc_executive1", "nimbus" },
 	{ "VOLATUS", "elt_dlc_executive1", "volatus" },
@@ -1557,6 +1553,10 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "BESTIAGTS", "lgm_dlc_executive1", "bestiagts" },
 	{ "PROTOTIPO", "lgm_dlc_executive1", "prototipo" },
 	{ "BRICKADE", "candc_executive1", "brickade" },
+	{ "REAPER", "lgm_dlc_executive1", "reaper" },
+	{ "PFISTER811", "lgm_dlc_executive1", "pfister811" },
+	{ "TUG", "dock_dlc_executive1", "tug" },
+	{ "FMJ", "lgm_dlc_executive1", "fmj" }
 };
 
 static std::vector<VehicleImage> ALL_VEH_IMAGES;
