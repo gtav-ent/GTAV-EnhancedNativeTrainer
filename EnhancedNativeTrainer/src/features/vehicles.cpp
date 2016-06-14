@@ -438,13 +438,13 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
-	//version-specific hack to prevent despawn of lowrider2 DLC vehicles
+	//version-specific hack to prevent despawn of lowrider2 and executive DLCs vehicles
 	eGameVersion gameVer = getGameVersion();
-	if (gameVer == VER_1_0_678_1_STEAM || gameVer == VER_1_0_678_1_NOSTEAM)
+	if (gameVer < VER_1_0_757_2_STEAM || gameVer < VER_1_0_757_2_NOSTEAM)
 	{
 		*getGlobalPtr(2558120) = 1;
 	}
-	if (gameVer == VER_1_0_757_2_STEAM || gameVer == VER_1_0_757_2_NOSTEAM) 
+	if (gameVer > VER_1_0_678_1_STEAM || gameVer > VER_1_0_678_1_NOSTEAM) 
 	{
 		*getGlobalPtr(2562051) = 1;
 	}
