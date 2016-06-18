@@ -84,7 +84,7 @@ const std::vector<std::string> MENU_VEHICLE_CATEGORIES{ "Cars", "Industrial", "E
 
 //Cars
 
-const std::vector<std::string> MENU_CAR_CATEGORIES{ "Supercars", "Sports", "Sport Classics", "Coupes", "Muscle", "Offroad", "SUVs", "Sedans", "Compacts", "Lowriders" };
+const std::vector<std::string> MENU_CAR_CATEGORIES{ "Supercars", "Sports", "Sport Classics", "Coupes", "Muscle", "Offroad", "SUVs", "Sedans", "Compacts", "Lowriders", "Executive DLC" };
 
 const std::vector<std::string> CAPTIONS_SUPERCARS{ "Coil Voltic", "Grotti Cheetah", "Grotti Turismo R", "Overflod Entity XF", "Pegassi Infernus", "Pegassi Osiris", "Pegassi Vacca", "Pegassi Zentorno", "Progen T20", "Truffade Adder", "Vapid Bullet" };
 
@@ -106,6 +106,8 @@ const std::vector<std::string> CAPTIONS_COMPACTS{ "Benefactor Panto", "Bollokan 
 
 const std::vector<std::string> CAPTIONS_LOWRIDERS{ "Albany Buccaneer (Custom)", "Albany Primo (Custom)", "Albany Virgo (Custom Donk)", "Albany Virgo (Custom)", "Declasse Moonbeam (Custom)", "Declasse Sabre Turbo (Custom)", "Declasse Tornado (Custom)", "Declasse Voodoo (Custom)", "Vapid Chino (Custom)", "Vapid Minivan (Custom)", "Vapid Slamvan (Custom)", "Willard Faction (Custom Donk)", "Willard Faction (Custom)" };
 
+const std::vector<std::string> CAPTIONS_EXECUTIVE{ "Benefactor XLS", "Benefactor XLS (Armored)", "Bravado Rumpo Custom", "Buckingham Nimbus", "Buckingham Volatus", "Dewbauchee Seven-70", "Enus Windsor Drop", "Grotti Bestia GTS", "Grotti X80 Proto", "HVY Brickade", "Pegassi Reaper", "Pfister 811", "Tug", "Vapid FMJ" };
+
 const std::vector<std::string> VALUES_SUPERCARS{ "VOLTIC", "CHEETAH", "TURISMOR", "ENTITYXF", "INFERNUS", "OSIRIS", "VACCA", "ZENTORNO", "T20", "ADDER", "BULLET" };
 
 const std::vector<std::string> VALUES_SPORTS{ "ALPHA", "ELEGY2", "FELTZER2", "SCHWARZER", "SURANO", "BANSHEE", "BANSHEE2", "BUFFALO", "BUFFALO2", "BUFFALO3", "VERLIERER2", "MASSACRO", "MASSACRO2", "RAPIDGT", "RAPIDGT2", "BLISTA2", "BLISTA3", "JESTER", "JESTER2", "CARBONIZZARE", "KHAMELION", "COQUETTE", "FUTO", "KURUMA", "KURUMA2", "SULTAN", "SULTANRS", "FUROREGT", "PENUMBRA", "NINEF", "NINEF2", "COMET2", "FUSILADE" };
@@ -126,9 +128,11 @@ const std::vector<std::string> VALUES_COMPACTS{ "PANTO", "PRAIRIE", "RHAPSODY", 
 
 const std::vector<std::string> VALUES_LOWRIDERS{ "BUCCANEER2", "PRIMO2", "VIRGO3", "VIRGO2", "MOONBEAM2", "SABREGT2", "TORNADO5", "VOODOO", "CHINO2", "MINIVAN2", "SLAMVAN3", "FACTION3", "FACTION2" };
 
-const std::vector<std::string> VOV_CAR_CAPTIONS[] = { CAPTIONS_SUPERCARS, CAPTIONS_SPORTS, CAPTIONS_SPORTCLASSICS, CAPTIONS_COUPES, CAPTIONS_MUSCLE, CAPTIONS_OFFROAD, CAPTIONS_SUVS, CAPTIONS_SEDANS, CAPTIONS_COMPACTS, CAPTIONS_LOWRIDERS };
+const std::vector<std::string> VALUES_EXECUTIVE{ "XLS", "XLS2", "RUMPO3", "NIMBUS", "VOLATUS", "SEVEN70", "WINDSOR2", "BESTIAGTS", "PROTOTIPO", "BRICKADE", "REAPER", "PFISTER811", "TUG", "FMJ" };
 
-const std::vector<std::string> VOV_CAR_VALUES[] = { VALUES_SUPERCARS, VALUES_SPORTS, VALUES_SPORTCLASSICS, VALUES_COUPES, VALUES_MUSCLE, VALUES_OFFROAD, VALUES_SUVS, VALUES_SEDANS, VALUES_COMPACTS, VALUES_LOWRIDERS };
+const std::vector<std::string> VOV_CAR_CAPTIONS[] = { CAPTIONS_SUPERCARS, CAPTIONS_SPORTS, CAPTIONS_SPORTCLASSICS, CAPTIONS_COUPES, CAPTIONS_MUSCLE, CAPTIONS_OFFROAD, CAPTIONS_SUVS, CAPTIONS_SEDANS, CAPTIONS_COMPACTS, CAPTIONS_LOWRIDERS, CAPTIONS_EXECUTIVE };
+
+const std::vector<std::string> VOV_CAR_VALUES[] = { VALUES_SUPERCARS, VALUES_SPORTS, VALUES_SPORTCLASSICS, VALUES_COUPES, VALUES_MUSCLE, VALUES_OFFROAD, VALUES_SUVS, VALUES_SEDANS, VALUES_COMPACTS, VALUES_LOWRIDERS, VALUES_EXECUTIVE };
 
 //Industrial
 
@@ -468,11 +472,15 @@ void update_vehicle_features(BOOL bPlayerExists, Ped playerPed)
 {
 	Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
 
-	//version-specific hack to prevent despawn of lowrider2 DLC vehicles
+	//version-specific hack to prevent despawn of lowrider2 and executive DLCs vehicles
 	eGameVersion gameVer = getGameVersion();
-	if (gameVer == VER_1_0_678_1_NOSTEAM || gameVer == VER_1_0_678_1_STEAM)
+	if (gameVer < VER_1_0_757_2_STEAM || gameVer < VER_1_0_757_2_NOSTEAM)
 	{
 		*getGlobalPtr(2558120) = 1;
+	}
+	if (gameVer > VER_1_0_678_1_STEAM || gameVer > VER_1_0_678_1_NOSTEAM) 
+	{
+		*getGlobalPtr(2562051) = 1;
 	}
 
 	if (featureDespawnScriptDisabledUpdated)
@@ -1586,6 +1594,21 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "SLAMVAN3", "lsc_lowrider2", "slamvan3_a" },
 	{ "TORNADO5", "lsc_lowrider2", "tornado5_a" },
 	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" }
+	// Further Adventures in Finance and Felony
+	{ "XLS", "lgm_dlc_executive1", "xls" },
+	{ "XLS2", "lgm_dlc_executive1", "xls" },
+	{ "RUMPO3", "sssa_dlc_executive_1", "rumpo3" },
+	{ "NIMBUS", "elt_dlc_executive1", "nimbus" },
+	{ "VOLATUS", "elt_dlc_executive1", "volatus" },
+	{ "SEVEN70", "lgm_dlc_executive1", "seven70" },
+	{ "WINDSOR2", "lgm_dlc_executive1", "windsor2" },
+	{ "BESTIAGTS", "lgm_dlc_executive1", "bestiagts" },
+	{ "PROTOTIPO", "lgm_dlc_executive1", "prototipo" },
+	{ "BRICKADE", "candc_executive1", "brickade" },
+	{ "REAPER", "lgm_dlc_executive1", "reaper" },
+	{ "PFISTER811", "lgm_dlc_executive1", "pfister811" },
+	{ "TUG", "dock_dlc_executive1", "tug" },
+	{ "FMJ", "lgm_dlc_executive1", "fmj" }
 };
 
 static std::vector<VehicleImage> ALL_VEH_IMAGES;
@@ -1881,8 +1904,12 @@ void init_vehicle_feature()
 	unpack_veh_preview("MOONBEAM", VP_MOONBEAM, "VP_MOONBEAM");
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
+<<<<<<< HEAD
 	unpack_veh_preview("VIRGO3", VP_VIRGO3, "VP_VIRGO3");
 	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
+=======
+	
+>>>>>>> refs/remotes/gtav-ent/master
 }
 
 void fix_vehicle()
