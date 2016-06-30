@@ -499,11 +499,28 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 			UI::SET_TEXT_DROPSHADOW(5, 0, 78, 255, 255);
 		}
 
+
 		UI::SET_TEXT_EDGE(0, 0, 0, 0, 0);
 		UI::SET_TEXT_CENTRE(1);
 		UI::SET_TEXT_WRAP(0, lineLeftScaled + lineWidthScaled - leftMarginScaled);
 		UI::_SET_TEXT_ENTRY("STRING");
-		UI::_ADD_TEXT_COMPONENT_STRING(toggleItem->get_toggle_value() ? "ON" : "OFF");
+		//UI::_ADD_TEXT_COMPONENT_STRING(toggleItem->get_toggle_value() ? "ON" : "OFF");
+				
+		if (!GRAPHICS::HAS_STREAMED_TEXTURE_DICT_LOADED("mpleaderboard"))
+		{
+			GRAPHICS::REQUEST_STREAMED_TEXTURE_DICT("mpleaderboard", true);
+		}
+		
+		if (toggleItem->get_toggle_value() == true)
+		{
+			//(char* textureDict, char* textureName, float screenX, float screenY, float scaleX, float scaleY, float heading, int colorR, int colorG, int colorB, int colorA) 
+			GRAPHICS::DRAW_SPRITE("mpleaderboard", "leaderboard_votetick_icon", lineLeftScaled + lineWidthScaled - rightMarginScaled, textY + 0.01f, 0.032, 0.040, 0, 255, 255, 255, 255);
+		}
+		else
+		{
+			GRAPHICS::DRAW_SPRITE("mpleaderboard", "leaderboard_voteblank_icon", lineLeftScaled + lineWidthScaled - rightMarginScaled, textY + 0.01f, 0.032, 0.040, 0, 0, 0, 0, 255);
+		}
+				
 		UI::_DRAW_TEXT(lineLeftScaled + lineWidthScaled - rightMarginScaled, textY);
 	}
 	else if (CashItem<T>* cashItem = dynamic_cast<CashItem<T>*>(item))
@@ -664,7 +681,7 @@ void draw_menu_item_line(MenuItem<T> *item, float lineWidth, float lineHeight, f
 		int i = 0;
 		for (; i < wantedLevel; i++)
 		{
-			wantedStars << "*";
+			wantedStars << "*"; //Draws whatever char in here
 		}
 
 		UI::SET_TEXT_WRAP(0, lineLeftScaled + lineWidthScaled - rightMarginScaled - (starWidth*(5-i)));

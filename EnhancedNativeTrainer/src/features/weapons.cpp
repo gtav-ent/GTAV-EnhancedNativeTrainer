@@ -754,7 +754,7 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 
 			if (ENTITY::IS_ENTITY_A_VEHICLE(grav_entity))
 			{
-				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()) + 90.0f); //90.0f
+				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()) + 90.0f);
 			}
 
 			if (PED::IS_PED_SHOOTING(PLAYER::PLAYER_PED_ID()))

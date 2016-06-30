@@ -1593,7 +1593,7 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "SABREGT2", "lsc_lowrider2", "sabregt2_a" },
 	{ "SLAMVAN3", "lsc_lowrider2", "slamvan3_a" },
 	{ "TORNADO5", "lsc_lowrider2", "tornado5_a" },
-	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" }
+	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" },
 	// Further Adventures in Finance and Felony
 	{ "XLS", "lgm_dlc_executive1", "xls" },
 	{ "XLS2", "lgm_dlc_executive1", "xls" },
@@ -1904,12 +1904,9 @@ void init_vehicle_feature()
 	unpack_veh_preview("MOONBEAM", VP_MOONBEAM, "VP_MOONBEAM");
 	unpack_veh_preview("COGNOSCENTI2", VP_COGNOSCENTI2, "VP_COGNOSCENTI2");
 	unpack_veh_preview("COG552", VP_COG552, "VP_COG552");
-<<<<<<< HEAD
+
 	unpack_veh_preview("VIRGO3", VP_VIRGO3, "VP_VIRGO3");
 	unpack_veh_preview("FACTION", VP_FACTION, "VP_FACTION");
-=======
-	
->>>>>>> refs/remotes/gtav-ent/master
 }
 
 void fix_vehicle()
