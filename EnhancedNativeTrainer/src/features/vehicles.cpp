@@ -1541,7 +1541,7 @@ const std::vector<VehicleImage> INGAME_VEH_IMAGES =
 	{ "SABREGT2", "lsc_lowrider2", "sabregt2_a" },
 	{ "SLAMVAN3", "lsc_lowrider2", "slamvan3_a" },
 	{ "TORNADO5", "lsc_lowrider2", "tornado5_a" },
-	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" }
+	{ "VIRGO2", "lsc_lowrider2", "virgo2_a" },
 	// Further Adventures in Finance and Felony
 	{ "XLS", "lgm_dlc_executive1", "xls" },
 	{ "XLS2", "lgm_dlc_executive1", "xls" },
