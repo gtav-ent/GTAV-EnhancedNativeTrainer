@@ -46,17 +46,77 @@ int saved_armour = 0;
 bool redrawWeaponMenuAfterEquipChange = false;
 
 /* Begin Gravity Gun related code */
-Vector3 GetCoordsFromCam(float distance)
+
+
+/*Vector3 GetCoordsFromCam(float distance) //http://gtaforums.com/topic/802189-coords-from-cam/ -- Convert rotation to radians
 {
 	Vector3 Rot = CAM::GET_GAMEPLAY_CAM_ROT(2);
-	static Vector3 Coord = CAM::GET_GAMEPLAY_CAM_COORD();
+	Vector3 Coord = CAM::GET_GAMEPLAY_CAM_COORD();
 
 	Rot.y = distance * cos(Rot.x);
-	Coord.x = Coord.x + Rot.y * sin(Rot.z * -1.0f);
-	Coord.y = Coord.y + Rot.y * cos(Rot.z * -1.0f);
+	Coord.x = Coord.x + Rot.y * sin(Rot.z * +distance);
+	Coord.y = Coord.y +  Rot.y * cos(Rot.z * +distance);
 	Coord.z = Coord.z + distance * sin(Rot.x);
-
+	
+	write_text_to_log_file("Camera X: " + std::to_string(Coord.x)+", Y: "+std::to_string(Coord.y) + ", Z: "+std::to_string(Coord.z)+"\n");
 	return Coord;
+}*/
+
+//Need to test: New approach to getting Grav gun entity coords? -- from ScripthookV.Net
+Vector3 RotationToDirection(Vector3* rot)
+{
+	float radiansZ = rot->z * 0.0174532924f;
+	float radiansX = rot->x * 0.0174532924f;
+	float num = std::abs((float)std::cos((double)radiansX));
+	Vector3 dir;
+
+	dir.x = (float)((double)((float)(-(float)std::sin((double)radiansZ))) * (double)num);
+	dir.y = (float)((double)((float)std::cos((double)radiansZ)) * (double)num);
+	dir.z = (float)std::sin((double)radiansX);
+
+	return dir;
+}
+
+Vector3 add(Vector3* vectorA, Vector3* vectorB)
+{
+	Vector3 result;
+
+	result.x = vectorA->x;
+	result.y = vectorA->y;
+	result.z = vectorA->z;
+	result.x += vectorB->x;
+	result.y += vectorB->y;
+	result.z += vectorB->z;
+
+	return result;
+}
+
+Vector3 DistanceFromCam(float distance)
+{
+	Vector3 camPosition = CAM::GET_GAMEPLAY_CAM_COORD();
+	Vector3 rot = CAM::GET_GAMEPLAY_CAM_ROT(0);
+	Vector3 dir = RotationToDirection(&rot);
+
+	dir.x *= distance;
+	dir.y *= distance;
+	dir.z *= distance;
+
+	Vector3 inworld = add(&camPosition, &dir);
+
+	return inworld;
+}
+
+// Get directional offset based on distance and camera rotation
+Vector3 DirectionOffsetFromCam(float distance) 
+{
+	Vector3 rot = CAM::GET_GAMEPLAY_CAM_ROT(0);
+	Vector3 dir = RotationToDirection(&rot);
+
+	dir.x *= distance;
+	dir.y *= distance;
+	dir.z *= distance;
+
+	return dir;
 }
 
 void VectorToFloat(Vector3 unk, float *Out)
@@ -715,14 +775,22 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 		Ped tempPed;
 		Hash tempWeap;
 
+		set_status_text("Requires Stungun");
 		if (!grav_target_locked) PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &grav_entity);
 	
 		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
 
-		tempPed = PLAYER::PLAYER_ID(); WEAPON::GET_CURRENT_PED_WEAPON(PLAYER::PLAYER_PED_ID(), &tempWeap, 1);
+		tempPed = PLAYER::PLAYER_ID(); 
+		WEAPON::GET_CURRENT_PED_WEAPON(PLAYER::PLAYER_PED_ID(), &tempWeap, 1);
 
 		if ((PLAYER::IS_PLAYER_FREE_AIMING(tempPed) || PLAYER::IS_PLAYER_TARGETTING_ANYTHING(tempPed)) && ENTITY::DOES_ENTITY_EXIST(grav_entity) && tempWeap == GAMEPLAY::GET_HASH_KEY("weapon_stungun"))
 		{
+			set_status_text_centre_screen("Grabbing");
+			//write_text_to_log_file("Grabbed an object\n");
+			Vector3 myCoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
+			float myCoordV[3];
+			VectorToFloat(myCoords, myCoordV); 
+
 			if (!grav_target_locked)
 			{
 				PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &grav_entity);
@@ -731,7 +799,8 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 
 			float Coord[3]; 
 
-			VectorToFloat(GetCoordsFromCam(5.5f), Coord);
+			Vector3 moveToPos = add(&myCoords, &DirectionOffsetFromCam(5.5f));
+			VectorToFloat(moveToPos, Coord);
 
 			/*This isn't mandatory, but makes it look nice
 			if (!GRAPHICS::DOES_PARTICLE_FX_LOOPED_EXIST(grav_partfx))
@@ -747,11 +816,7 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 			RequestControlEntity(grav_entity); //so we can pick up the ped/prop/vehicle
 
 			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(grav_entity, Coord[0], Coord[1], Coord[2], 0, 0, 0); //This is what was causing the props to disappear
-
-			std::ostringstream ss;
-			ss << "Coord[0] " << Coord[0] << ", Coord[1]:" << Coord[1] << ", Coord[2]:" << Coord[1];
-			set_status_text_centre_screen(ss.str());
-
+			
 			if (ENTITY::IS_ENTITY_A_VEHICLE(grav_entity))
 			{
 				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()) + 90.0f);
@@ -759,14 +824,22 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 
 			if (PED::IS_PED_SHOOTING(PLAYER::PLAYER_PED_ID()))
 			{
+				set_status_text_centre_screen("Throwing");
 				//AUDIO::PLAY_SOUND_FROM_ENTITY(-1, (char*)"Foot_Swish", grav_entity, (char*)"docks_heist_finale_2a_sounds", 0, 0);
 
 				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
 
-				ENTITY::APPLY_FORCE_TO_ENTITY(grav_entity, 1, 0.0f, 350.0f, 2.0f, 2.0f, 0.0f, 0.0f, 0, 1, 1, 1, 0, 1);
-
-				grav_target_locked = false;
+				ENTITY::APPLY_FORCE_TO_ENTITY(grav_entity, 1, 0.0f, 350.0f, 2.0f, 2.0f, 0.0f, 0.0f, 10, 1, 1, 1, 0, 1);
+				// Keeep it locked until we stop aiming, but set the entity to null
+				grav_entity = NULL;
 			}
+		}
+		if (!PLAYER::IS_PLAYER_FREE_AIMING(tempPed)) {
+			set_status_text_centre_screen("Nothing");
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
+
+			grav_target_locked = false;
+			grav_entity = NULL;
 		}
 		/*else if (GRAPHICS::DOES_PARTICLE_FX_LOOPED_EXIST(grav_partfx))
 		{
@@ -775,16 +848,11 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 		STREAMING::REMOVE_PTFX_ASSET();
 		}*/
 
-		if (!PLAYER::IS_PLAYER_FREE_AIMING_AT_ENTITY(tempPed, grav_entity) || !PLAYER::IS_PLAYER_TARGETTING_ENTITY(tempPed, grav_entity))
-		{
-			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
-
-			grav_target_locked = false;
-		}
 
 		featureGravityGunUpdated = false;
 
-		set_status_text("Gravity gun: ~r~called");
+		//set_status_text("Gravity gun: ~r~called");
+		
 	}
 }
 void update_vehicle_guns()
