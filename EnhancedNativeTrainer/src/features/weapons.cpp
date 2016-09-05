@@ -47,22 +47,7 @@ bool redrawWeaponMenuAfterEquipChange = false;
 
 /* Begin Gravity Gun related code */
 
-
-/*Vector3 GetCoordsFromCam(float distance) //http://gtaforums.com/topic/802189-coords-from-cam/ -- Convert rotation to radians
-{
-	Vector3 Rot = CAM::GET_GAMEPLAY_CAM_ROT(2);
-	Vector3 Coord = CAM::GET_GAMEPLAY_CAM_COORD();
-
-	Rot.y = distance * cos(Rot.x);
-	Coord.x = Coord.x + Rot.y * sin(Rot.z * +distance);
-	Coord.y = Coord.y +  Rot.y * cos(Rot.z * +distance);
-	Coord.z = Coord.z + distance * sin(Rot.x);
-	
-	write_text_to_log_file("Camera X: " + std::to_string(Coord.x)+", Y: "+std::to_string(Coord.y) + ", Z: "+std::to_string(Coord.z)+"\n");
-	return Coord;
-}*/
-
-//Need to test: New approach to getting Grav gun entity coords? -- from ScripthookV.Net
+// New approach to getting Grav gun entity coords -- from ScripthookV.Net
 Vector3 RotationToDirection(Vector3* rot)
 {
 	float radiansZ = rot->z * 0.0174532924f;
@@ -774,8 +759,9 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 	{
 		Ped tempPed;
 		Hash tempWeap;
-
-		set_status_text("Requires Stungun");
+		
+		set_status_text("Equip the ~g~ Stungun");
+			
 		if (!grav_target_locked) PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &grav_entity);
 	
 		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
@@ -785,8 +771,6 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 
 		if ((PLAYER::IS_PLAYER_FREE_AIMING(tempPed) || PLAYER::IS_PLAYER_TARGETTING_ANYTHING(tempPed)) && ENTITY::DOES_ENTITY_EXIST(grav_entity) && tempWeap == GAMEPLAY::GET_HASH_KEY("weapon_stungun"))
 		{
-			set_status_text_centre_screen("Grabbing");
-			//write_text_to_log_file("Grabbed an object\n");
 			Vector3 myCoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
 			float myCoordV[3];
 			VectorToFloat(myCoords, myCoordV); 
@@ -824,7 +808,7 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 
 			if (PED::IS_PED_SHOOTING(PLAYER::PLAYER_PED_ID()))
 			{
-				set_status_text_centre_screen("Throwing");
+				//set_status_text_centre_screen("Throwing");
 				//AUDIO::PLAY_SOUND_FROM_ENTITY(-1, (char*)"Foot_Swish", grav_entity, (char*)"docks_heist_finale_2a_sounds", 0, 0);
 
 				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
@@ -835,7 +819,7 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 			}
 		}
 		if (!PLAYER::IS_PLAYER_FREE_AIMING(tempPed)) {
-			set_status_text_centre_screen("Nothing");
+			//set_status_text_centre_screen("Nothing");
 			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
 
 			grav_target_locked = false;
@@ -852,7 +836,6 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 		featureGravityGunUpdated = false;
 
 		//set_status_text("Gravity gun: ~r~called");
-		
 	}
 }
 void update_vehicle_guns()
