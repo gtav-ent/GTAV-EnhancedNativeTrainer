@@ -195,3 +195,5 @@ ENTTrackedVehicle* findOrCreateTrackedVehicle(Vehicle vehicle);
 void findRandomTargetForPed(ENTTrackedPedestrian* tped);
 
 bool is_entity_to_be_disposed(Ped playerPed, Entity entity);
+
+void show_debug_info_on_screen(bool enabled);

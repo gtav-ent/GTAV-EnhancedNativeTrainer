@@ -65,6 +65,10 @@ bool allWorldVehiclesThisFrameFilled = false;
 std::set<Ped> releasedPeds;
 std::set<Vehicle> releasedVehicles;
 
+//For onscreen debug info
+bool featureShowDebugInfo = false;
+bool featureShowDebugInfoUpdated = false;
+
 void add_areaeffect_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated });
@@ -82,6 +86,9 @@ void add_areaeffect_feature_enablements(std::vector<FeatureEnabledLocalDefinitio
 
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePedsIncludeDrivers", &featurePedsIncludeDrivers });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePedsIncludePilots", &featurePedsIncludePilots });
+
+	results->push_back(FeatureEnabledLocalDefinition{ "featureShowDebugInfo", &featureShowDebugInfo, &featureShowDebugInfoUpdated });
+
 }
 
 void reset_areaeffect_globals()
@@ -107,6 +114,9 @@ void reset_areaeffect_globals()
 
 	featurePedsIncludeDrivers = false;
 	featurePedsIncludePilots = false;
+
+	featureShowDebugInfo = false;
+	featureShowDebugInfoUpdated = true;
 
 	pedWeaponSetIndex = 0;
 }
@@ -154,6 +164,8 @@ void process_areaeffect_peds_menu()
 	item->value = 1;
 	item->isLeaf = false;
 	menuItems.push_back(item);
+
+
 
 	draw_generic_menu<int>(menuItems, &areaeffect_ped_level_menu_index, "Ped Effects", onconfirm_areaeffect_ped_menu, NULL, NULL);
 }
@@ -259,6 +271,13 @@ void process_areaeffect_menu()
 	item->value = -2;
 	item->isLeaf = false;
 	menuItems.push_back(item);
+
+	ToggleMenuItem<int> *togItem = new ToggleMenuItem<int>();
+	togItem->caption = "Show Area Effect Debug Info";
+	togItem->value = 1;
+	togItem->toggleValue = &featureShowDebugInfo;
+	togItem->toggleValueUpdated = &featureShowDebugInfoUpdated;
+	menuItems.push_back(togItem);
 
 	draw_generic_menu<int>(menuItems, &areaeffect_top_level_menu_index, "Area Effects", onconfirm_areaeffect_menu, NULL, NULL);
 
@@ -391,12 +410,22 @@ void update_area_effects(Ped playerPed)
 		featureAreaPedsRiotingUpdated = false;
 	}
 
-	if (pedWeaponSetIndex != 0 || pedWeaponSetUpdated )
+	if (pedWeaponSetIndex != 0 || pedWeaponSetUpdated)
 	{
 		give_all_nearby_peds_a_weapon(pedWeaponSetIndex != 0);
 		pedWeaponSetUpdated = false;
 	}
 
+	if (featureShowDebugInfo || featureShowDebugInfoUpdated)
+	{
+		show_debug_info_on_screen(featureShowDebugInfo);
+		featureShowDebugInfoUpdated = false;
+	}
+		
+}
+
+void show_debug_info_on_screen(bool enabled)
+{
 	std::ostringstream ss;
 	ss << "Peds: " << trackedPeds.size() << "; Vehs: " << trackedVehicles.size() << "\nCalls Total: " << callsPerFrame << ", A: " << callsA << ", B: " << callsB << "\nWP: " << allWorldPedsThisFrame.size() << ", WV: " << allWorldVehiclesThisFrame.size();
 	callsPerFrame = 0;
