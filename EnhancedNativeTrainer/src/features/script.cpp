@@ -22,6 +22,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include "script.h"
 #include "hotkeys.h"
 #include "propplacement.h"
+#include "area_effect.h"
+
 #include "../version.h"
 #include "../utils.h"
 #include "../ui_support/file_dialog.h"
@@ -31,6 +33,8 @@ https://github.com/gtav-ent/GTAV-EnhancedNativeTrainer
 #include <vector>
 
 #pragma warning(disable : 4244 4305) // double <-> float conversions
+
+bool AIMBOT_INCLUDED = false;
 
 int last_player_slot_seen = 0;
 
@@ -49,8 +53,6 @@ bool featurePlayerInvincible = false;
 bool featurePlayerInvincibleUpdated = false;
 bool featurePlayerIgnoredByPolice = false;
 bool featurePlayerIgnoredByPoliceUpdated = false;
-bool featurePlayerIgnoredByAll = false;
-bool featurePlayerIgnoredByAllUpdated = false;
 bool featurePlayerUnlimitedAbility = false;
 bool featurePlayerNoNoise = false;
 bool featurePlayerNoNoiseUpdated = false;
@@ -85,8 +87,6 @@ const char* CLIPSET_DRUNK = "move_m@drunk@verydrunk";
 
 const std::vector<std::string> GRAVITY_CAPTIONS{ "Minimum", "0.1x", "0.5x", "0.75x", "1x (Normal)" };
 const std::vector<float> GRAVITY_VALUES{ 0.0f, 0.1f, 0.5f, 0.75f, 1.0f };
-
-std::set<Ped> lastSeenPeds;
 
 void check_player_model()
 {
@@ -269,7 +269,7 @@ void update_features()
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(playerPed);
 
-	//PLAYER::DISABLE_PLAYER_FIRING(playerPed, TRUE);
+	update_area_effects(playerPed);
 
 	// player invincible
 	if (featurePlayerInvincibleUpdated)
@@ -317,35 +317,6 @@ void update_features()
 			PLAYER::SET_POLICE_IGNORE_PLAYER(player, false);
 		}
 		featurePlayerIgnoredByPoliceUpdated = false;
-	}
-
-	// everyone ignores player
-	if (featurePlayerIgnoredByAll)
-	{
-		update_nearby_peds(playerPed, 50);
-
-		if (bPlayerExists)
-		{
-			PLAYER::SET_POLICE_IGNORE_PLAYER(player, true);
-			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, true);
-			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, false);
-			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, true);
-			if (game_frame_num % 5 == 0)
-			{
-				set_all_nearby_peds_to_calm();
-			}
-		}
-	}
-	else if (featurePlayerIgnoredByAllUpdated)
-	{
-		if (bPlayerExists)
-		{
-			PLAYER::SET_POLICE_IGNORE_PLAYER(player, featurePlayerIgnoredByPolice);
-			PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, false);
-			PLAYER::SET_PLAYER_CAN_BE_HASSLED_BY_GANGS(player, true);
-			PLAYER::SET_IGNORE_LOW_PRIORITY_SHOCKING_EVENTS(player, false);
-		}
-		featurePlayerIgnoredByAllUpdated = false;
 	}
 
 	// player special ability
@@ -459,7 +430,10 @@ void update_features()
 
 	update_weapon_features(bPlayerExists, player);
 
-	update_aimbot_esp_features();
+	if (AIMBOT_INCLUDED)
+	{
+		update_aimbot_esp_features();
+	}
 
 	update_vehicle_features(bPlayerExists, playerPed);
 
@@ -529,7 +503,7 @@ bool onconfirm_player_menu(MenuItem<int> choice)
 
 void process_player_menu()
 {
-	const int lineCount = 19;
+	const int lineCount = 18;
 	
 	std::string caption = "Player Options";
 
@@ -541,7 +515,6 @@ void process_player_menu()
 		{ "Freeze Wanted Level", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated, true },
 		{ "Invincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated, true },
 		{ "Police Ignore You", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated, true },
-		{ "Everyone Ignores You", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated, true },
 		{ "Unlimited Ability", &featurePlayerUnlimitedAbility, NULL, true },
 		{ "Noiseless", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated, true },
 		{ "Fast Swim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated, true },
@@ -579,28 +552,28 @@ bool onconfirm_main_menu(MenuItem<int> choice)
 		process_weapon_menu();
 		break;
 	case 3:
-		process_aimbot_esp_menu();
-		break;
-	case 4:
 		process_bodyguard_menu();
 		break;
-	case 5:
+	case 4:
 		process_veh_menu();
 		break;
-	case 6:
+	case 5:
 		process_world_menu();
 		break;
-	case 7:
+	case 6:
 		process_time_menu();
 		break;
-	case 8:
+	case 7:
 		process_props_menu();
 		break;
-	case 9:
+	case 8:
 		process_misc_menu();
 		break;
-	case 10:
+	case 9:
 		reset_globals();
+		break;
+	case 10:
+		process_aimbot_esp_menu();
 		break;
 	}
 	return false;
@@ -631,12 +604,6 @@ void process_main_menu()
 
 	item = new MenuItem<int>();
 	item->caption = "Weapons";
-	item->value = i++;
-	item->isLeaf = false;
-	menuItems.push_back(item);
-
-	item = new MenuItem<int>();
-	item->caption = "Aimbot ESP";
 	item->value = i++;
 	item->isLeaf = false;
 	menuItems.push_back(item);
@@ -683,6 +650,15 @@ void process_main_menu()
 	item->isLeaf = true;
 	menuItems.push_back(item);
 
+	if (AIMBOT_INCLUDED)
+	{
+		item = new MenuItem<int>();
+		item->caption = "Aimbot ESP";
+		item->value = i++;
+		item->isLeaf = false;
+		menuItems.push_back(item);
+	}
+
 	MenuParameters<int> params(menuItems, captionSS.str());
 	params.menuSelectionPtr = &activeLineIndexMain;
 	params.onConfirmation = onconfirm_main_menu;
@@ -701,13 +677,18 @@ void reset_globals()
 
 	reset_weapon_globals();
 
-	reset_aimbot_globals();
+	if (AIMBOT_INCLUDED)
+	{
+		reset_aimbot_globals();
+	}
 
 	reset_world_globals();
 
 	reset_misc_globals();
 
 	reset_prop_globals();
+
+	reset_areaeffect_globals();
 
 	activeLineIndexMain =
 		activeLineIndexPlayer =
@@ -717,7 +698,6 @@ void reset_globals()
 	featurePlayerDrunk =
 		featurePlayerInvincible =
 		featurePlayerIgnoredByPolice =
-	featurePlayerIgnoredByAll =
 		featurePlayerUnlimitedAbility =
 		featurePlayerNoNoise =
 		featurePlayerFastSwim =
@@ -733,7 +713,6 @@ void reset_globals()
 
 	featurePlayerInvincibleUpdated =
 	featurePlayerIgnoredByPoliceUpdated =
-	featurePlayerIgnoredByAllUpdated =
 	featurePlayerNoNoiseUpdated =
 	featurePlayerFastSwimUpdated =
 	featurePlayerFastRunUpdated =
@@ -857,6 +836,8 @@ int filterException(int code, PEXCEPTION_POINTERS ex)
 
 void ScriptMain()
 {
+	srand(time(NULL));
+
 	#ifdef _DEBUG
 	__try
 	{
@@ -887,7 +868,6 @@ void ScriptMain()
 
 		write_text_to_log_file("ScriptMain called - handler set");
 
-		srand(GetTickCount());
 		write_text_to_log_file("Reading config...");
 		read_config_file();
 		write_text_to_log_file("Config read complete");
@@ -948,85 +928,11 @@ void ScriptTidyUp()
 #endif
 }
 
-void update_nearby_peds(Ped playerPed, int count)
-{
-	const int numElements = count;
-	const int arrSize = numElements * 2 + 2;
-
-	Ped *peds = new Ped[arrSize];
-	peds[0] = numElements;
-	int found = PED::GET_PED_NEARBY_PEDS(playerPed, peds, -1);
-
-	for (int i = 0; i < found; i++)
-	{
-		int offsettedID = i * 2 + 2;
-
-		if (!ENTITY::DOES_ENTITY_EXIST(peds[offsettedID]))
-		{
-			continue;
-		}
-
-		Ped xped = peds[offsettedID];
-
-		bool inSet = lastSeenPeds.find(xped) != lastSeenPeds.end();
-		if (!inSet)
-		{
-			lastSeenPeds.insert(xped);
-		}
-	}
-
-	std::set<Ped>::iterator it;
-	for (it = lastSeenPeds.begin(); it != lastSeenPeds.end();)
-	{
-		if (!ENTITY::DOES_ENTITY_EXIST(*it))
-		{
-			lastSeenPeds.erase(it++);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	delete peds;
-}
-
-void set_all_nearby_peds_to_calm()
-{
-	for each (Ped xped in lastSeenPeds)
-	{
-		// Only calm down peds if they're NOT in our group (keeps our bodyguards from chilling out and being lazy)
-		if (!PED::IS_PED_GROUP_MEMBER(xped, PLAYER::GET_PLAYER_GROUP(PLAYER::PLAYER_PED_ID())))
-		{
-			PED::SET_BLOCKING_OF_NON_TEMPORARY_EVENTS(xped, true);
-			PED::SET_PED_FLEE_ATTRIBUTES(xped, 0, 0);
-			PED::SET_PED_COMBAT_ATTRIBUTES(xped, 17, 1);
-
-			//this commented-out code lives here because it will be used for something else in future
-
-			/*
-			PED::SET_PED_DIES_WHEN_INJURED(xped, false);
-			PED::SET_PED_MAX_HEALTH(xped, 10000);
-			ENTITY::SET_ENTITY_HEALTH(xped, 10000);
-			PED::SET_PED_SUFFERS_CRITICAL_HITS(xped, false);
-			WEAPON::GIVE_WEAPON_TO_PED(xped, GAMEPLAY::GET_HASH_KEY("WEAPON_MG"), 1000, true, true);
-
-			PED::SET_PED_COMBAT_ABILITY(xped, 1);
-			//PED::SET_PED_
-			ENTITY::SET_ENTITY_CAN_BE_DAMAGED(xped, false);
-
-			PED::SET_PED_AS_ENEMY(xped, true);
-			*/
-		}
-	}
-}
-
 void add_player_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* results)
 {
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerInvincible", &featurePlayerInvincible, &featurePlayerInvincibleUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWantedLevelFrozen", &featureWantedLevelFrozen, &featureWantedLevelFrozenUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByPolice", &featurePlayerIgnoredByPolice, &featurePlayerIgnoredByPoliceUpdated });
-	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerIgnoredByAll", &featurePlayerIgnoredByAll, &featurePlayerIgnoredByAllUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerUnlimitedAbility", &featurePlayerUnlimitedAbility });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerNoNoise", &featurePlayerNoNoise, &featurePlayerNoNoiseUpdated });
 	results->push_back(FeatureEnabledLocalDefinition{ "featurePlayerFastSwim", &featurePlayerFastSwim, &featurePlayerFastSwimUpdated });
@@ -1059,6 +965,8 @@ std::vector<FeatureEnabledLocalDefinition> get_feature_enablements()
 
 	add_bodyguards_feature_enablements(&results);
 
+	add_areaeffect_feature_enablements(&results);
+
 	return results;
 }
 
@@ -1072,7 +980,13 @@ std::vector<StringPairSettingDBRow> get_generic_settings()
 	add_hotkey_generic_settings(&settings);
 	add_props_generic_settings(&settings);
 	add_weapons_generic_settings(&settings);
-	add_aimbot_esp_generic_settings(&settings);
+	add_areaeffect_generic_settings(&settings);
+	
+	if (AIMBOT_INCLUDED)
+	{
+		add_aimbot_esp_generic_settings(&settings);
+	}
+
 	add_bodyguards_generic_settings(&settings);
 	add_skin_generic_settings(&settings);
 
@@ -1108,7 +1022,12 @@ void handle_generic_settings(std::vector<StringPairSettingDBRow> settings)
 
 	handle_generic_settings_weapons(&settings);
 
-	handle_generic_settings_aimbot_esp(&settings);
+	handle_generic_settings_areaeffect(&settings);
+
+	if (AIMBOT_INCLUDED)
+	{
+		handle_generic_settings_aimbot_esp(&settings);
+	}
 
 	handle_generic_settings_bodyguards(&settings);
 
@@ -1412,8 +1331,7 @@ void process_test_menu()
 
 void debug_native_investigation()
 {
-	/*
-	BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
+	/*BOOL bPlayerExists = ENTITY::DOES_ENTITY_EXIST(PLAYER::PLAYER_PED_ID());
 	Ped playerPed = PLAYER::PLAYER_PED_ID();
 
 	if (bPlayerExists)
@@ -1421,11 +1339,9 @@ void debug_native_investigation()
 		if (PED::IS_PED_IN_ANY_VEHICLE(playerPed, 0))
 		{
 			Vehicle veh = PED::GET_VEHICLE_PED_IS_USING(playerPed);
-			int intCol, dashCol;
-			VEHICLE::_GET_VEHICLE_INTERIOR_COLOUR(veh, &intCol);
-			VEHICLE::_GET_VEHICLE_DASHBOARD_COLOUR(veh, &dashCol);
+			bool bbay = VEHICLE::_0x1033371FC8E842A7(veh);
 			std::ostringstream ss;
-			ss << "Interior: " << intCol << "; Dash: "<< dashCol;
+			ss << "B/Bay: " << (bbay ? "Yes" : "No");
 			set_status_text_centre_screen(ss.str());
 		}
 	}*/
@@ -1621,5 +1537,10 @@ void toggle_night_vision()
 
 void cleanup_script()
 {
-	lastSeenPeds.clear();
+	cleanup_area_effects();
+}
+
+bool is_player_ignored_by_police()
+{
+	return featurePlayerIgnoredByPolice;
 }

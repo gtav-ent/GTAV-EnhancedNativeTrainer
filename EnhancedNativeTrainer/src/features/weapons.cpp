@@ -26,6 +26,13 @@ bool featureWeaponExplosiveAmmo = false;
 bool featureWeaponExplosiveMelee = false;
 bool featureWeaponVehRockets = false;
 
+bool featureGravityGun = false;
+bool featureGravityGunUpdated = false;
+
+bool grav_target_locked = false;
+Entity grav_entity = 0;
+DWORD grav_partfx = 0;
+
 DWORD featureWeaponVehShootLastTime = 0;
 
 int saved_weapon_model[TOTAL_WEAPONS_SLOTS];
@@ -37,6 +44,84 @@ bool saved_parachute = false;
 int saved_armour = 0;
 
 bool redrawWeaponMenuAfterEquipChange = false;
+
+/* Begin Gravity Gun related code */
+
+// New approach to getting Grav gun entity coords -- from ScripthookV.Net
+Vector3 RotationToDirection(Vector3* rot)
+{
+	float radiansZ = rot->z * 0.0174532924f;
+	float radiansX = rot->x * 0.0174532924f;
+	float num = std::abs((float)std::cos((double)radiansX));
+	Vector3 dir;
+
+	dir.x = (float)((double)((float)(-(float)std::sin((double)radiansZ))) * (double)num);
+	dir.y = (float)((double)((float)std::cos((double)radiansZ)) * (double)num);
+	dir.z = (float)std::sin((double)radiansX);
+
+	return dir;
+}
+
+Vector3 add(Vector3* vectorA, Vector3* vectorB)
+{
+	Vector3 result;
+
+	result.x = vectorA->x;
+	result.y = vectorA->y;
+	result.z = vectorA->z;
+	result.x += vectorB->x;
+	result.y += vectorB->y;
+	result.z += vectorB->z;
+
+	return result;
+}
+
+Vector3 DistanceFromCam(float distance)
+{
+	Vector3 camPosition = CAM::GET_GAMEPLAY_CAM_COORD();
+	Vector3 rot = CAM::GET_GAMEPLAY_CAM_ROT(0);
+	Vector3 dir = RotationToDirection(&rot);
+
+	dir.x *= distance;
+	dir.y *= distance;
+	dir.z *= distance;
+
+	Vector3 inworld = add(&camPosition, &dir);
+
+	return inworld;
+}
+
+// Get directional offset based on distance and camera rotation
+Vector3 DirectionOffsetFromCam(float distance) 
+{
+	Vector3 rot = CAM::GET_GAMEPLAY_CAM_ROT(0);
+	Vector3 dir = RotationToDirection(&rot);
+
+	dir.x *= distance;
+	dir.y *= distance;
+	dir.z *= distance;
+
+	return dir;
+}
+
+void VectorToFloat(Vector3 unk, float *Out)
+{
+	Out[0] = unk.x;
+	Out[1] = unk.y;
+	Out[2] = unk.z;
+}
+
+void RequestControlEntity(Entity entity) //needed so we can pick up props/Peds. This is needed in SP, even though it's a NETWORK native
+{
+	int tick = 0;
+
+	while (!NETWORK::NETWORK_HAS_CONTROL_OF_ENTITY(entity) && tick <= 12)
+	{
+		NETWORK::NETWORK_REQUEST_CONTROL_OF_ENTITY(entity);
+		tick++;
+	}
+}
+/* End Gravity Gun related code */
 
 void onchange_knuckle_appearance(int value, SelectFromListMenuItem* source)
 {
@@ -556,6 +641,15 @@ bool process_weapon_menu()
 	toggleItem->toggleValue = &featureWeaponVehRockets;
 	toggleItem->toggleValueUpdated = NULL;
 	menuItems.push_back(toggleItem);
+
+	toggleItem = new ToggleMenuItem<int>();
+	toggleItem->caption = "Gravity Gun";
+	toggleItem->value = i++;
+	toggleItem->toggleValue = &featureGravityGun;
+	toggleItem->toggleValueUpdated = NULL;
+	menuItems.push_back(toggleItem);
+
+	
 /*
 	StandardOrToggleMenuDef lines[lineCount] = {
 		{ "Give All Weapons", NULL, NULL, true },
@@ -584,7 +678,8 @@ void reset_weapon_globals()
 		featureWeaponFireAmmo =
 		featureWeaponExplosiveAmmo =
 		featureWeaponExplosiveMelee =
-		featureWeaponVehRockets = false;
+		featureWeaponVehRockets = 
+		featureGravityGun = false;
 }
 
 void update_weapon_features(BOOL bPlayerExists, Player player)
@@ -597,7 +692,7 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 		PLAYER::SET_PLAYER_MELEE_WEAPON_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
 		PLAYER::SET_PLAYER_VEHICLE_DAMAGE_MODIFIER(player, WEAP_DMG_FLOAT[weapDmgModIndex]);
 	}
-	
+
 	// weapon
 	if (featureWeaponFireAmmo)
 	{
@@ -658,8 +753,91 @@ void update_weapon_features(BOOL bPlayerExists, Player player)
 	{
 		WEAPON::SET_PED_INFINITE_AMMO_CLIP(playerPed, featureWeaponNoReload);
 	}
-}
 
+	//Gravity Gun
+	if (bPlayerExists && featureGravityGun)
+	{
+		Ped tempPed;
+		Hash tempWeap;
+		
+		set_status_text("Equip the ~g~ Stungun");
+			
+		if (!grav_target_locked) PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &grav_entity);
+	
+		ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
+
+		tempPed = PLAYER::PLAYER_ID(); 
+		WEAPON::GET_CURRENT_PED_WEAPON(PLAYER::PLAYER_PED_ID(), &tempWeap, 1);
+
+		if ((PLAYER::IS_PLAYER_FREE_AIMING(tempPed) || PLAYER::IS_PLAYER_TARGETTING_ANYTHING(tempPed)) && ENTITY::DOES_ENTITY_EXIST(grav_entity) && tempWeap == GAMEPLAY::GET_HASH_KEY("weapon_stungun"))
+		{
+			Vector3 myCoords = ENTITY::GET_ENTITY_COORDS(PLAYER::PLAYER_PED_ID(), true);
+			float myCoordV[3];
+			VectorToFloat(myCoords, myCoordV); 
+
+			if (!grav_target_locked)
+			{
+				PLAYER::GET_ENTITY_PLAYER_IS_FREE_AIMING_AT(PLAYER::PLAYER_ID(), &grav_entity);
+				grav_target_locked = true;
+			}
+
+			float Coord[3]; 
+
+			Vector3 moveToPos = add(&myCoords, &DirectionOffsetFromCam(5.5f));
+			VectorToFloat(moveToPos, Coord);
+
+			/*This isn't mandatory, but makes it look nice
+			if (!GRAPHICS::DOES_PARTICLE_FX_LOOPED_EXIST(grav_partfx))
+			{
+			STREAMING::REQUEST_PTFX_ASSET();
+			if (STREAMING::HAS_PTFX_ASSET_LOADED())
+			{
+			grav_partfx = GRAPHICS::START_PARTICLE_FX_LOOPED_AT_COORD((char*)"scr_drug_traffic_flare_L", Coord[0], Coord[1], Coord[2], 0.0f, 0.0f, 0.0f, 0.5f, 0, 0, 0, 0);
+			GRAPHICS::SET_PARTICLE_FX_LOOPED_COLOUR(grav_partfx, 1.0f, 0.84f, 0.0f, 0);
+			}
+			}*/
+
+			RequestControlEntity(grav_entity); //so we can pick up the ped/prop/vehicle
+
+			ENTITY::SET_ENTITY_COORDS_NO_OFFSET(grav_entity, Coord[0], Coord[1], Coord[2], 0, 0, 0); //This is what was causing the props to disappear
+			
+			if (ENTITY::IS_ENTITY_A_VEHICLE(grav_entity))
+			{
+				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()) + 90.0f);
+			}
+
+			if (PED::IS_PED_SHOOTING(PLAYER::PLAYER_PED_ID()))
+			{
+				//set_status_text_centre_screen("Throwing");
+				//AUDIO::PLAY_SOUND_FROM_ENTITY(-1, (char*)"Foot_Swish", grav_entity, (char*)"docks_heist_finale_2a_sounds", 0, 0);
+
+				ENTITY::SET_ENTITY_HEADING(grav_entity, ENTITY::GET_ENTITY_HEADING(PLAYER::PLAYER_PED_ID()));
+
+				ENTITY::APPLY_FORCE_TO_ENTITY(grav_entity, 1, 0.0f, 350.0f, 2.0f, 2.0f, 0.0f, 0.0f, 10, 1, 1, 1, 0, 1);
+				// Keeep it locked until we stop aiming, but set the entity to null
+				grav_entity = NULL;
+			}
+		}
+		if (!PLAYER::IS_PLAYER_FREE_AIMING(tempPed)) {
+			//set_status_text_centre_screen("Nothing");
+			ENTITY::SET_ENTITY_AS_MISSION_ENTITY(grav_entity, true, true);
+
+			grav_target_locked = false;
+			grav_entity = NULL;
+		}
+		/*else if (GRAPHICS::DOES_PARTICLE_FX_LOOPED_EXIST(grav_partfx))
+		{
+		GRAPHICS::STOP_PARTICLE_FX_LOOPED(grav_partfx, 0);
+		GRAPHICS::REMOVE_PARTICLE_FX(grav_partfx, 0);
+		STREAMING::REMOVE_PTFX_ASSET();
+		}*/
+
+
+		featureGravityGunUpdated = false;
+
+		//set_status_text("Gravity gun: ~r~called");
+	}
+}
 void update_vehicle_guns()
 {
 	Player player = PLAYER::PLAYER_ID();
@@ -852,7 +1030,8 @@ bool is_weaponmod_equipped(std::vector<int> extras)
 	char *weaponChar = (char*)weaponValue.c_str();
 	int weapHash = GAMEPLAY::GET_HASH_KEY(weaponChar);
 
-	std::string componentName = VOV_WEAPONMOD_VALUES[extras.at(2)].at(extras.at(3));
+	const std::vector<std::string> MOD_VECTOR = VOV_WEAPONMOD_VALUES[extras.at(2)];
+	std::string componentName = MOD_VECTOR.at(extras.at(3));
 	DWORD componentHash = GAMEPLAY::GET_HASH_KEY((char *)componentName.c_str());
 
 	return WEAPON::HAS_PED_GOT_WEAPON_COMPONENT(playerPed, weapHash, componentHash) ? true : false;
@@ -974,6 +1153,7 @@ void add_weapon_feature_enablements(std::vector<FeatureEnabledLocalDefinition>* 
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponInfiniteParachutes", &featureWeaponInfiniteParachutes });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponNoReload", &featureWeaponNoReload });
 	results->push_back(FeatureEnabledLocalDefinition{ "featureWeaponVehRockets", &featureWeaponVehRockets });
+	results->push_back(FeatureEnabledLocalDefinition{ "featureGravityGun", &featureGravityGun });
 }
 
 void onchange_weap_dmg_modifier(int value, SelectFromListMenuItem* source)

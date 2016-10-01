@@ -112,6 +112,10 @@ bool is_convertible_roofdown(std::vector<int> extras);
 
 void set_convertible_roofdown(bool applied, std::vector<int> extras);
 
+bool is_bombbay_open(std::vector<int> extras);
+
+void set_bombbay_open(bool applied, std::vector<int> extras);
+
 int find_menu_index_to_restore(int category, int actualCategory, Vehicle veh);
 
 bool vehicle_menu_interrupt();
